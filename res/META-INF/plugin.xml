@@ -1,0 +1,25 @@
+<idea-plugin>
+	<id>org.ice1000.julia</id>
+	<name>Julia</name>
+	<version>1.0</version>
+	<vendor email="ice1000kotlin@foxmail.com" url="http://ice1000.org">ice1000</vendor>
+
+	<description><![CDATA[
+Julia language support.
+]]></description>
+
+	<change-notes><![CDATA[
+]]></change-notes>
+
+	<!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+	<idea-version since-build="145.0"/>
+
+	<depends>com.intellij.modules.lang</depends>
+
+	<extensions defaultExtensionNs="com.intellij">
+		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>
+	</extensions>
+
+	<actions>
+	</actions>
+</idea-plugin>
