@@ -1,4 +1,4 @@
-package org.ice1000.julia.lang
+package org.ice1000.julia.lang.psi.impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.ResolveState
