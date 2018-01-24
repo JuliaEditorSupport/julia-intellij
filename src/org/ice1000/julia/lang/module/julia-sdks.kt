@@ -31,7 +31,7 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 }
 
 fun versionOf(sdkHome: String, timeLimit: Long = 500L) =
-		executeJulia(sdkHome, null, timeLimit, "-q")
+		executeJulia(sdkHome, null, timeLimit, "--version")
 				.first
 				.firstOrNull { it.startsWith("julia version", true) }
 				?.dropWhile { it.isLetter() or it.isWhitespace() }

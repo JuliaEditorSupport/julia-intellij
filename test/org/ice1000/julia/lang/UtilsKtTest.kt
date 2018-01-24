@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang
 
+import org.ice1000.julia.lang.module.versionOf
 import org.junit.Test
 import java.nio.file.Paths
 
@@ -13,6 +14,11 @@ class UtilsKtTest {
 		stdout.forEach(::println)
 		println("stderr:")
 		stderr.forEach(::println)
+	}
+
+	@Test
+	fun versionTest() {
+		println(versionOf(SDK_HOME))
 	}
 
 	@Test
