@@ -5,6 +5,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.SdkTypeId
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ProjectRootManager
 import org.ice1000.julia.lang.*
@@ -15,6 +16,7 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	}
 
 	lateinit var sdk: Sdk
+	override fun isSuitableSdkType(sdkType: SdkTypeId?) = sdkType is JuliaSdkType
 	override fun getWeight() = 98
 	override fun getModuleType() = JuliaModuleType.instance
 	override fun getCustomOptionsStep(context: WizardContext?, parentDisposable: Disposable?): ModuleWizardStep? {

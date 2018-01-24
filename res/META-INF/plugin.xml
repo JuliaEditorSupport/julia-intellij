@@ -5,7 +5,12 @@
 	<vendor email="ice1000kotlin@foxmail.com" url="http://ice1000.org">ice1000</vendor>
 
 	<description><![CDATA[
-Julia language support.
+Julia language support.<br/>
+
+Functions provided:<br/>
+<ul>
+  <li>SDK management</li>
+</ul>
 ]]></description>
 
 	<change-notes><![CDATA[
@@ -18,6 +23,7 @@ Julia language support.
 
 	<extensions defaultExtensionNs="com.intellij">
 		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>
+		<sdkType implementation="org.ice1000.julia.lang.module.JuliaSdkType"/>
 		<moduleType
 				id="JULIA_MODULE_TYPE"
 				implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>
