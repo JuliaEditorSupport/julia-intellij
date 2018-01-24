@@ -22,10 +22,10 @@ Julia language support.
 
 	<actions>
 		<action
-				id="Cov.NewCovFile"
+				id="Julia.NewJuliaFile"
 				class="org.ice1000.julia.lang.NewJuliaFile"
-				text="CovScript File"
-				description="Create a new CovScript file">
+				text="Julia File"
+				description="Create a new Julia file">
 			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
 		</action>
 	</actions>
