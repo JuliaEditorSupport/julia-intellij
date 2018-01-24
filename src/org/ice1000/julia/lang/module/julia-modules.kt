@@ -1,17 +1,23 @@
 package org.ice1000.julia.lang.module
 
-import com.intellij.ide.util.projectWizard.ModuleBuilder
-import com.intellij.ide.util.projectWizard.ModuleBuilderListener
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.module.ModuleType
+import com.intellij.ide.util.projectWizard.*
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.module.*
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ProjectRootManager
-import org.ice1000.julia.lang.JULIA_MODULE_ID
-import javax.swing.Icon
+import org.ice1000.julia.lang.*
 
 class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
-	override fun getModuleType(): ModuleType<*> {
+	init {
+		addListener(this)
+	}
+
+	lateinit var sdk: Sdk
+	override fun getWeight() = 98
+	override fun getModuleType() = JuliaModuleType.instance
+	override fun getCustomOptionsStep(context: WizardContext?, parentDisposable: Disposable?): ModuleWizardStep? {
 		TODO("not implemented")
 	}
 
@@ -22,23 +28,17 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	override fun moduleCreated(module: Module) {
 		TODO("not implemented")
 	}
-
 }
 
 class JuliaModuleType : ModuleType<JuliaModuleBuilder>(JULIA_MODULE_ID) {
 	override fun createModuleBuilder() = JuliaModuleBuilder()
-	override fun getName(): String {
-		TODO("not implemented")
-	}
+	override fun getName() = JuliaBundle.message("julia.name")
+	override fun getDescription() = JuliaBundle.message("julia.modules.type")
+	override fun getNodeIcon(isOpened: Boolean) = JULIA_BIG_ICON
 
-	override fun getDescription(): String {
-		TODO("not implemented")
+	companion object InstanceHolder {
+		@JvmStatic val instance get() = ModuleTypeManager.getInstance().findByID(JULIA_MODULE_ID) as JuliaModuleType
 	}
-
-	override fun getNodeIcon(isOpened: Boolean): Icon {
-		TODO("not implemented")
-	}
-
 }
 
 val Project.projectSdk get() = ProjectRootManager.getInstance(this).projectSdk

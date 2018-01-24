@@ -18,6 +18,9 @@ Julia language support.
 
 	<extensions defaultExtensionNs="com.intellij">
 		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>
+		<moduleType
+				id="JULIA_MODULE_TYPE"
+				implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>
 	</extensions>
 
 	<actions>
