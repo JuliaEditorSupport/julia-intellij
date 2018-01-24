@@ -14,12 +14,12 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun suggestSdkName(s: String?, p1: String?) = JuliaBundle.message("julia.modules.sdk.name")
 	override fun suggestHomePath() = TODO()
 	override fun getDownloadSdkUrl() = JULIA_WEBSITE
-	override fun createAdditionalDataConfigurable(md: SdkModel, m: SdkModificator) = TODO()
+	override fun createAdditionalDataConfigurable(md: SdkModel, m: SdkModificator) = null
 	override fun getVersionString(sdkHome: String?) = versionOf(sdkHome.orEmpty())
 	override fun saveAdditionalData(additionalData: SdkAdditionalData, element: Element) = Unit // leave blank
 	override fun setupSdkPaths(sdk: Sdk, sdkModel: SdkModel): Boolean {
 		val modificator = sdk.sdkModificator
-		modificator.sdkAdditionalData = sdk.sdkAdditionalData ?: TODO()
+		// modificator.sdkAdditionalData = sdk.sdkAdditionalData ?: Default
 		modificator.versionString = getVersionString(sdk) ?: JuliaBundle.message("julia.modules.sdk.unknown-version")
 		modificator.commitChanges()
 		return true
