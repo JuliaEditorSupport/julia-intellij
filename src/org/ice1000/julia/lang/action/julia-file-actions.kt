@@ -1,9 +1,10 @@
-package org.ice1000.julia.lang
+package org.ice1000.julia.lang.action
 
 import com.intellij.CommonBundle
 import com.intellij.ide.actions.CreateFileAction
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.*
+import org.ice1000.julia.lang.*
 import java.time.LocalDate
 
 class NewJuliaFile : CreateFileAction(
