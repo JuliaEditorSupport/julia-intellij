@@ -21,5 +21,12 @@ Julia language support.
 	</extensions>
 
 	<actions>
+		<action
+				id="Cov.NewCovFile"
+				class="org.ice1000.julia.lang.NewJuliaFile"
+				text="CovScript File"
+				description="Create a new CovScript file">
+			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
+		</action>
 	</actions>
 </idea-plugin>
