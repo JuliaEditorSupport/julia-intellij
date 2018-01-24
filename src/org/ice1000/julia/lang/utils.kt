@@ -32,7 +32,7 @@ fun executeJulia(
 	try {
 		val path = Paths.get(homePath, "bin", "julia").toAbsolutePath().toString()
 		SimpleTimeLimiter().callWithTimeout({
-			val process: Process = Runtime.getRuntime().exec("$path${params.map { " $it" }}")
+			val process: Process = Runtime.getRuntime().exec("$path ${params.joinToString(" ")}")
 			processRef = process
 			if (code != null) process.outputStream.use {
 				it.write("$code\nquit()".toByteArray())

@@ -34,7 +34,7 @@ fun versionOf(sdkHome: String, timeLimit: Long = 500L) =
 		executeJulia(sdkHome, null, timeLimit, "-q")
 				.first
 				.firstOrNull { it.startsWith("julia version", true) }
-				?.dropWhile { it.isLetter() || it.isWhitespace() }
+				?.dropWhile { it.isLetter() or it.isWhitespace() }
 				?: JuliaBundle.message("julia.modules.sdk.unknown-version")
 
 fun validateJuliaSDK(sdkHome: String) = Files.isExecutable(Paths.get(sdkHome, "bin", "julia"))
