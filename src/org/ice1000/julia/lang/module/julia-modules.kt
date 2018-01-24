@@ -9,6 +9,8 @@ import com.intellij.openapi.projectRoots.SdkTypeId
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ProjectRootManager
 import org.ice1000.julia.lang.*
+import java.nio.file.Files
+import java.nio.file.Paths
 
 class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	init {
@@ -19,16 +21,20 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	override fun isSuitableSdkType(sdkType: SdkTypeId?) = sdkType is JuliaSdkType
 	override fun getWeight() = 98
 	override fun getModuleType() = JuliaModuleType.instance
-	override fun getCustomOptionsStep(context: WizardContext?, parentDisposable: Disposable?): ModuleWizardStep? {
+	override fun getCustomOptionsStep(context: WizardContext, parentDisposable: Disposable): ModuleWizardStep? {
+		parentDisposable.dispose()
+		context.projectName = JULIA_DEFAULT_MODULE_NAME
 		TODO("not implemented")
 	}
 
-	override fun setupRootModel(modifiableRootModel: ModifiableRootModel) {
-		TODO("not implemented")
+	override fun setupRootModel(model: ModifiableRootModel) {
+		model.sdk = sdk
+		Files.createDirectories(Paths.get(contentEntryPath, "src"))
+		doAddContentEntry(model)
 	}
 
 	override fun moduleCreated(module: Module) {
-		TODO("not implemented")
+		module.project.projectSdk = sdk
 	}
 }
 
@@ -43,4 +49,8 @@ class JuliaModuleType : ModuleType<JuliaModuleBuilder>(JULIA_MODULE_ID) {
 	}
 }
 
-val Project.projectSdk get() = ProjectRootManager.getInstance(this).projectSdk
+var Project.projectSdk
+	get() = ProjectRootManager.getInstance(this).projectSdk
+	set(value) {
+		ProjectRootManager.getInstance(this).projectSdk = value
+	}
