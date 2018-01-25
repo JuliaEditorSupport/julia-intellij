@@ -24,7 +24,7 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	override fun getCustomOptionsStep(context: WizardContext, parentDisposable: Disposable): ModuleWizardStep? {
 		parentDisposable.dispose()
 		context.projectName = JULIA_DEFAULT_MODULE_NAME
-		TODO("not implemented")
+		return JuliaSetupSdkWizardStep(this)
 	}
 
 	override fun setupRootModel(model: ModifiableRootModel) {
@@ -54,3 +54,5 @@ var Project.projectSdk
 	set(value) {
 		ProjectRootManager.getInstance(this).projectSdk = value
 	}
+
+
