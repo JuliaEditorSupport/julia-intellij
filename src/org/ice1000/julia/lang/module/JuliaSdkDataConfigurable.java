@@ -3,6 +3,7 @@ package org.ice1000.julia.lang.module;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.projectRoots.AdditionalDataConfigurable;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.SdkModificator;
 import org.ice1000.julia.lang.JuliaBundle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,6 +50,14 @@ public class JuliaSdkDataConfigurable implements AdditionalDataConfigurable {
 	}
 
 	@Override public void apply() throws ConfigurationException {
+		if (sdk == null) throw new ConfigurationException("Sdk is null!");
+		SdkModificator modificator = sdk.getSdkModificator();
+		Object timeLimitFieldValue = timeLimitField.getValue();
+		Object textLimitFieldValue = textLimitField.getValue();
+		if (!(timeLimitFieldValue instanceof Number && textLimitFieldValue instanceof Number)) return;
+		modificator.setSdkAdditionalData(new JuliaSdkData(((Number) timeLimitFieldValue).longValue(),
+				((Number) textLimitFieldValue).intValue()));
+		modificator.commitChanges();
 	}
 
 	@Override public @NotNull JComponent createComponent() {

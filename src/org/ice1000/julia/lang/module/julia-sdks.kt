@@ -21,7 +21,7 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun isValidSdkHome(sdkHome: String?) = validateJuliaSDK(sdkHome.orEmpty())
 	override fun suggestSdkName(s: String?, p1: String?) = JuliaBundle.message("julia.modules.sdk.name")
 	override fun suggestHomePath() = when {
-		SystemInfo.isWindows -> System.getenv("LOCALAPPDATA")
+		SystemInfo.isWindows -> System.getenv("LOCALAPPDATA") ?: "C:\\Program Files"
 		SystemInfo.isMac -> {
 			val appPath = Paths.get(MAC_APPLICATIONS)
 			val result = Files.list(appPath).collect(Collectors.toList()).firstOrNull { application ->
