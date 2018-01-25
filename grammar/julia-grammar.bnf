@@ -1,7 +1,7 @@
 {
   parserClass='org.ice1000.julia.lang.JuliaParser'
   extends='com.intellij.extapi.psi.ASTWrapperPsiElement'
-  psiClassPrefix='Cov'
+  psiClassPrefix='Julia'
   psiImplClassSuffix='Impl'
   psiPackage='org.ice1000.julia.lang.psi'
   psiImplPackage='org.ice1000.julia.lang.psi.impl'
