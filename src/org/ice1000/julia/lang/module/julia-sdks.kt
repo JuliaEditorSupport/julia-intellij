@@ -39,7 +39,7 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	}
 
 	override fun getDownloadSdkUrl() = JULIA_WEBSITE
-	override fun createAdditionalDataConfigurable(md: SdkModel, m: SdkModificator) = null
+	override fun createAdditionalDataConfigurable(md: SdkModel, m: SdkModificator) = JuliaSdkDataConfigurable()
 	override fun getVersionString(sdkHome: String?) = versionOf(sdkHome.orEmpty())
 	override fun saveAdditionalData(additionalData: SdkAdditionalData, element: Element) = Unit // leave blank
 	override fun setupSdkPaths(sdk: Sdk, sdkModel: SdkModel): Boolean {
