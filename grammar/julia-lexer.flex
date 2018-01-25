@@ -19,7 +19,6 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %eof{ return;
 %eof}
 
-EOL=\n
 END_KEYWORD=end
 MODULE_KEYWORD=module
 
@@ -28,13 +27,12 @@ STRING={INCOMPLETE_STRING}\"
 
 SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])*
 
-WHITE_SPACE=[ \t\r]
-OTHERWISE=[^ \t\r]
+WHITE_SPACE=[ \t\r\n]
+OTHERWISE=[^ \t\r\n]
 
 %%
 
 {WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
-
 
 {END_KEYWORD} { return JuliaTypes.END_KEYWORD; }
 {MODULE_KEYWORD} { return JuliaTypes.MODULE_KEYWORD; }
