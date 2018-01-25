@@ -6,14 +6,14 @@
       <xy x="20" y="20" width="500" height="400"/>
     </constraints>
     <properties/>
-    <border type="none" title-resource-bundle="org/ice1000/julia/lang/julia-bundle" title-key="julia.modules.sdk.title"/>
+    <border type="empty" title-resource-bundle="org/ice1000/julia/lang/julia-bundle" title-key="julia.modules.sdk.title"/>
     <children>
       <component id="5e1f8" class="javax.swing.JLabel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.modules.sdk.selection.comboboxlabel"/>
+          <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.modules.sdk.selection.combobox-label"/>
         </properties>
       </component>
       <vspacer id="2ff93">
@@ -21,10 +21,11 @@
           <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
-      <component id="b6b0e" class="org.ice1000.julia.lang.module.JuliaSdkCombobox" binding="comboBox">
+      <component id="b6b0e" class="org.ice1000.julia.lang.module.JuliaSdkComboBox" binding="comboBox">
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
+        <properties/>
       </component>
     </children>
   </grid>

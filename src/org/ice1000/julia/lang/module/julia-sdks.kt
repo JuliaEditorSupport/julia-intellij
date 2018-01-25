@@ -65,7 +65,7 @@ fun versionOf(sdkHome: String, timeLimit: Long = 500L) =
 fun validateJuliaSDK(sdkHome: String) = Files.isExecutable(Paths.get(sdkHome, "bin", "julia")) or
 		Files.isExecutable(Paths.get(sdkHome, "bin", "julia.exe"))
 
-class JuliaSdkCombobox : ComboboxWithBrowseButton() {
+class JuliaSdkComboBox : ComboboxWithBrowseButton() {
 	val selectedSdk get() = comboBox.selectedItem as? Sdk
 	val sdkName get() = selectedSdk?.name.orEmpty()
 
@@ -83,7 +83,7 @@ class JuliaSdkCombobox : ComboboxWithBrowseButton() {
 		addActionListener {
 			var selectedSdk = selectedSdk
 			val project = ProjectManager.getInstance().defaultProject
-			val editor = ProjectJdksEditor(selectedSdk, project, this@JuliaSdkCombobox)
+			val editor = ProjectJdksEditor(selectedSdk, project, this@JuliaSdkComboBox)
 			editor.title = JuliaBundle.message("julia.modules.sdk.selection.title")
 			editor.show()
 			if (editor.isOK) {
