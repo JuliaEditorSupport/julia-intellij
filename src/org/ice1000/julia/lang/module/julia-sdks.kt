@@ -45,7 +45,7 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun saveAdditionalData(additionalData: SdkAdditionalData, element: Element) = Unit // leave blank
 	override fun setupSdkPaths(sdk: Sdk, sdkModel: SdkModel): Boolean {
 		val modificator = sdk.sdkModificator
-		// modificator.sdkAdditionalData = sdk.sdkAdditionalData ?: Default
+		modificator.sdkAdditionalData = sdk.sdkAdditionalData ?: JuliaSdkData()
 		modificator.versionString = getVersionString(sdk) ?: JuliaBundle.message("julia.modules.sdk.unknown-version")
 		modificator.commitChanges()
 		return true
@@ -54,6 +54,14 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	companion object InstanceHolder {
 		val instance get() = SdkType.findInstance(JuliaSdkType::class.java)
 	}
+}
+
+fun SdkAdditionalData?.toJuliaSdkData() = this as? JuliaSdkData
+
+class JuliaSdkData(
+		var tryEvaluateTimeLimit: Long = 2500L,
+		var tryEvaluateTextLimit: Int = 320) : SdkAdditionalData {
+	override fun clone() = JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit)
 }
 
 fun versionOf(sdkHome: String, timeLimit: Long = 500L) =

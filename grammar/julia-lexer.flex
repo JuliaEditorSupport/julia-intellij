@@ -38,6 +38,8 @@ TRY_KEYWORD=try
 CATCH_KEYWORD=catch
 FINALLY_KEYWORD=finally
 FUNCTION_KEYWORD=function
+TRUE_KEYWORD=true
+FALSE_KEYWORD=false
 
 INCOMPLETE_STRING=\"([^\"\x00-\x1F\x7F\]\|\[\'\"bnrt]|\\u[a-fA-F0-9]{4})*
 STRING={INCOMPLETE_STRING}\"
@@ -57,6 +59,14 @@ DOUBLE_COLON=::
 EQ_SYM==
 
 SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])*
+
+DIGIT=[\d_]
+HEX_NUM=0[xX][0-9a-fA-F]+
+OCT_NUM=0[oO][0-7]+
+BIN_NUM=0[bB][01]+
+DEC_NUM={DIGIT}+
+INTEGER={HEX_NUM}|{OCT_NUM}|{BIN_NUM}|{DEC_NUM}
+FLOAT={DIGIT}+\.{DIGIT}+
 
 WHITE_SPACE=[ \t\r\n]
 OTHERWISE=[^ \t\r\n]
@@ -95,8 +105,12 @@ OTHERWISE=[^ \t\r\n]
 {CATCH_KEYWORD} { return JuliaTypes.CATCH_KEYWORD; }
 {FINALLY_KEYWORD} { return JuliaTypes.FINALLY_KEYWORD; }
 {FUNCTION_KEYWORD} { return JuliaTypes.FUNCTION_KEYWORD; }
+{TRUE_KEYWORD} { return JuliaTypes.TRUE_KEYWORD; }
+{FALSE_KEYWORD} { return JuliaTypes.FALSE_KEYWORD; }
 
 {SYMBOL} { return JuliaTypes.SYM; }
+{INTEGER} { return JuliaTypes.INTEGER; }
+{FLOAT} { return JuliaTypes.FLOAT; }
 
 {INCOMPLETE_RAW_STRING} { return TokenType.BAD_CHARACTER; }
 {RAW_STRING} { return JuliaTypes.RAW_STR; }

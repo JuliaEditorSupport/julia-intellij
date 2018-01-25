@@ -13,7 +13,6 @@ inline fun forceRun(lambda: () -> Any) {
 	}
 }
 
-
 /**
  * @param homePath the home path of the Julia SDK currently used
  * @param code doesn't need to `quit()`, because this function will automatically add one if code != null
