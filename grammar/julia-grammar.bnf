@@ -14,7 +14,8 @@
 
 juliaFile ::= module | statement*
 
-module ::= MODULE_KEYWORD identifier statement* END_KEYWORD
+module ::= moduleType identifier statement* END_KEYWORD
+moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
 
 macroIdentifier ::= AT_SYM identifier
 identifier ::= symbol (DOT_SYM symbol)* | symbol? (DOT_SYM symbol)+
@@ -48,7 +49,7 @@ continueStatement ::= CONTINUE_KEYWORD
 includeStatement ::= INCLUDE_KEYWORD LEFT_BRACKET string RIGHT_BRACKET
 exportStatement ::= EXPORT_KEYWORD (identifier | macroIdentifier) (COMMA_SYM (identifier | macroIdentifier))*
 importStatement ::= IMPORT_KEYWORD identifier (COLON_SYM identifier (COMMA_SYM identifier)*)?
-usingStatement ::= USING_KEYWORD identifier (COMMA_SYM identifier)*
+usingStatement ::= USING_KEYWORD identifier? (COMMA_SYM identifier)*
 ifStatement ::= IF_KEYWORD statement* (elseIfStatement* (ELSE_KEYWORD statement*)?)? END_KEYWORD
 elseIfStatement ::= ELSEIF_KEYWORD statement*
 

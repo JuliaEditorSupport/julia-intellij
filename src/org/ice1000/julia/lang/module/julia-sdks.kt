@@ -14,7 +14,6 @@ import java.util.stream.Collectors
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JList
 
-
 class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun getPresentableName() = JuliaBundle.message("julia.modules.sdk.name")
 	override fun getIcon() = JULIA_BIG_ICON

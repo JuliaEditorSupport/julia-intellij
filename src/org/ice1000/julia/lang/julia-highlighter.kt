@@ -11,16 +11,19 @@ import org.ice1000.julia.lang.psi.JuliaTypes
 
 object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val KEYWORD = TextAttributesKey.createTextAttributesKey("JULIA_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD)
+	@JvmField val NUMBER = TextAttributesKey.createTextAttributesKey("JULIA_NUMBER", DefaultLanguageHighlighterColors.NUMBER)
 	@JvmField val STRING = TextAttributesKey.createTextAttributesKey("JULIA_STRING", DefaultLanguageHighlighterColors.STRING)
 	@JvmField val COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
 
 	private val KEYWORD_KEY = arrayOf(KEYWORD)
 	private val STRING_KEY = arrayOf(STRING)
+	private val NUMBER_KEY = arrayOf(NUMBER)
 	private val COMMENT_KEY = arrayOf(COMMENT)
 
 	private val KEYWORDS_LIST = listOf(
 			JuliaTypes.END_KEYWORD,
 			JuliaTypes.MODULE_KEYWORD,
+			JuliaTypes.BAREMODULE_KEYWORD,
 			JuliaTypes.BREAK_KEYWORD,
 			JuliaTypes.CONTINUE_KEYWORD,
 			JuliaTypes.INCLUDE_KEYWORD,
@@ -42,8 +45,11 @@ object JuliaHighlighter : SyntaxHighlighter {
 
 	override fun getHighlightingLexer() = JuliaLexerAdapter()
 	override fun getTokenHighlights(type: IElementType?): Array<TextAttributesKey> = when (type) {
-		JuliaTypes.STR, JuliaTypes.RAW_STR -> STRING_KEY
+		JuliaTypes.STR,
+		JuliaTypes.RAW_STR -> STRING_KEY
 		JuliaTypes.LINE_COMMENT -> COMMENT_KEY
+		JuliaTypes.INT_LITERAL,
+		JuliaTypes.FLOAT_LITERAL -> NUMBER_KEY
 		in KEYWORDS_LIST -> KEYWORD_KEY
 		else -> emptyArray()
 	}

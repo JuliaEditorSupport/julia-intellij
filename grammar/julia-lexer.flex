@@ -21,6 +21,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 
 END_KEYWORD=end
 MODULE_KEYWORD=module
+BAREMODULE_KEYWORD=baremodule
 BREAK_KEYWORD=break
 CONTINUE_KEYWORD=continue
 INCLUDE_KEYWORD=include
@@ -88,6 +89,7 @@ OTHERWISE=[^ \t\r\n]
 
 {END_KEYWORD} { return JuliaTypes.END_KEYWORD; }
 {MODULE_KEYWORD} { return JuliaTypes.MODULE_KEYWORD; }
+{BAREMODULE_KEYWORD} { return JuliaTypes.BAREMODULE_KEYWORD; }
 {BREAK_KEYWORD} { return JuliaTypes.BREAK_KEYWORD; }
 {CONTINUE_KEYWORD} { return JuliaTypes.CONTINUE_KEYWORD; }
 {INCLUDE_KEYWORD} { return JuliaTypes.INCLUDE_KEYWORD; }
@@ -109,8 +111,8 @@ OTHERWISE=[^ \t\r\n]
 {FALSE_KEYWORD} { return JuliaTypes.FALSE_KEYWORD; }
 
 {SYMBOL} { return JuliaTypes.SYM; }
-{INTEGER} { return JuliaTypes.INTEGER; }
-{FLOAT} { return JuliaTypes.FLOAT; }
+{INTEGER} { return JuliaTypes.INT_LITERAL; }
+{FLOAT} { return JuliaTypes.FLOAT_LITERAL; }
 
 {INCOMPLETE_RAW_STRING} { return TokenType.BAD_CHARACTER; }
 {RAW_STRING} { return JuliaTypes.RAW_STR; }

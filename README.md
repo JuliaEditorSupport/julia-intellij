@@ -2,8 +2,6 @@
 
 <!-- badges -->
 
-## What is this
-
 This is a Julia IDE based on the IntelliJ Platform -- say, the Julia plugin for IntelliJ IDEA.
 
 ## Why IntelliJ
