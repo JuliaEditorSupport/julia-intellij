@@ -16,9 +16,11 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 	private @NotNull JPanel mainPanel;
 	private @NotNull JuliaSdkComboBox comboBox;
 	private @NotNull LinkLabel<Object> juliaWebsite;
+	private @NotNull JLabel usefulText;
 
 	public JuliaSetupSdkWizardStep(@NotNull JuliaModuleBuilder builder) {
 		this.builder = builder;
+		this.usefulText.setVisible(false);
 		juliaWebsite.setListener((label, o) -> BrowserLauncher.getInstance().open(juliaWebsite.getText()), null);
 	}
 
@@ -28,10 +30,10 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 
 	@Override public boolean validate() throws ConfigurationException {
 		if (StringUtil.isEmpty(comboBox.getSdkName())) {
-			// TODO Display some helpful words to tell users how to select an SDK @Hex
+			usefulText.setVisible(true);
 			throw new ConfigurationException(JuliaBundle.message("julia.modules.sdk.invalid"));
 		}
-		// TODO Hide those helpful words to tell users how to select an SDK @Hex
+		usefulText.setVisible(false);
 		return super.validate();
 	}
 
