@@ -29,6 +29,7 @@ Functions provided:<br/>
 		<annotator
 				language="Julia"
 				implementationClass="org.ice1000.julia.lang.editing.JuliaAnnotator"/>
+        <colorSettingsPage implementation="org.ice1000.julia.lang.JuliaColorSettingsPage"/>
 		<lang.syntaxHighlighterFactory
 				language="Julia"
 				implementationClass="org.ice1000.julia.lang.JuliaHighlighterFactory"/>
