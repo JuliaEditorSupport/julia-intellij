@@ -21,21 +21,26 @@ inline fun forceRun(lambda: () -> Any) {
  * @param params additional parameters to the Julia compiler
  * @return (stdout, stderr)
  */
-fun executeJulia(
-		homePath: String,
-		code: String?,
-		timeLimit: Long,
-		vararg params: String): Pair<List<String>, List<String>> {
+fun executeJulia(homePath: String, code: String?, timeLimit: Long, vararg params: String) =
+		executeCommand(
+				"${Paths.get(homePath, "bin", "julia").toAbsolutePath()} ${params.joinToString(" ")}",
+				code?.let { "$it\nquit()" },
+				timeLimit
+		)
+
+fun executeCommand(
+		command: String,
+		input: String?,
+		timeLimit: Long): Pair<List<String>, List<String>> {
 	var processRef: Process? = null
 	var output: List<String> = emptyList()
 	var outputErr: List<String> = emptyList()
 	try {
-		val path = Paths.get(homePath, "bin", "julia").toAbsolutePath().toString()
 		SimpleTimeLimiter().callWithTimeout({
-			val process: Process = Runtime.getRuntime().exec("$path ${params.joinToString(" ")}")
+			val process: Process = Runtime.getRuntime().exec(command)
 			processRef = process
-			if (code != null) process.outputStream.use {
-				it.write("$code\nquit()".toByteArray())
+			if (input != null) process.outputStream.use {
+				it.write(input.toByteArray())
 				it.flush()
 			}
 			process.waitFor(timeLimit, TimeUnit.MILLISECONDS)

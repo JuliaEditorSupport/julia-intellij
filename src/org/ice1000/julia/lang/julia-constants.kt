@@ -13,4 +13,4 @@ import org.jetbrains.annotations.NonNls
 @JvmField val JULIA_BIG_ICON = IconLoader.getIcon("/icons/julia.png")
 @JvmField val JULIA_ICON = IconLoader.getIcon("/icons/julia_file.png")
 
-@NonNls const val POSSIBLE_SDK_HOME_LINUX = "/usr/share/julia"
+@NonNls const val MAC_APPLICATIONS = "/Applications"
