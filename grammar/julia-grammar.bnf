@@ -1,0 +1,23 @@
+{
+  parserClass='org.ice1000.julia.lang.JuliaParser'
+  extends='com.intellij.extapi.psi.ASTWrapperPsiElement'
+  psiClassPrefix='Cov'
+  psiImplClassSuffix='Impl'
+  psiPackage='org.ice1000.julia.lang.psi'
+  psiImplPackage='org.ice1000.julia.lang.psi.impl'
+
+  tokenTypeClass='org.ice1000.julia.lang.JuliaTokenType'
+  elementTypeHolderClass='org.ice1000.julia.lang.psi.JuliaTypes'
+  elementTypeClass='org.ice1000.julia.lang.JuliaElementType'
+  psiImplUtilClass='org.ice1000.julia.lang.psi.impl.JuliaPsiImplUtils'
+}
+
+juliaFile ::= module | statement+
+
+module ::= MODULE_KEYWORD symbol statement+ END_KEYWORD
+
+macroIdentifier ::= AT_KEYWORD symbol
+symbol ::= SYM (DOT_KEYWORD SYM)* | SYM? (DOT_KEYWORD sym)+
+
+comment ::= LINE_COMMENT
+string ::= STR
