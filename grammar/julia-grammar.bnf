@@ -21,3 +21,24 @@ symbol ::= SYM (DOT_SYM SYM)* | SYM? (DOT_SYM SYM)+
 
 comment ::= LINE_COMMENT
 string ::= STR
+
+statement ::=
+   literals
+ | includeStatement
+ | exportStatement
+ | importStatement
+ | usingStatement
+ | breakStatement
+ | continueStatement
+ | expr
+
+breakStatement ::= BREAK_KEYWORD
+continueStatement ::= CONTINUE_KEYWORD
+includeStatement ::= INCLUDE_KEYWORD LEFT_BRACKET string RIGHT_BRACKET
+exportStatement ::= EXPORT_KEYWORD (symbol | macroSymbol) (COMMA_SYM (symbol | macroSymbol))*
+importStatement ::= import symbol (COLON_SYM symbol (COMMA_SYM symbol)*)?
+usingStatement ::= using symbol (COMMA_SYM symbol)*
+
+expr ::=
+   string
+ | symbol
