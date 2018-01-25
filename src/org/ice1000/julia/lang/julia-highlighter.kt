@@ -4,6 +4,9 @@ import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.SyntaxHighlighter
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
+import com.intellij.openapi.options.colors.AttributesDescriptor
+import com.intellij.openapi.options.colors.ColorDescriptor
+import com.intellij.openapi.options.colors.ColorSettingsPage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.tree.IElementType
@@ -15,12 +18,18 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val STRING = TextAttributesKey.createTextAttributesKey("JULIA_STRING", DefaultLanguageHighlighterColors.STRING)
 	@JvmField val OPERATOR = TextAttributesKey.createTextAttributesKey("JULIA_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
 	@JvmField val COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
+	@JvmField val BLOCK_COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
+	//CLASS_TYPENAME doesn't work on account of code parsing ??
+	@JvmField val CLASS_TYPENAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPENAME", DefaultLanguageHighlighterColors.CLASS_NAME)
+
 
 	private val KEYWORD_KEY = arrayOf(KEYWORD)
 	private val STRING_KEY = arrayOf(STRING)
 	private val NUMBER_KEY = arrayOf(NUMBER)
 	private val OPERATOR_KEY = arrayOf(OPERATOR)
 	private val COMMENT_KEY = arrayOf(COMMENT)
+	private val BLOCK_COMMENT_KEY = arrayOf(BLOCK_COMMENT)
+	private val CLASS_TYPE_KEY = arrayOf(CLASS_TYPENAME)
 
 	private val KEYWORDS_LIST = listOf(
 			JuliaTypes.END_KEYWORD,
@@ -42,7 +51,11 @@ object JuliaHighlighter : SyntaxHighlighter {
 			JuliaTypes.TRY_KEYWORD,
 			JuliaTypes.CATCH_KEYWORD,
 			JuliaTypes.FINALLY_KEYWORD,
-			JuliaTypes.FUNCTION_KEYWORD
+			JuliaTypes.FUNCTION_KEYWORD,
+			JuliaTypes.TYPE_KEYWORD,
+			JuliaTypes.ABSTRACT_KEYWORD,
+			JuliaTypes.TRUE_KEYWORD,
+			JuliaTypes.FALSE_KEYWORD
 	)
 
 	override fun getHighlightingLexer() = JuliaLexerAdapter()
@@ -50,8 +63,10 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.STR,
 		JuliaTypes.RAW_STR -> STRING_KEY
 		JuliaTypes.LINE_COMMENT -> COMMENT_KEY
+		JuliaTypes.BLOCK_COMMENT -> BLOCK_COMMENT_KEY
 		JuliaTypes.INT_LITERAL,
 		JuliaTypes.FLOAT_LITERAL -> NUMBER_KEY
+		JuliaTypes.TYPE_NAME -> CLASS_TYPE_KEY
 		in KEYWORDS_LIST -> KEYWORD_KEY
 		else -> emptyArray()
 	}
@@ -59,4 +74,48 @@ object JuliaHighlighter : SyntaxHighlighter {
 
 class JuliaHighlighterFactory : SyntaxHighlighterFactory() {
 	override fun getSyntaxHighlighter(project: Project?, virtualFile: VirtualFile?) = JuliaHighlighter
+}
+
+class JuliaColorSettingsPage:ColorSettingsPage{
+	private val descriptors = arrayOf(
+			AttributesDescriptor("Line Comment", JuliaHighlighter.COMMENT),
+			AttributesDescriptor("Block Comment", JuliaHighlighter.BLOCK_COMMENT),
+			AttributesDescriptor("Keywords", JuliaHighlighter.KEYWORD),
+			AttributesDescriptor("String", JuliaHighlighter.STRING),
+			AttributesDescriptor("Type Name", JuliaHighlighter.CLASS_TYPENAME)
+	)
+	override fun getHighlighter(): SyntaxHighlighter=JuliaHighlighter
+	override fun getAdditionalHighlightingTagToDescriptorMap()=null
+	override fun getIcon()=JuliaFileType.icon
+	override fun getAttributeDescriptors()=descriptors
+	override fun getColorDescriptors() = ColorDescriptor.EMPTY_ARRAY
+	override fun getDisplayName()=JuliaFileType.name
+	override fun getDemoText()="""
+		#= BLOCK COMMENT
+		=#
+		module ice1000
+		3.2 # => 3.2 (Float64)
+		1 + 1 # => 2
+		div(5, 2) # => 2 # for a truncated result, use div
+		# Boolean operators
+		!true # => false
+		@printf "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
+		"1 + 2 = 3" == "1 + 2 = $(1+2)" # => true
+		try
+		   some_other_var # => ERROR: some_other_var not defined
+		catch e
+		   println(e)
+		end
+		abstract type Cat <: Animals
+			age::Int64
+		end
+		for (k,v) in Dict("dog"=>"mammal","cat"=>"mammal","mouse"=>"mammal")
+		println("${'$'}k is a ${'$'}v")
+		end
+		x = 0
+		while x < 4
+			println(x)
+			x += 1
+		end
+	""".trimIndent()
 }

@@ -12,26 +12,28 @@
   psiImplUtilClass='org.ice1000.julia.lang.psi.impl.JuliaPsiImplUtils'
 }
 
-juliaFile ::= module | statement*
-
-module ::= moduleType identifier statement* END_KEYWORD
-moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
+juliaFile ::= statements
 
 macroIdentifier ::= AT_SYM identifier
-identifier ::= symbol (DOT_SYM symbol)* | symbol? (DOT_SYM symbol)+
 symbol ::= SYM
+identifier ::=
+   symbol  (endOfLine DOT_SYM endOfLine symbol)*
+ | symbol? (endOfLine DOT_SYM endOfLine symbol)+
 
 //noinspection BnfUnusedRule
-comment ::= LINE_COMMENT
+comment ::= LINE_COMMENT | BLOCK_COMMENT
 string ::= STR | RAW_STR
 integer ::= INT_LITERAL
 float ::= FLOAT_LITERAL
 boolean ::= TRUE_KEYWORD | FALSE_KEYWORD
+// char ::= CHAR_LITERAL
 
-endOfStatement ::= EOL | SEMICOLON_SYM
-statement ::= statementContent endOfStatement
-private statementContent ::=
+private endOfLine ::= EOL*
+private semi ::= EOL | SEMICOLON_SYM
+statements ::= semi* (statement (semi+ statement)*)? semi*
+private statement ::=
    includeStatement
+ | moduleDeclaration
  | exportStatement
  | importStatement
  | usingStatement
@@ -43,45 +45,89 @@ private statementContent ::=
  | breakStatement
  | continueStatement
  | functionDeclaration
+ | typeDeclaration // which is `classDeclaration` in other languages
  | compactFunction
  | expr
 
 breakStatement ::= BREAK_KEYWORD
 continueStatement ::= CONTINUE_KEYWORD
-includeStatement ::= INCLUDE_KEYWORD LEFT_BRACKET string RIGHT_BRACKET
-exportStatement ::= EXPORT_KEYWORD (identifier | macroIdentifier) (COMMA_SYM (identifier | macroIdentifier))*
-importStatement ::= IMPORT_KEYWORD identifier (COLON_SYM identifier (COMMA_SYM identifier)*)?
-usingStatement ::= USING_KEYWORD identifier? (COMMA_SYM identifier)*
-ifStatement ::= IF_KEYWORD statement* (elseIfStatement* (ELSE_KEYWORD statement*)?)? END_KEYWORD
-elseIfStatement ::= ELSEIF_KEYWORD statement*
+includeStatement ::=
+ INCLUDE_KEYWORD endOfLine
+  LEFT_BRACKET endOfLine
+   string endOfLine
+  RIGHT_BRACKET
 
-forStatement ::= indexer statement* END_KEYWORD
+exportStatement ::=
+ EXPORT_KEYWORD endOfLine
+  (identifier | macroIdentifier)
+  (endOfLine COMMA_SYM endOfLine (identifier | macroIdentifier))*
+
+importStatement ::=
+ IMPORT_KEYWORD endOfLine
+  identifier endOfLine
+  (COLON_SYM endOfLine
+   identifier
+   (
+    endOfLine
+    COMMA_SYM endOfLine
+    identifier
+   )*
+  )?
+
+usingStatement ::=
+ USING_KEYWORD endOfLine
+  identifier? (endOfLine COMMA_SYM endOfLine identifier)*
+
+ifStatement ::= IF_KEYWORD statements (elseIfClause* elseClause?)? END_KEYWORD
+elseIfClause ::= ELSEIF_KEYWORD statements
+elseClause ::= ELSE_KEYWORD statements
+
+forStatement ::= indexer statements END_KEYWORD
 indexer ::= FOR_KEYWORD (multiIndexer | singleIndexer)
 singleIndexer ::= symbol (IN_KEYWORD | EQ_SYM) expr
 multiIndexer ::= LEFT_BRACKET symbol (COMMA_SYM symbol)+ RIGHT_BRACKET (IN_KEYWORD | EQ_SYM) expr
 
-whileStatement ::= WHILE_KEYWORD expr statement* END_KEYWORD
+whileStatement ::= WHILE_KEYWORD expr statements END_KEYWORD
 returnStatement ::= RETURN_KEYWORD expr?
-tryCatchStatement ::= TRY_KEYWORD statement* catchClause? finallyClause? END_KEYWORD
-catchClause ::= CATCH_KEYWORD symbol? statement*
-finallyClause ::= FINALLY_KEYWORD statement*
+tryCatchStatement ::= TRY_KEYWORD statements catchClause? finallyClause? END_KEYWORD
+catchClause ::= CATCH_KEYWORD symbol? statements
+finallyClause ::= FINALLY_KEYWORD statements
+
+moduleDeclaration ::= moduleType identifier statements END_KEYWORD
+moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
 
 private variables ::= LEFT_BRACKET (typedVariable (COMMA_SYM typedVariable)*)? RIGHT_BRACKET
 functionDeclaration ::=
  FUNCTION_KEYWORD identifier typeParameters?
    variables type?
-  statement*
+  statements
  END_KEYWORD
 
-compactFunction ::= identifier typeParameters? variables EQ_SYM statement*
+compactFunction ::= identifier typeParameters? variables EQ_SYM statements
 
+typeDeclaration ::=
+ typeAndAbsTypeKeywords typeName (SUBTYPE_SYM typeName)?
+ (classTypedVariable*)?
+ (functionDeclaration*)?
+ END_KEYWORD
+
+ 
 expr ::=
    string
  | integer
  | float
  | boolean
  | identifier
-
+// | char
 type ::= DOUBLE_COLON identifier
 typedVariable ::= identifier type? typeParameters?
 typeParameters ::= LEFT_B_BRACKET expr (COMMA_SYM expr?)* RIGHT_B_BRACKET
+
+// class keywords->  `abstract type` and `type`.
+// `abstract classname` is deprecated
+// and you should use `abstract classname
+// end`
+typeAndAbsTypeKeywords::= (ABSTRACT_KEYWORD)? TYPE_KEYWORD
+classTypedVariable::= classTypeFields (DOUBLE_COLON typeName)? (EQ_SYM expr)?
+classTypeFields ::= symbol
+typeName ::= symbol
