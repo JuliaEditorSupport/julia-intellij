@@ -50,7 +50,8 @@ fun versionOf(sdkHome: String, timeLimit: Long = 500L) =
 				?.dropWhile { it.isLetter() or it.isWhitespace() }
 				?: JuliaBundle.message("julia.modules.sdk.unknown-version")
 
-fun validateJuliaSDK(sdkHome: String) = Files.isExecutable(Paths.get(sdkHome, "bin", "julia"))
+fun validateJuliaSDK(sdkHome: String) = Files.isExecutable(Paths.get(sdkHome, "bin", "julia"
+		+ if (SystemInfo.isWindows) ".exe" else ""))
 
 
 class JuliaSdkCombobox : ComboboxWithBrowseButton() {
