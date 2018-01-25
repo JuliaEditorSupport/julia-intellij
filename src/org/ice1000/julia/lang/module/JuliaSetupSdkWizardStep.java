@@ -19,6 +19,10 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 
 	public JuliaSetupSdkWizardStep(@NotNull JuliaModuleBuilder builder) {
 		this.builder = builder;
+		juliaWebsite.setVisible(false);
+		comboBox.addPropertyChangeListener(evt -> {
+
+        });
 		juliaWebsite.setListener((label, o) -> BrowserLauncher.getInstance().open(juliaWebsite.getText()), null);
 	}
 
@@ -27,13 +31,12 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 	}
 
 	@Override public boolean validate() throws ConfigurationException {
-		if (StringUtil.isEmpty(comboBox.getSdkName())) {
-			// juliaWebsiteDescription.setVisible(true);
-			throw new ConfigurationException(JuliaBundle.message("julia.modules.sdk.invalid"));
-		}
-		// FIXME assigned to Hex :D
-		// juliaWebsiteDescription.setVisible(false);
-		return super.validate();
+        if (StringUtil.isEmpty(comboBox.getSdkName())) {
+            juliaWebsite.setVisible(true);
+            throw new ConfigurationException(JuliaBundle.message("julia.modules.sdk.invalid"));
+        }
+        juliaWebsite.setVisible(false);
+		return true;
 	}
 
 	@Override public void updateDataModel() {
