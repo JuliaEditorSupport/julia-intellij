@@ -19,7 +19,6 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 
 	public JuliaSetupSdkWizardStep(@NotNull JuliaModuleBuilder builder) {
 		this.builder = builder;
-		juliaWebsite.setVisible(false);
 		juliaWebsite.setListener((label, o) -> BrowserLauncher.getInstance().open(juliaWebsite.getText()), null);
 	}
 
@@ -28,12 +27,12 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 	}
 
 	@Override public boolean validate() throws ConfigurationException {
-        if (StringUtil.isEmpty(comboBox.getSdkName())) {
-            juliaWebsite.setVisible(true);
-            throw new ConfigurationException(JuliaBundle.message("julia.modules.sdk.invalid"));
-        }
-        juliaWebsite.setVisible(false);
-		return true;
+		if (StringUtil.isEmpty(comboBox.getSdkName())) {
+			// TODO Display some helpful words to tell users how to select an SDK @Hex
+			throw new ConfigurationException(JuliaBundle.message("julia.modules.sdk.invalid"));
+		}
+		// TODO Hide those helpful words to tell users how to select an SDK @Hex
+		return super.validate();
 	}
 
 	@Override public void updateDataModel() {

@@ -25,7 +25,6 @@
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties/>
       </component>
       <component id="ced4e" class="com.intellij.ui.components.labels.LinkLabel" binding="juliaWebsite">
         <constraints>
@@ -33,7 +32,7 @@
         </constraints>
         <properties>
           <icon value="icons/julia.png"/>
-          <text value="https://julialang.org/downloads/"/>
+          <text value="https://julialang.org/downloads/" noi18n="true"/>
         </properties>
       </component>
     </children>
