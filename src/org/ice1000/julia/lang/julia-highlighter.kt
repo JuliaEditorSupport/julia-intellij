@@ -13,11 +13,13 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val KEYWORD = TextAttributesKey.createTextAttributesKey("JULIA_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD)
 	@JvmField val NUMBER = TextAttributesKey.createTextAttributesKey("JULIA_NUMBER", DefaultLanguageHighlighterColors.NUMBER)
 	@JvmField val STRING = TextAttributesKey.createTextAttributesKey("JULIA_STRING", DefaultLanguageHighlighterColors.STRING)
+	@JvmField val OPERATOR = TextAttributesKey.createTextAttributesKey("JULIA_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
 	@JvmField val COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
 
 	private val KEYWORD_KEY = arrayOf(KEYWORD)
 	private val STRING_KEY = arrayOf(STRING)
 	private val NUMBER_KEY = arrayOf(NUMBER)
+	private val OPERATOR_KEY = arrayOf(OPERATOR)
 	private val COMMENT_KEY = arrayOf(COMMENT)
 
 	private val KEYWORDS_LIST = listOf(
