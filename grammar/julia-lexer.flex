@@ -27,27 +27,33 @@ INCLUDE_KEYWORD=include
 EXPORT_KEYWORD=export
 IMPORT_KEYWORD=import
 USING_KEYWORD=using
-IF_KEYWORD=IF_keyword
+IF_KEYWORD=if
 ELSEIF_KEYWORD=elseif
 ELSE_KEYWORD=else
 FOR_KEYWORD=for
-IN_KEYWORD=IN_keyword
+IN_KEYWORD=in
 WHILE_KEYWORD=while
 RETURN_KEYWORD=return
 TRY_KEYWORD=try
 CATCH_KEYWORD=catch
 FINALLY_KEYWORD=finally
+FUNCTION_KEYWORD=function
 
 INCOMPLETE_STRING=\"([^\"\x00-\x1F\x7F\]\|\[\'\"bnrt]|\\u[a-fA-F0-9]{4})*
 STRING={INCOMPLETE_STRING}\"
 INCOMPLETE_RAW_STRING=\"\"\"([^\"]|\"(\?!\"\")|\"\"(\?!\"))*
-RAW_STRING=\"\"\"
+RAW_STRING={INCOMPLETE_RAW_STRING}\"\"\"
+
+LINE_COMMENT=#[^\n]*
 
 LEFT_BRACKET=\(
 RIGHT_BRACKET=\)
+LEFT_B_BRACKET=\{
+RIGHT_B_BRACKET=\}
 DOT_SYM=\.
 COMMA_SYM=,
 COLON_SYM=:
+DOUBLE_COLON=::
 EQ_SYM==
 
 SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])*
@@ -58,10 +64,14 @@ OTHERWISE=[^ \t\r\n]
 %%
 
 {WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
+{LINE_COMMENT}+ { return JuliaTypes.LINE_COMMENT; }
 
 {LEFT_BRACKET} { return JuliaTypes.LEFT_BRACKET; }
 {RIGHT_BRACKET} { return JuliaTypes.RIGHT_BRACKET; }
+{LEFT_B_BRACKET} { return JuliaTypes.LEFT_B_BRACKET; }
+{RIGHT_B_BRACKET} { return JuliaTypes.RIGHT_B_BRACKET; }
 {DOT_SYM} { return JuliaTypes.DOT_SYM; }
+{DOUBLE_COLON} { return JuliaTypes.DOUBLE_COLON; }
 {COLON_SYM} { return JuliaTypes.COLON_SYM; }
 {COMMA_SYM} { return JuliaTypes.COMMA_SYM; }
 {EQ_SYM} { return JuliaTypes.EQ_SYM; }
@@ -84,6 +94,7 @@ OTHERWISE=[^ \t\r\n]
 {TRY_KEYWORD} { return JuliaTypes.TRY_KEYWORD; }
 {CATCH_KEYWORD} { return JuliaTypes.CATCH_KEYWORD; }
 {FINALLY_KEYWORD} { return JuliaTypes.FINALLY_KEYWORD; }
+{FUNCTION_KEYWORD} { return JuliaTypes.FUNCTION_KEYWORD; }
 
 {SYMBOL} { return JuliaTypes.SYM; }
 

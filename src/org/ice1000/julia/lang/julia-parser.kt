@@ -1,7 +1,6 @@
 package org.ice1000.julia.lang
 
 import com.intellij.lang.*
-import com.intellij.lexer.Lexer
 import com.intellij.openapi.project.Project
 import com.intellij.psi.FileViewProvider
 import com.intellij.psi.PsiElement
@@ -26,8 +25,8 @@ class JuliaParserDefinition : ParserDefinition {
 
 class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage) {
 	companion object {
-		@JvmField val COMMENTS = TokenSet.create(JuliaTypes.COMMENT)
-		@JvmField val STRINGS = TokenSet.create(JuliaTypes.STR)
+		@JvmField val COMMENTS = TokenSet.create(JuliaTypes.COMMENT, JuliaTypes.LINE_COMMENT)
+		@JvmField val STRINGS = TokenSet.create(JuliaTypes.STR, JuliaTypes.RAW_STR, JuliaTypes.STRING)
 	}
 }
 

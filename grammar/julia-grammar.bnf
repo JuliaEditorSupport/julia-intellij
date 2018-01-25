@@ -24,8 +24,7 @@ comment ::= LINE_COMMENT
 string ::= STR | RAW_STR
 
 statement ::=
-   literals
- | includeStatement
+   includeStatement
  | exportStatement
  | importStatement
  | usingStatement
@@ -36,7 +35,7 @@ statement ::=
  | returnStatement
  | breakStatement
  | continueStatement
- | standardFunction
+ | functionDeclaration
  | compactFunction
  | expr
 
@@ -60,6 +59,19 @@ tryCatchStatement ::= TRY_KEYWORD statement* catchClause? finallyClause? END_KEY
 catchClause ::= CATCH_KEYWORD symbol? statement*
 finallyClause ::= FINALLY_KEYWORD statement*
 
+private variables ::= LEFT_BRACKET (typedVariable (COMMA_SYM typedVariable)*)? RIGHT_BRACKET
+functionDeclaration ::=
+ FUNCTION_KEYWORD identifier typeParameters?
+   variables type?
+  statement*
+ END_KEYWORD
+
+compactFunction ::= identifier typeParameters? variables EQ_SYM statement*
+
 expr ::=
    string
  | identifier
+
+type ::= DOUBLE_COLON identifier
+typedVariable ::= identifier type? typeParameters?
+typeParameters ::= LEFT_B_BRACKET expr (COMMA_SYM expr?)* RIGHT_B_BRACKET
