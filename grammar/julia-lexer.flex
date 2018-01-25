@@ -131,25 +131,25 @@ OTHERWISE=[^ \t\r\n]
 {EQ_SYM} { return JuliaTypes.EQ_SYM; }
 
 {END_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.END_KEYWORD; }
-{MODULE_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.MODULE_KEYWORD; }
-{BAREMODULE_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.BAREMODULE_KEYWORD; }
+{MODULE_KEYWORD} { return JuliaTypes.MODULE_KEYWORD; }
+{BAREMODULE_KEYWORD} { return JuliaTypes.BAREMODULE_KEYWORD; }
 {BREAK_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.BREAK_KEYWORD; }
 {CONTINUE_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.CONTINUE_KEYWORD; }
-{INCLUDE_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.INCLUDE_KEYWORD; }
-{EXPORT_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.EXPORT_KEYWORD; }
-{IF_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.IF_KEYWORD; }
-{IN_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.IN_KEYWORD; }
-{IMPORT_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.IMPORT_KEYWORD; }
-{USING_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.USING_KEYWORD; }
-{ELSEIF_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.ELSEIF_KEYWORD; }
-{ELSE_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.ELSE_KEYWORD; }
-{FOR_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.FOR_KEYWORD; }
-{WHILE_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.WHILE_KEYWORD; }
-{RETURN_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.RETURN_KEYWORD; }
-{TRY_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.TRY_KEYWORD; }
-{CATCH_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.CATCH_KEYWORD; }
-{FINALLY_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.FINALLY_KEYWORD; }
-{FUNCTION_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.FUNCTION_KEYWORD; }
+{INCLUDE_KEYWORD} { return JuliaTypes.INCLUDE_KEYWORD; }
+{EXPORT_KEYWORD} { return JuliaTypes.EXPORT_KEYWORD; }
+{IF_KEYWORD} { return JuliaTypes.IF_KEYWORD; }
+{IN_KEYWORD} { return JuliaTypes.IN_KEYWORD; }
+{IMPORT_KEYWORD} { return JuliaTypes.IMPORT_KEYWORD; }
+{USING_KEYWORD} { return JuliaTypes.USING_KEYWORD; }
+{ELSEIF_KEYWORD} { return JuliaTypes.ELSEIF_KEYWORD; }
+{ELSE_KEYWORD} { return JuliaTypes.ELSE_KEYWORD; }
+{FOR_KEYWORD} { return JuliaTypes.FOR_KEYWORD; }
+{WHILE_KEYWORD} { return JuliaTypes.WHILE_KEYWORD; }
+{RETURN_KEYWORD} { return JuliaTypes.RETURN_KEYWORD; }
+{TRY_KEYWORD} { return JuliaTypes.TRY_KEYWORD; }
+{CATCH_KEYWORD} { return JuliaTypes.CATCH_KEYWORD; }
+{FINALLY_KEYWORD} { return JuliaTypes.FINALLY_KEYWORD; }
+{FUNCTION_KEYWORD} { return JuliaTypes.FUNCTION_KEYWORD; }
 {TRUE_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.TRUE_KEYWORD; }
 {FALSE_KEYWORD} { yybegin(AFTER_EXPR); return JuliaTypes.FALSE_KEYWORD; }
 
