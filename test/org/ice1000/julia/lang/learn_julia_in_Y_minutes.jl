@@ -1,16 +1,28 @@
-# Single line comments start with a hash (pound) symbol.
+# 2333
+a
+233
+# Functions return the value of their last statement
+function add(x, y)
+    println("x is $x and y is $y")
+    x + y
+end
+
+type Lion <: Cat()
+  mane_color::Cat=Cat end
+end
+ # Lion is a subtype of Cat
+23333
 #= Multiline comments can be written
-   by putting '#=' before the text  and '=#'
-   after the text. They can also be nested.
+23333
+23333
 =#
 
 ####################################################
 ## 1. Primitive Datatypes and Operators
 ####################################################
-
 # Everything in Julia is an expression.
-
 # There are several basic types of numbers.
+
 3 # => 3 (Int64)
 3.2 # => 3.2 (Float64)
 2 + 1im # => 2 + 1im (Complex{Int64})
@@ -18,14 +30,6 @@
 
 # All of the normal infix operators are available.
 1 + 1 # => 2
-8 - 1 # => 7
-10 * 2 # => 20
-35 / 5 # => 7.0
-5 / 2 # => 2.5 # dividing an Int by an Int always results in a Float
-div(5, 2) # => 2 # for a truncated result, use div
-5 \ 35 # => 7.0
-2 ^ 2 # => 4 # power, not bitwise xor
-12 % 10 # => 2
 
 # Enforce precedence with parentheses
 (1 + 3) * 2 # => 8
@@ -53,41 +57,27 @@ false
 !true # => false
 !false # => true
 1 == 1 # => true
-2 == 1 # => false
 1 != 1 # => false
-2 != 1 # => true
 1 < 10 # => true
 1 > 10 # => false
 2 <= 2 # => true
 2 >= 2 # => true
 # Comparisons can be chained
 1 < 2 < 3 # => true
-2 < 3 < 2 # => false
-
-# Strings are created with "
-"This is a string."
-
-# Julia has several types of strings, including ASCIIString and UTF8String.
-# More on this in the Types section.
 
 # Character literals are written with '
 'a'
 
-# Some strings can be indexed like an array of characters
 "This is a string"[1] # => 'T' # Julia indexes from 1
 # However, this is will not work well for UTF8 strings,
 # so iterating over strings is recommended (map, for loops, etc).
-
 # $ can be used for string interpolation:
 "2 + 2 = $(2 + 2)" # => "2 + 2 = 4"
 # You can put any Julia expression inside the parentheses.
-
 # Another way to format strings is the printf macro.
 @printf "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
-
 # Printing is easy
 println("I'm Julia. Nice to meet you!")
-
 # String can be compared lexicographically
 "good" > "bye" # => true
 "good" == "good" # => true
@@ -378,16 +368,13 @@ end
 #end
 function add(x, y)
     println("x is $x and y is $y")
-
     # Functions return the value of their last statement
     x + y
 end
 
 add(5, 6) # => 11 after printing out "x is 5 and y is 6"
-
 # Compact assignment of functions
 f_add(x, y) = x + y # => "f (generic function with 1 method)"
-f_add(3, 4) # => 7
 
 # Function can also return multiple values as tuple
 f(x, y) = x + y, x - y
@@ -400,8 +387,6 @@ function varargs(args...)
     # use the keyword return to return anywhere in the function
 end
 # => varargs (generic function with 1 method)
-
-varargs(1,2,3) # => (1,2,3)
 
 # The ... is called a splat.
 # We just used it in a function definition.
@@ -488,25 +473,6 @@ filter(x -> x > 5, [3, 4, 5, 6, 7]) # => [6, 7]
 
 ####################################################
 ## 5. Types
-####################################################
-
-# Julia has a type system.
-# Every value has a type; variables do not have types themselves.
-# You can use the `typeof` function to get the type of a value.
-typeof(5) # => Int64
-
-# Types are first-class values
-typeof(Int64) # => DataType
-typeof(DataType) # => DataType
-# DataType is the type that represents types, including itself.
-
-# Types are used for documentation, optimizations, and dispatch.
-# They are not statically checked.
-
-# Users can define types
-# They are like records or structs in other languages.
-# New types are defined using the `type` keyword.
-
 # type Name
 #   field::OptionalType
 #   ...
@@ -537,43 +503,14 @@ subtypes(Number) # => 2-element Array{Any,1}:
                  #     Real
 subtypes(Cat) # => 0-element Array{Any,1}
 
-# AbstractString, as the name implies, is also an abstract type
-subtypes(AbstractString)    # 8-element Array{Any,1}:
-                            #  Base.SubstitutionString{T<:AbstractString}
-                            #  DirectIndexString
-                            #  RepString
-                            #  RevString{T<:AbstractString}
-                            #  RopeString
-                            #  SubString{T<:AbstractString}
-                            #  UTF16String
-                            #  UTF8String
-
 # Every type has a super type; use the `super` function to get it.
 typeof(5) # => Int64
 super(Int64) # => Signed
 super(Signed) # => Integer
-super(Integer) # => Real
-super(Real) # => Number
-super(Number) # => Any
-super(super(Signed)) # => Real
-super(Any) # => Any
 # All of these type, except for Int64, are abstract.
 typeof("fire") # => ASCIIString
 super(ASCIIString) # => DirectIndexString
-super(DirectIndexString) # => AbstractString
-# Likewise here with ASCIIString
 
-# <: is the subtyping operator
-type Lion <: Cat # Lion is a subtype of Cat
-  mane_color
-  roar::AbstractString
-end
-
-# You can define more constructors for your type
-# Just define a function of the same name as the type
-# and call an existing constructor to get a value of the correct type
-Lion(roar::AbstractString) = Lion("green",roar)
-# This is an outer constructor because it's outside the type definition
 
 type Panther <: Cat # Panther is also a subtype of Cat
   eye_color
@@ -676,81 +613,3 @@ fight(Lion("RAR"),Lion("brown","rarrr")) # => prints The victorious cat says rar
 
 fight(l::Lion,l2::Lion) = println("The lions come to a tie")
 fight(Lion("RAR"),Lion("brown","rarrr")) # => prints The lions come to a tie
-
-
-# Under the hood
-# You can take a look at the llvm  and the assembly code generated.
-
-square_area(l) = l * l      # square_area (generic function with 1 method)
-
-square_area(5) #25
-
-# What happens when we feed square_area an integer?
-code_native(square_area, (Int32,))
-    #       .section    __TEXT,__text,regular,pure_instructions
-    #   Filename: none
-    #   Source line: 1              # Prologue
-    #       push    RBP
-    #       mov RBP, RSP
-    #   Source line: 1
-    #       movsxd  RAX, EDI        # Fetch l from memory?
-    #       imul    RAX, RAX        # Square l and store the result in RAX
-    #       pop RBP                 # Restore old base pointer
-    #       ret                     # Result will still be in RAX
-
-code_native(square_area, (Float32,))
-    #       .section    __TEXT,__text,regular,pure_instructions
-    #   Filename: none
-    #   Source line: 1
-    #       push    RBP
-    #       mov RBP, RSP
-    #   Source line: 1
-    #       vmulss  XMM0, XMM0, XMM0  # Scalar single precision multiply (AVX)
-    #       pop RBP
-    #       ret
-
-code_native(square_area, (Float64,))
-    #       .section    __TEXT,__text,regular,pure_instructions
-    #   Filename: none
-    #   Source line: 1
-    #       push    RBP
-    #       mov RBP, RSP
-    #   Source line: 1
-    #       vmulsd  XMM0, XMM0, XMM0 # Scalar double precision multiply (AVX)
-    #       pop RBP
-    #       ret
-    #
-# Note that julia will use floating point instructions if any of the
-# arguments are floats.
-# Let's calculate the area of a circle
-circle_area(r) = pi * r * r     # circle_area (generic function with 1 method)
-circle_area(5)                  # 78.53981633974483
-
-code_native(circle_area, (Int32,))
-    #       .section    __TEXT,__text,regular,pure_instructions
-    #   Filename: none
-    #   Source line: 1
-    #       push    RBP
-    #       mov RBP, RSP
-    #   Source line: 1
-    #       vcvtsi2sd   XMM0, XMM0, EDI          # Load integer (r) from memory
-    #       movabs  RAX, 4593140240              # Load pi
-    #       vmulsd  XMM1, XMM0, QWORD PTR [RAX]  # pi * r
-    #       vmulsd  XMM0, XMM0, XMM1             # (pi * r) * r
-    #       pop RBP
-    #       ret
-    #
-
-code_native(circle_area, (Float64,))
-    #       .section    __TEXT,__text,regular,pure_instructions
-    #   Filename: none
-    #   Source line: 1
-    #       push    RBP
-    #       mov RBP, RSP
-    #       movabs  RAX, 4593140496
-    #   Source line: 1
-    #       vmulsd  XMM1, XMM0, QWORD PTR [RAX]
-    #       vmulsd  XMM0, XMM1, XMM0
-    #       pop RBP
-    #       ret
-    #
