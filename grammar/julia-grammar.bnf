@@ -17,7 +17,7 @@ juliaFile ::= module | statement+
 module ::= MODULE_KEYWORD symbol statement+ END_KEYWORD
 
 macroIdentifier ::= AT_KEYWORD symbol
-symbol ::= SYM (DOT_KEYWORD SYM)* | SYM? (DOT_KEYWORD sym)+
+symbol ::= SYM (DOT_KEYWORD SYM)* | SYM? (DOT_KEYWORD SYM)+
 
 comment ::= LINE_COMMENT
 string ::= STR
