@@ -12,12 +12,12 @@
   psiImplUtilClass='org.ice1000.julia.lang.psi.impl.JuliaPsiImplUtils'
 }
 
-juliaFile ::= module | statement+
+juliaFile ::= module | statement*
 
-module ::= MODULE_KEYWORD symbol statement+ END_KEYWORD
+module ::= MODULE_KEYWORD symbol statement* END_KEYWORD
 
-macroIdentifier ::= AT_KEYWORD symbol
-symbol ::= SYM (DOT_KEYWORD SYM)* | SYM? (DOT_KEYWORD SYM)+
+macroSymbol ::= AT_SYM symbol
+symbol ::= SYM (DOT_SYM SYM)* | SYM? (DOT_SYM SYM)+
 
 comment ::= LINE_COMMENT
 string ::= STR
