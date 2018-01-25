@@ -12,9 +12,9 @@
   psiImplUtilClass='org.ice1000.julia.lang.psi.impl.JuliaPsiImplUtils'
 }
 
-juliaFile ::= module | statement*
+juliaFile ::= module | statements
 
-module ::= moduleType identifier statement* END_KEYWORD
+module ::= moduleType identifier statements END_KEYWORD
 moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
 
 macroIdentifier ::= AT_SYM identifier
@@ -28,9 +28,9 @@ integer ::= INT_LITERAL
 float ::= FLOAT_LITERAL
 boolean ::= TRUE_KEYWORD | FALSE_KEYWORD
 
-endOfStatement ::= EOL | SEMICOLON_SYM
-statement ::= statementContent? endOfStatement
-private statementContent ::=
+private semi ::= EOL | SEMICOLON_SYM
+statements ::= semi* (statement (semi+ statement)*)? semi*
+private statement ::=
    includeStatement
  | exportStatement
  | importStatement
@@ -52,28 +52,29 @@ includeStatement ::= INCLUDE_KEYWORD LEFT_BRACKET string RIGHT_BRACKET
 exportStatement ::= EXPORT_KEYWORD (identifier | macroIdentifier) (COMMA_SYM (identifier | macroIdentifier))*
 importStatement ::= IMPORT_KEYWORD identifier (COLON_SYM identifier (COMMA_SYM identifier)*)?
 usingStatement ::= USING_KEYWORD identifier? (COMMA_SYM identifier)*
-ifStatement ::= IF_KEYWORD statement* (elseIfStatement* (ELSE_KEYWORD statement*)?)? END_KEYWORD
-elseIfStatement ::= ELSEIF_KEYWORD statement*
+ifStatement ::= IF_KEYWORD statements (elseIfClause* elseClause?)? END_KEYWORD
+elseIfClause ::= ELSEIF_KEYWORD statements
+elseClause ::= ELSE_KEYWORD statements
 
-forStatement ::= indexer statement* END_KEYWORD
+forStatement ::= indexer statements END_KEYWORD
 indexer ::= FOR_KEYWORD (multiIndexer | singleIndexer)
 singleIndexer ::= symbol (IN_KEYWORD | EQ_SYM) expr
 multiIndexer ::= LEFT_BRACKET symbol (COMMA_SYM symbol)+ RIGHT_BRACKET (IN_KEYWORD | EQ_SYM) expr
 
-whileStatement ::= WHILE_KEYWORD expr statement* END_KEYWORD
+whileStatement ::= WHILE_KEYWORD expr statements END_KEYWORD
 returnStatement ::= RETURN_KEYWORD expr?
-tryCatchStatement ::= TRY_KEYWORD statement* catchClause? finallyClause? END_KEYWORD
-catchClause ::= CATCH_KEYWORD symbol? statement*
-finallyClause ::= FINALLY_KEYWORD statement*
+tryCatchStatement ::= TRY_KEYWORD statements catchClause? finallyClause? END_KEYWORD
+catchClause ::= CATCH_KEYWORD symbol? statements
+finallyClause ::= FINALLY_KEYWORD statements
 
 private variables ::= LEFT_BRACKET (typedVariable (COMMA_SYM typedVariable)*)? RIGHT_BRACKET
 functionDeclaration ::=
  FUNCTION_KEYWORD identifier typeParameters?
    variables type?
-  statement*
+  statements
  END_KEYWORD
 
-compactFunction ::= identifier typeParameters? variables EQ_SYM statement*
+compactFunction ::= identifier typeParameters? variables EQ_SYM statements
 
 expr ::=
    string
