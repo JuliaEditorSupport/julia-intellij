@@ -28,7 +28,7 @@ class JuliaBraceMatcher : PairedBraceMatcher {
 class JuliaCommenter : Commenter {
 	override fun getCommentedBlockCommentPrefix() = blockCommentPrefix
 	override fun getCommentedBlockCommentSuffix() = blockCommentSuffix
-	override fun getBlockCommentPrefix() = JULIA_DOC_SURROUNDING
-	override fun getBlockCommentSuffix() = JULIA_DOC_SURROUNDING
+	override fun getBlockCommentPrefix() = "#= "
+	override fun getBlockCommentSuffix() = " =#"
 	override fun getLineCommentPrefix() = "# "
 }
