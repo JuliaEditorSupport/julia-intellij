@@ -61,4 +61,4 @@ private fun collectLines(it: InputStream): List<String> {
 	return ret
 }
 
-fun TextRange.enclose(fromStart: Int, toEnd: Int) = TextRange(startOffset + fromStart, endOffset + toEnd)
+fun TextRange.narrow(fromStart: Int, toEnd: Int) = TextRange(startOffset + fromStart, endOffset + toEnd)

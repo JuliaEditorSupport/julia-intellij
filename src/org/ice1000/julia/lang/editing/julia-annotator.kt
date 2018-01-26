@@ -2,10 +2,10 @@ package org.ice1000.julia.lang.editing
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.ice1000.julia.lang.JuliaHighlighter
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
+
 
 class JuliaAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
@@ -19,10 +19,23 @@ class JuliaAnnotator : Annotator {
 			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
 					.textAttributes = JuliaHighlighter.MODULE_NAME
 			is JuliaChar -> when (element.textLength) {
-			// example: '\n'
+			// 0, 1, 2 are impossible, 3: 'a'
+				0, 1, 2, 3 -> {
+				}
+			// '\n'
 				4 -> if (element.text[1] !in "ux") holder.createInfoAnnotation(element, null)
 						.textAttributes = JuliaHighlighter.CHAR_ESCAPE
-				else holder.createErrorAnnotation(TextRange(element.textRange.startOffset + 1, element.textRange.endOffset - 1), null)
+				else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
+						.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
+			// '\x00'
+				6 -> {
+					// TODO do validation
+				}
+			// '\u0022'
+				8 -> {
+					// TODO do validation
+				}
+				else -> holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
 						.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 			}
 			is JuliaInteger -> {
@@ -32,7 +45,7 @@ class JuliaAnnotator : Annotator {
 				// TODO provide numerical conversions
 			}
 			is JuliaString -> {
-				holder.createInfoAnnotation(element, " string ♂ ")
+				// TODO do validation
 			}
 		}
 	}
