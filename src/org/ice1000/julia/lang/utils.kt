@@ -63,4 +63,4 @@ private fun collectLines(it: InputStream): List<String> {
 
 fun TextRange.narrow(fromStart: Int, toEnd: Int) = TextRange(startOffset + fromStart, endOffset + toEnd)
 
-fun String.trimQuotePair()=this.trim('\'')
+fun String.trimQuotePair() = trim('\'')
