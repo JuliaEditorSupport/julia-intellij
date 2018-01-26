@@ -21,8 +21,7 @@ identifier ::=
  | (symbol? (endOfLine DOT_SYM endOfLine symbol)+)
 
 private comment ::= BLOCK_COMMENT | LINE_COMMENT
-string ::= STR | RAW_STR
-integer ::= INT_LITERAL
+string ::= STR | RAW_STR integer ::= INT_LITERAL
 float ::= FLOAT_LITERAL
 boolean ::= TRUE_KEYWORD | FALSE_KEYWORD
 // char ::= CHAR_LITERAL

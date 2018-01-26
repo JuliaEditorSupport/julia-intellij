@@ -7,7 +7,7 @@
 
 ## You must not
 
-0. Breaking the code style -- use tab indents with spaces aligns
+0. Break the code style -- use tab indents with spaces aligns
 0. Open pull requests just to fix code style, or use some syntax sugar (this is not SharpLang!)
 0. Add generated files into the git repo (including the parser!)
 0. Violate the open source license

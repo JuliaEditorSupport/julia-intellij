@@ -95,15 +95,17 @@ OTHERWISE=[^ \t\r\n]
 <YYINITIAL> {EOL}+ { return JuliaTypes.EOL; }
 <YYINITIAL> {WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
 
-<YYINITIAL> {BLOCK_COMMENT_BEGIN} { yybegin(NEST_COMMENT); }
-<NEST_COMMENT> {BLOCK_COMMENT_BEGIN} { ++commentNesting; }
-<NEST_COMMENT> {BLOCK_COMMENT_CONTENT}+ {  }
-<NEST_COMMENT> {BLOCK_COMMENT_END} { --commentNesting;
-                                     if (commentNesting <= 0) {
-                                       yybegin(YYINITIAL);
-                                       return JuliaTypes.BLOCK_COMMENT;
-                                     }
-                                   }
+<YYINITIAL> {BLOCK_COMMENT_BEGIN} { yybegin(NEST_COMMENT); break; }
+<NEST_COMMENT> {BLOCK_COMMENT_BEGIN} { ++commentNesting; break; }
+<NEST_COMMENT> {BLOCK_COMMENT_CONTENT}+ { break; }
+{BLOCK_COMMENT_END} {
+  --commentNesting;
+  if (commentNesting <= 0) {
+    yybegin(YYINITIAL);
+    return JuliaTypes.BLOCK_COMMENT;
+  }
+  break;
+}
 
 <YYINITIAL> {LINE_COMMENT} { return JuliaTypes.LINE_COMMENT; }
 
