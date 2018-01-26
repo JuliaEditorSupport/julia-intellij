@@ -15,6 +15,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val KEYWORD = TextAttributesKey.createTextAttributesKey("JULIA_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD)
 	@JvmField val NUMBER = TextAttributesKey.createTextAttributesKey("JULIA_NUMBER", DefaultLanguageHighlighterColors.NUMBER)
 	@JvmField val STRING = TextAttributesKey.createTextAttributesKey("JULIA_STRING", DefaultLanguageHighlighterColors.STRING)
+	@JvmField val CHAR_LITERAL = TextAttributesKey.createTextAttributesKey("JULIA_CHAR", DefaultLanguageHighlighterColors.STRING)
 	@JvmField val OPERATOR = TextAttributesKey.createTextAttributesKey("JULIA_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
 	@JvmField val BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_PARENTHESES", DefaultLanguageHighlighterColors.PARENTHESES)
 	@JvmField val B_BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_BRACES", DefaultLanguageHighlighterColors.BRACES)
@@ -27,7 +28,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val FUNCTION_NAME = TextAttributesKey.createTextAttributesKey("JULIA_FUNCTION_NAME", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
 
 	private val KEYWORD_KEY = arrayOf(KEYWORD)
-	private val STRING_KEY = arrayOf(STRING)
+	private val STRING_KEY = arrayOf(STRING, CHAR_LITERAL)
 	private val NUMBER_KEY = arrayOf(NUMBER)
 	private val OPERATOR_KEY = arrayOf(OPERATOR)
 	private val BRACKETS_KEY = arrayOf(BRACKET)
@@ -89,7 +90,8 @@ object JuliaHighlighter : SyntaxHighlighter {
 	override fun getHighlightingLexer() = JuliaLexerAdapter()
 	override fun getTokenHighlights(type: IElementType?): Array<TextAttributesKey> = when (type) {
 		JuliaTypes.STR,
-		JuliaTypes.RAW_STR -> STRING_KEY
+		JuliaTypes.RAW_STR,
+		JuliaTypes.CHAR_LITERAL-> STRING_KEY
 		JuliaTypes.LINE_COMMENT -> COMMENT_KEY
 		JuliaTypes.BLOCK_COMMENT -> BLOCK_COMMENT_KEY
 		JuliaTypes.INT_LITERAL,

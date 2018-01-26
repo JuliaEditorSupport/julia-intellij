@@ -54,6 +54,10 @@ INCOMPLETE_STRING=\"([^\"\x00-\x1F\x7F]|\\[\'\"bnrt]|(\\u[a-fA-F0-9]{4}))*
 STRING={INCOMPLETE_STRING}\"
 INCOMPLETE_RAW_STRING=\"\"\"([^\"]|\"(\?!\"\")|\"\"(\?!\"))*
 RAW_STRING={INCOMPLETE_RAW_STRING}\"\"\"
+INCOMPLETE_CHAR='([^\"\x00-\x1F\x7F]|{CHAR_ESCAPE}|{CHAR_UNICODE})
+CHAR_ESCAPE=\\[\'\"bnrt]
+CHAR_UNICODE=(\\u[a-fA-F0-9]{4})|((\\x[a-fA-F0-9]{2}){3})
+CHAR_LITERAL={INCOMPLETE_CHAR}'
 
 LINE_COMMENT=#[^\n=]?[^\n]*
 BLOCK_COMMENT_BEGIN=#=
@@ -174,5 +178,7 @@ OTHERWISE=[^ \t\r\n]
 {INCOMPLETE_RAW_STRING} { return TokenType.BAD_CHARACTER; }
 {STRING} { return JuliaTypes.STR; }
 {INCOMPLETE_STRING} { return TokenType.BAD_CHARACTER; }
+{CHAR_LITERAL} { return JuliaTypes.CHAR_LITERAL; }
+{INCOMPLETE_CHAR} { return TokenType.BAD_CHARACTER; }
 
 {OTHERWISE} { return TokenType.BAD_CHARACTER; }
