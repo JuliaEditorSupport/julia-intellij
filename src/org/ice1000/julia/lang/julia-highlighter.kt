@@ -225,6 +225,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		1 + 1 # => 2
 		div(5, 2) # => 2 # for a truncated result, use div
 		# Boolean operators
+		'\xjs' # => char parse error
 		!true # => false
 		@printf "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
 		"1 + 2 = 3" == "1 + 2 = $(1+2)" # => true

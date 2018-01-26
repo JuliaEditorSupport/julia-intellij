@@ -2,6 +2,7 @@ package org.ice1000.julia.lang
 
 import com.google.common.util.concurrent.SimpleTimeLimiter
 import com.intellij.openapi.util.TextRange
+import com.intellij.util.containers.ArrayListSet
 import java.io.InputStream
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
@@ -61,6 +62,17 @@ private fun collectLines(it: InputStream): List<String> {
 	return ret
 }
 
-fun TextRange.narrow(fromStart: Int, toEnd: Int) = TextRange(startOffset + fromStart, endOffset + toEnd)
+fun TextRange.narrow(fromStart: Int, toEnd: Int) = TextRange(startOffset + fromStart, endOffset - toEnd)
+fun TextRange.subRangeBeginOffsetAndLength(beginOffset: Int, textLength: Int) = TextRange(startOffset + beginOffset, startOffset + beginOffset+textLength)
 
-fun String.trimQuotePair() = trim('\'')
+fun String.trimQuotePair()= trim('\'','\"')
+/**
+ * TODO
+ * its effect needs to profit.
+ * it is stupid to map each char and compare indices whether in ListSet
+ * @param someStr String:
+ */
+fun String.indicesOf(someStr: String) =
+		this.indices
+				.map { this.indexOf(someStr, it) }
+				.filterTo(ArrayListSet()) { it > -1 }.toIntArray()
