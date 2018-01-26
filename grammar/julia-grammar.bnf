@@ -98,31 +98,59 @@ multiIndexer ::=
  (IN_KEYWORD | EQ_SYM) endOfLine
  expr
 
-whileStatement ::= WHILE_KEYWORD expr statements END_KEYWORD
+whileStatement ::=
+ WHILE_KEYWORD endOfLine
+  expr endOfLine
+   statements
+ END_KEYWORD
+
 returnStatement ::= RETURN_KEYWORD expr?
-tryCatchStatement ::= TRY_KEYWORD statements catchClause? finallyClause? END_KEYWORD
-catchClause ::= CATCH_KEYWORD symbol? statements
-finallyClause ::= FINALLY_KEYWORD statements
+tryCatchStatement ::=
+ TRY_KEYWORD endOfLine
+  statements
+ catchClause?
+ finallyClause?
+ END_KEYWORD
 
-moduleDeclaration ::= moduleType identifier statements END_KEYWORD
+catchClause ::=
+ CATCH_KEYWORD symbol? endOfLine
+ statements
+
+finallyClause ::=
+ FINALLY_KEYWORD statements
+
 moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
-
-private variables ::= LEFT_BRACKET (typedVariable (COMMA_SYM typedVariable)*)? RIGHT_BRACKET
-functionDeclaration ::=
- FUNCTION_KEYWORD identifier typeParameters?
-   variables type?
+moduleDeclaration ::=
+ moduleType identifier endOfLine
   statements
  END_KEYWORD
 
-compactFunction ::= identifier typeParameters? variables EQ_SYM statements
+private variables ::=
+ LEFT_BRACKET endOfLine
+  (typedVariable (endOfLine COMMA_SYM endOfLine typedVariable)*)? endOfLine
+ RIGHT_BRACKET
 
-typeDeclaration ::=
- typeAndAbsTypeKeywords typeName (SUBTYPE_SYM typeName)?
- (classTypedVariable*)?
- (functionDeclaration*)?
+functionDeclaration ::=
+ FUNCTION_KEYWORD endOfLine
+    identifier endOfLine
+     typeParameters? endOfLine
+   variables type? endOfLine
+  statements
  END_KEYWORD
 
- 
+compactFunction ::=
+ identifier endOfLine
+  typeParameters?
+   variables EQ_SYM endOfLine
+  statement
+
+typeDeclaration ::=
+ typeAndAbsTypeKeywords endOfLine
+   symbol (endOfLine SUBTYPE_SYM endOfLine identifier)?
+  assignmentExpression*
+  functionDeclaration*
+ END_KEYWORD
+
 expr ::=
    string
  | integer
@@ -130,16 +158,22 @@ expr ::=
  | boolean
  | identifier
 
+assignmentExpression ::= 'TODO'
+
 // | char
 type ::= DOUBLE_COLON endOfLine identifier
-typedVariable ::= identifier type? typeParameters?
-typeParameters ::= LEFT_B_BRACKET expr (COMMA_SYM expr?)* RIGHT_B_BRACKET
+typedVariable ::=
+ identifier endOfLine
+  type? endOfLine
+ typeParameters?
+
+typeParameters ::=
+ LEFT_B_BRACKET endOfLine
+  expr (endOfLine COMMA_SYM endOfLine expr?)* endOfLine
+ RIGHT_B_BRACKET
 
 // class keywords->  `abstract type` and `type`.
 // `abstract classname` is deprecated
 // and you should use `abstract classname
 // end`
-typeAndAbsTypeKeywords::= (ABSTRACT_KEYWORD)? TYPE_KEYWORD
-classTypedVariable::= classTypeFields (DOUBLE_COLON typeName)? (EQ_SYM expr)?
-classTypeFields ::= symbol
-typeName ::= symbol
+typeAndAbsTypeKeywords ::= ABSTRACT_KEYWORD? TYPE_KEYWORD
