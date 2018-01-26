@@ -50,7 +50,7 @@ public class JuliaSdkDataConfigurable implements AdditionalDataConfigurable {
 	}
 
 	@Override public void apply() throws ConfigurationException {
-		if (sdk == null) throw new ConfigurationException("Sdk is null!");
+		if (sdk == null) throw new ConfigurationException(JuliaBundle.message("julia.modules.sdk.null-sdk"));
 		SdkModificator modificator = sdk.getSdkModificator();
 		Object timeLimitFieldValue = timeLimitField.getValue();
 		Object textLimitFieldValue = textLimitField.getValue();

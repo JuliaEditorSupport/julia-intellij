@@ -75,11 +75,11 @@ class JuliaHighlighterFactory : SyntaxHighlighterFactory() {
 
 class JuliaColorSettingsPage : ColorSettingsPage {
 	private val descriptors = arrayOf(
-			AttributesDescriptor("Line Comment", JuliaHighlighter.COMMENT),
-			AttributesDescriptor("Block Comment", JuliaHighlighter.BLOCK_COMMENT),
-			AttributesDescriptor("Keywords", JuliaHighlighter.KEYWORD),
-			AttributesDescriptor("String", JuliaHighlighter.STRING),
-			AttributesDescriptor("Type Name", JuliaHighlighter.CLASS_TYPENAME)
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.comment"), JuliaHighlighter.COMMENT),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.block-comment"), JuliaHighlighter.BLOCK_COMMENT),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.keyword"), JuliaHighlighter.KEYWORD),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string"), JuliaHighlighter.STRING),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.CLASS_TYPENAME)
 	)
 
 	override fun getHighlighter(): SyntaxHighlighter = JuliaHighlighter
