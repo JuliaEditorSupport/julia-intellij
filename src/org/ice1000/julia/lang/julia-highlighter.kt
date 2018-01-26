@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.tree.IElementType
 import org.ice1000.julia.lang.psi.JuliaTypes
+import org.intellij.lang.annotations.Language
 
 object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val KEYWORD = TextAttributesKey.createTextAttributesKey("JULIA_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD)
@@ -34,6 +35,20 @@ object JuliaHighlighter : SyntaxHighlighter {
 	private val M_BRACKETS_KEY = arrayOf(M_BRACKET)
 	private val COMMENT_KEY = arrayOf(COMMENT)
 	private val BLOCK_COMMENT_KEY = arrayOf(BLOCK_COMMENT)
+
+	private val OPERATOR_LIST = listOf(
+			JuliaTypes.LEFT_BRACKET,
+			JuliaTypes.RIGHT_BRACKET,
+			JuliaTypes.LEFT_B_BRACKET,
+			JuliaTypes.RIGHT_B_BRACKET,
+			JuliaTypes.DOT_SYM,
+			JuliaTypes.DOUBLE_COLON,
+			JuliaTypes.COLON_SYM,
+			JuliaTypes.SEMICOLON_SYM,
+			JuliaTypes.COMMA_SYM,
+			JuliaTypes.EQ_SYM,
+			JuliaTypes.AT_SYM
+	)
 
 	private val KEYWORDS_LIST = listOf(
 			JuliaTypes.END_KEYWORD,
@@ -83,6 +98,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		in M_BRACKETS -> M_BRACKETS_KEY
 		in B_BRACKETS -> B_BRACKETS_KEY
 		in KEYWORDS_LIST -> KEYWORD_KEY
+		in OPERATOR_LIST -> OPERATOR_KEY
 		else -> emptyArray()
 	}
 }
@@ -98,11 +114,14 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.block-comment"), JuliaHighlighter.BLOCK_COMMENT),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.keyword"), JuliaHighlighter.KEYWORD),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string"), JuliaHighlighter.STRING),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.module-name"), JuliaHighlighter.MODULE_NAME),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.abs-type-name"), JuliaHighlighter.ABSTRACT_TYPE_NAME),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.TYPE_NAME)
 		)
 
 		private val ADDITIONAL_DESCRIPTORS = mapOf(
 				"moduleName" to JuliaHighlighter.MODULE_NAME,
+				"typeName" to JuliaHighlighter.TYPE_NAME,
 				"abstractTypeName" to JuliaHighlighter.ABSTRACT_TYPE_NAME
 		)
 	}
@@ -113,6 +132,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 	override fun getAttributeDescriptors() = DESCRIPTORS
 	override fun getColorDescriptors(): Array<ColorDescriptor> = ColorDescriptor.EMPTY_ARRAY
 	override fun getDisplayName() = JuliaFileType.name
+	@Language("Julia")
 	override fun getDemoText() = """
 		#=
 		 BLOCK COMMENT
@@ -131,6 +151,8 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		   println(e)
 		end
 		abstract type <abstractTypeName>Cat</abstractTypeName> <: Animals
+		end
+		type <typeName>Dog</typeName> <: Animals
 			age::Int64
 		end
 		for (k,v) in Dict("dog"=>"mammal","cat"=>"mammal","mouse"=>"mammal")
