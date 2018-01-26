@@ -89,9 +89,14 @@ elseIfClause ::= ELSEIF_KEYWORD statements
 elseClause ::= ELSE_KEYWORD statements
 
 forStatement ::= indexer statements END_KEYWORD
-indexer ::= FOR_KEYWORD (multiIndexer | singleIndexer)
-singleIndexer ::= symbol (IN_KEYWORD | EQ_SYM) expr
-multiIndexer ::= LEFT_BRACKET symbol (COMMA_SYM symbol)+ RIGHT_BRACKET (IN_KEYWORD | EQ_SYM) expr
+private indexer ::= FOR_KEYWORD endOfLine (multiIndexer | singleIndexer)
+singleIndexer ::= symbol (IN_KEYWORD | EQ_SYM) endOfLine expr
+multiIndexer ::=
+ LEFT_BRACKET endOfLine
+  symbol (endOfLine COMMA_SYM endOfLine symbol)+ endOfLine
+ RIGHT_BRACKET
+ (IN_KEYWORD | EQ_SYM) endOfLine
+ expr
 
 whileStatement ::= WHILE_KEYWORD expr statements END_KEYWORD
 returnStatement ::= RETURN_KEYWORD expr?
