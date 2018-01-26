@@ -174,25 +174,6 @@ block ::=
   statements
  END_KEYWORD
 
-expr ::=
-   string
- | char
- | integer
- | float
- | boolean
- | identifier
- | if
- | for
- | while
- | function
- | compactFunction
- | union
- | macro
- | block
- | abstractTypeDeclaration
- | typeDeclaration
- | typeAlias
-
 assignment ::=
  typedVariable endOfLine
  (
@@ -214,3 +195,32 @@ typeParameters ::=
 userType ::= identifier typeParameters?
 typeModifiers ::= IMMUTABLE_KEYWORD?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType
+
+expr ::=
+   string
+ | char
+ | integer
+ | float
+ | boolean
+ | identifier
+ | if
+ | for
+ | while
+ | function
+ | compactFunction
+ | union
+ | macro
+ | block
+ | abstractTypeDeclaration
+ | typeDeclaration
+ | typeAlias
+
+interpolateOp ::= INTERPOLATE_SYM expr
+inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM expr
+inverseDivideOp ::= expr INVERSE_DIV_SYM expr
+isOp ::= expr IS_SYM expr
+isntOp ::= expr ISNT_SYM expr
+lambdaAbstraction ::= symbol LAMBDA_ABSTRACTION expr {
+	rightAssociative=true
+}
+

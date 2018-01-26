@@ -75,6 +75,12 @@ DOUBLE_COLON=::
 EQ_SYM==
 AT_SYM=@
 SUBTYPE_SYM=<:
+INTERPOLATE_SYM=$
+INVERSE_DIV_ASSIGN_SYM=\\\\=
+INVERSE_DIV_SYM=\\
+IS_SYM====
+ISNT_SYM=\!==
+LAMBDA_ABSTRACTION=->
 
 SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])*
 
@@ -140,6 +146,12 @@ OTHERWISE=[^ \t\r\n]
 {EQ_SYM} { return JuliaTypes.EQ_SYM; }
 {AT_SYM} { return JuliaTypes.AT_SYM; }
 {SUBTYPE_SYM} { return JuliaTypes.SUBTYPE_SYM; }
+{INTERPOLATE_SYM} { reutrn JuliaTypes.INTERPOLATE_SYM; }
+{INVERSE_DIV_ASSIGN_SYM} { reutrn JuliaTypes.INVERSE_DIV_ASSIGN_SYM; }
+{INVERSE_DIV_SYM} { reutrn JuliaTypes.INVERSE_DIV_SYM; }
+{IS_SYM} { reutrn JuliaTypes.IS_SYM; }
+{ISNT_SYM} { reutrn JuliaTypes.ISNT_SYM; }
+{LAMBDA_ABSTRACTION} { reutrn JuliaTypes.LAMBDA_ABSTRACTION; }
 
 {END_KEYWORD} { return JuliaTypes.END_KEYWORD; }
 {BREAK_KEYWORD} { return JuliaTypes.BREAK_KEYWORD; }

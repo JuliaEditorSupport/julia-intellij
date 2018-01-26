@@ -128,6 +128,8 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 
 		private val ADDITIONAL_DESCRIPTORS = mapOf(
 				"moduleName" to JuliaHighlighter.MODULE_NAME,
+				"stringEscape" to JuliaHighlighter.STRING_ESCAPE,
+				"stringEscapeInvalid" to JuliaHighlighter.STRING_ESCAPE_INVALID,
 				"typeName" to JuliaHighlighter.TYPE_NAME,
 				"abstractTypeName" to JuliaHighlighter.ABSTRACT_TYPE_NAME
 		)
@@ -153,7 +155,8 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		@printf "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
 		"1 + 2 = 3" == "1 + 2 = $(1+2)" # => true
 		try
-		   some_other_var # => ERROR: some_other_var not defined
+			println("Hello<stringEscape>\n</stringEscape>World<stringEscapeInvalid>\g</stringEscapeInvalid>" + '\n' + '\a')
+			some_other_var # => ERROR: some_other_var not defined
 		catch e
 		   println(e)
 		end
