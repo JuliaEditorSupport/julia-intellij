@@ -23,7 +23,7 @@ class JuliaAnnotator : Annotator {
 				0, 1, 2, 3 -> {
 				}
 			// '\n'
-				4 -> if (element.text[2] !in "ux") holder.createInfoAnnotation(element, null)
+				4 -> if (element.text[2] !in "ux") holder.createInfoAnnotation(element.textRange.narrow(1, 1), null)
 						.textAttributes = JuliaHighlighter.CHAR_ESCAPE
 				else holder.createErrorAnnotation(element.textRange.narrow(1, 1),
 						JuliaBundle.message("julia.lint.invalid-char-escape"))
