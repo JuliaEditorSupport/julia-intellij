@@ -56,7 +56,7 @@ INCOMPLETE_RAW_STRING=\"\"\"([^\"]|\"(\?!\"\")|\"\"(\?!\"))*
 RAW_STRING={INCOMPLETE_RAW_STRING}\"\"\"
 INCOMPLETE_CHAR='([^\"\x00-\x1F\x7F]|{CHAR_ESCAPE}|{CHAR_UNICODE})
 CHAR_ESCAPE=\\[^ux]
-CHAR_UNICODE=\\((u[a-fA-F0-9]{4})|(x[a-fA-F0-9]{2}))
+CHAR_UNICODE=(\\u[a-fA-F0-9]{4})|((\\x[a-fA-F0-9]{2}){1,3})
 CHAR_LITERAL={INCOMPLETE_CHAR}'
 
 LINE_COMMENT=#[^\n=]?[^\n]*
