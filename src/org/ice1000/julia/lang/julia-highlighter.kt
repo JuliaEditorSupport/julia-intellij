@@ -82,7 +82,9 @@ object JuliaHighlighter : SyntaxHighlighter {
 			JuliaTypes.TYPEALIAS_KEYWORD,
 			JuliaTypes.IMMUTABLE_KEYWORD,
 			JuliaTypes.TRUE_KEYWORD,
-			JuliaTypes.FALSE_KEYWORD
+			JuliaTypes.FALSE_KEYWORD,
+			JuliaTypes.QUOTE_KEYWORD,
+			JuliaTypes.UNION_KEYWORD
 	)
 
 	/** parentheses */

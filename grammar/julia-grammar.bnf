@@ -1,4 +1,5 @@
 {
+  // ref: https://github.com/JuliaLang/julia/blob/master/src/julia-parser.scm
   parserClass='org.ice1000.julia.lang.JuliaParser'
   extends='com.intellij.extapi.psi.ASTWrapperPsiElement'
   psiClassPrefix='Julia'
@@ -207,12 +208,98 @@ expr ::=
  | level13
  | level12
  | level11
+ | level10
+ | level9
+ | level8
+ | level7
+ | level6
+ | level5
 
-// * / %
+private level5 ::= lambdaAbstraction
+private lambdaAbstraction ::= symbol LAMBDA_ABSTRACTION expr {
+	rightAssociative=true
+}
+
+private level6 ::=
+   lessThanOrEqualOp
+ | lessThanOp
+ | greaterThanOp
+ | greaterThanOrEqualOp
+ | isntOp
+ | isOp
+ | equalsOp
+ | unequalOp
+ | elementGreaterThanOp
+ | elementGreaterThanOrEqualOp
+ | elementLessThanOp
+ | elementLessThanOrEqualOp
+ | elementEqualsOp
+ | elementUnequalOp
+ // | subtype
+
+private lessThanOp ::= level7 LESS_THAN_SYM expr
+private lessThanOrEqualOp ::= level7 LESS_THAN_OR_EQUAL_SYM expr
+private greaterThanOp ::= level7 GREATER_THAN_SYM expr
+private greaterThanOrEqualOp ::= level7 GREATER_THAN_OR_EQUAL_SYM expr
+private elementEqualsOp ::= level7 ELEMENT_EQUALS_SYM expr
+private elementUnequalOp ::= level7 ELEMENT_UNEQUAL_SYM expr
+private elementGreaterThanOp ::= level7 ELEMENT_GREATER_THAN_SYM expr
+private elementLessThanOp ::= level7 ELEMENT_LESS_THAN_SYM expr
+private elementGreaterThanOrEqualOp ::= level7 ELEMENT_GREATER_THAN_OR_EQUAL_SYM expr
+private elementLessThanOrEqualOp ::= level7 ELEMENT_LESS_THAN_OR_EQUAL_SYM expr
+private equalsOp ::= level7 EQUALS_SYM expr
+private unequalOp ::= level7 UNEQUAL_SYM expr
+private isOp ::= level7 IS_SYM expr
+private isntOp ::= level7 ISNT_SYM expr
+
+private level7 ::= pipeOp
+private pipeOp ::= level8 PIPE_SYM expr
+
+private level8 ::=
+   spliceOp
+ | quoteOp
+ | compoundQuoteOp
+
+private spliceOp ::= level9 SLICE_SYM
+// TODO review if this should be a quoted expression!!! with interpolation
+private quoteOp ::= COLON_SYM expr
+private compoundQuoteOp ::= QUOTE_KEYWORD expr+ END_KEYWORD
+
+// + - ⊕ ⊖ ⊞ ⊟ .+ .- | ∪ ∨ $ ⊔
+private level9 ::=
+   plusOp
+ | minusOp
+ | bitwiseXorOp
+ | elementPlusOp
+ | elementMinusOp
+
+private bitwiseXorOp ::= level10 INTERPOLATE_SYM expr
+private elementMinusOp ::= level10 ELEMENT_MINUS_SYM expr
+private elementPlusOp ::= level10 ELEMENT_PLUS_SYM expr
+private plusOp ::= level10 PLUS_SYM expr
+private minusOp ::= level10 MINUS_SYM expr
+
+private level10 ::=
+   shlOp
+ | shrOp
+ | ushrOp
+ | elementShlOp
+ | elementShrOp
+ | elementUshrOp
+
+private shrOp ::= level11 SHR_SYM expr
+private ushrOp ::= level11 USHR_SYM expr
+private shlOp ::= level11 SHL_SYM expr
+private elementShlOp ::= level11 ELEMENT_SHL_SYM expr
+private elementShrOp ::= level11 ELEMENT_SHR_SYM expr
+private elementUshrOp ::= level11 ELEMENT_USHR_SYM expr
+
+// * / % & ^
 private level11 ::=
    multiplyOp
  | divideOp
  | remainderOp
+ | bitwiseAndOp
  | inverseDivideOp
  | elementMultiplyOp
  | elementDivideOp
@@ -227,6 +314,7 @@ private elementRemainderOp ::= level12 ELEMENT_REMAINDER_SYM expr
 private elementMultiplyOp ::= level12 ELEMENT_MULTIPLY_SYM expr
 private elementDivideOp ::= level12 ELEMENT_DIVIDE_SYM expr
 private factoriseOp ::= level12 FACTORISE_SYM expr
+private bitwiseAndOp ::= level12 BITWISE_AND_SYM expr
 
 // // .//
 private level12 ::=
@@ -288,58 +376,37 @@ private primaryExpr ::=
  | typeAlias
 
 private inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM expr
-private isOp ::= expr IS_SYM expr
-private isntOp ::= expr ISNT_SYM expr
-private lambdaAbstraction ::= symbol LAMBDA_ABSTRACTION expr {
-	rightAssociative=true
-}
+
 
 private transposeOp ::= expr TRANSPOSE_SYM
 private rangeOp ::= expr COLON_SYM expr
 private remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM expr
-private spliceOp ::= expr SLICE_SYM
-private lessThanOp ::= expr LESS_THAN_SYM expr
-private lessThanOrEqualOp ::= expr LESS_THAN_OR_EQUAL_SYM expr
-private shrAssignOp ::= expr SHR_ASSIGN_SYM expr
-private shrOp ::= expr SHR_SYM expr
-private plusOp ::= expr PLUS_SYM expr
+private ushrAssignOp ::= expr USHR_ASSIGN_SYM expr
 private plusAssignOp ::= expr PLUS_ASSIGN_SYM expr
-private minusOp ::= expr MINUS_SYM expr
 private minusAssignOp ::= expr MINUS_ASSIGN_SYM expr
 private multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM expr
-private unequalOp ::= expr UNEQUAL_SYM expr
 private fractionAssignOp ::= expr FRACTION_ASSIGN_SYM expr
-private greaterThanOp ::= expr GREATER_THAN_SYM expr
-private greaterThanOrEqualOp ::= expr GREATER_THAN_OR_EQUAL_SYM expr
 private divideAssignOp ::= expr DIVIDE_ASSIGN_SYM expr { rightAssociative=true }
-private elementShlOp ::= expr ELEMENT_SHL_SYM expr
-private elementShrOp ::= expr ELEMENT_SHR_SYM expr
-private elementLshrOp ::= expr ELEMENT_LSHR_SYM expr
 private elementDivAssignOp ::= expr ELEMENT_DIV_ASSIGN_SYM expr { rightAssociative=true }
 private elementExponentAssignOp ::= expr ELEMENT_EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
 private elementFractionAssignOp ::= expr ELEMENT_FRACTION_ASSIGN_SYM expr { rightAssociative=true }
 private elementRemainderAssignOp ::= expr ELEMENT_REMAINDER_ASSIGN_SYM expr { rightAssociative=true }
 private elementMultiplyAssignOp ::= expr ELEMENT_MULTIPLY_ASSIGN_SYM expr { rightAssociative=true }
-private elementMinusOp ::= expr ELEMENT_MINUS_SYM expr
 private elementMinusAssignOp ::= expr ELEMENT_MINUS_ASSIGN_SYM expr { rightAssociative=true }
-private elementPlusOp ::= expr ELEMENT_PLUS_SYM expr
 private elementPlusAssignOp ::= expr ELEMENT_PLUS_ASSIGN_SYM expr
-private elementEqualsOp ::= expr ELEMENT_EQUALS_SYM expr
-private elementUnequalOp ::= expr ELEMENT_UNEQUAL_SYM expr
-private elementGreaterThanOp ::= expr ELEMENT_GREATER_THAN_SYM expr
-private elementLessThanOp ::= expr ELEMENT_LESS_THAN_SYM expr
-private elementGreaterThanOrEqualOp ::= expr ELEMENT_GREATER_THAN_OR_EQUAL_SYM expr
-private elementLessThanOrEqualOp ::= expr ELEMENT_LESS_THAN_OR_EQUAL_SYM expr
 private elementTransposeOp ::= expr ELEMENT_TRANSPOSE_SYM
 private factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM expr { rightAssociative=true }
 private exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
-private equalsOp ::= expr EQUALS_SYM expr
 private bitWiseNotOp ::= BITWISE_NOT_SYM expr
-private bitwiseAndOp ::= expr BITWISE_AND_SYM expr
 private bitwiseAndAssignOp ::= expr BITWISE_AND_ASSIGN_SYM expr { rightAssociative=true }
 private bitwiseOrOp ::= expr BITWISE_OR_SYM expr
 private bitwiseOrAssignOp ::= expr BITWISE_OR_ASSIGN_SYM expr { rightAssociative=true }
 private bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM expr { rightAssociative=true }
-private bitwiseXorOp ::= expr INTERPOLATE_SYM expr
+private arrayConstructorOp ::= expr LEFT_M_BRACKET RIGHT_M_BRACKET
+private assignOp ::= expr EQ_SYM expr { rightAssociative=true }
+private andOp ::= expr AND_SYM expr
+private orOp ::= expr OR_SYM expr
+private shlAssignOp ::= expr SHL_ASSIGN_SYM expr { rightAssociative=true }
+private shrAssignOp ::= expr SHR_ASSIGN_SYM expr { rightAssociative=true }
 
 empty ::= LEFT_M_BRACKET RIGHT_M_BRACKET

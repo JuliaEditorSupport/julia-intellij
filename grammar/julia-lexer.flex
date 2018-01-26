@@ -49,6 +49,7 @@ IMMUTABLE_KEYWORD=immutable
 TRUE_KEYWORD=true
 FALSE_KEYWORD=false
 UNION_KEYWORD=union
+QUOTE_KEYWORD=quote
 
 STRING_UNICODE=\\((u[a-fA-F0-9]{4})|(x[a-fA-F0-9]{2}))
 INCOMPLETE_STRING=\"([^\"\x00-\x1F\x7F]|(\\[^ux])|{STRING_UNICODE})*
@@ -90,8 +91,15 @@ REMAINDER_SYM=%
 REMAINDER_ASSIGN_SYM=%=
 LESS_THAN_SYM=<
 LESS_THAN_OR_EQUAL_SYM=<=
-SHR_ASSIGN_SYM=>>>=
-SHR_SYM=>>>
+USHR_ASSIGN_SYM=>>>=
+USHR_SYM=>>>
+AND_SYM=&&
+OR_SYM=\|\|
+PIPE_SYM=\|>
+SHL_SYM=<<
+SHL_ASSIGN_SYM=<<=
+SHR_SYM=>>
+SHR_ASSIGN_SYM=>>=
 PLUS_SYM=\+
 PLUS_ASSIGN_SYM=\+=
 MINUS_SYM=-
@@ -221,8 +229,15 @@ OTHERWISE=[^ \t\r\n]
 {REMAINDER_ASSIGN_SYM} { reutrn JuliaTypes.REMAINDER_ASSIGN_SYM; }
 {LESS_THAN_SYM} { reutrn JuliaTypes.LESS_THAN_SYM; }
 {LESS_THAN_OR_EQUAL_SYM} { reutrn JuliaTypes.LESS_THAN_OR_EQUAL_SYM; }
-{SHR_ASSIGN_SYM} { reutrn JuliaTypes.SHR_ASSIGN_SYM; }
+{USHR_ASSIGN_SYM} { reutrn JuliaTypes.USHR_ASSIGN_SYM; }
+{USHR_SYM} { reutrn JuliaTypes.USHR_SYM; }
+{AND_SYM} { reutrn JuliaTypes.AND_SYM; }
+{OR_SYM} { reutrn JuliaTypes.OR_SYM; }
+{PIPE_SYM} { reutrn JuliaTypes.PIPE_SYM; }
+{SHL_SYM} { reutrn JuliaTypes.SHL_SYM; }
+{SHL_ASSIGN_SYM} { reutrn JuliaTypes.SHL_ASSIGN_SYM; }
 {SHR_SYM} { reutrn JuliaTypes.SHR_SYM; }
+{SHR_ASSIGN_SYM} { reutrn JuliaTypes.SHR_ASSIGN_SYM; }
 {PLUS_SYM} { reutrn JuliaTypes.PLUS_SYM; }
 {PLUS_ASSIGN_SYM} { reutrn JuliaTypes.PLUS_ASSIGN_SYM; }
 {MINUS_SYM} { reutrn JuliaTypes.MINUS_SYM; }
@@ -302,6 +317,7 @@ OTHERWISE=[^ \t\r\n]
 {TYPEALIAS_KEYWORD} { return JuliaTypes.TYPEALIAS_KEYWORD; }
 {IMMUTABLE_KEYWORD} { return JuliaTypes.IMMUTABLE_KEYWORD; }
 {UNION_KEYWORD} { return JuliaTypes.UNION_KEYWORD; }
+{QUOTE_KEYWORD} { return JuliaTypes.QUOTE_KEYWORD; }
 
 {REGEX_LITERAL} { return JuliaTypes.REGEX_LITERAL; }
 {BYTE_ARRAY_LITERAL} { return JuliaTypes.BYTE_ARRAY_LITERAL; }
