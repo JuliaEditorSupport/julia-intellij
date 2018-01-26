@@ -1,6 +1,7 @@
 package org.ice1000.julia.lang
 
 import com.google.common.util.concurrent.SimpleTimeLimiter
+import com.intellij.openapi.util.TextRange
 import java.io.InputStream
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
@@ -59,3 +60,5 @@ private fun collectLines(it: InputStream): List<String> {
 	forceRun(reader::close)
 	return ret
 }
+
+fun TextRange.enclose(fromStart: Int, toEnd: Int) = TextRange(startOffset + fromStart, endOffset + toEnd)
