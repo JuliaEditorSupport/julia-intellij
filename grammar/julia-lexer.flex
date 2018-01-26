@@ -8,7 +8,8 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %%
 
 %{
-  private long commentNesting = 0;
+  private int commentNesting = 0;
+  private int commentTokenStart = 0;
   public JuliaLexer() { this((java.io.Reader) null); }
 %}
 
@@ -51,7 +52,7 @@ STRING={INCOMPLETE_STRING}\"
 INCOMPLETE_RAW_STRING=\"\"\"([^\"]|\"(\?!\"\")|\"\"(\?!\"))*
 RAW_STRING={INCOMPLETE_RAW_STRING}\"\"\"
 
-LINE_COMMENT=#[^\n]*\n
+LINE_COMMENT=#[^\n]*
 BLOCK_COMMENT_BEGIN=#=
 BLOCK_COMMENT_END==#
 BLOCK_COMMENT_CONTENT=[^=]|(=+[^#])
@@ -92,22 +93,28 @@ OTHERWISE=[^ \t\r\n]
 
 %%
 
-<YYINITIAL> {EOL}+ { return JuliaTypes.EOL; }
-<YYINITIAL> {WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
-
-<YYINITIAL> {BLOCK_COMMENT_BEGIN} { yybegin(NEST_COMMENT); break; }
-<NEST_COMMENT> {BLOCK_COMMENT_BEGIN} { ++commentNesting; break; }
-<NEST_COMMENT> {BLOCK_COMMENT_CONTENT}+ { break; }
-{BLOCK_COMMENT_END} {
-  --commentNesting;
-  if (commentNesting <= 0) {
+<NEST_COMMENT> {BLOCK_COMMENT_BEGIN} { ++commentNesting; }
+<NEST_COMMENT> {BLOCK_COMMENT_CONTENT}+ { }
+<NEST_COMMENT> {BLOCK_COMMENT_END} {
+  if (commentNesting > 0) {
+    --commentNesting;
+  } else {
     yybegin(YYINITIAL);
+    zzStartRead = commentTokenStart;
     return JuliaTypes.BLOCK_COMMENT;
   }
-  break;
 }
 
-<YYINITIAL> {LINE_COMMENT} { return JuliaTypes.LINE_COMMENT; }
+{EOL}+ { return JuliaTypes.EOL; }
+{WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
+
+{BLOCK_COMMENT_BEGIN} {
+  yybegin(NEST_COMMENT);
+  commentNesting = 0;
+  commentTokenStart = getTokenStart();
+}
+
+{LINE_COMMENT} { return JuliaTypes.LINE_COMMENT; }
 
 {LEFT_BRACKET} { return JuliaTypes.LEFT_BRACKET; }
 {RIGHT_BRACKET} { return JuliaTypes.RIGHT_BRACKET; }
