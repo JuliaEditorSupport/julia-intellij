@@ -115,8 +115,9 @@ finallyClause ::=
  FINALLY_KEYWORD statements
 
 moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
+moduleName ::= identifierImpl
 moduleDeclaration ::=
- moduleType identifier endOfLine
+ moduleType moduleName endOfLine
   statements
  END_KEYWORD
 
@@ -147,9 +148,10 @@ compactFunction ::=
  statement
 
 typeName ::= identifierImpl
+abstractTypeName ::= identifierImpl
 typeDeclaration ::=
- typeModifiers endOfLine
-  typeName endOfLine (SUBTYPE_SYM endOfLine identifier)?
+ typeModifiers TYPE_KEYWORD endOfLine
+  typeName endOfLine (SUBTYPE_SYM endOfLine identifier)? endOfLine
   (
    ( assignment
    | function
@@ -158,6 +160,11 @@ typeDeclaration ::=
    )
    endOfLine
   )*
+ END_KEYWORD
+
+abstractTypeDeclaration ::=
+ ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
+  abstractTypeName endOfLine (SUBTYPE_SYM endOfLine identifier)? endOfLine
  END_KEYWORD
 
 macro ::= 'TODO'
@@ -181,6 +188,7 @@ expr ::=
  | union
  | macro
  | block
+ | abstractTypeDeclaration
  | typeDeclaration
  | typeAlias
 
@@ -204,5 +212,5 @@ typeParameters ::=
  RIGHT_B_BRACKET
 
 userType ::= identifier typeParameters?
-typeModifiers ::= ABSTRACT_KEYWORD? IMMUTABLE_KEYWORD? TYPE_KEYWORD
+typeModifiers ::= IMMUTABLE_KEYWORD?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType

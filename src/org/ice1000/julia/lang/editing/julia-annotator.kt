@@ -10,9 +10,13 @@ class JuliaAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		when (element) {
 			is JuliaTypeName -> holder.createInfoAnnotation(element, null)
-					.textAttributes = JuliaHighlighter.CLASS_TYPENAME
+					.textAttributes = JuliaHighlighter.TYPE_NAME
 			is JuliaFunctionName -> holder.createInfoAnnotation(element, null)
 					.textAttributes = JuliaHighlighter.FUNCTION_NAME
+			is JuliaAbstractTypeName -> holder.createInfoAnnotation(element, null)
+					.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
+			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
+					.textAttributes = JuliaHighlighter.MODULE_NAME
 			is JuliaInteger -> {
 				holder.createWarningAnnotation(element, "integer")
 			}

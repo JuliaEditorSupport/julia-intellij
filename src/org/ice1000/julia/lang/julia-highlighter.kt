@@ -20,7 +20,9 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val M_BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_BRACKET", DefaultLanguageHighlighterColors.BRACKETS)
 	@JvmField val COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
 	@JvmField val BLOCK_COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
-	@JvmField val CLASS_TYPENAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPENAME", DefaultLanguageHighlighterColors.CLASS_NAME)
+	@JvmField val TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
+	@JvmField val ABSTRACT_TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_ABSTRACT_TYPE_NAME", DefaultLanguageHighlighterColors.INTERFACE_NAME)
+	@JvmField val MODULE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_MODULE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val FUNCTION_NAME = TextAttributesKey.createTextAttributesKey("JULIA_FUNCTION_NAME", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
 
 	private val KEYWORD_KEY = arrayOf(KEYWORD)
@@ -90,25 +92,32 @@ class JuliaHighlighterFactory : SyntaxHighlighterFactory() {
 }
 
 class JuliaColorSettingsPage : ColorSettingsPage {
-	private val descriptors = arrayOf(
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.comment"), JuliaHighlighter.COMMENT),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.block-comment"), JuliaHighlighter.BLOCK_COMMENT),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.keyword"), JuliaHighlighter.KEYWORD),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string"), JuliaHighlighter.STRING),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.CLASS_TYPENAME)
-	)
+	private companion object DescriptorHolder {
+		private val DESCRIPTORS = arrayOf(
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.comment"), JuliaHighlighter.COMMENT),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.block-comment"), JuliaHighlighter.BLOCK_COMMENT),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.keyword"), JuliaHighlighter.KEYWORD),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string"), JuliaHighlighter.STRING),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.TYPE_NAME)
+		)
+
+		private val ADDITIONAL_DESCRIPTORS = mapOf(
+				"moduleName" to JuliaHighlighter.MODULE_NAME,
+				"abstractTypeName" to JuliaHighlighter.ABSTRACT_TYPE_NAME
+		)
+	}
 
 	override fun getHighlighter(): SyntaxHighlighter = JuliaHighlighter
-	override fun getAdditionalHighlightingTagToDescriptorMap() = null
+	override fun getAdditionalHighlightingTagToDescriptorMap() = ADDITIONAL_DESCRIPTORS
 	override fun getIcon() = JULIA_BIG_ICON
-	override fun getAttributeDescriptors() = descriptors
+	override fun getAttributeDescriptors() = DESCRIPTORS
 	override fun getColorDescriptors(): Array<ColorDescriptor> = ColorDescriptor.EMPTY_ARRAY
 	override fun getDisplayName() = JuliaFileType.name
 	override fun getDemoText() = """
 		#=
 		 BLOCK COMMENT
 		=#
-		module ice1000
+		module <moduleName>ice1000</moduleName>
 		3.2 # => 3.2 (Float64)
 		1 + 1 # => 2
 		div(5, 2) # => 2 # for a truncated result, use div
@@ -121,7 +130,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		catch e
 		   println(e)
 		end
-		abstract type Cat <: Animals
+		abstract type <abstractTypeName>Cat</abstractTypeName> <: Animals
 			age::Int64
 		end
 		for (k,v) in Dict("dog"=>"mammal","cat"=>"mammal","mouse"=>"mammal")
