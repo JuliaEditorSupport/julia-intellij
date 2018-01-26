@@ -38,7 +38,9 @@ class JuliaCommenter : Commenter {
 class JuliaSpellCheckingStrategy : SpellcheckingStrategy() {
 	override fun getTokenizer(element: PsiElement): Tokenizer<*> = when (element) {
 		is JuliaComment,
-		is JuliaSymbol -> super.getTokenizer(element)
+		is JuliaFunctionName,
+		is JuliaTypeName,
+		is JuliaSymbol -> TEXT_TOKENIZER
 		is JuliaString -> super.getTokenizer(element).takeIf { it != EMPTY_TOKENIZER } ?: TEXT_TOKENIZER
 		else -> EMPTY_TOKENIZER
 	}
