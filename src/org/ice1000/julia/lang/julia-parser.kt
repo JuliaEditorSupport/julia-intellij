@@ -9,7 +9,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes
 
 class JuliaParserDefinition : ParserDefinition {
 	private companion object {
-		private val FILE = IFileElementType(Language.findInstance(JuliaLanguage::class.java))
+		private val FILE = IFileElementType(JuliaLanguage.INSTANCE)
 	}
 
 	override fun createParser(project: Project?) = JuliaParser()
@@ -23,7 +23,7 @@ class JuliaParserDefinition : ParserDefinition {
 	override fun getWhitespaceTokens() = JuliaTokenType.WHITE_SPACES
 }
 
-class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage) {
+class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE) {
 	companion object {
 		@JvmField val COMMENTS = TokenSet.create(JuliaTypes.BLOCK_COMMENT, JuliaTypes.LINE_COMMENT)
 		@JvmField val STRINGS = TokenSet.create(JuliaTypes.STR, JuliaTypes.RAW_STR, JuliaTypes.STRING)
@@ -31,4 +31,4 @@ class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage)
 	}
 }
 
-class JuliaElementType(debugName: String) : IElementType(debugName, JuliaLanguage)
+class JuliaElementType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE)

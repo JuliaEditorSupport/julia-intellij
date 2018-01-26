@@ -224,13 +224,12 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		3.2 # => 3.2 (Float64)
 		1 + 1 # => 2
 		div(5, 2) # => 2 # for a truncated result, use div
-		# Boolean operators
-		'\xjs' # => char parse error
+		<stringEscapeInvalid>'\xjs'</stringEscapeInvalid> # => escape char syntax error
 		!true # => false
 		@printf "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
 		"1 + 2 = 3" == "1 + 2 = $(1+2)" # => true
 		try
-			println("Hello<stringEscape>\n</stringEscape>World<stringEscapeInvalid>\g</stringEscapeInvalid>" + '\n' + '\a')
+			println("Hello<stringEscape>\n</stringEscape>World\g" + '\n' + '\a')
 			some_other_var # => ERROR: some_other_var not defined
 		catch e
 		   println(e)
