@@ -26,6 +26,7 @@ integer ::= INT_LITERAL
 float ::= FLOAT_LITERAL
 boolean ::= TRUE_KEYWORD | FALSE_KEYWORD
 char ::= CHAR_LITERAL
+regex ::= REGEX_LITERAL
 
 private endOfLineImpl ::= EOL | comment
 private endOfLine ::= endOfLineImpl*
@@ -197,17 +198,23 @@ typeModifiers ::= IMMUTABLE_KEYWORD?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType
 
 expr ::=
+   level17
+
+private level17 ::=
    string
  | char
  | integer
  | float
  | boolean
+ | macroIdentifier
  | identifier
  | if
  | for
+ | regex
  | while
  | function
  | compactFunction
+ | empty
  | union
  | macro
  | block
@@ -237,3 +244,35 @@ fractionAssignOp ::= expr FRACTION_ASSIGN_SYM expr
 fractionOp ::= expr FRACTION_SYM expr
 greaterThanOp ::= expr GREATER_THAN_SYM expr
 greaterThanOrEqualOp ::= expr GREATER_THAN_OR_EQUAL_SYM expr
+divideAssignOp ::= expr DIVIDE_ASSIGN_SYM expr { rightAssociative=true }
+divideOp ::= expr DIVIDE_SYM expr
+elementAddAssignOp ::= expr ELEMENT_ADD_ASSIGN_SYM expr { rightAssociative=true }
+elementShlOp ::= expr ELEMENT_SHL_SYM expr
+elementShrOp ::= expr ELEMENT_SHR_SYM expr
+elementLshrOp ::= expr ELEMENT_LSHR_SYM expr
+elementFractionOp ::= expr ELEMENT_FRACTION_SYM expr
+elementDivideOp ::= expr ELEMENT_DIVIDE_SYM expr
+elementDivAssignOp ::= expr ELEMENT_DIV_ASSIGN_SYM expr { rightAssociative=true }
+elementExponentAssignOp ::= expr ELEMENT_EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
+elementFractionAssignOp ::= expr ELEMENT_FRACTION_ASSIGN_SYM expr { rightAssociative=true }
+elementMultiplyAssignOp ::= expr ELEMENT_MULTIPLY_ASSIGN_SYM expr { rightAssociative=true }
+elementRemainderAssignOp ::= expr ELEMENT_REMAINDER_ASSIGN_SYM expr { rightAssociative=true }
+elementRemainderOp ::= expr ELEMENT_REMAINDER_SYM expr
+elementExponentOp ::= expr ELEMENT_EXPONENT_SYM expr
+elementMinusAssignOp ::= expr ELEMENT_MINUS_ASSIGN_SYM expr { rightAssociative=true }
+elementMinusOp ::= expr ELEMENT_MINUS_SYM expr
+elementMultiplyOp ::= expr ELEMENT_MULTIPLY_SYM expr
+elementPlusOp ::= expr ELEMENT_PLUS_SYM expr
+elementEqualsOp ::= expr ELEMENT_EQUALS_SYM expr
+elementUnequalOp ::= expr ELEMENT_UNEQUAL_SYM expr
+elementGreaterThanOp ::= expr ELEMENT_GREATER_THAN_SYM expr
+elementLessThanOp ::= expr ELEMENT_LESS_THAN_SYM expr
+elementGreaterThanOrEqualOp ::= expr ELEMENT_GREATER_THAN_OR_EQUAL_SYM expr
+elementLessThanOrEqualOp ::= expr ELEMENT_LESS_THAN_OR_EQUAL_SYM expr
+factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM expr { rightAssociative=true }
+factoriseOp ::= expr FACTORISE_SYM expr
+exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
+exponentOp ::= expr EXPONENT_SYM expr
+equalsOp ::= expr EQUALS_SYM expr
+
+empty ::= '[' ']'
