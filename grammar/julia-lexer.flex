@@ -8,7 +8,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %%
 
 %{
-  private int commentNesting = 0;
+  private int commentDepth = 0;
   private int commentTokenStart = 0;
   public JuliaLexer() { this((java.io.Reader) null); }
 %}
@@ -55,7 +55,7 @@ RAW_STRING={INCOMPLETE_RAW_STRING}\"\"\"
 LINE_COMMENT=#[^\n]*
 BLOCK_COMMENT_BEGIN=#=
 BLOCK_COMMENT_END==#
-BLOCK_COMMENT_CONTENT=[^=]|(=+[^#])
+BLOCK_COMMENT_CONTENT=[^#=]|(=+[^#])
 
 LEFT_BRACKET=\(
 RIGHT_BRACKET=\)
@@ -93,11 +93,17 @@ OTHERWISE=[^ \t\r\n]
 
 %%
 
-<NEST_COMMENT> {BLOCK_COMMENT_BEGIN} { ++commentNesting; }
+<NEST_COMMENT> {BLOCK_COMMENT_BEGIN} { ++commentDepth; }
 <NEST_COMMENT> {BLOCK_COMMENT_CONTENT}+ { }
+<NEST_COMMENT> <<EOF>> {
+  yybegin(YYINITIAL);
+  zzStartRead = commentTokenStart;
+  return JuliaTypes.BLOCK_COMMENT;
+}
+
 <NEST_COMMENT> {BLOCK_COMMENT_END} {
-  if (commentNesting > 0) {
-    --commentNesting;
+  if (commentDepth > 0) {
+    --commentDepth;
   } else {
     yybegin(YYINITIAL);
     zzStartRead = commentTokenStart;
@@ -110,7 +116,7 @@ OTHERWISE=[^ \t\r\n]
 
 {BLOCK_COMMENT_BEGIN} {
   yybegin(NEST_COMMENT);
-  commentNesting = 0;
+  commentDepth = 0;
   commentTokenStart = getTokenStart();
 }
 
