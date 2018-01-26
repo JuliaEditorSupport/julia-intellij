@@ -39,7 +39,7 @@ class JuliaAnnotator : Annotator {
 				holder.createInfoAnnotation(element, "A type name")
 			}
 			is JuliaSymbol->{
-				println(element)
+				println(element.text)
 				holder.createInfoAnnotation(element, "A symbol")
 			}
 		}

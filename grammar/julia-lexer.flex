@@ -51,10 +51,10 @@ STRING={INCOMPLETE_STRING}\"
 INCOMPLETE_RAW_STRING=\"\"\"([^\"]|\"(\?!\"\")|\"\"(\?!\"))*
 RAW_STRING={INCOMPLETE_RAW_STRING}\"\"\"
 
-LINE_COMMENT=#[^\n]*
+LINE_COMMENT=#[^\n]*\n
 BLOCK_COMMENT_BEGIN=#=
 BLOCK_COMMENT_END==#
-BLOCK_COMMENT_CONTENT=[^*]|=+[^#=]
+BLOCK_COMMENT_CONTENT=[^=]|(=+[^#])
 
 LEFT_BRACKET=\(
 RIGHT_BRACKET=\)
@@ -92,20 +92,20 @@ OTHERWISE=[^ \t\r\n]
 
 %%
 
-{EOL}+ { return JuliaTypes.EOL; }
-{WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
+<YYINITIAL> {EOL}+ { return JuliaTypes.EOL; }
+<YYINITIAL> {WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
 
 <YYINITIAL> {BLOCK_COMMENT_BEGIN} { yybegin(NEST_COMMENT); }
 <NEST_COMMENT> {BLOCK_COMMENT_BEGIN} { ++commentNesting; }
+<NEST_COMMENT> {BLOCK_COMMENT_CONTENT}+ {  }
 <NEST_COMMENT> {BLOCK_COMMENT_END} { --commentNesting;
                                      if (commentNesting <= 0) {
                                        yybegin(YYINITIAL);
                                        return JuliaTypes.BLOCK_COMMENT;
                                      }
                                    }
-<NEST_COMMENT> {BLOCK_COMMENT_CONTENT}+ {  }
 
-{LINE_COMMENT}+ { return JuliaTypes.LINE_COMMENT; }
+<YYINITIAL> {LINE_COMMENT} { return JuliaTypes.LINE_COMMENT; }
 
 {LEFT_BRACKET} { return JuliaTypes.LEFT_BRACKET; }
 {RIGHT_BRACKET} { return JuliaTypes.RIGHT_BRACKET; }
