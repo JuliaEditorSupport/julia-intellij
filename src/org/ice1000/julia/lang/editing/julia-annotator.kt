@@ -23,9 +23,10 @@ class JuliaAnnotator : Annotator {
 				0, 1, 2, 3 -> {
 				}
 			// '\n'
-				4 -> if (element.text[1] !in "ux") holder.createInfoAnnotation(element, null)
+				4 -> if (element.text[2] !in "ux") holder.createInfoAnnotation(element, null)
 						.textAttributes = JuliaHighlighter.CHAR_ESCAPE
-				else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
+				else holder.createErrorAnnotation(element.textRange.narrow(1, 1),
+						JuliaBundle.message("julia.lint.invalid-char-escape"))
 						.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 			// '\x00'
 				6 -> {
@@ -35,7 +36,8 @@ class JuliaAnnotator : Annotator {
 				8 -> {
 					// TODO do validation
 				}
-				else -> holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
+				else -> holder.createErrorAnnotation(element.textRange.narrow(1, 1),
+						JuliaBundle.message("julia.lint.invalid-char-escape"))
 						.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 			}
 			is JuliaInteger -> {
