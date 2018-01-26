@@ -214,11 +214,21 @@ expr ::=
  | level7
  | level6
  | level5
+ | level4
+ | level3
+
+private level3 ::=
+   orOp
+ | bitwiseOrOp
+
+private orOp ::= level4 OR_SYM expr
+private bitwiseOrOp ::= level4 BITWISE_OR_SYM expr
+
+private level4 ::= andOp
+private andOp ::= level5 AND_SYM expr
 
 private level5 ::= lambdaAbstraction
-private lambdaAbstraction ::= symbol LAMBDA_ABSTRACTION expr {
-	rightAssociative=true
-}
+private lambdaAbstraction ::= symbol LAMBDA_ABSTRACTION expr { rightAssociative=true }
 
 private level6 ::=
    lessThanOrEqualOp
@@ -399,13 +409,10 @@ private factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM expr { rightAssociative=
 private exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
 private bitWiseNotOp ::= BITWISE_NOT_SYM expr
 private bitwiseAndAssignOp ::= expr BITWISE_AND_ASSIGN_SYM expr { rightAssociative=true }
-private bitwiseOrOp ::= expr BITWISE_OR_SYM expr
 private bitwiseOrAssignOp ::= expr BITWISE_OR_ASSIGN_SYM expr { rightAssociative=true }
 private bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM expr { rightAssociative=true }
 private arrayConstructorOp ::= expr LEFT_M_BRACKET RIGHT_M_BRACKET
 private assignOp ::= expr EQ_SYM expr { rightAssociative=true }
-private andOp ::= expr AND_SYM expr
-private orOp ::= expr OR_SYM expr
 private shlAssignOp ::= expr SHL_ASSIGN_SYM expr { rightAssociative=true }
 private shrAssignOp ::= expr SHR_ASSIGN_SYM expr { rightAssociative=true }
 
