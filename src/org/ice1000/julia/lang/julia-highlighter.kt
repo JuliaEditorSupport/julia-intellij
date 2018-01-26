@@ -15,6 +15,9 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val NUMBER = TextAttributesKey.createTextAttributesKey("JULIA_NUMBER", DefaultLanguageHighlighterColors.NUMBER)
 	@JvmField val STRING = TextAttributesKey.createTextAttributesKey("JULIA_STRING", DefaultLanguageHighlighterColors.STRING)
 	@JvmField val OPERATOR = TextAttributesKey.createTextAttributesKey("JULIA_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
+	@JvmField val BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_PARENTHESES", DefaultLanguageHighlighterColors.PARENTHESES)
+	@JvmField val B_BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_BRACES", DefaultLanguageHighlighterColors.BRACES)
+	@JvmField val M_BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_BRACKET", DefaultLanguageHighlighterColors.BRACKETS)
 	@JvmField val COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
 	@JvmField val BLOCK_COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
 	@JvmField val CLASS_TYPENAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPENAME", DefaultLanguageHighlighterColors.CLASS_NAME)
@@ -24,6 +27,9 @@ object JuliaHighlighter : SyntaxHighlighter {
 	private val STRING_KEY = arrayOf(STRING)
 	private val NUMBER_KEY = arrayOf(NUMBER)
 	private val OPERATOR_KEY = arrayOf(OPERATOR)
+	private val BRACKETS_KEY = arrayOf(BRACKET)
+	private val B_BRACKETS_KEY = arrayOf(B_BRACKET)
+	private val M_BRACKETS_KEY = arrayOf(M_BRACKET)
 	private val COMMENT_KEY = arrayOf(COMMENT)
 	private val BLOCK_COMMENT_KEY = arrayOf(BLOCK_COMMENT)
 
@@ -56,6 +62,13 @@ object JuliaHighlighter : SyntaxHighlighter {
 			JuliaTypes.FALSE_KEYWORD
 	)
 
+	/** parentheses */
+	private val BRACKETS = listOf(JuliaTypes.LEFT_BRACKET, JuliaTypes.RIGHT_BRACKET)
+	/** braces */
+	private val B_BRACKETS = listOf(JuliaTypes.LEFT_B_BRACKET, JuliaTypes.RIGHT_B_BRACKET)
+	/** brackets */
+	private val M_BRACKETS: List<IElementType> = listOf()
+
 	override fun getHighlightingLexer() = JuliaLexerAdapter()
 	override fun getTokenHighlights(type: IElementType?): Array<TextAttributesKey> = when (type) {
 		JuliaTypes.STR,
@@ -64,6 +77,9 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.BLOCK_COMMENT -> BLOCK_COMMENT_KEY
 		JuliaTypes.INT_LITERAL,
 		JuliaTypes.FLOAT_LITERAL -> NUMBER_KEY
+		in BRACKETS -> BRACKETS_KEY
+		in M_BRACKETS -> M_BRACKETS_KEY
+		in B_BRACKETS -> B_BRACKETS_KEY
 		in KEYWORDS_LIST -> KEYWORD_KEY
 		else -> emptyArray()
 	}
@@ -84,7 +100,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 
 	override fun getHighlighter(): SyntaxHighlighter = JuliaHighlighter
 	override fun getAdditionalHighlightingTagToDescriptorMap() = null
-	override fun getIcon() = JuliaFileType.icon
+	override fun getIcon() = JULIA_BIG_ICON
 	override fun getAttributeDescriptors() = descriptors
 	override fun getColorDescriptors(): Array<ColorDescriptor> = ColorDescriptor.EMPTY_ARRAY
 	override fun getDisplayName() = JuliaFileType.name

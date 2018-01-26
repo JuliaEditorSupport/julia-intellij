@@ -26,8 +26,8 @@ float ::= FLOAT_LITERAL
 boolean ::= TRUE_KEYWORD | FALSE_KEYWORD
 // char ::= CHAR_LITERAL
 
-private endOfLine ::= (comment* EOL comment*)*
-private semi ::= EOL | SEMICOLON_SYM | comment
+private endOfLine ::= EOL*
+private semi ::= EOL | SEMICOLON_SYM
 statements ::= semi* (statement (semi+ statement)*)? semi*
 
 private statement ::=
