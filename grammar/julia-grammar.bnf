@@ -20,16 +20,15 @@ identifier ::=
    (symbol  (endOfLine DOT_SYM endOfLine symbol)*)
  | (symbol? (endOfLine DOT_SYM endOfLine symbol)+)
 
-//noinspection BnfUnusedRule
-comment ::= LINE_COMMENT | BLOCK_COMMENT
+private comment ::= LINE_COMMENT | BLOCK_COMMENT
 string ::= STR | RAW_STR
 integer ::= INT_LITERAL
 float ::= FLOAT_LITERAL
 boolean ::= TRUE_KEYWORD | FALSE_KEYWORD
 // char ::= CHAR_LITERAL
 
-private endOfLine ::= EOL*
-private semi ::= EOL | SEMICOLON_SYM
+private endOfLine ::= (EOL | comment)*
+private semi ::= EOL | SEMICOLON_SYM | BLOCK_COMMENT
 statements ::= semi* (statement (semi+ statement)*)? semi*
 private statement ::=
    includeStatement

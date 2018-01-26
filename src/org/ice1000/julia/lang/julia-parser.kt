@@ -25,7 +25,7 @@ class JuliaParserDefinition : ParserDefinition {
 
 class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage) {
 	companion object {
-		@JvmField val COMMENTS = TokenSet.create(JuliaTypes.COMMENT, JuliaTypes.LINE_COMMENT)
+		@JvmField val COMMENTS = TokenSet.create(JuliaTypes.BLOCK_COMMENT, JuliaTypes.LINE_COMMENT)
 		@JvmField val STRINGS = TokenSet.create(JuliaTypes.STR, JuliaTypes.RAW_STR, JuliaTypes.STRING)
 		@JvmField val WHITE_SPACES: TokenSet = TokenSet.WHITE_SPACE
 	}

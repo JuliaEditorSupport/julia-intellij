@@ -42,10 +42,6 @@ class JuliaAnnotator : Annotator {
 				println(element)
 				holder.createInfoAnnotation(element, "A symbol")
 			}
-			is JuliaComment -> {
-				holder.createInfoAnnotation(element, "it is a comment") // it doesn't work???
-				// of course. There isn't such syntax structure called "comment" now, we only have token called LINE_COMMENT :D
-			}
 		}
 	}
 }
