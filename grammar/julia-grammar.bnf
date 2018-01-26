@@ -144,9 +144,10 @@ compactFunction ::=
    variables EQ_SYM endOfLine
   statement
 
+typeName ::= SYM
 typeDeclaration ::=
  typeAndAbsTypeKeywords endOfLine
-   symbol (endOfLine SUBTYPE_SYM endOfLine identifier)?
+   typeName (endOfLine SUBTYPE_SYM endOfLine identifier)?
   assignmentExpression*
   functionDeclaration*
  END_KEYWORD

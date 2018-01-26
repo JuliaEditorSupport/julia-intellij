@@ -3,7 +3,6 @@ package org.ice1000.julia.lang.editing
 import com.intellij.lang.*
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
-import org.ice1000.julia.lang.JULIA_DOC_SURROUNDING
 import org.ice1000.julia.lang.psi.JuliaTypes
 
 class JuliaBraceMatcher : PairedBraceMatcher {

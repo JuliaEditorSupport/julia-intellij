@@ -17,7 +17,6 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val OPERATOR = TextAttributesKey.createTextAttributesKey("JULIA_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
 	@JvmField val COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
 	@JvmField val BLOCK_COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
-	//CLASS_TYPENAME doesn't work on account of code parsing ??
 	@JvmField val CLASS_TYPENAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPENAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 
 
@@ -27,7 +26,6 @@ object JuliaHighlighter : SyntaxHighlighter {
 	private val OPERATOR_KEY = arrayOf(OPERATOR)
 	private val COMMENT_KEY = arrayOf(COMMENT)
 	private val BLOCK_COMMENT_KEY = arrayOf(BLOCK_COMMENT)
-	private val CLASS_TYPE_KEY = arrayOf(CLASS_TYPENAME)
 
 	private val KEYWORDS_LIST = listOf(
 			JuliaTypes.END_KEYWORD,
@@ -64,7 +62,6 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.BLOCK_COMMENT -> BLOCK_COMMENT_KEY
 		JuliaTypes.INT_LITERAL,
 		JuliaTypes.FLOAT_LITERAL -> NUMBER_KEY
-		JuliaTypes.TYPE_NAME -> CLASS_TYPE_KEY
 		in KEYWORDS_LIST -> KEYWORD_KEY
 		else -> emptyArray()
 	}
@@ -87,7 +84,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 	override fun getAdditionalHighlightingTagToDescriptorMap() = null
 	override fun getIcon() = JuliaFileType.icon
 	override fun getAttributeDescriptors() = descriptors
-	override fun getColorDescriptors() = ColorDescriptor.EMPTY_ARRAY
+	override fun getColorDescriptors(): Array<ColorDescriptor> = ColorDescriptor.EMPTY_ARRAY
 	override fun getDisplayName() = JuliaFileType.name
 	override fun getDemoText() = """
 		#= BLOCK COMMENT
