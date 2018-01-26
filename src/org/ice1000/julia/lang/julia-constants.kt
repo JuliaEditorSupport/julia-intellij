@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NonNls
 
 @NonNls const val JULIA_EXTENSION = "jl"
 @NonNls const val JULIA_DOC_SURROUNDING = "\"\"\""
+@NonNls const val JULIA_STRING_DOLLAR = "$"
 @NonNls const val JULIA_MODULE_ID = "JULIA_MODULE_TYPE"
 
 @NonNls const val JULIA_DEFAULT_MODULE_NAME = "MyBizarreJuliaModule"

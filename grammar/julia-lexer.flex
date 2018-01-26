@@ -8,12 +8,14 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %%
 
 %{
+  private long commentNesting = 0;
   public JuliaLexer() { this((java.io.Reader) null); }
 %}
 
 %class JuliaLexer
 %implements FlexLexer
 %unicode
+
 %function advance
 %type IElementType
 %eof{ return;
@@ -50,8 +52,9 @@ INCOMPLETE_RAW_STRING=\"\"\"([^\"]|\"(\?!\"\")|\"\"(\?!\"))*
 RAW_STRING={INCOMPLETE_RAW_STRING}\"\"\"
 
 LINE_COMMENT=#[^\n]*
-BLOCK_COMMENT = "#=" {BLOCK_COMMENT_CONTENT} "="+ "#"
-BLOCK_COMMENT_CONTENT = ( [^*] | = + [^#=] )*
+BLOCK_COMMENT_BEGIN=#=
+BLOCK_COMMENT_END==#
+BLOCK_COMMENT_CONTENT=[^*]|=+[^#=]
 
 LEFT_BRACKET=\(
 RIGHT_BRACKET=\)
@@ -85,12 +88,24 @@ EOL=\n
 WHITE_SPACE=[ \t\r]
 OTHERWISE=[^ \t\r\n]
 
+%state NEST_COMMENT
+
 %%
 
 {EOL}+ { return JuliaTypes.EOL; }
 {WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
+
+<YYINITIAL> {BLOCK_COMMENT_BEGIN} { yybegin(NEST_COMMENT); }
+<NEST_COMMENT> {BLOCK_COMMENT_BEGIN} { ++commentNesting; }
+<NEST_COMMENT> {BLOCK_COMMENT_END} { --commentNesting;
+                                     if (commentNesting <= 0) {
+                                       yybegin(YYINITIAL);
+                                       return JuliaTypes.BLOCK_COMMENT;
+                                     }
+                                   }
+<NEST_COMMENT> {BLOCK_COMMENT_CONTENT}+ {  }
+
 {LINE_COMMENT}+ { return JuliaTypes.LINE_COMMENT; }
-{BLOCK_COMMENT}+ { return JuliaTypes.BLOCK_COMMENT; }
 
 {LEFT_BRACKET} { return JuliaTypes.LEFT_BRACKET; }
 {RIGHT_BRACKET} { return JuliaTypes.RIGHT_BRACKET; }

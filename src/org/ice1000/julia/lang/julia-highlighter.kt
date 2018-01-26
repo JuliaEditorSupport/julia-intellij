@@ -87,7 +87,8 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 	override fun getColorDescriptors(): Array<ColorDescriptor> = ColorDescriptor.EMPTY_ARRAY
 	override fun getDisplayName() = JuliaFileType.name
 	override fun getDemoText() = """
-		#= BLOCK COMMENT
+		#=
+		 BLOCK COMMENT
 		=#
 		module ice1000
 		3.2 # => 3.2 (Float64)
@@ -106,7 +107,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			age::Int64
 		end
 		for (k,v) in Dict("dog"=>"mammal","cat"=>"mammal","mouse"=>"mammal")
-		println("${'$'}k is a ${'$'}v")
+		println("$JULIA_STRING_DOLLAR{'$'}k is a $JULIA_STRING_DOLLAR{'$'}v")
 		end
 		x = 0
 		while x < 4
