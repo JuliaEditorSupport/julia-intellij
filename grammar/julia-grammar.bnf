@@ -204,7 +204,47 @@ expr ::=
    primaryExpr
  | level15
  | level14
+ | level13
+ | level12
+ | level11
 
+// * / %
+private level11 ::=
+   multiplyOp
+ | divideOp
+ | remainderOp
+ | inverseDivideOp
+ | elementMultiplyOp
+ | elementDivideOp
+ | elementRemainderOp
+ | factoriseOp
+
+private multiplyOp ::= level12 MULTIPLY_SYM expr
+private divideOp ::= level12 DIVIDE_SYM expr
+private remainderOp ::= level12 REMAINDER_SYM expr
+private inverseDivideOp ::= level12 INVERSE_DIV_SYM expr
+private elementRemainderOp ::= level12 ELEMENT_REMAINDER_SYM expr
+private elementMultiplyOp ::= level12 ELEMENT_MULTIPLY_SYM expr
+private elementDivideOp ::= level12 ELEMENT_DIVIDE_SYM expr
+private factoriseOp ::= level12 FACTORISE_SYM expr
+
+// // .//
+private level12 ::=
+   fractionOp
+ | elementFractionOp
+
+private elementFractionOp ::= level13 ELEMENT_FRACTION_SYM expr
+
+// ^ .^
+private level13 ::=
+   exponentOp
+ | elementExponentOp
+
+private exponentOp ::= level14 EXPONENT_SYM expr
+private fractionOp ::= level14 FRACTION_SYM expr
+private elementExponentOp ::= level14 ELEMENT_EXPONENT_SYM expr
+
+// ::
 private level14 ::=
    typeOp
  | unaryTypeOp
@@ -248,7 +288,6 @@ private primaryExpr ::=
  | typeAlias
 
 private inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM expr
-private inverseDivideOp ::= expr INVERSE_DIV_SYM expr
 private isOp ::= expr IS_SYM expr
 private isntOp ::= expr ISNT_SYM expr
 private lambdaAbstraction ::= symbol LAMBDA_ABSTRACTION expr {
@@ -258,7 +297,6 @@ private lambdaAbstraction ::= symbol LAMBDA_ABSTRACTION expr {
 private transposeOp ::= expr TRANSPOSE_SYM
 private rangeOp ::= expr COLON_SYM expr
 private remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM expr
-private remainderOp ::= expr REMAINDER_SYM expr
 private spliceOp ::= expr SLICE_SYM
 private lessThanOp ::= expr LESS_THAN_SYM expr
 private lessThanOrEqualOp ::= expr LESS_THAN_OR_EQUAL_SYM expr
@@ -268,31 +306,22 @@ private plusOp ::= expr PLUS_SYM expr
 private plusAssignOp ::= expr PLUS_ASSIGN_SYM expr
 private minusOp ::= expr MINUS_SYM expr
 private minusAssignOp ::= expr MINUS_ASSIGN_SYM expr
-private multiplyOp ::= expr MULTIPLY_SYM expr
 private multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM expr
 private unequalOp ::= expr UNEQUAL_SYM expr
 private fractionAssignOp ::= expr FRACTION_ASSIGN_SYM expr
-private fractionOp ::= expr FRACTION_SYM expr
 private greaterThanOp ::= expr GREATER_THAN_SYM expr
 private greaterThanOrEqualOp ::= expr GREATER_THAN_OR_EQUAL_SYM expr
 private divideAssignOp ::= expr DIVIDE_ASSIGN_SYM expr { rightAssociative=true }
-private divideOp ::= expr DIVIDE_SYM expr
-private elementAddAssignOp ::= expr ELEMENT_ADD_ASSIGN_SYM expr { rightAssociative=true }
 private elementShlOp ::= expr ELEMENT_SHL_SYM expr
 private elementShrOp ::= expr ELEMENT_SHR_SYM expr
 private elementLshrOp ::= expr ELEMENT_LSHR_SYM expr
-private elementFractionOp ::= expr ELEMENT_FRACTION_SYM expr
-private elementDivideOp ::= expr ELEMENT_DIVIDE_SYM expr
 private elementDivAssignOp ::= expr ELEMENT_DIV_ASSIGN_SYM expr { rightAssociative=true }
 private elementExponentAssignOp ::= expr ELEMENT_EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
 private elementFractionAssignOp ::= expr ELEMENT_FRACTION_ASSIGN_SYM expr { rightAssociative=true }
-private elementMultiplyAssignOp ::= expr ELEMENT_MULTIPLY_ASSIGN_SYM expr { rightAssociative=true }
 private elementRemainderAssignOp ::= expr ELEMENT_REMAINDER_ASSIGN_SYM expr { rightAssociative=true }
-private elementRemainderOp ::= expr ELEMENT_REMAINDER_SYM expr
-private elementExponentOp ::= expr ELEMENT_EXPONENT_SYM expr
-private elementMinusAssignOp ::= expr ELEMENT_MINUS_ASSIGN_SYM expr { rightAssociative=true }
+private elementMultiplyAssignOp ::= expr ELEMENT_MULTIPLY_ASSIGN_SYM expr { rightAssociative=true }
 private elementMinusOp ::= expr ELEMENT_MINUS_SYM expr
-private elementMultiplyOp ::= expr ELEMENT_MULTIPLY_SYM expr
+private elementMinusAssignOp ::= expr ELEMENT_MINUS_ASSIGN_SYM expr { rightAssociative=true }
 private elementPlusOp ::= expr ELEMENT_PLUS_SYM expr
 private elementPlusAssignOp ::= expr ELEMENT_PLUS_ASSIGN_SYM expr
 private elementEqualsOp ::= expr ELEMENT_EQUALS_SYM expr
@@ -303,9 +332,14 @@ private elementGreaterThanOrEqualOp ::= expr ELEMENT_GREATER_THAN_OR_EQUAL_SYM e
 private elementLessThanOrEqualOp ::= expr ELEMENT_LESS_THAN_OR_EQUAL_SYM expr
 private elementTransposeOp ::= expr ELEMENT_TRANSPOSE_SYM
 private factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM expr { rightAssociative=true }
-private factoriseOp ::= expr FACTORISE_SYM expr
 private exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
-private exponentOp ::= expr EXPONENT_SYM expr
 private equalsOp ::= expr EQUALS_SYM expr
+private bitWiseNotOp ::= BITWISE_NOT_SYM expr
+private bitwiseAndOp ::= expr BITWISE_AND_SYM expr
+private bitwiseAndAssignOp ::= expr BITWISE_AND_ASSIGN_SYM expr { rightAssociative=true }
+private bitwiseOrOp ::= expr BITWISE_OR_SYM expr
+private bitwiseOrAssignOp ::= expr BITWISE_OR_ASSIGN_SYM expr { rightAssociative=true }
+private bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM expr { rightAssociative=true }
+private bitwiseXorOp ::= expr INTERPOLATE_SYM expr
 
 empty ::= LEFT_M_BRACKET RIGHT_M_BRACKET
