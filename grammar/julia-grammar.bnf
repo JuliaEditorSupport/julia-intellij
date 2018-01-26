@@ -224,3 +224,16 @@ lambdaAbstraction ::= symbol LAMBDA_ABSTRACTION expr {
 	rightAssociative=true
 }
 
+lessThanOp ::= expr LESS_THAN_SYM expr
+lessThanOrEqualOp ::= expr LESS_THAN_OR_EQUAL_SYM expr
+shrAssignOp ::= expr SHR_ASSIGN_SYM expr
+shrOp ::= expr SHR_SYM expr
+minusOp ::= expr MINUS_SYM expr
+minusAssignOp ::= expr MINUS_ASSIGN_SYM expr
+multiplyOp ::= expr MULTIPLY_SYM expr
+multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM expr
+unequalOp ::= expr UNEQUAL_SYM expr
+fractionAssignOp ::= expr FRACTION_ASSIGN_SYM expr
+fractionOp ::= expr FRACTION_SYM expr
+greaterThanOp ::= expr GREATER_THAN_SYM expr
+greaterThanOrEqualOp ::= expr GREATER_THAN_OR_EQUAL_SYM expr
