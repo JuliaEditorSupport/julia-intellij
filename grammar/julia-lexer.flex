@@ -48,6 +48,7 @@ TYPEALIAS_KEYWORD=typealias
 IMMUTABLE_KEYWORD=immutable
 TRUE_KEYWORD=true
 FALSE_KEYWORD=false
+UNION_KEYWORD=union
 
 INCOMPLETE_STRING=\"([^\"\x00-\x1F\x7F]|\\[\'\"bnrt]|(\\u[a-fA-F0-9]{4}))*
 STRING={INCOMPLETE_STRING}\"
@@ -163,6 +164,7 @@ OTHERWISE=[^ \t\r\n]
 {ABSTRACT_KEYWORD} { return JuliaTypes.ABSTRACT_KEYWORD; }
 {TYPEALIAS_KEYWORD} { return JuliaTypes.TYPEALIAS_KEYWORD; }
 {IMMUTABLE_KEYWORD} { return JuliaTypes.IMMUTABLE_KEYWORD; }
+{UNION_KEYWORD} { return JuliaTypes.UNION_KEYWORD; }
 
 {SYMBOL} { return JuliaTypes.SYM; }
 {INTEGER} { return JuliaTypes.INT_LITERAL; }

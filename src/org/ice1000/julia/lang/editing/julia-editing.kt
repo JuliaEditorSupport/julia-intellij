@@ -18,7 +18,7 @@ class JuliaBraceMatcher : PairedBraceMatcher {
 				BracePair(JuliaTypes.IF_KEYWORD, JuliaTypes.END_KEYWORD, false),
 				BracePair(JuliaTypes.WHILE_KEYWORD, JuliaTypes.END_KEYWORD, false),
 				BracePair(JuliaTypes.FOR_KEYWORD, JuliaTypes.END_KEYWORD, false),
-				BracePair(JuliaTypes.TYPE_KEYWORD, JuliaTypes.END_KEYWORD, true)
+				BracePair(JuliaTypes.TYPE_KEYWORD, JuliaTypes.END_KEYWORD, false)
 		)
 	}
 
@@ -36,7 +36,7 @@ class JuliaCommenter : Commenter {
 }
 
 class JuliaSpellCheckingStrategy : SpellcheckingStrategy() {
-	override fun getTokenizer(element: PsiElement): Tokenizer<*> = when (element) {
+	override fun getTokenizer(element: PsiElement): Tokenizer<PsiElement> = when (element) {
 		is JuliaComment,
 		is JuliaFunctionName,
 		is JuliaTypeName,
