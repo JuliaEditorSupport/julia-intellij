@@ -166,7 +166,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			age::Int64
 		end
 		for (k,v) in Dict("dog"=>"mammal","cat"=>"mammal","mouse"=>"mammal")
-		println("$JULIA_STRING_DOLLAR{'$'}k is a $JULIA_STRING_DOLLAR{'$'}v")
+		println("${JULIA_STRING_DOLLAR}k is a ${JULIA_STRING_DOLLAR}v")
 		end
 		x = 0
 		while x < 4

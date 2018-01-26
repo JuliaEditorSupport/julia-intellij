@@ -30,11 +30,24 @@ class JuliaAnnotator : Annotator {
 						.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 			// '\x00'
 				6 -> {
-					// TODO do validation
+					if(element.text.trimQuotePair().matches(Regex(JULIA_CHAR_SINGLE_UNICODE_X_REGEX)))
+						holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
+					else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
+							.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 				}
 			// '\u0022'
 				8 -> {
-					// TODO do validation
+					if(element.text.trimQuotePair().matches(Regex(JULIA_CHAR_SINGLE_UNICODE_U_REGEX)))
+						holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
+					else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
+							.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
+				}
+			// '\xe5\x86\xb0'
+				14 -> {
+					if (element.text.trimQuotePair().matches(Regex(JULIA_CHAR_TRIPLE_UNICODE_X_REGEX)))
+						holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
+					else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
+							.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 				}
 				else -> holder.createErrorAnnotation(element.textRange.narrow(1, 1),
 						JuliaBundle.message("julia.lint.invalid-char-escape"))
@@ -48,6 +61,11 @@ class JuliaAnnotator : Annotator {
 			}
 			is JuliaString -> {
 				// TODO do validation
+				val str=element.text.trimQuotePair()
+				if('\\' in element.text){
+					holder.createInfoAnnotation(element.textRange, null)
+							.textAttributes = JuliaHighlighter.STRING_ESCAPE
+				}
 			}
 		}
 	}
