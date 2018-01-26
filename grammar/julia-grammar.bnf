@@ -16,11 +16,12 @@ juliaFile ::= statements
 
 macroIdentifier ::= AT_SYM identifier
 symbol ::= SYM
-identifier ::=
+identifier ::= identifierImpl
+private identifierImpl ::=
    (symbol  (endOfLine DOT_SYM endOfLine symbol)*)
  | (symbol? (endOfLine DOT_SYM endOfLine symbol)+)
 
-private comment ::= BLOCK_COMMENT | LINE_COMMENT
+comment ::= BLOCK_COMMENT | LINE_COMMENT
 string ::= STR | RAW_STR integer ::= INT_LITERAL
 float ::= FLOAT_LITERAL
 boolean ::= TRUE_KEYWORD | FALSE_KEYWORD
@@ -39,7 +40,6 @@ private statement ::=
  | returnStatement
  | breakStatement
  | continueStatement
- | typeDeclaration
  | expr
 
 breakStatement ::= BREAK_KEYWORD
@@ -118,6 +118,12 @@ moduleDeclaration ::=
   statements
  END_KEYWORD
 
+union ::= UNION_KEYWORD tuple
+tuple ::=
+ LEFT_BRACKET endOfLine
+  expr (endOfLine COMMA_SYM endOfLine expr)+ endOfLine COMMA_SYM? endOfLine
+ RIGHT_BRACKET
+
 private variables ::=
  LEFT_BRACKET endOfLine
   (typedVariable (endOfLine COMMA_SYM endOfLine typedVariable)*)? endOfLine
@@ -127,22 +133,29 @@ functionName ::= SYM
 function ::=
  FUNCTION_KEYWORD endOfLine
     functionName endOfLine
-     typeParameters? endOfLine
-   variables type? endOfLine
+     (typeParameters endOfLine)?
+   variables typeAnnotation? endOfLine
   statements
  END_KEYWORD
 
 compactFunction ::=
  functionName endOfLine
-  typeParameters?
+  (typeParameters endOfLine)?
    variables EQ_SYM endOfLine
  statement
 
-typeName ::= SYM
+typeName ::= identifierImpl
 typeDeclaration ::=
- typeAndAbsTypeKeywords endOfLine
-   typeName endOfLine (SUBTYPE_SYM endOfLine identifier)?
-  ((assignmentExpression | function) endOfLine)*
+ typeModifiers endOfLine
+  typeName endOfLine (SUBTYPE_SYM endOfLine identifier)?
+  (
+   ( assignment
+   | function
+   | compactFunction
+   | identifier
+   )
+   endOfLine
+  )*
  END_KEYWORD
 
 expr ::=
@@ -156,14 +169,21 @@ expr ::=
  | while
  | function
  | compactFunction
+ | typeDeclaration
+ | typeAlias
 
-assignmentExpression ::= 'TODO'
+assignment ::=
+ typedVariable endOfLine
+ (
+  EQ_SYM endOfLine
+  expr
+ )?
 
 // | char
-type ::= DOUBLE_COLON endOfLine identifier
+typeAnnotation ::= DOUBLE_COLON endOfLine identifier
 typedVariable ::=
  identifier endOfLine
-  type? endOfLine
+  (typeAnnotation endOfLine)?
  typeParameters?
 
 typeParameters ::=
@@ -171,8 +191,6 @@ typeParameters ::=
   expr (endOfLine COMMA_SYM endOfLine expr?)* endOfLine
  RIGHT_B_BRACKET
 
-// class keywords->  `abstract type` and `type`.
-// `abstract classname` is deprecated
-// and you should use `abstract classname
-// end`
-typeAndAbsTypeKeywords ::= ABSTRACT_KEYWORD? TYPE_KEYWORD
+userType ::= identifier typeParameters?
+typeModifiers ::= ABSTRACT_KEYWORD? IMMUTABLE_KEYWORD? TYPE_KEYWORD
+typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType

@@ -50,6 +50,8 @@ object JuliaHighlighter : SyntaxHighlighter {
 			JuliaTypes.FUNCTION_KEYWORD,
 			JuliaTypes.TYPE_KEYWORD,
 			JuliaTypes.ABSTRACT_KEYWORD,
+			JuliaTypes.TYPEALIAS_KEYWORD,
+			JuliaTypes.IMMUTABLE_KEYWORD,
 			JuliaTypes.TRUE_KEYWORD,
 			JuliaTypes.FALSE_KEYWORD
 	)

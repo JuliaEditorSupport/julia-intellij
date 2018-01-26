@@ -23,13 +23,16 @@ Functions provided:<br/>
 	<extensions defaultExtensionNs="com.intellij">
 		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>
 		<sdkType implementation="org.ice1000.julia.lang.module.JuliaSdkType"/>
+		<colorSettingsPage implementation="org.ice1000.julia.lang.JuliaColorSettingsPage"/>
+		<spellchecker.support
+				language="Julia"
+				implementationClass="org.ice1000.julia.lang.editing.JuliaSpellCheckingStrategy"/>
 		<lang.braceMatcher
 				language="Julia"
 				implementationClass="org.ice1000.julia.lang.editing.JuliaBraceMatcher"/>
 		<annotator
 				language="Julia"
 				implementationClass="org.ice1000.julia.lang.editing.JuliaAnnotator"/>
-		<colorSettingsPage implementation="org.ice1000.julia.lang.JuliaColorSettingsPage"/>
 		<lang.syntaxHighlighterFactory
 				language="Julia"
 				implementationClass="org.ice1000.julia.lang.JuliaHighlighterFactory"/>

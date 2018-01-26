@@ -1,9 +1,12 @@
 package org.ice1000.julia.lang.editing
 
 import com.intellij.lang.*
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
-import org.ice1000.julia.lang.psi.JuliaTypes
+import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy
+import com.intellij.spellchecker.tokenizer.Tokenizer
+import org.ice1000.julia.lang.psi.*
 
 class JuliaBraceMatcher : PairedBraceMatcher {
 	private companion object Pairs {
@@ -30,4 +33,13 @@ class JuliaCommenter : Commenter {
 	override fun getBlockCommentPrefix() = "#= "
 	override fun getBlockCommentSuffix() = " =#"
 	override fun getLineCommentPrefix() = "# "
+}
+
+class JuliaSpellCheckingStrategy : SpellcheckingStrategy() {
+	override fun getTokenizer(element: PsiElement): Tokenizer<*> = when (element) {
+		is JuliaComment,
+		is JuliaSymbol -> super.getTokenizer(element)
+		is JuliaString -> super.getTokenizer(element).takeIf { it != EMPTY_TOKENIZER } ?: TEXT_TOKENIZER
+		else -> EMPTY_TOKENIZER
+	}
 }
