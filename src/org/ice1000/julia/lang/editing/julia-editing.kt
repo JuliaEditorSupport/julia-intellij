@@ -1,8 +1,7 @@
 package org.ice1000.julia.lang.editing
 
 import com.intellij.lang.*
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
+import com.intellij.psi.*
 import com.intellij.psi.tree.IElementType
 import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy
 import com.intellij.spellchecker.tokenizer.Tokenizer
@@ -37,7 +36,7 @@ class JuliaCommenter : Commenter {
 
 class JuliaSpellCheckingStrategy : SpellcheckingStrategy() {
 	override fun getTokenizer(element: PsiElement): Tokenizer<PsiElement> = when (element) {
-		is JuliaComment,
+		is PsiComment,
 		is JuliaFunctionName,
 		is JuliaTypeName,
 		is JuliaSymbol -> TEXT_TOKENIZER
