@@ -17,9 +17,8 @@ juliaFile ::= statements
 macroIdentifier ::= AT_SYM identifier
 symbol ::= SYM
 identifier ::= identifierImpl
-private identifierImpl ::=
-   (symbol  (endOfLine DOT_SYM endOfLine symbol)*)
- | (symbol? (endOfLine DOT_SYM endOfLine symbol)+)
+private identifierChain ::= endOfLine DOT_SYM endOfLine symbol
+private identifierImpl ::= (symbol identifierChain*) | (symbol? identifierChain+)
 
 comment ::= BLOCK_COMMENT | LINE_COMMENT
 string ::= STR | RAW_STR integer ::= INT_LITERAL
@@ -27,9 +26,10 @@ float ::= FLOAT_LITERAL
 boolean ::= TRUE_KEYWORD | FALSE_KEYWORD
 // char ::= CHAR_LITERAL
 
-private endOfLine ::= (EOL | comment)*
-private semi ::= EOL | SEMICOLON_SYM
+private endOfLine ::= (comment* EOL comment*)*
+private semi ::= EOL | SEMICOLON_SYM | comment
 statements ::= semi* (statement (semi+ statement)*)? semi*
+
 private statement ::=
    includeStatement
  | moduleDeclaration
@@ -158,6 +158,13 @@ typeDeclaration ::=
   )*
  END_KEYWORD
 
+macro ::= 'TODO'
+
+block ::=
+ BLOCK_KEYWORD
+  statements
+ END_KEYWORD
+
 expr ::=
    string
  | integer
@@ -169,6 +176,9 @@ expr ::=
  | while
  | function
  | compactFunction
+ | union
+ | macro
+ | block
  | typeDeclaration
  | typeAlias
 
