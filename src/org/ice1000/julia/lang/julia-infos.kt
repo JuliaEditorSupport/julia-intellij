@@ -32,7 +32,7 @@ class JuliaFileTypeFactory : FileTypeFactory() {
 	override fun createFileTypes(consumer: FileTypeConsumer) = consumer.consume(JuliaFileType, JULIA_EXTENSION)
 }
 
-class JuliaContext: TemplateContextType("JULIA","Julia"){
+class JuliaContext: TemplateContextType("JULIA",JULIA_LANGUAGE_NAME){
 	override fun isInContext(file: PsiFile, offset: Int)=file.name.endsWith(JULIA_EXTENSION)
 }
 
