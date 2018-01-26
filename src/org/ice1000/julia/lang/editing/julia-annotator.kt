@@ -61,29 +61,33 @@ class JuliaAnnotator : Annotator {
 			}
 			is JuliaString -> {
 				val str=element.text.trimQuotePair()
-				// handle \x
-				str.indicesOf("\\x").forEach {
-					if (it + 4 < str.length) {
-						val s = str.subSequence(it, it + 4)
-						if (s.matches(Regex(JULIA_CHAR_SINGLE_UNICODE_X_REGEX))) {
-							holder.createInfoAnnotation(
-									element.textRange.subRangeBeginOffsetAndLength(it+1,4),
-									null)
-									.textAttributes = JuliaHighlighter.STRING_ESCAPE
+				fun markEscapeChars(escapeString:String,expandSize:Int,matchRegex:String){
+					str.indicesOf(escapeString).forEach {
+						if (it + expandSize < str.length) {
+							val s = str.subSequence(it, it + expandSize)
+							if (s.matches(Regex(matchRegex))) {
+								holder.createInfoAnnotation(
+										element.textRange.subRangeBeginOffsetAndLength(it+1,expandSize),
+										null)
+										.textAttributes = JuliaHighlighter.STRING_ESCAPE
+							} else {
+								holder.createErrorAnnotation(
+										element.textRange.subRangeBeginOffsetAndLength(it+1,expandSize),
+										JuliaBundle.message("julia.lint.invalid-char-escape"))
+										.textAttributes = JuliaHighlighter.STRING_ESCAPE_INVALID
+							}
 						} else {
 							holder.createErrorAnnotation(
-									element.textRange.subRangeBeginOffsetAndLength(it+1,4),
+									element.textRange.narrow(it+1,1),//to the end
 									JuliaBundle.message("julia.lint.invalid-char-escape"))
 									.textAttributes = JuliaHighlighter.STRING_ESCAPE_INVALID
 						}
-					} else {
-						holder.createErrorAnnotation(
-								element.textRange.narrow(it+1,1),
-								JuliaBundle.message("julia.lint.invalid-char-escape"))
-								.textAttributes = JuliaHighlighter.STRING_ESCAPE_INVALID
 					}
 				}
+				markEscapeChars("\\x",4, JULIA_CHAR_SINGLE_UNICODE_X_REGEX)
+				markEscapeChars("\\u",6, JULIA_CHAR_SINGLE_UNICODE_U_REGEX)
 			}
 		}
 	}
+
 }
