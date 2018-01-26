@@ -60,7 +60,8 @@ includeStatement ::=
 exportStatement ::=
  EXPORT_KEYWORD endOfLine
   (identifier | macroIdentifier)
-  (endOfLine COMMA_SYM endOfLine (identifier | macroIdentifier))*
+  (endOfLine COMMA_SYM endOfLine
+   (identifier | macroIdentifier))*
 
 importStatement ::=
  IMPORT_KEYWORD endOfLine
@@ -78,7 +79,12 @@ usingStatement ::=
  USING_KEYWORD endOfLine
   identifier? (endOfLine COMMA_SYM endOfLine identifier)*
 
-ifStatement ::= IF_KEYWORD statements (elseIfClause* elseClause?)? END_KEYWORD
+ifStatement ::=
+ IF_KEYWORD statements
+  elseIfClause*
+  elseClause?
+ END_KEYWORD
+
 elseIfClause ::= ELSEIF_KEYWORD statements
 elseClause ::= ELSE_KEYWORD statements
 
@@ -118,8 +124,9 @@ expr ::=
  | float
  | boolean
  | identifier
+
 // | char
-type ::= DOUBLE_COLON identifier
+type ::= DOUBLE_COLON endOfLine identifier
 typedVariable ::= identifier type? typeParameters?
 typeParameters ::= LEFT_B_BRACKET expr (COMMA_SYM expr?)* RIGHT_B_BRACKET
 

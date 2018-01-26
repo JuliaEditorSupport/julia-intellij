@@ -106,3 +106,4 @@ hs_err_pid*
 julia-intellij.iml
 .idea
 gen
+idea-flex.skeleton

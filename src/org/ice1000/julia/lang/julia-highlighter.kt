@@ -4,9 +4,7 @@ import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.SyntaxHighlighter
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
-import com.intellij.openapi.options.colors.AttributesDescriptor
-import com.intellij.openapi.options.colors.ColorDescriptor
-import com.intellij.openapi.options.colors.ColorSettingsPage
+import com.intellij.openapi.options.colors.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.tree.IElementType
@@ -76,7 +74,7 @@ class JuliaHighlighterFactory : SyntaxHighlighterFactory() {
 	override fun getSyntaxHighlighter(project: Project?, virtualFile: VirtualFile?) = JuliaHighlighter
 }
 
-class JuliaColorSettingsPage:ColorSettingsPage{
+class JuliaColorSettingsPage : ColorSettingsPage {
 	private val descriptors = arrayOf(
 			AttributesDescriptor("Line Comment", JuliaHighlighter.COMMENT),
 			AttributesDescriptor("Block Comment", JuliaHighlighter.BLOCK_COMMENT),
@@ -84,13 +82,14 @@ class JuliaColorSettingsPage:ColorSettingsPage{
 			AttributesDescriptor("String", JuliaHighlighter.STRING),
 			AttributesDescriptor("Type Name", JuliaHighlighter.CLASS_TYPENAME)
 	)
-	override fun getHighlighter(): SyntaxHighlighter=JuliaHighlighter
-	override fun getAdditionalHighlightingTagToDescriptorMap()=null
-	override fun getIcon()=JuliaFileType.icon
-	override fun getAttributeDescriptors()=descriptors
+
+	override fun getHighlighter(): SyntaxHighlighter = JuliaHighlighter
+	override fun getAdditionalHighlightingTagToDescriptorMap() = null
+	override fun getIcon() = JuliaFileType.icon
+	override fun getAttributeDescriptors() = descriptors
 	override fun getColorDescriptors() = ColorDescriptor.EMPTY_ARRAY
-	override fun getDisplayName()=JuliaFileType.name
-	override fun getDemoText()="""
+	override fun getDisplayName() = JuliaFileType.name
+	override fun getDemoText() = """
 		#= BLOCK COMMENT
 		=#
 		module ice1000
