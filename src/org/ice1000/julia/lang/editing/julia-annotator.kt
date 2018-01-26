@@ -11,6 +11,8 @@ class JuliaAnnotator : Annotator {
 		when (element) {
 			is JuliaTypeName -> holder.createInfoAnnotation(element, null)
 					.textAttributes = JuliaHighlighter.CLASS_TYPENAME
+			is JuliaFunctionName -> holder.createInfoAnnotation(element, null)
+					.textAttributes = JuliaHighlighter.FUNCTION_NAME
 			is JuliaInteger -> {
 				holder.createWarningAnnotation(element, "integer")
 			}
@@ -20,16 +22,16 @@ class JuliaAnnotator : Annotator {
 			is JuliaString -> {
 				holder.createInfoAnnotation(element, " string ♂ ")
 			}
-			is JuliaFunctionDeclaration -> {
+			is JuliaFunction -> {
 				holder.createInfoAnnotation(element, "FuncDef")
 			}
-			is JuliaIfStatement -> {
+			is JuliaIf -> {
 				holder.createInfoAnnotation(element, "if statement `if x < y ` ")
 			}
-			is JuliaForStatement -> {
+			is JuliaFor -> {
 				holder.createInfoAnnotation(element, "for statement format: `for i in `")
 			}
-			is JuliaWhileStatement -> {
+			is JuliaWhile -> {
 
 			}
 			is JuliaTypeName->{
@@ -42,6 +44,7 @@ class JuliaAnnotator : Annotator {
 			}
 			is JuliaComment -> {
 				holder.createInfoAnnotation(element, "it is a comment") // it doesn't work???
+				// of course. There isn't such syntax structure called "comment" now, we only have token called LINE_COMMENT :D
 			}
 		}
 	}

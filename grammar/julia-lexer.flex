@@ -87,7 +87,7 @@ OTHERWISE=[^ \t\r\n]
 
 %%
 
-{EOL} { return JuliaTypes.EOL; }
+{EOL}+ { return JuliaTypes.EOL; }
 {WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
 {LINE_COMMENT}+ { return JuliaTypes.LINE_COMMENT; }
 {BLOCK_COMMENT}+ { return JuliaTypes.BLOCK_COMMENT; }

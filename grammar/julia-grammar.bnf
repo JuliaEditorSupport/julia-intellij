@@ -17,8 +17,8 @@ juliaFile ::= statements
 macroIdentifier ::= AT_SYM identifier
 symbol ::= SYM
 identifier ::=
-   symbol  (endOfLine DOT_SYM endOfLine symbol)*
- | symbol? (endOfLine DOT_SYM endOfLine symbol)+
+   (symbol  (endOfLine DOT_SYM endOfLine symbol)*)
+ | (symbol? (endOfLine DOT_SYM endOfLine symbol)+)
 
 //noinspection BnfUnusedRule
 comment ::= LINE_COMMENT | BLOCK_COMMENT
@@ -28,7 +28,7 @@ float ::= FLOAT_LITERAL
 boolean ::= TRUE_KEYWORD | FALSE_KEYWORD
 // char ::= CHAR_LITERAL
 
-private endOfLine ::= EOL*
+private endOfLine ::= EOL?
 private semi ::= EOL | SEMICOLON_SYM
 statements ::= semi* (statement (semi+ statement)*)? semi*
 private statement ::=
@@ -37,16 +37,11 @@ private statement ::=
  | exportStatement
  | importStatement
  | usingStatement
- | ifStatement
- | forStatement
- | whileStatement
  | tryCatchStatement
  | returnStatement
  | breakStatement
  | continueStatement
- | functionDeclaration
- | typeDeclaration // which is `classDeclaration` in other languages
- | compactFunction
+ | typeDeclaration
  | expr
 
 breakStatement ::= BREAK_KEYWORD
@@ -79,7 +74,7 @@ usingStatement ::=
  USING_KEYWORD endOfLine
   identifier? (endOfLine COMMA_SYM endOfLine identifier)*
 
-ifStatement ::=
+if ::=
  IF_KEYWORD statements
   elseIfClause*
   elseClause?
@@ -88,7 +83,7 @@ ifStatement ::=
 elseIfClause ::= ELSEIF_KEYWORD statements
 elseClause ::= ELSE_KEYWORD statements
 
-forStatement ::= indexer statements END_KEYWORD
+for ::= indexer statements END_KEYWORD
 private indexer ::= FOR_KEYWORD endOfLine (multiIndexer | singleIndexer)
 singleIndexer ::= symbol (IN_KEYWORD | EQ_SYM) endOfLine expr
 multiIndexer ::=
@@ -98,7 +93,7 @@ multiIndexer ::=
  (IN_KEYWORD | EQ_SYM) endOfLine
  expr
 
-whileStatement ::=
+while ::=
  WHILE_KEYWORD endOfLine
   expr endOfLine
    statements
@@ -130,7 +125,7 @@ private variables ::=
   (typedVariable (endOfLine COMMA_SYM endOfLine typedVariable)*)? endOfLine
  RIGHT_BRACKET
 
-functionDeclaration ::=
+function ::=
  FUNCTION_KEYWORD endOfLine
     identifier endOfLine
      typeParameters? endOfLine
@@ -138,18 +133,19 @@ functionDeclaration ::=
   statements
  END_KEYWORD
 
+functionName ::= SYM
 compactFunction ::=
- identifier endOfLine
+ functionName endOfLine
   typeParameters?
    variables EQ_SYM endOfLine
-  statement
+ statement
 
 typeName ::= SYM
 typeDeclaration ::=
  typeAndAbsTypeKeywords endOfLine
-   typeName (endOfLine SUBTYPE_SYM endOfLine identifier)?
-  assignmentExpression*
-  functionDeclaration*
+   typeName endOfLine (SUBTYPE_SYM endOfLine identifier)?
+  (assignmentExpression endOfLine)*
+  function*
  END_KEYWORD
 
 expr ::=
@@ -158,6 +154,11 @@ expr ::=
  | float
  | boolean
  | identifier
+ | if
+ | for
+ | while
+ | function
+ | compactFunction
 
 assignmentExpression ::= 'TODO'
 
