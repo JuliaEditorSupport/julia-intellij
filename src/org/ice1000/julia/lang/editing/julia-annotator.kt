@@ -31,21 +31,21 @@ class JuliaAnnotator : Annotator {
 				// '\x00'
 					6 -> {
 						if (element.text.trimQuotePair().matches(Regex(JULIA_CHAR_SINGLE_UNICODE_X_REGEX)))
-							holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
+							holder.createInfoAnnotation(element.textRange.narrow(1, 1), null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
 						else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
 								.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 					}
 				// '\u0022'
 					8 -> {
 						if(element.text.trimQuotePair().matches(Regex(JULIA_CHAR_SINGLE_UNICODE_U_REGEX)))
-							holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
+							holder.createInfoAnnotation(element.textRange.narrow(1, 1), null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
 						else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
 								.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 					}
 				// '\xe5\x86\xb0'
 					14 -> {
 						if (element.text.trimQuotePair().matches(Regex(JULIA_CHAR_TRIPLE_UNICODE_X_REGEX)))
-							holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
+							holder.createInfoAnnotation(element.textRange.narrow(1, 1), null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
 						else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
 								.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 					}
