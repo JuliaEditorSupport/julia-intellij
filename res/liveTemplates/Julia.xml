@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templateSet group="Julia">
-    <template name="function" value="function $NAME$()&#10;&#10;end"
-              description="function" toReformat="false" toShortenFQNames="true">
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true" />
-        <context>
-            <option name="JULIA" value="true" />
-        </context>
-    </template>
-    <template name="fun1" value="function $NAME$($PARAM1$)&#10;&#10;end"
-              description="function with one param" toReformat="false" toShortenFQNames="true">
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true" />
-        <variable name="$PARAM1$" expression="" defaultValue="a" alwaysStopAt="true" />
-        <context>
-            <option name="JULIA" value="true" />
-        </context>
-    </template>
-    <template name="class" value="type $NAME$&#10;&#09;$FIELDS$&#10;end"
-              description="type" toReformat="false" toShortenFQNames="true">
-        <variable name="NAME" expression="" defaultValue="TypeName" alwaysStopAt="true" />
-        <variable name="FIELDS" expression="" defaultValue="" alwaysStopAt="true" />
-        <context>
-            <option name="JULIA" value="true" />
-        </context>
-    </template>
-    <template name="type" value="type $NAME$&#10;&#09;$FIELDS$&#10;end"
-              description="type" toReformat="false" toShortenFQNames="true">
-        <variable name="NAME" expression="" defaultValue="TypeName" alwaysStopAt="true" />
-        <variable name="FIELDS" expression="" defaultValue="" alwaysStopAt="true" />
-        <context>
-            <option name="JULIA" value="true" />
-        </context>
-    </template>
-    <template name="abstract" value="abstract type $NAME$&#10;&#09;$FIELDS$&#10;end"
-              description="abstract type" toReformat="false" toShortenFQNames="true">
-        <variable name="NAME" expression="" defaultValue="TypeName" alwaysStopAt="true"/>
-        <variable name="FIELDS" expression="" defaultValue="" alwaysStopAt="true" />
-        <context>
-            <option name="JULIA" value="true" />
-        </context>
-    </template>
+	<template name="function" value="function $NAME$()&#10;&#10;end"
+	          description="function" toReformat="false" toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="fun1" value="function $NAME$($PARAM1$)&#10;&#10;end"
+	          description="function with one param" toReformat="false" toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+		<variable name="$PARAM1$" expression="" defaultValue="a" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="class" value="type $NAME$&#10;&#09;$FIELDS$&#10;end"
+	          description="type" toReformat="false" toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="TypeName" alwaysStopAt="true"/>
+		<variable name="FIELDS" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="type" value="type $NAME$&#10;&#09;$FIELDS$&#10;end"
+	          description="type" toReformat="false" toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="TypeName" alwaysStopAt="true"/>
+		<variable name="FIELDS" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="abstract type" value="abstract type $NAME$&#10;&#09;$FIELDS$&#10;end"
+	          description="abstract type" toReformat="false" toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="TypeName" alwaysStopAt="true"/>
+		<variable name="FIELDS" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
 </templateSet>

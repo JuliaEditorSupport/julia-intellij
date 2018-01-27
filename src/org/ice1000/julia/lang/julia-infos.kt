@@ -2,6 +2,7 @@ package org.ice1000.julia.lang
 
 import com.intellij.CommonBundle
 import com.intellij.codeInsight.template.TemplateContextType
+import com.intellij.codeInsight.template.impl.DefaultLiveTemplatesProvider
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.*
 import com.intellij.psi.*
@@ -32,8 +33,13 @@ class JuliaFileTypeFactory : FileTypeFactory() {
 	override fun createFileTypes(consumer: FileTypeConsumer) = consumer.consume(JuliaFileType, JULIA_EXTENSION)
 }
 
-class JuliaContext: TemplateContextType("JULIA",JULIA_LANGUAGE_NAME){
-	override fun isInContext(file: PsiFile, offset: Int)=file.name.endsWith(JULIA_EXTENSION)
+class JuliaContext : TemplateContextType(JULIA_CONTEXT_ID, JuliaBundle.message("julia.name")) {
+	override fun isInContext(file: PsiFile, offset: Int) = file.name.endsWith(JULIA_EXTENSION)
+}
+
+class JuliaLiveTemplateProvider : DefaultLiveTemplatesProvider {
+	override fun getDefaultLiveTemplateFiles() = arrayOf("liveTemplates/Julia")
+	override fun getHiddenLiveTemplateFiles(): Array<String> = emptyArray()
 }
 
 object JuliaBundle {
