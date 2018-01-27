@@ -27,38 +27,39 @@ Functions provided:<br/>
 		<colorSettingsPage implementation="org.ice1000.julia.lang.JuliaColorSettingsPage"/>
 		<defaultLiveTemplatesProvider implementation="org.ice1000.julia.lang.JuliaLiveTemplateProvider"/>
 		<liveTemplateContext implementation="org.ice1000.julia.lang.JuliaContext"/>
+		<configurationType implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationType"/>
 		<completion.contributor
-				language="Julia"
-				implementationClass="org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor"/>
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor"/>
 		<spellchecker.support
-				language="Julia"
-				implementationClass="org.ice1000.julia.lang.editing.JuliaSpellCheckingStrategy"/>
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaSpellCheckingStrategy"/>
 		<lang.braceMatcher
-				language="Julia"
-				implementationClass="org.ice1000.julia.lang.editing.JuliaBraceMatcher"/>
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaBraceMatcher"/>
 		<annotator
-				language="Julia"
-				implementationClass="org.ice1000.julia.lang.editing.JuliaAnnotator"/>
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaAnnotator"/>
 		<lang.syntaxHighlighterFactory
-				language="Julia"
-				implementationClass="org.ice1000.julia.lang.JuliaHighlighterFactory"/>
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.JuliaHighlighterFactory"/>
 		<lang.parserDefinition
-				language="Julia"
-				implementationClass="org.ice1000.julia.lang.JuliaParserDefinition"/>
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.JuliaParserDefinition"/>
 		<lang.commenter
-				language="Julia"
-				implementationClass="org.ice1000.julia.lang.editing.JuliaCommenter"/>
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaCommenter"/>
 		<moduleType
-				id="JULIA_MODULE_TYPE"
-				implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>
+			id="JULIA_MODULE_TYPE"
+			implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>
 	</extensions>
 
 	<actions>
 		<action
-				id="Julia.NewJuliaFile"
-				class="org.ice1000.julia.lang.action.NewJuliaFile"
-				text="Julia File"
-				description="Create a new Julia file">
+			id="Julia.NewJuliaFile"
+			class="org.ice1000.julia.lang.action.NewJuliaFile"
+			text="Julia File"
+			description="Create a new Julia file">
 			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
 		</action>
 	</actions>

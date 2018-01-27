@@ -7,7 +7,7 @@ import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.JDOMExternalizer
-import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.JuliaSdkType
 import org.ice1000.julia.lang.module.projectSdk
 import org.jdom.Element
@@ -58,3 +58,14 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 	}
 }
 
+class JuliaRunConfigurationFactory(type: JuliaRunConfigurationType) : ConfigurationFactory(type) {
+	override fun createTemplateConfiguration(project: Project) = JuliaRunConfiguration(project, this)
+}
+
+object JuliaRunConfigurationType : ConfigurationType {
+	override fun getIcon() = JULIA_BIG_ICON
+	override fun getConfigurationTypeDescription() = JuliaBundle.message("julia.run-config.description")
+	override fun getId() = JULIA_RUN_CONFIG_ID
+	override fun getDisplayName() = JuliaBundle.message("julia.name")
+	override fun getConfigurationFactories() = arrayOf(JuliaRunConfigurationFactory(this))
+}
