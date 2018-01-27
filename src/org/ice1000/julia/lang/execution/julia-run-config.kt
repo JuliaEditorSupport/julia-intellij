@@ -1,12 +1,16 @@
 package org.ice1000.julia.lang.execution
 
 import com.intellij.execution.Executor
+import com.intellij.execution.actions.ConfigurationContext
+import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.*
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.JDOMExternalizer
+import com.intellij.openapi.util.Ref
+import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.JuliaSdkType
 import org.ice1000.julia.lang.module.projectSdk
@@ -69,3 +73,21 @@ object JuliaRunConfigurationType : ConfigurationType {
 	override fun getDisplayName() = JuliaBundle.message("julia.name")
 	override fun getConfigurationFactories() = arrayOf(JuliaRunConfigurationFactory(this))
 }
+
+class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfiguration>(JuliaRunConfigurationType) {
+	override fun isConfigurationFromContext(
+		configuration: JuliaRunConfiguration, context: ConfigurationContext) =
+		configuration.targetFile == context
+			.location
+			?.virtualFile
+			?.path
+
+	override fun setupConfigurationFromContext(
+		configuration: JuliaRunConfiguration, context: ConfigurationContext, ref: Ref<PsiElement>?): Boolean {
+		if (context.psiLocation?.containingFile !is JuliaFile) return false
+		configuration.targetFile = context.location?.virtualFile?.path.orEmpty()
+		configuration.workingDir = context.project.basePath.orEmpty()
+		return true
+	}
+}
+

@@ -28,6 +28,7 @@ Functions provided:<br/>
 		<defaultLiveTemplatesProvider implementation="org.ice1000.julia.lang.JuliaLiveTemplateProvider"/>
 		<liveTemplateContext implementation="org.ice1000.julia.lang.JuliaContext"/>
 		<configurationType implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationType"/>
+		<runConfigurationProducer implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationProducer"/>
 		<completion.contributor
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor"/>
