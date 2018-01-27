@@ -34,17 +34,15 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		}
 	var workingDir = ""
 	var targetFile = ""
-	var programArgs = ""
 	var juliaExecutable = sdkUsed?.run { Paths.get(homePath, "bin", "cs").toAbsolutePath().toString() }.orEmpty()
 	override fun getConfigurationEditor() = JuliaRunConfigurationEditor(this)
-	override fun getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState? = null // TODO
+	override fun getState(executor: Executor, env: ExecutionEnvironment) = JuliaCommandLineState(this, env)
 	override fun getValidModules() = allModules.filter { it.project.projectSdk?.sdkType is JuliaSdkType }
 	override fun writeExternal(element: Element) {
 		PathMacroManager.getInstance(project).expandPaths(element)
 		super.writeExternal(element)
 		JDOMExternalizer.write(element, "workingDir", workingDir)
 		JDOMExternalizer.write(element, "targetFile", targetFile)
-		JDOMExternalizer.write(element, "programArgs", programArgs)
 		JDOMExternalizer.write(element, "juliaExecutive", juliaExecutable)
 		JDOMExternalizer.write(element, "sdkName", sdkName)
 	}
@@ -53,7 +51,6 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		super.readExternal(element)
 		JDOMExternalizer.readString(element, "workingDir")?.let { workingDir = it }
 		JDOMExternalizer.readString(element, "targetFile")?.let { targetFile = it }
-		JDOMExternalizer.readString(element, "programArgs")?.let { programArgs = it }
 		JDOMExternalizer.readString(element, "juliaExecutive")?.let { juliaExecutable = it }
 		JDOMExternalizer.readString(element, "sdkName")?.let { name ->
 			sdkUsed = juliaSdks.firstOrNull { it.name == name } ?: return@let

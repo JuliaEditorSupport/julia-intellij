@@ -10,7 +10,10 @@ private const val SDK_HOME = "/home/ice1000/SDK/julia-6.2"
 class UtilsKtTest {
 	@Test
 	fun executeJuliaTest() {
-		val (stdout, stderr) = executeJulia(SDK_HOME, "1+1", 1000L, "--version")
+		val (stdout, stderr) = executeJulia(SDK_HOME, null, 1000L, "--print",
+			"""1+1
+				|2+2
+			""".trimMargin())
 		println("stdout:")
 		stdout.forEach(::println)
 		println("stderr:")
@@ -24,23 +27,23 @@ class UtilsKtTest {
 
 	@Test
 	fun juliaTest() = Runtime
-			.getRuntime()
-			.exec("${Paths.get(SDK_HOME, "bin", "julia").toAbsolutePath()} --version")
-			.inputStream
-			.bufferedReader()
-			.readLine()
-			.let(::println)
+		.getRuntime()
+		.exec("${Paths.get(SDK_HOME, "bin", "julia").toAbsolutePath()} --version")
+		.inputStream
+		.bufferedReader()
+		.readLine()
+		.let(::println)
 
 	@Test
 	fun whereIsJulia() = executeCommand("whereis julia", null, 1000)
-			.first
-			.forEach(::println)
+		.first
+		.forEach(::println)
 
 	@Test
 	fun whereExactlyIsJulia() = System.getenv("PATH")
-			.split(":")
-			.also { it.forEach(::println) }
-			.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
-			?.let { Paths.get(it).parent.toAbsolutePath().toString() }
-			.let(::println)
+		.split(":")
+		.also { it.forEach(::println) }
+		.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
+		?.let { Paths.get(it).parent.toAbsolutePath().toString() }
+		.let(::println)
 }
