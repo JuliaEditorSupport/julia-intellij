@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.annotations.NonNls
 
 class JuliaRemoveElementIntention(
-		private val element: PsiElement,
-		@Nls private val intentionText: String) : BaseIntentionAction() {
+	private val element: PsiElement,
+	@Nls private val intentionText: String) : BaseIntentionAction() {
 	override fun getText() = intentionText
 	override fun isAvailable(project: Project, editor: Editor?, psiFile: PsiFile?) = true
 	override fun getFamilyName() = JuliaBundle.message("julia.name")
@@ -22,9 +22,9 @@ class JuliaRemoveElementIntention(
 }
 
 class JuliaReplaceWithTextIntention(
-		private val element: PsiElement,
-		@NonNls private val new: String,
-		@Nls private val info: String) : BaseIntentionAction() {
+	private val element: PsiElement,
+	@NonNls private val new: String,
+	@Nls private val info: String) : BaseIntentionAction() {
 	override fun getText() = info
 	override fun isAvailable(project: Project, editor: Editor?, psiFile: PsiFile?) = true
 	override fun getFamilyName() = JuliaBundle.message("julia.name")

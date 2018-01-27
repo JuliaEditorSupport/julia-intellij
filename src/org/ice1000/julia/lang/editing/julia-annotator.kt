@@ -11,13 +11,13 @@ class JuliaAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		when (element) {
 			is JuliaTypeName -> holder.createInfoAnnotation(element, null)
-					.textAttributes = JuliaHighlighter.TYPE_NAME
+				.textAttributes = JuliaHighlighter.TYPE_NAME
 			is JuliaFunctionName -> holder.createInfoAnnotation(element, null)
-					.textAttributes = JuliaHighlighter.FUNCTION_NAME
+				.textAttributes = JuliaHighlighter.FUNCTION_NAME
 			is JuliaAbstractTypeName -> holder.createInfoAnnotation(element, null)
-					.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
+				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
 			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
-					.textAttributes = JuliaHighlighter.MODULE_NAME
+				.textAttributes = JuliaHighlighter.MODULE_NAME
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
@@ -27,8 +27,8 @@ class JuliaAnnotator : Annotator {
 	}
 
 	private fun char(
-			element: JuliaCharLit,
-			holder: AnnotationHolder) {
+		element: JuliaCharLit,
+		holder: AnnotationHolder) {
 		when (element.textLength) {
 		// 0, 1, 2 are impossible, 3: 'a'
 			0, 1, 2, 3 -> {
@@ -67,8 +67,8 @@ class JuliaAnnotator : Annotator {
 	}
 
 	private fun string(
-			element: JuliaString,
-			holder: AnnotationHolder) {
+		element: JuliaString,
+		holder: AnnotationHolder) {
 		val str = element.text.trimQuotePair()
 		fun markEscapeChars(escapeString: String, expandSize: Int, matchRegex: String) {
 			str.indicesOf(escapeString).forEach {
@@ -98,8 +98,8 @@ class JuliaAnnotator : Annotator {
 	}
 
 	private fun integer(
-			element: JuliaInteger,
-			holder: AnnotationHolder) {
+		element: JuliaInteger,
+		holder: AnnotationHolder) {
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int")).run {
 			val code = element.text
 			when {

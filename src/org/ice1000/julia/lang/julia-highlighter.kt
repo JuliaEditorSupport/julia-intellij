@@ -22,6 +22,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val CHAR_ESCAPE = TextAttributesKey.createTextAttributesKey("JULIA_CHAR_ESCAPE", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
 	@JvmField val CHAR_ESCAPE_INVALID = TextAttributesKey.createTextAttributesKey("JULIA_CHAR_ESCAPE_INVALID", DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE)
 	@JvmField val OPERATOR = TextAttributesKey.createTextAttributesKey("JULIA_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
+	@JvmField val UNICODE_OPERATOR = TextAttributesKey.createTextAttributesKey("JULIA_UNICODE_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
 	@JvmField val BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_PARENTHESES", DefaultLanguageHighlighterColors.PARENTHESES)
 	@JvmField val B_BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_BRACES", DefaultLanguageHighlighterColors.BRACES)
 	@JvmField val M_BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_BRACKET", DefaultLanguageHighlighterColors.BRACKETS)
@@ -38,19 +39,23 @@ object JuliaHighlighter : SyntaxHighlighter {
 	private val NUMBER_KEY = arrayOf(NUMBER)
 	private val FLOAT_LIT_KEY = arrayOf(FLOAT_LIT)
 	private val OPERATOR_KEY = arrayOf(OPERATOR)
+	private val UNICODE_OPERATOR_KEY = arrayOf(UNICODE_OPERATOR)
 	private val BRACKETS_KEY = arrayOf(BRACKET)
 	private val B_BRACKETS_KEY = arrayOf(B_BRACKET)
 	private val M_BRACKETS_KEY = arrayOf(M_BRACKET)
 	private val COMMENT_KEY = arrayOf(COMMENT)
 	private val BLOCK_COMMENT_KEY = arrayOf(BLOCK_COMMENT)
 
-	private val OPERATOR_LIST = listOf(
+	private val UNICODE_OPERATOR_LIST = listOf(
 		JuliaTypes.MISC_ARROW_SYM,
-		JuliaTypes.SPECIAL_ARROW_SYM,
 		JuliaTypes.MISC_COMPARISON_OP,
 		JuliaTypes.MISC_PLUS_SYM,
 		JuliaTypes.MISC_MULTIPLY_SYM,
-		JuliaTypes.MISC_EXPONENT_SYM,
+		JuliaTypes.MISC_EXPONENT_SYM
+	)
+
+	private val OPERATOR_LIST = listOf(
+		JuliaTypes.SPECIAL_ARROW_SYM,
 		JuliaTypes.DOT_SYM,
 		JuliaTypes.DOUBLE_COLON,
 		JuliaTypes.COLON_SYM,
@@ -165,6 +170,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		in B_BRACKETS -> B_BRACKETS_KEY
 		in KEYWORDS_LIST -> KEYWORD_KEY
 		in OPERATOR_LIST -> OPERATOR_KEY
+		in UNICODE_OPERATOR_LIST -> UNICODE_OPERATOR_KEY
 		else -> emptyArray()
 	}
 }
@@ -181,6 +187,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.keyword"), JuliaHighlighter.KEYWORD),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.num"), JuliaHighlighter.NUMBER),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.operator"), JuliaHighlighter.OPERATOR),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.operator-unicode"), JuliaHighlighter.UNICODE_OPERATOR),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.brackets"), JuliaHighlighter.BRACKET),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.brackets.b"), JuliaHighlighter.B_BRACKET),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.brackets.m"), JuliaHighlighter.M_BRACKET),
@@ -209,37 +216,35 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 	override fun getColorDescriptors(): Array<ColorDescriptor> = ColorDescriptor.EMPTY_ARRAY
 	override fun getDisplayName() = JuliaFileType.name
 	@Language("Julia")
-	override fun getDemoText() = """
-		#=
-		 BLOCK COMMENT
-		=#
-		module <moduleName>ice1000</moduleName>
-		3.2 # => 3.2 (Float64)
-		NaN32 # NaN32 (Float32)
-		1 + 1 # => 2
-		div(5, 2) # => 2 # for a truncated result, use div
-		<stringEscapeInvalid>'\xjb'</stringEscapeInvalid> # => escape char syntax error
-		!true # => false
-		@printf "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
-		"1 + 2 = 3" == "1 + 2 = $(1+2)" # => true
-		try
-			println("Hello<stringEscape>\n</stringEscape>World\g" + '\n' + '\a')
-			some_other_var # => Unresolved reference: some_other_var
-		catch e
-		   println(e)
-		end
-		abstract type <abstractTypeName>Cat</abstractTypeName> <: Animals
-		end
-		type <typeName>Dog</typeName> <: Animals
-			age::Int64
-		end
-		for (k,v) in Dict("dog"=>"mammal","cat"=>"mammal","mouse"=>"mammal")
-		println("${JULIA_STRING_DOLLAR}k is a ${JULIA_STRING_DOLLAR}v")
-		end
-		x = 0
-		while x < 4
-			println(x)
-			x += 1
-		end
-	""".trimIndent()
+	override fun getDemoText() =
+		"""|
+		   |#=
+		   |   BLOCK COMMENT
+		   |=#
+		   |module <moduleName>ice1000</moduleName>
+		   |NaN32 # NaN32 (Float32)
+		   |(1 + 3.2)::Float64
+		   |IntOrString = Union{Int, AbstractString}
+		   |div(5, 2) # => 2 # for a truncated result, use div
+		   |@printf "%d is less than %f <stringEscapeInvalid>'\xjb'</stringEscapeInvalid>" 4.5 5.3 # 5 is less than 5.300000
+		   |assertTrue("1 + 2 = 3" == "1 + 2 = $(1 + 2)")
+		   |[1, 2, 3][2] # arrays
+		   |try
+		   |    println("Hello<stringEscape>\n</stringEscape>World<stringEscape>\g</stringEscape>" + '\n' + '\a')
+		   |    some_other_var # => Unresolved reference: some_other_var
+		   |catch exception
+		   |    println(exception)
+		   |end
+		   |abstract type <abstractTypeName>Cat</abstractTypeName> <: Animals end
+		   |type <typeName>Dog</typeName> <: Animals
+		   |    age::Int64
+		   |end
+		   |for (k, v) in Dict("dog"=>"mammal", "cat"=>"mammal", "mouse"=>"mammal")
+		   |    println("${JULIA_STRING_DOLLAR}k is a ${JULIA_STRING_DOLLAR}v")
+		   |end
+		   |x = 0
+		   |while x ≤ 4
+		   |    println(x)
+		   |    x += 1
+		   |end""".trimMargin()
 }
