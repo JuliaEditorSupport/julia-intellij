@@ -35,6 +35,10 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 				?.split(' ')
 				?.firstOrNull { Files.isExecutable(Paths.get(it)) }
 				?.let { Paths.get(it).parent.parent.toAbsolutePath().toString() }
+				?: System.getenv("PATH")
+						.split(":")
+						.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
+						?.let { Paths.get(it).parent.toAbsolutePath().toString() }
 				?: "/usr/share/julia"
 	}
 

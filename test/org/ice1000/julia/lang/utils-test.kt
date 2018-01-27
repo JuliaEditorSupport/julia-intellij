@@ -2,6 +2,7 @@ package org.ice1000.julia.lang
 
 import org.ice1000.julia.lang.module.versionOf
 import org.junit.Test
+import java.nio.file.Files
 import java.nio.file.Paths
 
 private const val SDK_HOME = "/home/ice1000/SDK/julia-6.2"
@@ -28,5 +29,17 @@ class UtilsKtTest {
 			.inputStream
 			.bufferedReader()
 			.readLine()
+			.let(::println)
+
+	@Test
+	fun whereIsJulia() = executeCommand("which julia", null, 1000)
+			.first
+			.forEach(::println)
+
+	@Test
+	fun whereExactlyIsJulia() = System.getenv("PATH")
+			.split(":")
+			.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
+			?.let { Paths.get(it).parent.toAbsolutePath().toString() }
 			.let(::println)
 }
