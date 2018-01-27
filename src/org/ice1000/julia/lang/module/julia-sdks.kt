@@ -21,25 +21,9 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun isValidSdkHome(sdkHome: String?) = validateJuliaSDK(sdkHome.orEmpty())
 	override fun suggestSdkName(s: String?, p1: String?) = JuliaBundle.message("julia.modules.sdk.name")
 	override fun suggestHomePath() = when {
-		SystemInfo.isWindows -> System.getenv("LOCALAPPDATA") ?: "C:\\Program Files"
-		SystemInfo.isMac -> {
-			val appPath = Paths.get(MAC_APPLICATIONS)
-			val result = Files.list(appPath).collect(Collectors.toList()).firstOrNull { application ->
-				application.toString().contains("julia", true)
-			} ?: appPath
-			result.toAbsolutePath().toString()
-		}
-		else -> executeCommand("whereis julia", null, 500L)
-				.first
-				.firstOrNull()
-				?.split(' ')
-				?.firstOrNull { Files.isExecutable(Paths.get(it)) }
-				?.let { Paths.get(it).parent.parent.toAbsolutePath().toString() }
-				?: System.getenv("PATH")
-						.split(":")
-						.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
-						?.let { Paths.get(it).parent.toAbsolutePath().toString() }
-				?: "/usr/share/julia"
+		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
+		SystemInfo.isMac -> findPathMac()
+		else -> findPathLinux() ?: "/usr/share/julia"
 	}
 
 	override fun getDownloadSdkUrl() = JULIA_WEBSITE
@@ -59,23 +43,44 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	}
 }
 
+private fun findPathMac(): String {
+	val appPath = Paths.get(MAC_APPLICATIONS)
+	val result = Files.list(appPath).collect(Collectors.toList()).firstOrNull { application ->
+		application.toString().contains("julia", true)
+	} ?: appPath
+	return result.toAbsolutePath().toString()
+}
+
+private fun findPathWindows() = System.getenv("LOCALAPPDATA")
+
+private fun findPathLinux() = executeCommand("whereis julia", null, 500L)
+	.first
+	.firstOrNull()
+	?.split(' ')
+	?.firstOrNull { Files.isExecutable(Paths.get(it)) }
+	?.let { Paths.get(it).parent.parent.toAbsolutePath().toString() }
+	?: System.getenv("PATH")
+		.split(":")
+		.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
+		?.let { Paths.get(it).parent.toAbsolutePath().toString() }
+
 fun SdkAdditionalData?.toJuliaSdkData() = this as? JuliaSdkData
 
 class JuliaSdkData(
-		var tryEvaluateTimeLimit: Long = 2500L,
-		var tryEvaluateTextLimit: Int = 320) : SdkAdditionalData {
+	var tryEvaluateTimeLimit: Long = 2500L,
+	var tryEvaluateTextLimit: Int = 320) : SdkAdditionalData {
 	override fun clone() = JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit)
 }
 
 fun versionOf(sdkHome: String, timeLimit: Long = 500L) =
-		executeJulia(sdkHome, null, timeLimit, "--version")
-				.first
-				.firstOrNull { it.startsWith("julia version", true) }
-				?.dropWhile { it.isLetter() or it.isWhitespace() }
-				?: JuliaBundle.message("julia.modules.sdk.unknown-version")
+	executeJulia(sdkHome, null, timeLimit, "--version")
+		.first
+		.firstOrNull { it.startsWith("julia version", true) }
+		?.dropWhile { it.isLetter() or it.isWhitespace() }
+		?: JuliaBundle.message("julia.modules.sdk.unknown-version")
 
 fun validateJuliaSDK(sdkHome: String) = Files.isExecutable(Paths.get(sdkHome, "bin", "julia")) or
-		Files.isExecutable(Paths.get(sdkHome, "bin", "julia.exe"))
+	Files.isExecutable(Paths.get(sdkHome, "bin", "julia.exe"))
 
 class JuliaSdkComboBox : ComboboxWithBrowseButton() {
 	val selectedSdk get() = comboBox.selectedItem as? Sdk
@@ -84,11 +89,11 @@ class JuliaSdkComboBox : ComboboxWithBrowseButton() {
 	init {
 		comboBox.setRenderer(object : ColoredListCellRenderer<Sdk?>() {
 			override fun customizeCellRenderer(
-					list: JList<out Sdk?>,
-					value: Sdk?,
-					index: Int,
-					selected: Boolean,
-					hasFocus: Boolean) {
+				list: JList<out Sdk?>,
+				value: Sdk?,
+				index: Int,
+				selected: Boolean,
+				hasFocus: Boolean) {
 				value?.name?.let(::append)
 			}
 		})
