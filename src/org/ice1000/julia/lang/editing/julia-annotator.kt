@@ -54,6 +54,33 @@ class JuliaAnnotator : Annotator {
 						.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 			}
 			is JuliaInteger -> holder.createInfoAnnotation(element, null).run {
+				val code = element.text
+				when {
+					code.startsWith("0x") -> {
+						val value = code.substring(2).toInt(16)
+						registerFix(JuliaReplaceWithTextIntention(element, value.toString(), "Replace with decimal"))
+						registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}", "Replace with binary"))
+						registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}", "Replace with octal"))
+					}
+					code.startsWith("0b") -> {
+						val value = code.substring(2).toInt(2)
+						registerFix(JuliaReplaceWithTextIntention(element, value.toString(), "Replace with decimal"))
+						registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}", "Replace with hexadecimal"))
+						registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}", "Replace with octal"))
+					}
+					code.startsWith("0o") -> {
+						val value = code.substring(2).toInt(8)
+						registerFix(JuliaReplaceWithTextIntention(element, value.toString(), "Replace with decimal"))
+						registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}", "Replace with binary"))
+						registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}", "Replace with hexadecimal"))
+					}
+					else -> {
+						val value = code.toInt()
+						registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}", "Replace with binary"))
+						registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}", "Replace with octal"))
+						registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}", "Replace with hexadecimal"))
+					}
+				}
 			}
 			is JuliaFloat -> holder.createInfoAnnotation(element, null).run {
 			}

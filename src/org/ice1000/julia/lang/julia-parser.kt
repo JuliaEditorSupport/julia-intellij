@@ -1,9 +1,9 @@
 package org.ice1000.julia.lang
 
-import com.intellij.lang.*
+import com.intellij.lang.ASTNode
+import com.intellij.lang.ParserDefinition
 import com.intellij.openapi.project.Project
-import com.intellij.psi.FileViewProvider
-import com.intellij.psi.PsiElement
+import com.intellij.psi.*
 import com.intellij.psi.tree.*
 import org.ice1000.julia.lang.psi.JuliaTypes
 
@@ -28,6 +28,11 @@ class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.
 		@JvmField val COMMENTS = TokenSet.create(JuliaTypes.BLOCK_COMMENT, JuliaTypes.LINE_COMMENT)
 		@JvmField val STRINGS = TokenSet.create(JuliaTypes.STR, JuliaTypes.RAW_STR, JuliaTypes.STRING)
 		@JvmField val WHITE_SPACES: TokenSet = TokenSet.WHITE_SPACE
+		@JvmField val CONCATENATABLE_TOKENS = TokenSet.orSet(COMMENTS, STRINGS)
+		fun fromText(code: String, project: Project): PsiElement = PsiFileFactory
+				.getInstance(project)
+				.createFileFromText(JuliaLanguage.INSTANCE, code)
+				.firstChild
 	}
 }
 

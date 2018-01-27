@@ -63,16 +63,18 @@ private fun collectLines(it: InputStream): List<String> {
 }
 
 fun TextRange.narrow(fromStart: Int, toEnd: Int) = TextRange(startOffset + fromStart, endOffset - toEnd)
-fun TextRange.subRangeBeginOffsetAndLength(beginOffset: Int, textLength: Int) = TextRange(startOffset + beginOffset, startOffset + beginOffset+textLength)
+fun TextRange.subRangeBeginOffsetAndLength(
+		beginOffset: Int,
+		textLength: Int) = TextRange(startOffset + beginOffset, startOffset + beginOffset + textLength)
 
-fun String.trimQuotePair()= trim('\'','\"')
+fun String.trimQuotePair() = trim('\'', '\"')
+
 /**
  * TODO
  * its effect needs to profit.
  * it is stupid to map each char and compare indices whether in ListSet
  * @param someStr String:
  */
-fun String.indicesOf(someStr: String) =
-		this.indices
-				.map { this.indexOf(someStr, it) }
-				.filterTo(ArrayListSet()) { it > -1 }.toIntArray()
+fun String.indicesOf(someStr: String) = indices
+		.map { indexOf(someStr, it) }
+		.filterTo(ArrayListSet()) { it > -1 }.toIntArray()

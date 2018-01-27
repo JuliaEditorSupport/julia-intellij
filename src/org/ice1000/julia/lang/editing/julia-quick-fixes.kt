@@ -6,7 +6,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.JuliaTokenType
 import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.NonNls
 
 class JuliaRemoveElementIntention(
 		private val element: PsiElement,
@@ -19,3 +21,14 @@ class JuliaRemoveElementIntention(
 	}
 }
 
+class JuliaReplaceWithTextIntention(
+		private val element: PsiElement,
+		@NonNls private val new: String,
+		@Nls private val info: String) : BaseIntentionAction() {
+	override fun getText() = info
+	override fun isAvailable(project: Project, editor: Editor?, psiFile: PsiFile?) = true
+	override fun getFamilyName() = JuliaBundle.message("julia.name")
+	override operator fun invoke(project: Project, editor: Editor?, psiFile: PsiFile?) {
+		JuliaTokenType.fromText(new, project).let(element::replace)
+	}
+}
