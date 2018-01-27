@@ -155,6 +155,7 @@ compactFunction ::=
 
 typeName ::= identifierImpl
 abstractTypeName ::= identifierImpl
+typeReference ::= identifier typeParameters? { extends=expr }
 typeDeclaration ::=
  typeModifiers TYPE_KEYWORD endOfLine
   typeName endOfLine (SUBTYPE_SYM endOfLine identifier)? endOfLine
@@ -438,6 +439,7 @@ private primaryExpr ::=
  | block
  | abstractTypeDeclaration
  | typeDeclaration
+ | typeReference
  | typeAlias
 
 bracketedExpr ::= LEFT_BRACKET endOfLine expr endOfLine RIGHT_BRACKET { extends=expr }
