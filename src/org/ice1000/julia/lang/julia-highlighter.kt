@@ -45,10 +45,6 @@ object JuliaHighlighter : SyntaxHighlighter {
 	private val BLOCK_COMMENT_KEY = arrayOf(BLOCK_COMMENT)
 
 	private val OPERATOR_LIST = listOf(
-			JuliaTypes.LEFT_BRACKET,
-			JuliaTypes.RIGHT_BRACKET,
-			JuliaTypes.LEFT_B_BRACKET,
-			JuliaTypes.RIGHT_B_BRACKET,
 			JuliaTypes.DOT_SYM,
 			JuliaTypes.DOUBLE_COLON,
 			JuliaTypes.COLON_SYM,
@@ -134,6 +130,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 			JuliaTypes.TRUE_KEYWORD,
 			JuliaTypes.FALSE_KEYWORD,
 			JuliaTypes.QUOTE_KEYWORD,
+			JuliaTypes.STRUCT_KEYWORD,
 			JuliaTypes.UNION_KEYWORD
 	)
 
@@ -173,6 +170,10 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.block-comment"), JuliaHighlighter.BLOCK_COMMENT),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.keyword"), JuliaHighlighter.KEYWORD),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.num"), JuliaHighlighter.NUMBER),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.operator"), JuliaHighlighter.OPERATOR),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.brackets"), JuliaHighlighter.BRACKET),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.brackets.b"), JuliaHighlighter.B_BRACKET),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.brackets.m"), JuliaHighlighter.M_BRACKET),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.num-float-lit"), JuliaHighlighter.FLOAT_LIT),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string"), JuliaHighlighter.STRING),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string-escape"), JuliaHighlighter.STRING_ESCAPE),

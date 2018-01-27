@@ -34,7 +34,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		}
 	var workingDir = ""
 	var targetFile = ""
-	var juliaExecutable = sdkUsed?.run { Paths.get(homePath, "bin", "cs").toAbsolutePath().toString() }.orEmpty()
+	var juliaExecutable = sdkUsed?.run { Paths.get(homePath, "bin", "julia").toAbsolutePath().toString() }.orEmpty()
 	override fun getConfigurationEditor() = JuliaRunConfigurationEditor(this)
 	override fun getState(executor: Executor, env: ExecutionEnvironment) = JuliaCommandLineState(this, env)
 	override fun getValidModules() = allModules.filter { it.project.projectSdk?.sdkType is JuliaSdkType }
