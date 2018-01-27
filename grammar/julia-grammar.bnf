@@ -204,7 +204,7 @@ typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr
 expr ::=
    level1
  | ternaryOp
- | level3
+ | orOp
  | andOp
  | lambda
  | level6
@@ -214,7 +214,7 @@ expr ::=
  | level10
  | level11
  | fractionOp
- | exponentOp
+ | level13
  | typeOp
  | level15
  | primaryExpr
@@ -260,12 +260,9 @@ exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
 // level 2
 ternaryOp ::= expr QUESTION_SYM expr COLON_SYM expr { extends=expr }
 
-private level3 ::=
-   orOp
- | bitwiseOrOp
-
+// ||
+// level 3
 orOp ::= expr OR_SYM expr
-bitwiseOrOp ::= expr BITWISE_OR_SYM expr
 
 // &&
 // level 4
@@ -283,12 +280,12 @@ private level6 ::=
  | lessThanOp
  | greaterThanOp
  | greaterThanOrEqualOp
- | miscComparisonOp
  | isntOp
  | isOp
  | equalsOp
  | unequalOp
  | subtypeOp
+ | miscComparisonOp
 
 lessThanOp ::= expr LESS_THAN_SYM expr
 lessThanOrEqualOp ::= expr LESS_THAN_OR_EQUAL_SYM expr
@@ -320,10 +317,14 @@ private level9 ::=
    plusOp
  | minusOp
  | bitwiseXorOp
+ | bitwiseOrOp
+ | miscPlusOp
 
 bitwiseXorOp ::= expr (INTERPOLATE_SYM | BITWISE_XOR_SYM) expr
+bitwiseOrOp ::= expr BITWISE_OR_SYM expr
 plusOp ::= expr PLUS_SYM expr
 minusOp ::= expr MINUS_SYM expr
+miscPlusOp ::= expr MISC_PLUS_SYM expr
 
 private level10 ::=
    shlOp
@@ -346,6 +347,7 @@ private level11 ::=
  | bitwiseAndOp
  | inverseDivideOp
  | factoriseOp
+ | miscMultiplyOp
 
 multiplyOp ::= expr MULTIPLY_SYM expr
 divideOp ::= expr DIVIDE_SYM expr
@@ -353,14 +355,19 @@ remainderOp ::= expr REMAINDER_SYM expr
 inverseDivideOp ::= expr INVERSE_DIV_SYM expr
 factoriseOp ::= expr FACTORISE_SYM expr
 bitwiseAndOp ::= expr BITWISE_AND_SYM expr
+miscMultiplyOp ::= expr MISC_MULTIPLY_SYM expr
 
 // // .//
 // level 12
 fractionOp ::= expr FRACTION_SYM expr
 
 // ^ .^
-// level 13
+private level13 ::=
+   miscExponentOp
+ | exponentOp
+
 exponentOp ::= expr EXPONENT_SYM expr
+miscExponentOp ::= expr MISC_EXPONENT_SYM expr
 
 // ::
 // level 14

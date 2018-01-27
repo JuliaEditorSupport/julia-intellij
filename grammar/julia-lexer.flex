@@ -112,8 +112,8 @@ FRACTION_ASSIGN_SYM=\/\/=
 FRACTION_SYM=\/\/
 GREATER_THAN_SYM=>
 GREATER_THAN_OR_EQUAL_SYM=>=|≥
-DIVIDE_ASSIGN_SYM=\/=
-DIVIDE_SYM=\/
+DIVIDE_ASSIGN_SYM=\/=|÷=
+DIVIDE_SYM=\/|÷
 TRANSPOSE_SYM='
 FACTORISE_ASSIGN_SYM=\.\\\\=
 FACTORISE_SYM=\.\\\\
@@ -129,6 +129,9 @@ BITWISE_OR_ASSIGN_SYM=\|=
 BITWISE_XOR_SYM=\$|⊻
 BITWISE_XOR_ASSIGN_SYM=\$=|⊻=
 MISC_COMPARISION_SYM=[∈∉∋∌⊆⊈⊂⊄⊊∝∊∍∥∦∷∺∻∽∾≁≃≄≅≆≇≈≉≊≋≌≍≎≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≣≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊃⊅⊇⊉⊋⊏⊐⊑⊒⊜⊩⊬⊮⊰⊱⊲⊳⊴⊵⊶⊷⋍⋐⋑⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿⟈⟉⟒⦷⧀⧁⧡⧣⧤⧥⩦⩧⩪⩫⩬⩭⩮⩯⩰⩱⩲⩳⩴⩵⩶⩷⩸⩹⩺⩻⩼⩽⩾⩿⪀⪁⪂⪃⪄⪅⪆⪇⪈⪉⪊⪋⪌⪍⪎⪏⪐⪑⪒⪓⪔⪕⪖⪗⪘⪙⪚⪛⪜⪝⪞⪟⪠⪡⪢⪣⪤⪥⪦⪧⪨⪩⪪⪫⪬⪭⪮⪯⪰⪱⪲⪳⪴⪵⪶⪷⪸⪹⪺⪻⪼⪽⪾⪿⫀⫁⫂⫃⫄⫅⫆⫇⫈⫉⫊⫋⫌⫍⫎⫏⫐⫑⫒⫓⫔⫕⫖⫗⫘⫙⫷⫸⫹⫺⊢⊣⟂]
+MISC_PLUS_SYM=[⊕⊖⊞⊟++∪∨⊔±∓∔∸≂≏⊎⊽⋎⋓⧺⧻⨈⨢⨣⨤⨥⨦⨧⨨⨩⨪⨫⨬⨭⨮⨹⨺⩁⩂⩅⩊⩌⩏⩐⩒⩔⩖⩗⩛⩝⩡⩢⩣]
+MISC_MULTIPLY_SYM=[⋅∘×∩∧⊗⊘⊙⊚⊛⊠⊡⊓∗∙∤⅋≀⊼⋄⋆⋇⋉⋊⋋⋌⋏⋒⟑⦸⦼⦾⦿⧶⧷⨇⨰⨱⨲⨳⨴⨵⨶⨷⨸⨻⨼⨽⩀⩃⩄⩋⩍⩎⩑⩓⩕⩘⩚⩜⩞⩟⩠⫛⊍▷⨝⟕⟖⟗]
+MISC_EXPONENT_SYM=[↑↓⇵⟰⟱⤈⤉⤊⤋⤒⤓⥉⥌⥍⥏⥑⥔⥕⥘⥙⥜⥝⥠⥡⥣⥥⥮⥯￪￬]
 
 FLOAT_CONSTANT=Inf16|Inf32|Inf|-Inf16|-Inf32|-Inf|NaN16|NaN32|NaN
 SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])*
@@ -240,6 +243,10 @@ OTHERWISE=[^ \t\r\n]
 {DOT_SYM}? {GREATER_THAN_OR_EQUAL_SYM} { return JuliaTypes.GREATER_THAN_OR_EQUAL_SYM; }
 {DOT_SYM}? {LESS_THAN_OR_EQUAL_SYM} { return JuliaTypes.LESS_THAN_OR_EQUAL_SYM; }
 {DOT_SYM}? {TRANSPOSE_SYM} { return JuliaTypes.TRANSPOSE_SYM; }
+{DOT_SYM}? {MISC_COMPARISION_SYM} { return JuliaTypes.MISC_COMPARISON_SYM; }
+{DOT_SYM}? {MISC_PLUS_SYM} { return JuliaTypes.MISC_PLUS_SYM; }
+{DOT_SYM}? {MISC_MULTIPLY_SYM} { return JuliaTypes.MISC_MULTIPLY_SYM; }
+{DOT_SYM}? {MISC_EXPONENT_SYM} { return JuliaTypes.MISC_EXPONENT_SYM; }
 {FACTORISE_ASSIGN_SYM} { return JuliaTypes.FACTORISE_ASSIGN_SYM; }
 {FACTORISE_SYM} { return JuliaTypes.FACTORISE_SYM; }
 {BITWISE_NOT_SYM} { return JuliaTypes.BITWISE_NOT_SYM; }
@@ -249,7 +256,6 @@ OTHERWISE=[^ \t\r\n]
 {BITWISE_XOR_SYM} { return JuliaTypes.BITWISE_XOR_SYM; }
 {BITWISE_OR_ASSIGN_SYM} { return JuliaTypes.BITWISE_OR_ASSIGN_SYM; }
 {BITWISE_XOR_ASSIGN_SYM} { return JuliaTypes.BITWISE_XOR_ASSIGN_SYM; }
-{MISC_COMPARISION_SYM} { return JuliaTypes.MISC_COMPARISON_SYM; }
 
 {END_KEYWORD} { return JuliaTypes.END_KEYWORD; }
 {BREAK_KEYWORD} { return JuliaTypes.BREAK_KEYWORD; }
