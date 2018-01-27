@@ -17,20 +17,20 @@
 
 juliaFile ::= endOfLine statements
 
-macroIdentifier ::= AT_SYM identifier
-symbol ::= SYM
-identifier ::= identifierImpl
+macroIdentifier ::= AT_SYM identifier { extends=expr }
+symbol ::= SYM { extends=expr }
+identifier ::= identifierImpl { extends=expr }
 private identifierChain ::= endOfLine DOT_SYM endOfLine symbol
 private identifierImpl ::= (symbol identifierChain*) | (symbol? identifierChain+)
 
 private comment ::= BLOCK_COMMENT | LINE_COMMENT
-string ::= STR | RAW_STR
-integer ::= INT_LITERAL
-float ::= FLOAT_LITERAL | FLOAT_CONSTANT
-boolean ::= TRUE_KEYWORD | FALSE_KEYWORD
-char ::= CHAR_LITERAL
-regex ::= REGEX_LITERAL
-byteArray ::= BYTE_ARRAY_LITERAL
+string ::= STR | RAW_STR { extends=expr }
+integer ::= INT_LITERAL { extends=expr }
+floatLit ::= FLOAT_LITERAL | FLOAT_CONSTANT { extends=expr }
+booleanLit ::= TRUE_KEYWORD | FALSE_KEYWORD { extends=expr }
+charLit ::= CHAR_LITERAL { extends=expr }
+regex ::= REGEX_LITERAL { extends=expr }
+byteArray ::= BYTE_ARRAY_LITERAL { extends=expr }
 
 private endOfLineImpl ::= EOL | comment
 private endOfLine ::= endOfLineImpl*
@@ -79,16 +79,16 @@ usingStatement ::=
  USING_KEYWORD endOfLine
   identifier? (endOfLine COMMA_SYM endOfLine identifier)*
 
-if ::=
+ifExpr ::=
  IF_KEYWORD statements
   elseIfClause*
   elseClause?
- END_KEYWORD
+ END_KEYWORD { extends=expr }
 
 elseIfClause ::= ELSEIF_KEYWORD statements
 elseClause ::= ELSE_KEYWORD statements
 
-for ::= indexer statements END_KEYWORD
+forExpr ::= indexer statements END_KEYWORD { extends=expr }
 private indexer ::= FOR_KEYWORD endOfLine (multiIndexer | singleIndexer)
 singleIndexer ::= symbol (IN_KEYWORD | EQ_SYM) endOfLine expr
 multiIndexer ::=
@@ -98,11 +98,11 @@ multiIndexer ::=
  (IN_KEYWORD | EQ_SYM) endOfLine
  expr
 
-while ::=
+whileExpr ::=
  WHILE_KEYWORD endOfLine
   expr endOfLine
    statements
- END_KEYWORD
+ END_KEYWORD { extends=expr }
 
 returnStatement ::= RETURN_KEYWORD expr?
 tryCatchStatement ::=
@@ -126,11 +126,11 @@ moduleDeclaration ::=
   statements
  END_KEYWORD
 
-union ::= UNION_KEYWORD tuple
+union ::= UNION_KEYWORD tuple { extends=expr }
 tuple ::=
  LEFT_BRACKET endOfLine
   expr (endOfLine COMMA_SYM endOfLine expr)+ endOfLine COMMA_SYM? endOfLine
- RIGHT_BRACKET
+ RIGHT_BRACKET { extends=expr }
 
 private variables ::=
  LEFT_BRACKET endOfLine
@@ -144,13 +144,13 @@ function ::=
      (typeParameters endOfLine)?
    variables typeAnnotation? endOfLine
   statements
- END_KEYWORD
+ END_KEYWORD { extends=expr }
 
 compactFunction ::=
  functionName endOfLine
   (typeParameters endOfLine)?
    variables EQ_SYM endOfLine
- statement
+ expr { extends=expr }
 
 typeName ::= identifierImpl
 abstractTypeName ::= identifierImpl
@@ -165,19 +165,19 @@ typeDeclaration ::=
    )
    endOfLine
   )*
- END_KEYWORD
+ END_KEYWORD { extends=expr }
 
 abstractTypeDeclaration ::=
  ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
   abstractTypeName endOfLine (SUBTYPE_SYM endOfLine identifier)? endOfLine
- END_KEYWORD
+ END_KEYWORD { extends=expr }
 
-macro ::= 'TODO'
+macro ::= 'TODO' { extends=expr }
 
 block ::=
  BLOCK_KEYWORD
   statements
- END_KEYWORD
+ END_KEYWORD { extends=expr }
 
 assignment ::=
  typedVariable endOfLine
@@ -199,15 +199,15 @@ typeParameters ::=
 
 userType ::= identifier typeParameters?
 typeModifiers ::= IMMUTABLE_KEYWORD?
-typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType
+typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
 
 expr ::=
-   primaryExpr
+   level0
  | level1
- | level2
+ | ternaryOp
  | level3
  | andOp
- | lambdaAbstraction
+ | lambda
  | level6
  | pipeOp
  | level8
@@ -218,6 +218,14 @@ expr ::=
  | exponentOp
  | typeOp
  | level15
+ | primaryExpr
+
+private level0 ::=
+   macro
+ | block
+ | abstractTypeDeclaration
+ | typeDeclaration
+ | typeAlias
 
 private level1 ::=
    assignOp
@@ -238,43 +246,45 @@ private level1 ::=
  | bitwiseXorAssignOp
  | bitWiseNotOp
 
-private bitWiseNotOp ::= BITWISE_NOT_SYM expr
-private bitwiseAndAssignOp ::= level2 BITWISE_AND_ASSIGN_SYM expr { rightAssociative=true }
-private bitwiseOrAssignOp ::= level2 BITWISE_OR_ASSIGN_SYM expr { rightAssociative=true }
-private bitwiseXorAssignOp ::= level2 BITWISE_XOR_ASSIGN_SYM expr { rightAssociative=true }
-private inverseDivAssignOp ::= level2 INVERSE_DIV_ASSIGN_SYM expr
-private shlAssignOp ::= level2 SHL_ASSIGN_SYM expr { rightAssociative=true }
-private shrAssignOp ::= level2 SHR_ASSIGN_SYM expr { rightAssociative=true }
-private assignOp ::= level2 EQ_SYM expr { rightAssociative=true }
-private remainderAssignOp ::= level2 REMAINDER_ASSIGN_SYM expr
-private ushrAssignOp ::= level2 USHR_ASSIGN_SYM expr
-private plusAssignOp ::= level2 PLUS_ASSIGN_SYM expr
-private minusAssignOp ::= level2 MINUS_ASSIGN_SYM expr
-private multiplyAssignOp ::= level2 MULTIPLY_ASSIGN_SYM expr
-private fractionAssignOp ::= level2 FRACTION_ASSIGN_SYM expr
-private divideAssignOp ::= level2 DIVIDE_ASSIGN_SYM expr { rightAssociative=true }
-private factoriseAssignOp ::= level2 FACTORISE_ASSIGN_SYM expr { rightAssociative=true }
-private exponentAssignOp ::= level2 EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
+bitWiseNotOp ::= BITWISE_NOT_SYM expr
+bitwiseAndAssignOp ::= expr BITWISE_AND_ASSIGN_SYM expr { rightAssociative=true }
+bitwiseOrAssignOp ::= expr BITWISE_OR_ASSIGN_SYM expr { rightAssociative=true }
+bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM expr { rightAssociative=true }
+inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM expr
+shlAssignOp ::= expr SHL_ASSIGN_SYM expr { rightAssociative=true }
+shrAssignOp ::= expr SHR_ASSIGN_SYM expr { rightAssociative=true }
+assignOp ::= expr EQ_SYM expr { rightAssociative=true }
+remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM expr
+ushrAssignOp ::= expr USHR_ASSIGN_SYM expr
+plusAssignOp ::= expr PLUS_ASSIGN_SYM expr
+minusAssignOp ::= expr MINUS_ASSIGN_SYM expr
+multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM expr
+fractionAssignOp ::= expr FRACTION_ASSIGN_SYM expr
+divideAssignOp ::= expr DIVIDE_ASSIGN_SYM expr { rightAssociative=true }
+factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM expr { rightAssociative=true }
+exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
 
-private level2 ::=
- ternaryOp
-
-private ternaryOp ::= level3 QUESTION_SYM expr COLON_SYM expr
+// ? :
+// level 2
+ternaryOp ::= expr QUESTION_SYM expr COLON_SYM expr { extends=expr }
 
 private level3 ::=
    orOp
  | bitwiseOrOp
 
-private orOp ::= andOp OR_SYM expr
-private bitwiseOrOp ::= andOp BITWISE_OR_SYM expr
+orOp ::= expr OR_SYM expr
+bitwiseOrOp ::= expr BITWISE_OR_SYM expr
 
 // &&
 // level 4
-private andOp ::= lambdaAbstraction AND_SYM expr
+andOp ::= expr AND_SYM expr
 
 // ->
 // level 5
-private lambdaAbstraction ::= symbol LAMBDA_ABSTRACTION expr { rightAssociative=true }
+lambda ::= symbol LAMBDA_ABSTRACTION expr {
+	rightAssociative=true
+	extends=expr
+}
 
 private level6 ::=
    lessThanOrEqualOp
@@ -287,28 +297,28 @@ private level6 ::=
  | unequalOp
  // | subtype
 
-private lessThanOp ::= pipeOp LESS_THAN_SYM expr
-private lessThanOrEqualOp ::= pipeOp LESS_THAN_OR_EQUAL_SYM expr
-private greaterThanOp ::= pipeOp GREATER_THAN_SYM expr
-private greaterThanOrEqualOp ::= pipeOp GREATER_THAN_OR_EQUAL_SYM expr
-private equalsOp ::= pipeOp EQUALS_SYM expr
-private unequalOp ::= pipeOp UNEQUAL_SYM expr
-private isOp ::= pipeOp IS_SYM expr
-private isntOp ::= pipeOp ISNT_SYM expr
+lessThanOp ::= expr LESS_THAN_SYM expr
+lessThanOrEqualOp ::= expr LESS_THAN_OR_EQUAL_SYM expr
+greaterThanOp ::= expr GREATER_THAN_SYM expr
+greaterThanOrEqualOp ::= expr GREATER_THAN_OR_EQUAL_SYM expr
+equalsOp ::= expr EQUALS_SYM expr
+unequalOp ::= expr UNEQUAL_SYM expr
+isOp ::= expr IS_SYM expr
+isntOp ::= expr ISNT_SYM expr
 
 // |>
 // level 7
-private pipeOp ::= level8 PIPE_SYM expr
+pipeOp ::= expr PIPE_SYM expr
 
 private level8 ::=
    spliceOp
  | quoteOp
  | compoundQuoteOp
 
-private spliceOp ::= level9 SLICE_SYM
+spliceOp ::= expr SLICE_SYM
 // TODO review if this should be a quoted expression!!! with interpolation
-private quoteOp ::= COLON_SYM expr
-private compoundQuoteOp ::= QUOTE_KEYWORD expr+ END_KEYWORD
+quoteOp ::= COLON_SYM expr
+compoundQuoteOp ::= QUOTE_KEYWORD expr+ END_KEYWORD
 
 // + - ⊕ ⊖ ⊞ ⊟ .+ .- | ∪ ∨ $ ⊔
 private level9 ::=
@@ -316,18 +326,18 @@ private level9 ::=
  | minusOp
  | bitwiseXorOp
 
-private bitwiseXorOp ::= level10 INTERPOLATE_SYM expr
-private plusOp ::= level10 PLUS_SYM expr
-private minusOp ::= level10 MINUS_SYM expr
+bitwiseXorOp ::= expr INTERPOLATE_SYM expr
+plusOp ::= expr PLUS_SYM expr
+minusOp ::= expr MINUS_SYM expr
 
 private level10 ::=
    shlOp
  | shrOp
  | ushrOp
 
-private shrOp ::= level11 SHR_SYM expr
-private ushrOp ::= level11 USHR_SYM expr
-private shlOp ::= level11 SHL_SYM expr
+shrOp ::= expr SHR_SYM expr
+ushrOp ::= expr USHR_SYM expr
+shlOp ::= expr SHL_SYM expr
 
 // * / % & ^
 private level11 ::=
@@ -338,24 +348,24 @@ private level11 ::=
  | inverseDivideOp
  | factoriseOp
 
-private multiplyOp ::= fractionOp MULTIPLY_SYM expr
-private divideOp ::= fractionOp DIVIDE_SYM expr
-private remainderOp ::= fractionOp REMAINDER_SYM expr
-private inverseDivideOp ::= fractionOp INVERSE_DIV_SYM expr
-private factoriseOp ::= fractionOp FACTORISE_SYM expr
-private bitwiseAndOp ::= fractionOp BITWISE_AND_SYM expr
+multiplyOp ::= expr MULTIPLY_SYM expr
+divideOp ::= expr DIVIDE_SYM expr
+remainderOp ::= expr REMAINDER_SYM expr
+inverseDivideOp ::= expr INVERSE_DIV_SYM expr
+factoriseOp ::= expr FACTORISE_SYM expr
+bitwiseAndOp ::= expr BITWISE_AND_SYM expr
 
 // // .//
 // level 12
-private fractionOp ::= exponentOp FRACTION_SYM expr
+fractionOp ::= expr FRACTION_SYM expr
 
 // ^ .^
 // level 13
-private exponentOp ::= typeOp EXPONENT_SYM expr
+exponentOp ::= expr EXPONENT_SYM expr
 
 // ::
 // level 14
-private typeOp ::= level15? DOUBLE_COLON expr
+typeOp ::= expr DOUBLE_COLON expr
 
 // TODO unfinished
 private level15 ::=
@@ -364,36 +374,31 @@ private level15 ::=
  | notOp
  | interpolateOp
 
-private unaryMinusOp ::= MINUS_SYM expr
-private notOp ::= NOT_SYM expr
-private unaryPlusOp ::= PLUS_SYM expr
-private interpolateOp ::= INTERPOLATE_SYM expr
+unaryMinusOp ::= MINUS_SYM expr
+notOp ::= NOT_SYM expr
+unaryPlusOp ::= PLUS_SYM expr
+interpolateOp ::= INTERPOLATE_SYM expr
 
 private primaryExpr ::=
    string
- | char
+ | charLit
  | integer
- | float
- | boolean
+ | floatLit
+ | booleanLit
  | macroIdentifier
  | identifier
- | if
- | for
+ | ifExpr
+ | forExpr
  | regex
  | byteArray
- | while
+ | whileExpr
  | function
  | compactFunction
  | empty
  | union
- | macro
- | block
- | abstractTypeDeclaration
- | typeDeclaration
- | typeAlias
 
 private transposeOp ::= expr TRANSPOSE_SYM
 private rangeOp ::= expr COLON_SYM expr
 private arrayConstructorOp ::= expr LEFT_M_BRACKET RIGHT_M_BRACKET
 
-empty ::= LEFT_M_BRACKET RIGHT_M_BRACKET
+empty ::= LEFT_M_BRACKET RIGHT_M_BRACKET { extends=expr }

@@ -18,7 +18,7 @@ class JuliaAnnotator : Annotator {
 					.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
 			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
 					.textAttributes = JuliaHighlighter.MODULE_NAME
-			is JuliaChar -> when (element.textLength) {
+			is JuliaCharLit -> when (element.textLength) {
 			// 0, 1, 2 are impossible, 3: 'a'
 				0, 1, 2, 3 -> {
 				}
@@ -94,7 +94,7 @@ class JuliaAnnotator : Annotator {
 					}
 				}
 			}
-			is JuliaFloat -> holder.createInfoAnnotation(element, null).run {
+			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
 			}
 			is JuliaString -> {
 				val str = element.text.trimQuotePair()
