@@ -203,9 +203,11 @@ typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType
 
 expr ::=
    primaryExpr
+ | level1
+ | level2
  | level3
- | level4
- | level5
+ | andOp
+ | lambdaAbstraction
  | level6
  | pipeOp
  | level8
@@ -214,20 +216,64 @@ expr ::=
  | level11
  | fractionOp
  | exponentOp
- | level14
+ | typeOp
  | level15
+
+private level1 ::=
+   assignOp
+ | remainderAssignOp
+ | plusAssignOp
+ | minusAssignOp
+ | multiplyAssignOp
+ | fractionAssignOp
+ | divideAssignOp
+ | factoriseAssignOp
+ | exponentAssignOp
+ | ushrAssignOp
+ | shlAssignOp
+ | shrAssignOp
+ | inverseDivAssignOp
+ | bitwiseAndAssignOp
+ | bitwiseOrAssignOp
+ | bitwiseXorAssignOp
+ | bitWiseNotOp
+
+private bitWiseNotOp ::= BITWISE_NOT_SYM expr
+private bitwiseAndAssignOp ::= level2 BITWISE_AND_ASSIGN_SYM expr { rightAssociative=true }
+private bitwiseOrAssignOp ::= level2 BITWISE_OR_ASSIGN_SYM expr { rightAssociative=true }
+private bitwiseXorAssignOp ::= level2 BITWISE_XOR_ASSIGN_SYM expr { rightAssociative=true }
+private inverseDivAssignOp ::= level2 INVERSE_DIV_ASSIGN_SYM expr
+private shlAssignOp ::= level2 SHL_ASSIGN_SYM expr { rightAssociative=true }
+private shrAssignOp ::= level2 SHR_ASSIGN_SYM expr { rightAssociative=true }
+private assignOp ::= level2 EQ_SYM expr { rightAssociative=true }
+private remainderAssignOp ::= level2 REMAINDER_ASSIGN_SYM expr
+private ushrAssignOp ::= level2 USHR_ASSIGN_SYM expr
+private plusAssignOp ::= level2 PLUS_ASSIGN_SYM expr
+private minusAssignOp ::= level2 MINUS_ASSIGN_SYM expr
+private multiplyAssignOp ::= level2 MULTIPLY_ASSIGN_SYM expr
+private fractionAssignOp ::= level2 FRACTION_ASSIGN_SYM expr
+private divideAssignOp ::= level2 DIVIDE_ASSIGN_SYM expr { rightAssociative=true }
+private factoriseAssignOp ::= level2 FACTORISE_ASSIGN_SYM expr { rightAssociative=true }
+private exponentAssignOp ::= level2 EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
+
+private level2 ::=
+ ternaryOp
+
+private ternaryOp ::= level3 QUESTION_SYM expr COLON_SYM expr
 
 private level3 ::=
    orOp
  | bitwiseOrOp
 
-private orOp ::= level4 OR_SYM expr
-private bitwiseOrOp ::= level4 BITWISE_OR_SYM expr
+private orOp ::= andOp OR_SYM expr
+private bitwiseOrOp ::= andOp BITWISE_OR_SYM expr
 
-private level4 ::= andOp
-private andOp ::= level5 AND_SYM expr
+// &&
+// level 4
+private andOp ::= lambdaAbstraction AND_SYM expr
 
-private level5 ::= lambdaAbstraction
+// ->
+// level 5
 private lambdaAbstraction ::= symbol LAMBDA_ABSTRACTION expr { rightAssociative=true }
 
 private level6 ::=
@@ -305,15 +351,11 @@ private fractionOp ::= exponentOp FRACTION_SYM expr
 
 // ^ .^
 // level 13
-private exponentOp ::= level14 EXPONENT_SYM expr
+private exponentOp ::= typeOp EXPONENT_SYM expr
 
 // ::
-private level14 ::=
-   typeOp
- | unaryTypeOp
-
-private typeOp ::= level15 DOUBLE_COLON expr
-private unaryTypeOp ::= DOUBLE_COLON expr
+// level 14
+private typeOp ::= level15? DOUBLE_COLON expr
 
 // TODO unfinished
 private level15 ::=
@@ -350,25 +392,8 @@ private primaryExpr ::=
  | typeDeclaration
  | typeAlias
 
-private inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM expr
 private transposeOp ::= expr TRANSPOSE_SYM
 private rangeOp ::= expr COLON_SYM expr
-private remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM expr
-private ushrAssignOp ::= expr USHR_ASSIGN_SYM expr
-private plusAssignOp ::= expr PLUS_ASSIGN_SYM expr
-private minusAssignOp ::= expr MINUS_ASSIGN_SYM expr
-private multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM expr
-private fractionAssignOp ::= expr FRACTION_ASSIGN_SYM expr
-private divideAssignOp ::= expr DIVIDE_ASSIGN_SYM expr { rightAssociative=true }
-private factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM expr { rightAssociative=true }
-private exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
-private bitWiseNotOp ::= BITWISE_NOT_SYM expr
-private bitwiseAndAssignOp ::= expr BITWISE_AND_ASSIGN_SYM expr { rightAssociative=true }
-private bitwiseOrAssignOp ::= expr BITWISE_OR_ASSIGN_SYM expr { rightAssociative=true }
-private bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM expr { rightAssociative=true }
 private arrayConstructorOp ::= expr LEFT_M_BRACKET RIGHT_M_BRACKET
-private assignOp ::= expr EQ_SYM expr { rightAssociative=true }
-private shlAssignOp ::= expr SHL_ASSIGN_SYM expr { rightAssociative=true }
-private shrAssignOp ::= expr SHR_ASSIGN_SYM expr { rightAssociative=true }
 
 empty ::= LEFT_M_BRACKET RIGHT_M_BRACKET

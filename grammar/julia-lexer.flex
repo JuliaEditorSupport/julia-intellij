@@ -77,6 +77,7 @@ COMMA_SYM=,
 COLON_SYM=:
 SEMICOLON_SYM=;
 DOUBLE_COLON=::
+QUESTION_SYM=\?
 EQ_SYM==
 AT_SYM=@
 SUBTYPE_SYM=<:
@@ -191,6 +192,7 @@ OTHERWISE=[^ \t\r\n]
 {COLON_SYM} { return JuliaTypes.COLON_SYM; }
 {SEMICOLON_SYM} { return JuliaTypes.SEMICOLON_SYM; }
 {COMMA_SYM} { return JuliaTypes.COMMA_SYM; }
+{QUESTION_SYM} { return JuliaTypes.QUESTION_SYM; }
 {EQ_SYM} { return JuliaTypes.EQ_SYM; }
 {AT_SYM} { return JuliaTypes.AT_SYM; }
 {SUBTYPE_SYM} { return JuliaTypes.SUBTYPE_SYM; }
