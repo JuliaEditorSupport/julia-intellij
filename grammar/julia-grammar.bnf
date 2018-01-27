@@ -90,12 +90,13 @@ elseClause ::= ELSE_KEYWORD statements
 
 forExpr ::= indexer statements END_KEYWORD { extends=expr }
 private indexer ::= FOR_KEYWORD endOfLine (multiIndexer | singleIndexer)
-singleIndexer ::= symbol (IN_KEYWORD | EQ_SYM) endOfLine expr
+private infixIndexer ::= IN_KEYWORD | IN_SYM | EQ_SYM
+singleIndexer ::= symbol infixIndexer endOfLine expr
 multiIndexer ::=
  LEFT_BRACKET endOfLine
   symbol (endOfLine COMMA_SYM endOfLine symbol)+ endOfLine
  RIGHT_BRACKET
- (IN_KEYWORD | EQ_SYM) endOfLine
+ infixIndexer endOfLine
  expr
 
 whileExpr ::=
