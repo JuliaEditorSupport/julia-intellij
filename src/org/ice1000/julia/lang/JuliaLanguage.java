@@ -16,19 +16,16 @@ package org.ice1000.julia.lang;
 
 import com.intellij.lang.Language;
 import org.jetbrains.annotations.NotNull;
-import static org.ice1000.julia.lang.Julia_constantsKt.JULIA_LANGUAGE_NAME;
 
 public class JuliaLanguage extends Language {
 	public static final JuliaLanguage INSTANCE = new JuliaLanguage();
-	private static final String NAME = JULIA_LANGUAGE_NAME;
 
 	private JuliaLanguage() {
-		super(NAME);
+		super(JuliaBundle.message("julia.name"));
 	}
 
-	@NotNull
-	public String getDisplayName() {
-		return NAME;
+	public @NotNull String getDisplayName() {
+		return JuliaBundle.message("julia.name");
 	}
 
 	public boolean isCaseSensitive() {

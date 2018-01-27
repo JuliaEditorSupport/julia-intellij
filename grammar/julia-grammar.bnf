@@ -203,19 +203,19 @@ typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType
 
 expr ::=
    primaryExpr
- | level15
- | level14
- | level13
- | level12
- | level11
- | level10
- | level9
- | level8
- | level7
- | level6
- | level5
- | level4
  | level3
+ | level4
+ | level5
+ | level6
+ | level7
+ | level8
+ | level9
+ | level10
+ | level11
+ | level12
+ | level13
+ | level14
+ | level15
 
 private level3 ::=
    orOp
