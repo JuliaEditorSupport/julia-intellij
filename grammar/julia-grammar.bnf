@@ -202,8 +202,7 @@ typeModifiers ::= IMMUTABLE_KEYWORD?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
 
 expr ::=
-   level0
- | level1
+   level1
  | ternaryOp
  | level3
  | andOp
@@ -219,13 +218,6 @@ expr ::=
  | typeOp
  | level15
  | primaryExpr
-
-private level0 ::=
-   macro
- | block
- | abstractTypeDeclaration
- | typeDeclaration
- | typeAlias
 
 private level1 ::=
    assignOp
@@ -295,7 +287,7 @@ private level6 ::=
  | isOp
  | equalsOp
  | unequalOp
- // | subtype
+ | subtypeOp
 
 lessThanOp ::= expr LESS_THAN_SYM expr
 lessThanOrEqualOp ::= expr LESS_THAN_OR_EQUAL_SYM expr
@@ -305,6 +297,7 @@ equalsOp ::= expr EQUALS_SYM expr
 unequalOp ::= expr UNEQUAL_SYM expr
 isOp ::= expr IS_SYM expr
 isntOp ::= expr ISNT_SYM expr
+subtypeOp ::= expr SUBTYPE_SYM expr
 
 // |>
 // level 7
@@ -326,7 +319,7 @@ private level9 ::=
  | minusOp
  | bitwiseXorOp
 
-bitwiseXorOp ::= expr INTERPOLATE_SYM expr
+bitwiseXorOp ::= expr (INTERPOLATE_SYM | BITWISE_XOR_SYM) expr
 plusOp ::= expr PLUS_SYM expr
 minusOp ::= expr MINUS_SYM expr
 
@@ -334,10 +327,14 @@ private level10 ::=
    shlOp
  | shrOp
  | ushrOp
+ | transposeOp
+ | rangeOp
 
 shrOp ::= expr SHR_SYM expr
 ushrOp ::= expr USHR_SYM expr
 shlOp ::= expr SHL_SYM expr
+transposeOp ::= expr TRANSPOSE_SYM
+rangeOp ::= expr COLON_SYM expr
 
 // * / % & ^
 private level11 ::=
@@ -396,9 +393,12 @@ private primaryExpr ::=
  | compactFunction
  | empty
  | union
+ | macro
+ | block
+ | abstractTypeDeclaration
+ | typeDeclaration
+ | typeAlias
 
-private transposeOp ::= expr TRANSPOSE_SYM
-private rangeOp ::= expr COLON_SYM expr
 private arrayConstructorOp ::= expr LEFT_M_BRACKET RIGHT_M_BRACKET
 
 empty ::= LEFT_M_BRACKET RIGHT_M_BRACKET { extends=expr }

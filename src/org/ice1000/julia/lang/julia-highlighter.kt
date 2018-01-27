@@ -14,6 +14,7 @@ import org.intellij.lang.annotations.Language
 object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val KEYWORD = TextAttributesKey.createTextAttributesKey("JULIA_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD)
 	@JvmField val NUMBER = TextAttributesKey.createTextAttributesKey("JULIA_NUMBER", DefaultLanguageHighlighterColors.NUMBER)
+	@JvmField val FLOAT_LIT = TextAttributesKey.createTextAttributesKey("JULIA_FLOAT_LIT", DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL)
 	@JvmField val STRING = TextAttributesKey.createTextAttributesKey("JULIA_STRING", DefaultLanguageHighlighterColors.STRING)
 	@JvmField val STRING_ESCAPE = TextAttributesKey.createTextAttributesKey("JULIA_STRING_ESCAPE", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
 	@JvmField val STRING_ESCAPE_INVALID = TextAttributesKey.createTextAttributesKey("JULIA_STRING_ESCAPE_INVALID", DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE)
@@ -35,6 +36,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 	private val STRING_KEY = arrayOf(STRING)
 	private val CHAR_KEY = arrayOf(CHAR)
 	private val NUMBER_KEY = arrayOf(NUMBER)
+	private val FLOAT_LIT_KEY = arrayOf(FLOAT_LIT)
 	private val OPERATOR_KEY = arrayOf(OPERATOR)
 	private val BRACKETS_KEY = arrayOf(BRACKET)
 	private val B_BRACKETS_KEY = arrayOf(B_BRACKET)
@@ -170,7 +172,11 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.comment"), JuliaHighlighter.COMMENT),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.block-comment"), JuliaHighlighter.BLOCK_COMMENT),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.keyword"), JuliaHighlighter.KEYWORD),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.num"), JuliaHighlighter.NUMBER),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.num-float-lit"), JuliaHighlighter.FLOAT_LIT),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string"), JuliaHighlighter.STRING),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string-escape"), JuliaHighlighter.STRING_ESCAPE),
+				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string-escape-invalid"), JuliaHighlighter.STRING_ESCAPE_INVALID),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.module-name"), JuliaHighlighter.MODULE_NAME),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.abs-type-name"), JuliaHighlighter.ABSTRACT_TYPE_NAME),
 				AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.TYPE_NAME)
@@ -198,6 +204,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		=#
 		module <moduleName>ice1000</moduleName>
 		3.2 # => 3.2 (Float64)
+		NaN32 # NaN32 (Float32)
 		1 + 1 # => 2
 		div(5, 2) # => 2 # for a truncated result, use div
 		<stringEscapeInvalid>'\xjb'</stringEscapeInvalid> # => escape char syntax error

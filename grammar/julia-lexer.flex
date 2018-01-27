@@ -84,14 +84,14 @@ SUBTYPE_SYM=<:
 INTERPOLATE_SYM=\$
 INVERSE_DIV_ASSIGN_SYM=\\\\=
 INVERSE_DIV_SYM=\\
-IS_SYM====
-ISNT_SYM=\!==
+IS_SYM====|≡
+ISNT_SYM=\!==|≢
 LAMBDA_ABSTRACTION=->
 SLICE_SYM=\.\.\.
 REMAINDER_SYM=%
 REMAINDER_ASSIGN_SYM=%=
 LESS_THAN_SYM=<
-LESS_THAN_OR_EQUAL_SYM=<=
+LESS_THAN_OR_EQUAL_SYM=<=|≤
 USHR_ASSIGN_SYM=>>>=
 USHR_SYM=>>>
 AND_SYM=&&
@@ -107,11 +107,11 @@ MINUS_SYM=-
 MINUS_ASSIGN_SYM=-=
 MULTIPLY_SYM=\*
 MULTIPLY_ASSIGN_SYM=\*=
-UNEQUAL_SYM=\!=
+UNEQUAL_SYM=\!=|≠
 FRACTION_ASSIGN_SYM=\/\/=
 FRACTION_SYM=\/\/
 GREATER_THAN_SYM=>
-GREATER_THAN_OR_EQUAL_SYM=>=
+GREATER_THAN_OR_EQUAL_SYM=>=|≥
 DIVIDE_ASSIGN_SYM=\/=
 DIVIDE_SYM=\/
 TRANSPOSE_SYM='
@@ -126,9 +126,11 @@ BITWISE_AND_SYM=\&
 BITWISE_AND_ASSIGN_SYM=\&=
 BITWISE_OR_SYM=\|
 BITWISE_OR_ASSIGN_SYM=\|=
-BITWISE_XOR_ASSIGN_SYM=\$=
+BITWISE_XOR_SYM=\$|⊻
+BITWISE_XOR_ASSIGN_SYM=\$=|⊻=
+MISC_COMPARISION_SYM=∈|∉|∋|∌|⊆|⊈|⊂|⊄|⊊|∝|∊|∍|∥|∦|∷|∺|∻|∽|∾|≁|≃|≄|≅|≆|≇|≈|≉|≊|≋|≌|≍|≎|≐|≑|≒|≓|≔|≕|≖|≗|≘|≙|≚|≛|≜|≝|≞|≟|≣|≦|≧|≨|≩|≪|≫|≬|≭|≮|≯|≰|≱|≲|≳|≴|≵|≶|≷|≸|≹|≺|≻|≼|≽|≾|≿|⊀|⊁|⊃|⊅|⊇|⊉|⊋|⊏|⊐|⊑|⊒|⊜|⊩|⊬|⊮|⊰|⊱|⊲|⊳|⊴|⊵|⊶|⊷|⋍|⋐|⋑|⋕|⋖|⋗|⋘|⋙|⋚|⋛|⋜|⋝|⋞|⋟|⋠|⋡|⋢|⋣|⋤|⋥|⋦|⋧|⋨|⋩|⋪|⋫|⋬|⋭|⋲|⋳|⋴|⋵|⋶|⋷|⋸|⋹|⋺|⋻|⋼|⋽|⋾|⋿|⟈|⟉|⟒|⦷|⧀|⧁|⧡|⧣|⧤|⧥|⩦|⩧|⩪|⩫|⩬|⩭|⩮|⩯|⩰|⩱|⩲|⩳|⩴|⩵|⩶|⩷|⩸|⩹|⩺|⩻|⩼|⩽|⩾|⩿|⪀|⪁|⪂|⪃|⪄|⪅|⪆|⪇|⪈|⪉|⪊|⪋|⪌|⪍|⪎|⪏|⪐|⪑|⪒|⪓|⪔|⪕|⪖|⪗|⪘|⪙|⪚|⪛|⪜|⪝|⪞|⪟|⪠|⪡|⪢|⪣|⪤|⪥|⪦|⪧|⪨|⪩|⪪|⪫|⪬|⪭|⪮|⪯|⪰|⪱|⪲|⪳|⪴|⪵|⪶|⪷|⪸|⪹|⪺|⪻|⪼|⪽|⪾|⪿|⫀|⫁|⫂|⫃|⫄|⫅|⫆|⫇|⫈|⫉|⫊|⫋|⫌|⫍|⫎|⫏|⫐|⫑|⫒|⫓|⫔|⫕|⫖|⫗|⫘|⫙|⫷|⫸|⫹|⫺|⊢|⊣|⟂
 
-FLOAT_CONSTANT=Inf16|Inf32|Inf|-Inf16|-Inf32|-Inf|NaN16|NaN16|NaN
+FLOAT_CONSTANT=Inf16|Inf32|Inf|-Inf16|-Inf32|-Inf|NaN16|NaN32|NaN
 SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])*
 
 DIGIT=[\d_]
@@ -242,6 +244,7 @@ OTHERWISE=[^ \t\r\n]
 {BITWISE_AND_SYM} { return JuliaTypes.BITWISE_AND_SYM; }
 {BITWISE_AND_ASSIGN_SYM} { return JuliaTypes.BITWISE_AND_ASSIGN_SYM; }
 {BITWISE_OR_SYM} { return JuliaTypes.BITWISE_OR_SYM; }
+{BITWISE_XOR_SYM} { return JuliaTypes.BITWISE_XOR_SYM; }
 {BITWISE_OR_ASSIGN_SYM} { return JuliaTypes.BITWISE_OR_ASSIGN_SYM; }
 {BITWISE_XOR_ASSIGN_SYM} { return JuliaTypes.BITWISE_XOR_ASSIGN_SYM; }
 
