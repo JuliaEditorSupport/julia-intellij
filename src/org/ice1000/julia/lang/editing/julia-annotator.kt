@@ -71,23 +71,27 @@ class JuliaAnnotator : Annotator {
 		holder: AnnotationHolder) {
 		val str = element.text.trimQuotePair()
 		fun markEscapeChars(escapeString: String, expandSize: Int, matchRegex: String) {
-			str.indicesOf(escapeString).forEach {
+			str.indicesOf(escapeString).forEach continuing@{
 				if (it + expandSize < str.length) {
 					val s = str.subSequence(it, it + expandSize)
 					if (s.matches(Regex(matchRegex))) holder.createInfoAnnotation(
 						element.textRange.subRangeBeginOffsetAndLength(it + 1, expandSize),
 						null)
 						.textAttributes = JuliaHighlighter.STRING_ESCAPE
-					else holder.createErrorAnnotation(
-						element.textRange.subRangeBeginOffsetAndLength(it + 1, expandSize),
-						JuliaBundle.message("julia.lint.invalid-string-escape"))
-						.textAttributes = JuliaHighlighter.STRING_ESCAPE_INVALID
+					else {
+						if (expandSize == 2) return@continuing
+						holder.createErrorAnnotation(
+							element.textRange.subRangeBeginOffsetAndLength(it + 1, expandSize),
+							JuliaBundle.message("julia.lint.invalid-string-escape"))
+							.textAttributes = JuliaHighlighter.STRING_ESCAPE_INVALID
+					}
 				} else holder.createErrorAnnotation(
 					element.textRange.narrow(it + 1, 1),//to the end
 					JuliaBundle.message("julia.lint.invalid-string-escape"))
 					.textAttributes = JuliaHighlighter.STRING_ESCAPE_INVALID
 			}
 		}
+		markEscapeChars("\\", 2, JULIA_CHAR_NOT_UX_REGEX)
 		markEscapeChars("\\x", 4, JULIA_CHAR_SINGLE_UNICODE_X_REGEX)
 		markEscapeChars("\\u", 6, JULIA_CHAR_SINGLE_UNICODE_U_REGEX)
 	}

@@ -8,6 +8,10 @@ import java.util.*
  * It aims to make a folder hint.
  */
 class JuliaCharEscapeHintTest {
+	@Test
+	fun testSplitsOf(){
+		println("""\xe\asa\s\s""".splitsOf("\\", 2).joinToString(","))
+	}
 
 	@Test
 	fun testCharEscape() {
