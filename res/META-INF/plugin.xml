@@ -27,6 +27,9 @@ Functions provided:<br/>
 		<colorSettingsPage implementation="org.ice1000.julia.lang.JuliaColorSettingsPage"/>
 		<defaultLiveTemplatesProvider implementation="org.ice1000.julia.lang.JuliaLiveTemplateProvider"/>
 		<liveTemplateContext implementation="org.ice1000.julia.lang.JuliaContext"/>
+		<completion.contributor
+				language="Julia"
+				implementationClass="org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor"/>
 		<spellchecker.support
 				language="Julia"
 				implementationClass="org.ice1000.julia.lang.editing.JuliaSpellCheckingStrategy"/>
