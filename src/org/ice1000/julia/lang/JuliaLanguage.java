@@ -3,6 +3,7 @@ package org.ice1000.julia.lang;
 import com.intellij.lang.Language;
 
 import static org.ice1000.julia.lang.Julia_constantsKt.JULIA_EXTENSION;
+import static org.ice1000.julia.lang.Julia_constantsKt.JULIA_LANGUAGE_NAME;
 
 /**
  * WARNINGS:
@@ -19,10 +20,9 @@ import static org.ice1000.julia.lang.Julia_constantsKt.JULIA_EXTENSION;
  */
 public class JuliaLanguage extends Language {
 	public static final JuliaLanguage INSTANCE = new JuliaLanguage();
-	private static final String NAME = "Julia"; // JuliaBundle.message("julia.name")
 
 	private JuliaLanguage() {
-		super(NAME, "text/" + JULIA_EXTENSION);
+		super(JULIA_LANGUAGE_NAME, "text/" + JULIA_EXTENSION);
 	}
 
 	public boolean isCaseSensitive() {
