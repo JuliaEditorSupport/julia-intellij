@@ -203,6 +203,9 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string"), JuliaHighlighter.STRING),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string-escape"), JuliaHighlighter.STRING_ESCAPE),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string-escape-invalid"), JuliaHighlighter.STRING_ESCAPE_INVALID),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char"), JuliaHighlighter.CHAR),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char-escape"), JuliaHighlighter.CHAR_ESCAPE),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char-escape-invalid"), JuliaHighlighter.CHAR_ESCAPE_INVALID),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.module-name"), JuliaHighlighter.MODULE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.abs-type-name"), JuliaHighlighter.ABSTRACT_TYPE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.TYPE_NAME)
@@ -213,6 +216,9 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			"stringEscape" to JuliaHighlighter.STRING_ESCAPE,
 			"stringEscapeInvalid" to JuliaHighlighter.STRING_ESCAPE_INVALID,
 			"typeName" to JuliaHighlighter.TYPE_NAME,
+			"char" to JuliaHighlighter.CHAR,
+			"charEscape" to JuliaHighlighter.CHAR_ESCAPE,
+			"charEscapeInvalid" to JuliaHighlighter.CHAR_ESCAPE_INVALID,
 			"abstractTypeName" to JuliaHighlighter.ABSTRACT_TYPE_NAME
 		)
 	}
@@ -234,11 +240,12 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		   |(1 + 3.2)::Float64
 		   |IntOrString = Union{Int, AbstractString}
 		   |div(5, 2) # => 2 # for a truncated result, use div
-		   |@printf "%d is less than %f <stringEscapeInvalid>'\xjb'</stringEscapeInvalid>" 4.5 5.3 # 5 is less than 5.300000
+		   |@printf "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
 		   |assertTrue("1 + 2 = 3" == "1 + 2 = $(1 + 2)")
 		   |[1, 2, 3][2] # arrays
 		   |try
-		   |    println("Hello<stringEscape>\n</stringEscape>World<stringEscape>\g</stringEscape>" + '\n' + '\a')
+		   |    println("Hello<stringEscape>\n</stringEscape>World <stringEscapeInvalid>'\xjb'</stringEscapeInvalid>" +
+		   |      '<charEscapeInvalid>\x</charEscapeInvalid>' + '<charEscape>\a<charEscape>')
 		   |    some_other_var # => Unresolved reference: some_other_var
 		   |catch exception
 		   |    println(exception)
