@@ -22,10 +22,12 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val CHAR_ESCAPE = TextAttributesKey.createTextAttributesKey("JULIA_CHAR_ESCAPE", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
 	@JvmField val CHAR_ESCAPE_INVALID = TextAttributesKey.createTextAttributesKey("JULIA_CHAR_ESCAPE_INVALID", DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE)
 	@JvmField val OPERATOR = TextAttributesKey.createTextAttributesKey("JULIA_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
+	@JvmField val ASSIGNMENT_OPERATOR = TextAttributesKey.createTextAttributesKey("JULIA_ASSIGNMENT_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
 	@JvmField val UNICODE_OPERATOR = TextAttributesKey.createTextAttributesKey("JULIA_UNICODE_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
 	@JvmField val BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_PARENTHESES", DefaultLanguageHighlighterColors.PARENTHESES)
 	@JvmField val B_BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_BRACES", DefaultLanguageHighlighterColors.BRACES)
 	@JvmField val M_BRACKET = TextAttributesKey.createTextAttributesKey("JULIA_BRACKET", DefaultLanguageHighlighterColors.BRACKETS)
+	@JvmField val SEMICOLON = TextAttributesKey.createTextAttributesKey("JULIA_SEMICOLON", DefaultLanguageHighlighterColors.SEMICOLON)
 	@JvmField val COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
 	@JvmField val BLOCK_COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
 	@JvmField val TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
@@ -39,11 +41,13 @@ object JuliaHighlighter : SyntaxHighlighter {
 	private val NUMBER_KEY = arrayOf(NUMBER)
 	private val FLOAT_LIT_KEY = arrayOf(FLOAT_LIT)
 	private val OPERATOR_KEY = arrayOf(OPERATOR)
+	private val ASSIGNMENT_OPERATOR_KEY = arrayOf(ASSIGNMENT_OPERATOR)
 	private val UNICODE_OPERATOR_KEY = arrayOf(UNICODE_OPERATOR)
 	private val BRACKETS_KEY = arrayOf(BRACKET)
 	private val B_BRACKETS_KEY = arrayOf(B_BRACKET)
 	private val M_BRACKETS_KEY = arrayOf(M_BRACKET)
 	private val COMMENT_KEY = arrayOf(COMMENT)
+	private val SEMICOLON_KEY = arrayOf(SEMICOLON)
 	private val BLOCK_COMMENT_KEY = arrayOf(BLOCK_COMMENT)
 
 	private val UNICODE_OPERATOR_LIST = listOf(
@@ -54,34 +58,44 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.MISC_EXPONENT_SYM
 	)
 
+	private val ASSIGNMENT_OPERATOR_LIST = listOf(
+		JuliaTypes.INVERSE_DIV_ASSIGN_SYM,
+		JuliaTypes.USHR_ASSIGN_SYM,
+		JuliaTypes.SHL_ASSIGN_SYM,
+		JuliaTypes.SHR_ASSIGN_SYM,
+		JuliaTypes.PLUS_ASSIGN_SYM,
+		JuliaTypes.MINUS_ASSIGN_SYM,
+		JuliaTypes.MULTIPLY_ASSIGN_SYM,
+		JuliaTypes.DIVIDE_ASSIGN_SYM,
+		JuliaTypes.FRACTION_ASSIGN_SYM,
+		JuliaTypes.FACTORISE_ASSIGN_SYM,
+		JuliaTypes.EXPONENT_ASSIGN_SYM,
+		JuliaTypes.BITWISE_AND_ASSIGN_SYM,
+		JuliaTypes.BITWISE_OR_ASSIGN_SYM,
+		JuliaTypes.BITWISE_XOR_ASSIGN_SYM,
+		JuliaTypes.REMAINDER_ASSIGN_SYM
+	)
+
 	private val OPERATOR_LIST = listOf(
 		JuliaTypes.SPECIAL_ARROW_SYM,
 		JuliaTypes.DOT_SYM,
 		JuliaTypes.DOUBLE_COLON,
 		JuliaTypes.COLON_SYM,
-		JuliaTypes.SEMICOLON_SYM,
 		JuliaTypes.COMMA_SYM,
 		JuliaTypes.EQ_SYM,
 		JuliaTypes.AT_SYM,
 		JuliaTypes.TRANSPOSE_SYM,
-		JuliaTypes.FACTORISE_ASSIGN_SYM,
 		JuliaTypes.FACTORISE_SYM,
-		JuliaTypes.EXPONENT_ASSIGN_SYM,
 		JuliaTypes.EXPONENT_SYM,
 		JuliaTypes.EQUALS_SYM,
 		JuliaTypes.NOT_SYM,
 		JuliaTypes.BITWISE_NOT_SYM,
 		JuliaTypes.BITWISE_AND_SYM,
-		JuliaTypes.BITWISE_AND_ASSIGN_SYM,
 		JuliaTypes.BITWISE_OR_SYM,
-		JuliaTypes.BITWISE_OR_ASSIGN_SYM,
-		JuliaTypes.BITWISE_XOR_ASSIGN_SYM,
 		JuliaTypes.BITWISE_XOR_SYM,
-		JuliaTypes.REMAINDER_ASSIGN_SYM,
 		JuliaTypes.REMAINDER_SYM,
 		JuliaTypes.SUBTYPE_SYM,
 		JuliaTypes.INTERPOLATE_SYM,
-		JuliaTypes.INVERSE_DIV_ASSIGN_SYM,
 		JuliaTypes.INVERSE_DIV_SYM,
 		JuliaTypes.IS_SYM,
 		JuliaTypes.ISNT_SYM,
@@ -89,30 +103,21 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.SLICE_SYM,
 		JuliaTypes.LESS_THAN_SYM,
 		JuliaTypes.LESS_THAN_OR_EQUAL_SYM,
-		JuliaTypes.USHR_ASSIGN_SYM,
 		JuliaTypes.USHR_SYM,
 		JuliaTypes.AND_SYM,
 		JuliaTypes.OR_SYM,
 		JuliaTypes.INVERSE_PIPE_SYM,
 		JuliaTypes.PIPE_SYM,
 		JuliaTypes.SHL_SYM,
-		JuliaTypes.SHL_ASSIGN_SYM,
 		JuliaTypes.SHR_SYM,
-		JuliaTypes.SHR_ASSIGN_SYM,
 		JuliaTypes.PLUS_SYM,
-		JuliaTypes.PLUS_ASSIGN_SYM,
 		JuliaTypes.MINUS_SYM,
-		JuliaTypes.MINUS_ASSIGN_SYM,
 		JuliaTypes.MULTIPLY_SYM,
-		JuliaTypes.MULTIPLY_ASSIGN_SYM,
 		JuliaTypes.UNEQUAL_SYM,
 		JuliaTypes.IN_SYM,
-		JuliaTypes.FRACTION_ASSIGN_SYM,
 		JuliaTypes.FRACTION_SYM,
 		JuliaTypes.GREATER_THAN_SYM,
 		JuliaTypes.GREATER_THAN_OR_EQUAL_SYM,
-		JuliaTypes.DIVIDE_ASSIGN_SYM,
-		JuliaTypes.DIVIDE_ASSIGN_SYM,
 		JuliaTypes.DIVIDE_SYM
 	)
 
@@ -164,12 +169,14 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.BLOCK_COMMENT -> BLOCK_COMMENT_KEY
 		JuliaTypes.INT_LITERAL,
 		JuliaTypes.FLOAT_LITERAL -> NUMBER_KEY
+		JuliaTypes.SEMICOLON_SYM -> SEMICOLON_KEY
 		JuliaTypes.FLOAT_CONSTANT -> FLOAT_LIT_KEY
 		in BRACKETS -> BRACKETS_KEY
 		in M_BRACKETS -> M_BRACKETS_KEY
 		in B_BRACKETS -> B_BRACKETS_KEY
 		in KEYWORDS_LIST -> KEYWORD_KEY
 		in OPERATOR_LIST -> OPERATOR_KEY
+		in ASSIGNMENT_OPERATOR_LIST -> ASSIGNMENT_OPERATOR_KEY
 		in UNICODE_OPERATOR_LIST -> UNICODE_OPERATOR_KEY
 		else -> emptyArray()
 	}
@@ -187,6 +194,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.keyword"), JuliaHighlighter.KEYWORD),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.num"), JuliaHighlighter.NUMBER),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.operator"), JuliaHighlighter.OPERATOR),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.operator-assign"), JuliaHighlighter.ASSIGNMENT_OPERATOR),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.operator-unicode"), JuliaHighlighter.UNICODE_OPERATOR),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.brackets"), JuliaHighlighter.BRACKET),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.brackets.b"), JuliaHighlighter.B_BRACKET),
