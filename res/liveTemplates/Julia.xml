@@ -1,35 +1,134 @@
 <templateSet group="Julia">
-	<template name="function" value="function $NAME$()&#10;&#9;$END$&#10;end" description="Function" toReformat="true"
-	          toShortenFQNames="true">
-		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-		<context/>
-	</template>
-	<template name="fun1" value="function $NAME$($PARAM1$)&#10;&#9;$END$&#10;end" description="Function with one param"
-	          toReformat="true" toShortenFQNames="true">
-		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-		<variable name="PARAM1" expression="" defaultValue="" alwaysStopAt="true"/>
-		<context/>
-	</template>
-	<template name="abstract type" value="abstract type $NAME$&#10;&#9;$END$&#10;end"
-	          description="Create an abstract type" toReformat="true" toShortenFQNames="true">
-		<variable name="NAME" expression="" defaultValue="TypeName" alwaysStopAt="true"/>
-		<context/>
-	</template>
 	<template name="macro" value="macro $NAME$($PARAMS$)&#10;    return :($END$)&#10;end" description="Create a macro"
-	          toReformat="true" toShortenFQNames="true">
+	          toReformat="false" toShortenFQNames="true">
 		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
 		<variable name="PARAMS" expression="" defaultValue="" alwaysStopAt="true"/>
 		<context>
 			<option name="JULIA_CONTEXT" value="true"/>
 		</context>
 	</template>
-	<template name="sout" value="println($END$)" description="println" toReformat="true" toShortenFQNames="true">
+	<template name="sout" value="println($END$)" description="println" toReformat="false" toShortenFQNames="true">
 		<context>
 			<option name="JULIA_CONTEXT" value="true"/>
 		</context>
 	</template>
-	<template name="module" value="module $NAME$&#10;    $END$&#10;end" description="Create a module" toReformat="true"
+	<template name="module" value="module $NAME$&#10;    $END$&#10;end" description="Create a module" toReformat="false"
 	          toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="function" value="function $NAME$()&#10;&#9;$END$&#10;end" description="Function" toReformat="true"
+	          toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="fun1" value="function $NAME$($PARAM1$)&#10;&#9;$END$&#10;end" description="Function with one param"
+	          toReformat="true" toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+		<variable name="PARAM1" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="abstract type" value="abstract type $NAME$ $END$ end" description="Create an abstract type"
+	          toReformat="true" toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="TypeName" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="if" value="if $COND$&#10;    $END$&#10;end" description="Create an if expression" toReformat="true"
+	          toShortenFQNames="true">
+		<variable name="COND" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="for in" value="for $VAR$ in $RANGE$&#10;    $END$&#10;end" description="Create a for expression"
+	          toReformat="true" toShortenFQNames="true">
+		<variable name="VAR" expression="" defaultValue="" alwaysStopAt="true"/>
+		<variable name="RANGE" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="for" value="for ($EXPRS$) = $EXPR$&#10;    $END$&#10;end"
+	          description="Create a complex for expression" toReformat="true" toShortenFQNames="true">
+		<variable name="EXPRS" expression="" defaultValue="" alwaysStopAt="true"/>
+		<variable name="EXPR" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="while" value="while $COND$&#10;    $END$&#10;end" description="Create a while expression"
+	          toReformat="true" toShortenFQNames="true">
+		<variable name="COND" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="type" value="type $NAME$&#10;    $END$&#10;end" description="Create a type" toReformat="true"
+	          toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="quote" value="quote&#10;    $END$&#10;end" description="Create a quoted expression" toReformat="true"
+	          toShortenFQNames="true">
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="begin" value="begin&#10;    $END$&#10;end" description="Create a compound expression"
+	          toReformat="true" toShortenFQNames="true">
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="struct" value="struct $NAME$&#10;    $END$&#10;end" description="Create a struct" toReformat="true"
+	          toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="mutable struct" value="mutable struct $NAME$&#10;    $END$&#10;end"
+	          description="Create a mutable struct" toReformat="true" toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="primitive type" value="primitive type $NAME$ $VAR$ end" description="Create a primitive type"
+	          toReformat="true" toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+		<variable name="VAR" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="let" value="let $NAME$ = $EXPR$&#10;    $END$&#10;end" description="Create a let binding"
+	          toReformat="true" toShortenFQNames="true">
+		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+		<variable name="EXPR" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="unless" value="if !($EXPR$)&#10;    $END$&#10;end" description="Create an unless expression"
+	          toReformat="true" toShortenFQNames="true">
+		<variable name="EXPR" expression="" defaultValue="" alwaysStopAt="true"/>
+		<context>
+			<option name="JULIA_CONTEXT" value="true"/>
+		</context>
+	</template>
+	<template name="immutable" value="immutable $NAME$&#10;    $END$&#10;end" description="Create an immutable type"
+	          toReformat="true" toShortenFQNames="true">
 		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
 		<context>
 			<option name="JULIA_CONTEXT" value="true"/>
