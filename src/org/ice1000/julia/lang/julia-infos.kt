@@ -34,12 +34,16 @@ class JuliaFileTypeFactory : FileTypeFactory() {
 }
 
 class JuliaContext : TemplateContextType(JULIA_CONTEXT_ID, JuliaBundle.message("julia.name")) {
-	override fun isInContext(file: PsiFile, offset: Int) = file.name.endsWith(JULIA_EXTENSION)
+	override fun isInContext(file: PsiFile, offset: Int) = file.fileType == JuliaFileType
 }
 
 class JuliaLiveTemplateProvider : DefaultLiveTemplatesProvider {
-	override fun getDefaultLiveTemplateFiles() = arrayOf("liveTemplates/Julia")
-	override fun getHiddenLiveTemplateFiles(): Array<String> = emptyArray()
+	private companion object DefaultHolder {
+		private val DEFAULT = arrayOf("liveTemplates/Julia")
+	}
+
+	override fun getDefaultLiveTemplateFiles() = DEFAULT
+	override fun getHiddenLiveTemplateFiles(): Array<String>? = null
 }
 
 object JuliaBundle {
