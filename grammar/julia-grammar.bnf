@@ -156,6 +156,7 @@ compactFunction ::=
 typeName ::= identifierImpl
 abstractTypeName ::= identifierImpl
 typeReference ::= identifier typeParameters? { extends=expr }
+structTypeName ::= identifierImpl
 typeDeclaration ::=
  typeModifiers TYPE_KEYWORD endOfLine
   typeName endOfLine (SUBTYPE_SYM endOfLine identifier)? endOfLine
@@ -177,8 +178,19 @@ abstractTypeDeclaration ::=
 // TODO
 macro ::= 'TODO' { extends=expr }
 
-// TODO
-struct ::= STRUCT_KEYWORD
+structDeclaration ::=
+ typeModifiers STRUCT_KEYWORD endOfLine
+  structTypeName endOfLine (SUBTYPE_SYM endOfLine identifier)? endOfLine
+	(
+	 ( assignment
+	 | function
+	 | compactFunction
+	 | identifier
+	 )
+	 endOfLine
+	)*
+ END_KEYWORD { extends=expr }
+
 
 block ::=
  BLOCK_KEYWORD
@@ -204,7 +216,7 @@ typeParameters ::=
  RIGHT_B_BRACKET
 
 userType ::= identifier typeParameters?
-typeModifiers ::= IMMUTABLE_KEYWORD?
+typeModifiers ::= (IMMUTABLE_KEYWORD | MUTABLE_KEYWORD)?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
 
 private expressionList ::= expr (endOfLine COMMA_SYM endOfLine expr)*
@@ -438,6 +450,7 @@ private primaryExpr ::=
  | macro
  | block
  | abstractTypeDeclaration
+ | structDeclaration
  | typeDeclaration
  | typeReference
  | typeAlias

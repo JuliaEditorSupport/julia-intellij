@@ -20,7 +20,8 @@ class JuliaBraceMatcher : PairedBraceMatcher {
 			BracePair(JuliaTypes.WHILE_KEYWORD, JuliaTypes.END_KEYWORD, false),
 			BracePair(JuliaTypes.FOR_KEYWORD, JuliaTypes.END_KEYWORD, false),
 			BracePair(JuliaTypes.BLOCK_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.TYPE_KEYWORD, JuliaTypes.END_KEYWORD, false)
+			BracePair(JuliaTypes.TYPE_KEYWORD, JuliaTypes.END_KEYWORD, false),
+			BracePair(JuliaTypes.STRUCT_KEYWORD, JuliaTypes.END_KEYWORD, false)
 		)
 	}
 

@@ -32,6 +32,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val BLOCK_COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
 	@JvmField val TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val ABSTRACT_TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_ABSTRACT_TYPE_NAME", DefaultLanguageHighlighterColors.INTERFACE_NAME)
+	@JvmField val STRUCT_TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_STRUCT_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val MODULE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_MODULE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val FUNCTION_NAME = TextAttributesKey.createTextAttributesKey("JULIA_FUNCTION_NAME", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
 
@@ -144,8 +145,10 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.FUNCTION_KEYWORD,
 		JuliaTypes.TYPE_KEYWORD,
 		JuliaTypes.ABSTRACT_KEYWORD,
+		JuliaTypes.STRUCT_KEYWORD,
 		JuliaTypes.TYPEALIAS_KEYWORD,
 		JuliaTypes.IMMUTABLE_KEYWORD,
+		JuliaTypes.MUTABLE_KEYWORD,
 		JuliaTypes.TRUE_KEYWORD,
 		JuliaTypes.FALSE_KEYWORD,
 		JuliaTypes.QUOTE_KEYWORD,
@@ -169,15 +172,11 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.BLOCK_COMMENT -> BLOCK_COMMENT_KEY
 		JuliaTypes.INT_LITERAL,
 		JuliaTypes.FLOAT_LITERAL -> NUMBER_KEY
-		JuliaTypes.SEMICOLON_SYM -> SEMICOLON_KEY
-		JuliaTypes.FLOAT_CONSTANT -> FLOAT_LIT_KEY
 		in BRACKETS -> BRACKETS_KEY
 		in M_BRACKETS -> M_BRACKETS_KEY
 		in B_BRACKETS -> B_BRACKETS_KEY
 		in KEYWORDS_LIST -> KEYWORD_KEY
 		in OPERATOR_LIST -> OPERATOR_KEY
-		in ASSIGNMENT_OPERATOR_LIST -> ASSIGNMENT_OPERATOR_KEY
-		in UNICODE_OPERATOR_LIST -> UNICODE_OPERATOR_KEY
 		else -> emptyArray()
 	}
 }
@@ -208,7 +207,9 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char-escape-invalid"), JuliaHighlighter.CHAR_ESCAPE_INVALID),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.module-name"), JuliaHighlighter.MODULE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.abs-type-name"), JuliaHighlighter.ABSTRACT_TYPE_NAME),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.TYPE_NAME)
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.TYPE_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.struct-type-name"), JuliaHighlighter.STRUCT_TYPE_NAME)
+
 		)
 
 		private val ADDITIONAL_DESCRIPTORS = mapOf(
@@ -219,7 +220,8 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			"char" to JuliaHighlighter.CHAR,
 			"charEscape" to JuliaHighlighter.CHAR_ESCAPE,
 			"charEscapeInvalid" to JuliaHighlighter.CHAR_ESCAPE_INVALID,
-			"abstractTypeName" to JuliaHighlighter.ABSTRACT_TYPE_NAME
+			"abstractTypeName" to JuliaHighlighter.ABSTRACT_TYPE_NAME,
+			"structTypeName" to JuliaHighlighter.STRUCT_TYPE_NAME
 		)
 	}
 
