@@ -131,7 +131,6 @@ tuple ::=
  LEFT_BRACKET endOfLine
   expr (endOfLine COMMA_SYM endOfLine expr)+ endOfLine COMMA_SYM? endOfLine
  RIGHT_BRACKET { extends=expr }
- | LEFT_BRACKET expr RIGHT_BRACKET
 
 private variables ::=
  LEFT_BRACKET endOfLine
