@@ -57,7 +57,7 @@ INCOMPLETE_STRING=\"([^\"\x00-\x1F\x7F]|(\\[^ux])|{STRING_UNICODE})*
 STRING={INCOMPLETE_STRING}\"
 INCOMPLETE_RAW_STRING=\"\"\"([^\"]|\"(\?!\"\")|\"\"(\?!\"))*
 RAW_STRING={INCOMPLETE_RAW_STRING}\"\"\"
-INCOMPLETE_CHAR='([^\\\'\x00-\x1F\x7F]|\\[^\x00-\x1F\x7F]+)
+INCOMPLETE_CHAR='([^\\\'\x00-\x1F\x7F]|\\[^\'\x00-\x1F\x7F]+)
 CHAR_LITERAL={INCOMPLETE_CHAR}'
 REGEX_LITERAL=r('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 BYTE_ARRAY_LITERAL=b('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
@@ -193,6 +193,13 @@ OTHERWISE=[^ \t\r\n]
 
 {LINE_COMMENT} { return JuliaTypes.LINE_COMMENT; }
 
+{RAW_STRING} { return JuliaTypes.RAW_STR; }
+{INCOMPLETE_RAW_STRING} { return TokenType.BAD_CHARACTER; }
+{STRING} { return JuliaTypes.STR; }
+{INCOMPLETE_STRING} { return TokenType.BAD_CHARACTER; }
+{CHAR_LITERAL} { return JuliaTypes.CHAR_LITERAL; }
+{INCOMPLETE_CHAR} { return TokenType.BAD_CHARACTER; }
+
 {LEFT_BRACKET} { return JuliaTypes.LEFT_BRACKET; }
 {RIGHT_BRACKET} { return JuliaTypes.RIGHT_BRACKET; }
 {LEFT_B_BRACKET} { return JuliaTypes.LEFT_B_BRACKET; }
@@ -308,12 +315,5 @@ OTHERWISE=[^ \t\r\n]
 {FLOAT} { return JuliaTypes.FLOAT_LITERAL; }
 {FLOAT_CONSTANT} { return JuliaTypes.FLOAT_CONSTANT; }
 {SYMBOL} { return JuliaTypes.SYM; }
-
-{RAW_STRING} { return JuliaTypes.RAW_STR; }
-{INCOMPLETE_RAW_STRING} { return TokenType.BAD_CHARACTER; }
-{STRING} { return JuliaTypes.STR; }
-{INCOMPLETE_STRING} { return TokenType.BAD_CHARACTER; }
-{CHAR_LITERAL} { return JuliaTypes.CHAR_LITERAL; }
-{INCOMPLETE_CHAR} { return TokenType.BAD_CHARACTER; }
 
 {OTHERWISE} { return TokenType.BAD_CHARACTER; }
