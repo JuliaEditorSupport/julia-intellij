@@ -54,10 +54,10 @@ class JuliaAnnotator : Annotator {
 							.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 				}
 			is JuliaInteger -> {
-				// TODO provide numerical conversions
+				holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.NUMBER
 			}
 			is JuliaFloat -> {
-				// TODO provide numerical conversions
+				holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.NUMBER
 			}
 			is JuliaString -> {
 				val str=element.text.trimQuotePair()
