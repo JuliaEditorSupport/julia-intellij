@@ -76,6 +76,7 @@ RIGHT_M_BRACKET=\]
 DOT_SYM=\.
 COMMA_SYM=,
 COLON_SYM=:
+COLON_ASSIGN_SYM=:=
 SEMICOLON_SYM=;
 DOUBLE_COLON=::
 QUESTION_SYM=\?
@@ -88,6 +89,7 @@ INVERSE_DIV_SYM=\\
 IS_SYM====|≡
 ISNT_SYM=\!==|≢
 LAMBDA_ABSTRACTION=->
+ARROW_SYM==>
 SLICE_SYM=\.\.\.
 REMAINDER_SYM=%
 REMAINDER_ASSIGN_SYM=%=
@@ -98,6 +100,7 @@ USHR_SYM=>>>
 AND_SYM=&&
 OR_SYM=\|\|
 PIPE_SYM=\|>
+INVRESE_PIPE_SYM=<\|
 SHL_SYM=<<
 SHL_ASSIGN_SYM=<<=
 SHR_SYM=>>
@@ -133,6 +136,8 @@ MISC_COMPARISION_SYM=[∈∉∋∌⊆⊈⊂⊄⊊∝∊∍∥∦∷∺∻∽∾�
 MISC_PLUS_SYM=[⊕⊖⊞⊟++∪∨⊔±∓∔∸≂≏⊎⊽⋎⋓⧺⧻⨈⨢⨣⨤⨥⨦⨧⨨⨩⨪⨫⨬⨭⨮⨹⨺⩁⩂⩅⩊⩌⩏⩐⩒⩔⩖⩗⩛⩝⩡⩢⩣]
 MISC_MULTIPLY_SYM=[⋅∘×∩∧⊗⊘⊙⊚⊛⊠⊡⊓∗∙∤⅋≀⊼⋄⋆⋇⋉⋊⋋⋌⋏⋒⟑⦸⦼⦾⦿⧶⧷⨇⨰⨱⨲⨳⨴⨵⨶⨷⨸⨻⨼⨽⩀⩃⩄⩋⩍⩎⩑⩓⩕⩘⩚⩜⩞⩟⩠⫛⊍▷⨝⟕⟖⟗]
 MISC_EXPONENT_SYM=[↑↓⇵⟰⟱⤈⤉⤊⤋⤒⤓⥉⥌⥍⥏⥑⥔⥕⥘⥙⥜⥝⥠⥡⥣⥥⥮⥯￪￬]
+SPECIAL_ARROW_SYM=--|-->
+MISC_ARROW_SYM=[←→↔↚↛↞↠↢↣↦↤↮⇎⇍⇏⇐⇒⇔⇴⇶⇷⇸⇹⇺⇻⇼⇽⇾⇿⟵⟶⟷⟹⟺⟻⟼⟽⟾⟿⤀⤁⤂⤃⤄⤅⤆⤇⤌⤍⤎⤏⤐⤑⤔⤕⤖⤗⤘⤝⤞⤟⤠⥄⥅⥆⥇⥈⥊⥋⥎⥐⥒⥓⥖⥗⥚⥛⥞⥟⥢⥤⥦⥧⥨⥩⥪⥫⥬⥭⥰⧴⬱⬰⬲⬳⬴⬵⬶⬷⬸⬹⬺⬻⬼⬽⬾⬿⭀⭁⭂⭃⭄⭇⭈⭉⭊⭋⭌￩￫⇜⇝↜↝↩↪↫↬↼↽⇀⇁⇄⇆⇇⇉⇋⇌⇚⇛⇠⇢]
 
 FLOAT_CONSTANT=Inf16|Inf32|Inf|-Inf16|-Inf32|-Inf|NaN16|NaN32|NaN
 SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])*
@@ -196,10 +201,12 @@ OTHERWISE=[^ \t\r\n]
 {DOT_SYM} { return JuliaTypes.DOT_SYM; }
 {DOUBLE_COLON} { return JuliaTypes.DOUBLE_COLON; }
 {COLON_SYM} { return JuliaTypes.COLON_SYM; }
+{COLON_ASSIGN_SYM} { return JuliaTypes.COLON_ASSIGN_SYM; }
 {SEMICOLON_SYM} { return JuliaTypes.SEMICOLON_SYM; }
 {COMMA_SYM} { return JuliaTypes.COMMA_SYM; }
 {QUESTION_SYM} { return JuliaTypes.QUESTION_SYM; }
 {EQ_SYM} { return JuliaTypes.EQ_SYM; }
+{DOT_SYM}? {EQ_SYM} { return JuliaTypes.ASSIGN_SYM; }
 {AT_SYM} { return JuliaTypes.AT_SYM; }
 {SUBTYPE_SYM} { return JuliaTypes.SUBTYPE_SYM; }
 {INTERPOLATE_SYM} { return JuliaTypes.INTERPOLATE_SYM; }
@@ -208,15 +215,17 @@ OTHERWISE=[^ \t\r\n]
 {IS_SYM} { return JuliaTypes.IS_SYM; }
 {ISNT_SYM} { return JuliaTypes.ISNT_SYM; }
 {LAMBDA_ABSTRACTION} { return JuliaTypes.LAMBDA_ABSTRACTION; }
+{ARROW_SYM} { return JuliaTypes.ARROW_SYM; }
 {SLICE_SYM} { return JuliaTypes.SLICE_SYM; }
-{REMAINDER_SYM} { return JuliaTypes.REMAINDER_SYM; }
-{REMAINDER_ASSIGN_SYM} { return JuliaTypes.REMAINDER_ASSIGN_SYM; }
 {LESS_THAN_SYM} { return JuliaTypes.LESS_THAN_SYM; }
 {LESS_THAN_OR_EQUAL_SYM} { return JuliaTypes.LESS_THAN_OR_EQUAL_SYM; }
 {AND_SYM} { return JuliaTypes.AND_SYM; }
 {OR_SYM} { return JuliaTypes.OR_SYM; }
 {NOT_SYM} { return JuliaTypes.NOT_SYM; }
-{PIPE_SYM} { return JuliaTypes.PIPE_SYM; }
+{DOT_SYM}? {PIPE_SYM} { return JuliaTypes.PIPE_SYM; }
+{DOT_SYM}? {INVRESE_PIPE_SYM} { return JuliaTypes.INVERSE_PIPE_SYM; }
+{DOT_SYM}? {REMAINDER_SYM} { return JuliaTypes.REMAINDER_SYM; }
+{DOT_SYM}? {REMAINDER_ASSIGN_SYM} { return JuliaTypes.REMAINDER_ASSIGN_SYM; }
 {DOT_SYM}? {SHL_ASSIGN_SYM} { return JuliaTypes.SHL_ASSIGN_SYM; }
 {DOT_SYM}? {SHL_SYM} { return JuliaTypes.SHL_SYM; }
 {DOT_SYM}? {SHR_ASSIGN_SYM} { return JuliaTypes.SHR_ASSIGN_SYM; }
@@ -248,15 +257,17 @@ OTHERWISE=[^ \t\r\n]
 {DOT_SYM}? {MISC_PLUS_SYM} { return JuliaTypes.MISC_PLUS_SYM; }
 {DOT_SYM}? {MISC_MULTIPLY_SYM} { return JuliaTypes.MISC_MULTIPLY_SYM; }
 {DOT_SYM}? {MISC_EXPONENT_SYM} { return JuliaTypes.MISC_EXPONENT_SYM; }
-{FACTORISE_ASSIGN_SYM} { return JuliaTypes.FACTORISE_ASSIGN_SYM; }
-{FACTORISE_SYM} { return JuliaTypes.FACTORISE_SYM; }
+{DOT_SYM}? {BITWISE_AND_SYM} { return JuliaTypes.BITWISE_AND_SYM; }
+{DOT_SYM}? {BITWISE_AND_ASSIGN_SYM} { return JuliaTypes.BITWISE_AND_ASSIGN_SYM; }
+{DOT_SYM}? {BITWISE_OR_SYM} { return JuliaTypes.BITWISE_OR_SYM; }
+{DOT_SYM}? {BITWISE_XOR_SYM} { return JuliaTypes.BITWISE_XOR_SYM; }
+{DOT_SYM}? {BITWISE_OR_ASSIGN_SYM} { return JuliaTypes.BITWISE_OR_ASSIGN_SYM; }
+{DOT_SYM}? {BITWISE_XOR_ASSIGN_SYM} { return JuliaTypes.BITWISE_XOR_ASSIGN_SYM; }
+{DOT_SYM}? {FACTORISE_ASSIGN_SYM} { return JuliaTypes.FACTORISE_ASSIGN_SYM; }
+{DOT_SYM}? {FACTORISE_SYM} { return JuliaTypes.FACTORISE_SYM; }
+{DOT_SYM}? {MISC_ARROW_SYM} { return JuliaTypes.MISC_ARROW_SYM; }
+{SPECIAL_ARROW_SYM} { return JuliaTypes.SPECIAL_ARROW_SYM; }
 {BITWISE_NOT_SYM} { return JuliaTypes.BITWISE_NOT_SYM; }
-{BITWISE_AND_SYM} { return JuliaTypes.BITWISE_AND_SYM; }
-{BITWISE_AND_ASSIGN_SYM} { return JuliaTypes.BITWISE_AND_ASSIGN_SYM; }
-{BITWISE_OR_SYM} { return JuliaTypes.BITWISE_OR_SYM; }
-{BITWISE_XOR_SYM} { return JuliaTypes.BITWISE_XOR_SYM; }
-{BITWISE_OR_ASSIGN_SYM} { return JuliaTypes.BITWISE_OR_ASSIGN_SYM; }
-{BITWISE_XOR_ASSIGN_SYM} { return JuliaTypes.BITWISE_XOR_ASSIGN_SYM; }
 
 {END_KEYWORD} { return JuliaTypes.END_KEYWORD; }
 {BREAK_KEYWORD} { return JuliaTypes.BREAK_KEYWORD; }

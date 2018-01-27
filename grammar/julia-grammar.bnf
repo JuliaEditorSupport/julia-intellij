@@ -131,6 +131,7 @@ tuple ::=
  LEFT_BRACKET endOfLine
   expr (endOfLine COMMA_SYM endOfLine expr)+ endOfLine COMMA_SYM? endOfLine
  RIGHT_BRACKET { extends=expr }
+ | LEFT_BRACKET expr RIGHT_BRACKET
 
 private variables ::=
  LEFT_BRACKET endOfLine
@@ -172,7 +173,11 @@ abstractTypeDeclaration ::=
   abstractTypeName endOfLine (SUBTYPE_SYM endOfLine identifier)? endOfLine
  END_KEYWORD { extends=expr }
 
+// TODO
 macro ::= 'TODO' { extends=expr }
+
+// TODO
+struct ::= STRUCT_KEYWORD
 
 block ::=
  BLOCK_KEYWORD
@@ -202,12 +207,15 @@ typeModifiers ::= IMMUTABLE_KEYWORD?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
 
 expr ::=
-   level1
+   assigns
+ | arrowOp
  | ternaryOp
+ | miscArrowsOp
  | orOp
  | andOp
  | lambda
  | level6
+ | invPipeOp
  | pipeOp
  | level8
  | level9
@@ -218,8 +226,9 @@ expr ::=
  | typeOp
  | level15
  | primaryExpr
+ | bracketedExpr
 
-private level1 ::=
+private assigns ::=
    assignOp
  | remainderAssignOp
  | plusAssignOp
@@ -232,41 +241,50 @@ private level1 ::=
  | ushrAssignOp
  | shlAssignOp
  | shrAssignOp
+ | colonAssignOp
  | inverseDivAssignOp
  | bitwiseAndAssignOp
  | bitwiseOrAssignOp
  | bitwiseXorAssignOp
  | bitWiseNotOp
 
-bitWiseNotOp ::= BITWISE_NOT_SYM expr
-bitwiseAndAssignOp ::= expr BITWISE_AND_ASSIGN_SYM expr { rightAssociative=true }
-bitwiseOrAssignOp ::= expr BITWISE_OR_ASSIGN_SYM expr { rightAssociative=true }
-bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM expr { rightAssociative=true }
-inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM expr
-shlAssignOp ::= expr SHL_ASSIGN_SYM expr { rightAssociative=true }
-shrAssignOp ::= expr SHR_ASSIGN_SYM expr { rightAssociative=true }
-assignOp ::= expr EQ_SYM expr { rightAssociative=true }
-remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM expr
-ushrAssignOp ::= expr USHR_ASSIGN_SYM expr
-plusAssignOp ::= expr PLUS_ASSIGN_SYM expr
-minusAssignOp ::= expr MINUS_ASSIGN_SYM expr
-multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM expr
-fractionAssignOp ::= expr FRACTION_ASSIGN_SYM expr
-divideAssignOp ::= expr DIVIDE_ASSIGN_SYM expr { rightAssociative=true }
-factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM expr { rightAssociative=true }
-exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
+colonAssignOp ::= expr COLON_ASSIGN_SYM endOfLine expr
+bitWiseNotOp ::= BITWISE_NOT_SYM endOfLine expr
+bitwiseAndAssignOp ::= expr BITWISE_AND_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+bitwiseOrAssignOp ::= expr BITWISE_OR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM endOfLine expr
+shlAssignOp ::= expr SHL_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+shrAssignOp ::= expr SHR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+assignOp ::= expr (EQ_SYM | ASSIGN_SYM) endOfLine expr { rightAssociative=true }
+remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM endOfLine expr
+ushrAssignOp ::= expr USHR_ASSIGN_SYM endOfLine expr
+plusAssignOp ::= expr PLUS_ASSIGN_SYM endOfLine expr
+minusAssignOp ::= expr MINUS_ASSIGN_SYM endOfLine expr
+multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM endOfLine expr
+fractionAssignOp ::= expr FRACTION_ASSIGN_SYM endOfLine expr
+divideAssignOp ::= expr DIVIDE_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+
+// level 1.5
+arrowOp ::= expr ARROW_SYM endOfLine expr { rightAssociative=true }
 
 // ? :
 // level 2
-ternaryOp ::= expr QUESTION_SYM expr COLON_SYM expr { extends=expr }
+ternaryOp ::= expr QUESTION_SYM endOfLine expr COLON_SYM endOfLine expr
+
+// All reserved but unassigned
+// level 2.5
+miscArrowsOp ::= expr (SPECIAL_ARROW_SYM | MISC_ARROW_SYM) endOfLine expr
 
 // ||
 // level 3
-orOp ::= expr OR_SYM expr
+orOp ::= expr OR_SYM endOfLine expr
 
 // &&
 // level 4
-andOp ::= expr AND_SYM expr
+andOp ::= expr AND_SYM endOfLine expr
 
 // ->
 // level 5
@@ -287,20 +305,21 @@ private level6 ::=
  | subtypeOp
  | miscComparisonOp
 
-lessThanOp ::= expr LESS_THAN_SYM expr
-lessThanOrEqualOp ::= expr LESS_THAN_OR_EQUAL_SYM expr
-greaterThanOp ::= expr GREATER_THAN_SYM expr
-greaterThanOrEqualOp ::= expr GREATER_THAN_OR_EQUAL_SYM expr
-equalsOp ::= expr EQUALS_SYM expr
-unequalOp ::= expr UNEQUAL_SYM expr
-isOp ::= expr IS_SYM expr
-isntOp ::= expr ISNT_SYM expr
-subtypeOp ::= expr SUBTYPE_SYM expr
-miscComparisonOp ::= expr MISC_COMPARISON_SYM expr
+lessThanOp ::= expr LESS_THAN_SYM endOfLine expr
+lessThanOrEqualOp ::= expr LESS_THAN_OR_EQUAL_SYM endOfLine expr
+greaterThanOp ::= expr GREATER_THAN_SYM endOfLine expr
+greaterThanOrEqualOp ::= expr GREATER_THAN_OR_EQUAL_SYM endOfLine expr
+equalsOp ::= expr EQUALS_SYM endOfLine expr
+unequalOp ::= expr UNEQUAL_SYM endOfLine expr
+isOp ::= expr IS_SYM endOfLine expr
+isntOp ::= expr ISNT_SYM endOfLine expr
+subtypeOp ::= expr SUBTYPE_SYM endOfLine expr
+miscComparisonOp ::= expr MISC_COMPARISON_SYM endOfLine expr
 
 // |>
 // level 7
-pipeOp ::= expr PIPE_SYM expr
+pipeOp ::= expr PIPE_SYM endOfLine expr
+invPipeOp ::= expr INVERSE_PIPE_SYM endOfLine expr
 
 private level8 ::=
    spliceOp
@@ -309,10 +328,10 @@ private level8 ::=
 
 spliceOp ::= expr SLICE_SYM
 // TODO review if this should be a quoted expression!!! with interpolation
-quoteOp ::= COLON_SYM expr
-compoundQuoteOp ::= QUOTE_KEYWORD expr+ END_KEYWORD
+quoteOp ::= COLON_SYM endOfLine expr
+compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)+ END_KEYWORD
 
-// + - ⊕ ⊖ ⊞ ⊟ .+ .- | ∪ ∨ $ ⊔
+// + - etc
 private level9 ::=
    plusOp
  | minusOp
@@ -320,11 +339,11 @@ private level9 ::=
  | bitwiseOrOp
  | miscPlusOp
 
-bitwiseXorOp ::= expr (INTERPOLATE_SYM | BITWISE_XOR_SYM) expr
-bitwiseOrOp ::= expr BITWISE_OR_SYM expr
-plusOp ::= expr PLUS_SYM expr
-minusOp ::= expr MINUS_SYM expr
-miscPlusOp ::= expr MISC_PLUS_SYM expr
+bitwiseXorOp ::= expr (INTERPOLATE_SYM | BITWISE_XOR_SYM) endOfLine expr
+bitwiseOrOp ::= expr BITWISE_OR_SYM endOfLine expr
+plusOp ::= expr PLUS_SYM endOfLine expr
+minusOp ::= expr MINUS_SYM endOfLine expr
+miscPlusOp ::= expr MISC_PLUS_SYM endOfLine expr
 
 private level10 ::=
    shlOp
@@ -333,11 +352,11 @@ private level10 ::=
  | transposeOp
  | rangeOp
 
-shrOp ::= expr SHR_SYM expr
-ushrOp ::= expr USHR_SYM expr
-shlOp ::= expr SHL_SYM expr
+shrOp ::= expr SHR_SYM endOfLine expr
+ushrOp ::= expr USHR_SYM endOfLine expr
+shlOp ::= expr SHL_SYM endOfLine expr
 transposeOp ::= expr TRANSPOSE_SYM
-rangeOp ::= expr COLON_SYM expr
+rangeOp ::= expr COLON_SYM endOfLine expr
 
 // * / % & ^
 private level11 ::=
@@ -349,25 +368,25 @@ private level11 ::=
  | factoriseOp
  | miscMultiplyOp
 
-multiplyOp ::= expr MULTIPLY_SYM expr
-divideOp ::= expr DIVIDE_SYM expr
-remainderOp ::= expr REMAINDER_SYM expr
-inverseDivideOp ::= expr INVERSE_DIV_SYM expr
-factoriseOp ::= expr FACTORISE_SYM expr
-bitwiseAndOp ::= expr BITWISE_AND_SYM expr
-miscMultiplyOp ::= expr MISC_MULTIPLY_SYM expr
+multiplyOp ::= expr MULTIPLY_SYM endOfLine expr
+divideOp ::= expr DIVIDE_SYM endOfLine expr
+remainderOp ::= expr REMAINDER_SYM endOfLine expr
+inverseDivideOp ::= expr INVERSE_DIV_SYM endOfLine expr
+factoriseOp ::= expr FACTORISE_SYM endOfLine expr
+bitwiseAndOp ::= expr BITWISE_AND_SYM endOfLine expr
+miscMultiplyOp ::= expr MISC_MULTIPLY_SYM endOfLine expr
 
 // // .//
 // level 12
-fractionOp ::= expr FRACTION_SYM expr
+fractionOp ::= expr FRACTION_SYM endOfLine expr
 
 // ^ .^
 private level13 ::=
    miscExponentOp
  | exponentOp
 
-exponentOp ::= expr EXPONENT_SYM expr
-miscExponentOp ::= expr MISC_EXPONENT_SYM expr
+exponentOp ::= expr EXPONENT_SYM endOfLine expr
+miscExponentOp ::= expr MISC_EXPONENT_SYM endOfLine expr
 
 // ::
 // level 14
@@ -380,10 +399,10 @@ private level15 ::=
  | notOp
  | interpolateOp
 
-unaryMinusOp ::= MINUS_SYM expr
-notOp ::= NOT_SYM expr
-unaryPlusOp ::= PLUS_SYM expr
-interpolateOp ::= INTERPOLATE_SYM expr
+unaryMinusOp ::= MINUS_SYM endOfLine expr
+notOp ::= NOT_SYM endOfLine expr
+unaryPlusOp ::= PLUS_SYM endOfLine expr
+interpolateOp ::= INTERPOLATE_SYM endOfLine expr
 
 private primaryExpr ::=
    string
@@ -407,6 +426,8 @@ private primaryExpr ::=
  | abstractTypeDeclaration
  | typeDeclaration
  | typeAlias
+
+bracketedExpr ::= LEFT_BRACKET expr RIGHT_BRACKET { extends=expr }
 
 private arrayConstructorOp ::= expr LEFT_M_BRACKET RIGHT_M_BRACKET
 

@@ -32,13 +32,14 @@ class UtilsKtTest {
 			.let(::println)
 
 	@Test
-	fun whereIsJulia() = executeCommand("which julia", null, 1000)
+	fun whereIsJulia() = executeCommand("whereis julia", null, 1000)
 			.first
 			.forEach(::println)
 
 	@Test
 	fun whereExactlyIsJulia() = System.getenv("PATH")
 			.split(":")
+			.also { it.forEach(::println) }
 			.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
 			?.let { Paths.get(it).parent.toAbsolutePath().toString() }
 			.let(::println)
