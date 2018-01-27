@@ -205,10 +205,14 @@ userType ::= identifier typeParameters?
 typeModifiers ::= IMMUTABLE_KEYWORD?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
 
+private expressionList ::= expr (endOfLine COMMA_SYM endOfLine expr)*
+
 expr ::=
    assigns
  | arrowOp
  | ternaryOp
+ | applyFunctionOp
+ | applyIndexOp
  | miscArrowsOp
  | orOp
  | andOp
@@ -273,6 +277,15 @@ arrowOp ::= expr ARROW_SYM endOfLine expr { rightAssociative=true }
 // level 2
 ternaryOp ::= expr QUESTION_SYM endOfLine expr COLON_SYM endOfLine expr
 
+// level 2.25
+applyIndexOp ::= expr LEFT_M_BRACKET expr? endOfLine RIGHT_M_BRACKET { rightAssociative=true }
+
+// level 2.375
+applyFunctionOp ::=
+ expr LEFT_BRACKET endOfLine
+  expressionList? endOfLine
+ RIGHT_BRACKET { rightAssociative=true }
+
 // All reserved but unassigned
 // level 2.5
 miscArrowsOp ::= expr (SPECIAL_ARROW_SYM | MISC_ARROW_SYM) endOfLine expr
@@ -287,7 +300,7 @@ andOp ::= expr AND_SYM endOfLine expr
 
 // ->
 // level 5
-lambda ::= symbol LAMBDA_ABSTRACTION expr {
+lambda ::= symbol LAMBDA_ABSTRACTION endOfLine expr {
 	rightAssociative=true
 	extends=expr
 }
@@ -389,7 +402,7 @@ miscExponentOp ::= expr MISC_EXPONENT_SYM endOfLine expr
 
 // ::
 // level 14
-typeOp ::= expr DOUBLE_COLON expr
+typeOp ::= expr DOUBLE_COLON endOfLine expr
 
 // TODO unfinished
 private level15 ::=
@@ -418,7 +431,7 @@ private primaryExpr ::=
  | whileExpr
  | function
  | compactFunction
- | empty
+ | array
  | union
  | macro
  | block
@@ -426,8 +439,6 @@ private primaryExpr ::=
  | typeDeclaration
  | typeAlias
 
-bracketedExpr ::= LEFT_BRACKET expr RIGHT_BRACKET { extends=expr }
+bracketedExpr ::= LEFT_BRACKET endOfLine expr endOfLine RIGHT_BRACKET { extends=expr }
 
-private arrayConstructorOp ::= expr LEFT_M_BRACKET RIGHT_M_BRACKET
-
-empty ::= LEFT_M_BRACKET RIGHT_M_BRACKET { extends=expr }
+array ::= LEFT_M_BRACKET endOfLine expressionList? RIGHT_M_BRACKET { extends=expr }
