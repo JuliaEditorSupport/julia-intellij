@@ -212,7 +212,7 @@ expr ::=
  | level9
  | level10
  | level11
- | level12
+ | fractionOp
  | exponentOp
  | level14
  | level15
@@ -292,15 +292,15 @@ private level11 ::=
  | inverseDivideOp
  | factoriseOp
 
-private multiplyOp ::= level12 MULTIPLY_SYM expr
-private divideOp ::= level12 DIVIDE_SYM expr
-private remainderOp ::= level12 REMAINDER_SYM expr
-private inverseDivideOp ::= level12 INVERSE_DIV_SYM expr
-private factoriseOp ::= level12 FACTORISE_SYM expr
-private bitwiseAndOp ::= level12 BITWISE_AND_SYM expr
+private multiplyOp ::= fractionOp MULTIPLY_SYM expr
+private divideOp ::= fractionOp DIVIDE_SYM expr
+private remainderOp ::= fractionOp REMAINDER_SYM expr
+private inverseDivideOp ::= fractionOp INVERSE_DIV_SYM expr
+private factoriseOp ::= fractionOp FACTORISE_SYM expr
+private bitwiseAndOp ::= fractionOp BITWISE_AND_SYM expr
 
 // // .//
-private level12 ::= fractionOp
+// level 12
 private fractionOp ::= exponentOp FRACTION_SYM expr
 
 // ^ .^
@@ -351,8 +351,6 @@ private primaryExpr ::=
  | typeAlias
 
 private inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM expr
-
-
 private transposeOp ::= expr TRANSPOSE_SYM
 private rangeOp ::= expr COLON_SYM expr
 private remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM expr
