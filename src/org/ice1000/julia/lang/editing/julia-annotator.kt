@@ -53,7 +53,7 @@ class JuliaAnnotator : Annotator {
 						JuliaBundle.message("julia.lint.invalid-char-escape"))
 						.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 			}
-			is JuliaInteger -> holder.createInfoAnnotation(element, null).run {
+			is JuliaInteger -> holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int")).run {
 				val code = element.text
 				when {
 					code.startsWith("0x") -> {
