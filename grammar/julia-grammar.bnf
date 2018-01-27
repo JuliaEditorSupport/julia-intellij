@@ -283,6 +283,7 @@ private level6 ::=
  | lessThanOp
  | greaterThanOp
  | greaterThanOrEqualOp
+ | miscComparisonOp
  | isntOp
  | isOp
  | equalsOp
@@ -298,6 +299,7 @@ unequalOp ::= expr UNEQUAL_SYM expr
 isOp ::= expr IS_SYM expr
 isntOp ::= expr ISNT_SYM expr
 subtypeOp ::= expr SUBTYPE_SYM expr
+miscComparisonOp ::= expr MISC_COMPARISON_SYM expr
 
 // |>
 // level 7
