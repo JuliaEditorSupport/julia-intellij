@@ -29,13 +29,13 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 			value?.let {
 				sdkName = it.name
 				field = it
-				juliaExecutive = Paths.get(it.homePath, "bin", "julia").toAbsolutePath().toString()
+				juliaExecutable = Paths.get(it.homePath, "bin", "julia").toAbsolutePath().toString()
 			}
 		}
 	var workingDir = ""
 	var targetFile = ""
 	var programArgs = ""
-	var juliaExecutive = sdkUsed?.run { Paths.get(homePath, "bin", "cs").toAbsolutePath().toString() }.orEmpty()
+	var juliaExecutable = sdkUsed?.run { Paths.get(homePath, "bin", "cs").toAbsolutePath().toString() }.orEmpty()
 	override fun getConfigurationEditor() = JuliaRunConfigurationEditor(this)
 	override fun getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState? = null // TODO
 	override fun getValidModules() = allModules.filter { it.project.projectSdk?.sdkType is JuliaSdkType }
@@ -45,7 +45,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.write(element, "workingDir", workingDir)
 		JDOMExternalizer.write(element, "targetFile", targetFile)
 		JDOMExternalizer.write(element, "programArgs", programArgs)
-		JDOMExternalizer.write(element, "juliaExecutive", juliaExecutive)
+		JDOMExternalizer.write(element, "juliaExecutive", juliaExecutable)
 		JDOMExternalizer.write(element, "sdkName", sdkName)
 	}
 
@@ -54,7 +54,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.readString(element, "workingDir")?.let { workingDir = it }
 		JDOMExternalizer.readString(element, "targetFile")?.let { targetFile = it }
 		JDOMExternalizer.readString(element, "programArgs")?.let { programArgs = it }
-		JDOMExternalizer.readString(element, "juliaExecutive")?.let { juliaExecutive = it }
+		JDOMExternalizer.readString(element, "juliaExecutive")?.let { juliaExecutable = it }
 		JDOMExternalizer.readString(element, "sdkName")?.let { name ->
 			sdkUsed = juliaSdks.firstOrNull { it.name == name } ?: return@let
 		}
