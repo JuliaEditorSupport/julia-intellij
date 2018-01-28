@@ -77,6 +77,7 @@ class JuliaAnnotator : Annotator {
 	private fun string(
 		element: JuliaString,
 		holder: AnnotationHolder) {
+		return Unit
 		val str = element.text.trimQuotePair()
 		fun AnnotationHolder.markStringEscape(
 			beginOffset: Int, expandSize: Int,

@@ -99,17 +99,20 @@ string ::= quoteString | STR | RAW_STR { extends=expr }
 private quoteString ::= BACK_QUOTE_SYM stringTemplateElement* BACK_QUOTE_SYM
 
 stringTemplateElement::=
-    regularStringPart
-  | shortTemplate
-  | escapeSequence
-  | longTemplate
+   escapeSequence
+ | longAndShortTemplate
+ | stringTemplateRegularPart
 
-private shortTemplate ::= INTERPOLATE_SYM symbol
-private regularStringPart ::= REGULAR_STRING_PART_LITERAL
-private escapeSequence ::= unicodeEscapeSequence | regularEscapeSequence
+private longAndShortTemplate ::= templateSymbol ( shortTemplate | longTemplate )
+	private templateSymbol ::= INTERPOLATE_SYM
+	private shortTemplate ::= symbol
+	private longTemplate ::= templateBegin expr templateEnd
+	templateBegin ::= LEFT_BRACKET
+	templateEnd ::= RIGHT_BRACKET
+escapeSequence ::= unicodeEscapeSequence | regularEscapeSequence
 	private unicodeEscapeSequence ::= STRING_UNICODE
 	private regularEscapeSequence ::= ANY_CHAR_OTHER_THAN_LF
-private longTemplate ::= STRING_LONG_TEMPLATE_START_SYM expr RIGHT_BRACKET
+stringTemplateRegularPart ::= REGULAR_STRING_PART_LITERAL
 
 integer ::= INT_LITERAL { extends=expr }
 floatLit ::= FLOAT_LITERAL | FLOAT_CONSTANT

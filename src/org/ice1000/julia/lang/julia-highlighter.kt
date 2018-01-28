@@ -16,6 +16,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val NUMBER = TextAttributesKey.createTextAttributesKey("JULIA_NUMBER", DefaultLanguageHighlighterColors.NUMBER)
 	@JvmField val FLOAT_LIT = TextAttributesKey.createTextAttributesKey("JULIA_FLOAT_LIT", DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL)
 	@JvmField val STRING = TextAttributesKey.createTextAttributesKey("JULIA_STRING", DefaultLanguageHighlighterColors.STRING)
+	@JvmField val STRING_TEMPLATE = TextAttributesKey.createTextAttributesKey("STRING_TEMPLATE", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
 	@JvmField val STRING_ESCAPE = TextAttributesKey.createTextAttributesKey("JULIA_STRING_ESCAPE", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
 	@JvmField val STRING_ESCAPE_INVALID = TextAttributesKey.createTextAttributesKey("JULIA_STRING_ESCAPE_INVALID", DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE)
 	@JvmField val CHAR = TextAttributesKey.createTextAttributesKey("JULIA_CHAR", DefaultLanguageHighlighterColors.STRING)
@@ -40,6 +41,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 
 	private val KEYWORD_KEY = arrayOf(KEYWORD)
 	private val STRING_KEY = arrayOf(STRING)
+	private val STRING_VALID_KEY = arrayOf(STRING_TEMPLATE)
 	private val CHAR_KEY = arrayOf(CHAR)
 	private val NUMBER_KEY = arrayOf(NUMBER)
 	private val FLOAT_LIT_KEY = arrayOf(FLOAT_LIT)
@@ -172,7 +174,12 @@ object JuliaHighlighter : SyntaxHighlighter {
 	override fun getHighlightingLexer() = JuliaLexerAdapter()
 	override fun getTokenHighlights(type: IElementType?): Array<TextAttributesKey> = when (type) {
 		JuliaTypes.STR,
-		JuliaTypes.RAW_STR -> STRING_KEY
+		JuliaTypes.RAW_STR,
+		JuliaTypes.STRING_TEMPLATE_REGULAR_PART -> STRING_KEY
+		JuliaTypes.INTERPOLATE_SYM,
+		JuliaTypes.TEMPLATE_BEGIN,
+		JuliaTypes.TEMPLATE_END,
+		JuliaTypes.STRING_UNICODE-> STRING_VALID_KEY
 		JuliaTypes.CHAR_LITERAL -> CHAR_KEY
 		JuliaTypes.LINE_COMMENT -> COMMENT_KEY
 		JuliaTypes.BLOCK_COMMENT -> BLOCK_COMMENT_KEY
