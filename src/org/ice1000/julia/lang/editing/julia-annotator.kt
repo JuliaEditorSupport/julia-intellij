@@ -19,21 +19,12 @@ class JuliaAnnotator : Annotator {
 			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
 			is JuliaCharLit -> char(element, holder)
-		// is JuliaApplyIndexOp -> applyIndex(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
 			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
 			}
 		}
 	}
-
-//	private fun applyIndex(
-//		element: JuliaApplyIndexOp,
-//		holder: AnnotationHolder) {
-//		val list = element.exprList
-//		if (list.size == 2 && list[1] is JuliaInteger && list[1].text == "0") holder.createWarningAnnotation(list[1], JuliaBundle.message("julia.lint.array-0"))
-//			.registerFix(JuliaReplaceWithTextIntention(list[1], "1", JuliaBundle.message("julia.lint.array-0-replace-1")))
-//	}
 
 	private fun char(
 		element: JuliaCharLit,
