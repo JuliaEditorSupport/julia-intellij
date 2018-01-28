@@ -17,6 +17,24 @@ The plugin is compatible with any IntelliJ based IDE starting from 2016.1.
 If you don't have any yet, try [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/),
 It's free.
 
+## Alternatives
+
+If you search GitHub with "Julia IntelliJ" (data collected at 2018/1/28 (YYYY/M/DD)),
+you'll find 4 related repos:
+
++ snefru/juliafy (poor syntax highlight, only support MacOS)
++ sysint64/intellij-julia (this only recognize your file as a `Julia file`, and do nothing else)
++ satamas/julia-plugin (ditto)
++ ice10000/julia-intellij (better syntax highlight, inspections and quick fixes, basic completions, code execution, support all three platforms, try-evaluate, and actively updated)
+
+Now you know which one should you choose :D
+
+## Unfinished features
+
++ Formatter
++ More handy run configuration
++ Minor features like folding, bread crumbs, etc.
+
 ## Contributing
 
 You're encouraged to contribute to the plugin in any form if you've found any issues or missing functionality that you'd want to see.
