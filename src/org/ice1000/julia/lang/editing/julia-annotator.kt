@@ -37,7 +37,7 @@ class JuliaAnnotator : Annotator {
 		element: JuliaCharLit,
 		holder: AnnotationHolder) {
 		when (element.textLength) {
-		// 0, 1, 2 are impossible, 3: 'a'
+		// 0, 1, 2 are impossible, 3: 'a', no need!
 			0, 1, 2, 3 -> {
 			}
 		// '\n'
@@ -77,10 +77,11 @@ class JuliaAnnotator : Annotator {
 		element: JuliaString,
 		holder: AnnotationHolder) {
 		val str = element.text.trimQuotePair()
-		fun AnnotationHolder.markStringEscape(beginOffset: Int, expandSize: Int,
-		                                      attrID: TextAttributesKey = JuliaHighlighter.STRING_ESCAPE) {
+		fun AnnotationHolder.markStringEscape(
+			beginOffset: Int, expandSize: Int,
+			attrID: TextAttributesKey = JuliaHighlighter.STRING_ESCAPE) {
 			createInfoAnnotation(
-				element.textRange.subRangeBeginOffsetAndLength(beginOffset, expandSize),null)
+				element.textRange.subRangeBeginOffsetAndLength(beginOffset, expandSize), null)
 				.textAttributes = attrID
 		}
 
@@ -89,9 +90,9 @@ class JuliaAnnotator : Annotator {
 				if (it + expandSize <= str.length) {
 					val s = str.subSequence(it, it + expandSize)
 					when {
-						s.matches(Regex(matchRegex)) -> holder.markStringEscape(it+1,expandSize)
+						s.matches(Regex(matchRegex)) -> holder.markStringEscape(it + 1, expandSize)
 						expandSize == 2 -> return@continuing
-						else -> holder.markStringEscape(it+1, expandSize, JuliaHighlighter.STRING_ESCAPE_INVALID)
+						else -> holder.markStringEscape(it + 1, expandSize, JuliaHighlighter.STRING_ESCAPE_INVALID)
 					}
 				} else holder.createErrorAnnotation(
 					element.textRange.narrow(it + 1, 1),//to the end

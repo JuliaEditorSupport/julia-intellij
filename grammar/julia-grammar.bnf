@@ -94,13 +94,16 @@ nonUnaryOpAsSymbol ::=
  | EXPONENT_ASSIGN_SYM
 
 private comment ::= BLOCK_COMMENT | LINE_COMMENT
+
 string ::= quoteString | STR | RAW_STR { extends=expr }
-quoteString ::= BACK_QUOTE_SYM stringTemplateElement* BACK_QUOTE_SYM
+private quoteString ::= BACK_QUOTE_SYM stringTemplateElement* BACK_QUOTE_SYM
+
 stringTemplateElement::=
-   regularStringPart
+    regularStringPart
   | shortTemplate
   | escapeSequence
   | longTemplate
+
 private shortTemplate ::= INTERPOLATE_SYM symbol
 private regularStringPart ::= REGULAR_STRING_PART_LITERAL
 private escapeSequence ::= unicodeEscapeSequence | regularEscapeSequence
