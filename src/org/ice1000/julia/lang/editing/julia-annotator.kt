@@ -5,7 +5,6 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.source.tree.CompositeElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 
@@ -40,14 +39,11 @@ class JuliaAnnotator : Annotator {
 	private fun typeAlias(
 		element: JuliaTypeAlias,
 		holder: AnnotationHolder) {
-		val keyword = (element.node as CompositeElement)
-			.findChildByType(JuliaTypes.TYPEALIAS_KEYWORD)
-			?: return
-		holder.createWarningAnnotation(keyword, JuliaBundle.message("julia.lint.typealias-hint")).run {
+		holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.typealias-hint")).run {
 			highlightType = ProblemHighlightType.LIKE_DEPRECATED
-			registerFix(JuliaReplaceNodeWithTextIntention(
-				keyword,
-				"const",
+			registerFix(JuliaReplaceWithTextIntention(
+				element,
+				"const ${element.typeName.text} = ${element.userType.text}${element.typeParameters?.text ?: ""}",
 				JuliaBundle.message("julia.lint.typealias-fix")))
 		}
 	}

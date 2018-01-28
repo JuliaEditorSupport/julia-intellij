@@ -1,5 +1,6 @@
 # Julia plugin for the IntelliJ Platform
 
+[![](https://tinyurl.com/y9e4n2zh)](https://github.com/ice1000/julia-intellij)
 <!-- badges -->
 
 ## Status
@@ -17,7 +18,7 @@ The plugin is compatible with any IntelliJ based IDE starting from 2016.1.
 If you don't have any yet, try [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/),
 it's free.
 
-## Alternatives
+## Which Julia Plugin should I choose
 
 If you search GitHub with "Julia IntelliJ" (data collected at 2018/1/28 (YYYY/M/DD)),
 you'll find 4 related repos:
