@@ -24,12 +24,17 @@ private identifierChain ::= endOfLine DOT_SYM endOfLine symbol
 private anySym ::= symbol | macroSymbol
 private identifierImpl ::= (anySym identifierChain*) | (anySym? identifierChain+)
 
-operatorAsSymbol ::=
+unaryOpAsSymbol ::=
+   INTERPOLATE_SYM
+ | MINUS_SYM
+ | PLUS_SYM
+ | NOT_SYM
+
+nonUnaryOpAsSymbol ::=
    DOT_SYM
  | SEMICOLON_SYM
  | COMMA_SYM
  | QUESTION_SYM
- | AT_SYM
  | SUBTYPE_SYM
  | INTERPOLATE_SYM
  | INVERSE_DIV_SYM
@@ -51,9 +56,7 @@ operatorAsSymbol ::=
  | DIVIDE_SYM
  | REMAINDER_SYM
  | EXPONENT_SYM
- | MINUS_SYM
  | MULTIPLY_SYM
- | PLUS_SYM
  | EQUALS_SYM
  | UNEQUAL_SYM
  | GREATER_THAN_SYM
@@ -160,6 +163,7 @@ expr ::=
  | fractionOp
  | level13
  | typeOp
+ | level14
  | level15
  | primaryExpr
  | bracketedExpr
@@ -334,8 +338,10 @@ exponentOp ::= expr EXPONENT_SYM endOfLine expr
 miscExponentOp ::= expr MISC_EXPONENT_SYM endOfLine expr
 
 // ::
-// level 14
+// level 13.5
 typeOp ::= expr DOUBLE_COLON endOfLine expr
+
+private level14 ::= unaryOpAsSymbol
 
 // TODO not sure if it covers all unary symbols
 private level15 ::=
@@ -356,7 +362,7 @@ private primaryExpr ::=
  | floatLit
  | booleanLit
  | lhs
- | operatorAsSymbol
+ | nonUnaryOpAsSymbol
  | ifExpr
  | forExpr
  | regex
