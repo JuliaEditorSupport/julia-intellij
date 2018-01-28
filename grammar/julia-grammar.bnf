@@ -7,7 +7,7 @@
   psiPackage='org.ice1000.julia.lang.psi'
   psiImplPackage='org.ice1000.julia.lang.psi.impl'
 
-  extends('.*Op|.*Expr')=expr
+  extends('.*Op|.*Expr|.*Lit')=expr
 
   tokenTypeClass='org.ice1000.julia.lang.JuliaTokenType'
   elementTypeHolderClass='org.ice1000.julia.lang.psi.JuliaTypes'
@@ -27,9 +27,9 @@ private identifierImpl ::= (anySymbol identifierChain*) | (anySymbol? identifier
 private comment ::= BLOCK_COMMENT | LINE_COMMENT
 string ::= STR | RAW_STR { extends=expr }
 integer ::= INT_LITERAL { extends=expr }
-floatLit ::= FLOAT_LITERAL | FLOAT_CONSTANT { extends=expr }
-booleanLit ::= TRUE_KEYWORD | FALSE_KEYWORD { extends=expr }
-charLit ::= CHAR_LITERAL { extends=expr }
+floatLit ::= FLOAT_LITERAL | FLOAT_CONSTANT
+booleanLit ::= TRUE_KEYWORD | FALSE_KEYWORD
+charLit ::= CHAR_LITERAL
 regex ::= REGEX_LITERAL { extends=expr }
 byteArray ::= BYTE_ARRAY_LITERAL { extends=expr }
 
@@ -58,6 +58,7 @@ assignment ::=
 
 typeAnnotation ::= DOUBLE_COLON endOfLine identifier
 typedVariable ::=
+ LOCAL_KEYWORD?
  identifier endOfLine
   (typeAnnotation endOfLine)?
  typeParameters?
@@ -77,8 +78,8 @@ expr ::=
    assigns
  | arrowOp
  | ternaryOp
- | applyFunctionOp
  | applyIndexOp
+ | applyFunctionOp
  | miscArrowsOp
  | orOp
  | andOp
@@ -117,21 +118,21 @@ private assigns ::=
  | bitwiseXorAssignOp
  | bitWiseNotOp
 
-colonAssignOp ::= expr COLON_ASSIGN_SYM endOfLine expr
 bitWiseNotOp ::= BITWISE_NOT_SYM endOfLine expr
+colonAssignOp ::= expr COLON_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 bitwiseAndAssignOp ::= expr BITWISE_AND_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 bitwiseOrAssignOp ::= expr BITWISE_OR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM endOfLine expr
+inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 shlAssignOp ::= expr SHL_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 shrAssignOp ::= expr SHR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 assignOp ::= expr (EQ_SYM | ASSIGN_SYM) endOfLine expr { rightAssociative=true }
-remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM endOfLine expr
-ushrAssignOp ::= expr USHR_ASSIGN_SYM endOfLine expr
-plusAssignOp ::= expr PLUS_ASSIGN_SYM endOfLine expr
-minusAssignOp ::= expr MINUS_ASSIGN_SYM endOfLine expr
-multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM endOfLine expr
-fractionAssignOp ::= expr FRACTION_ASSIGN_SYM endOfLine expr
+remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+ushrAssignOp ::= expr USHR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+plusAssignOp ::= expr PLUS_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+minusAssignOp ::= expr MINUS_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+fractionAssignOp ::= expr FRACTION_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 divideAssignOp ::= expr DIVIDE_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM endOfLine expr { rightAssociative=true }
@@ -288,7 +289,7 @@ private primaryExpr ::=
  | integer
  | floatLit
  | booleanLit
- | identifier
+ | lhs
  | ifExpr
  | forExpr
  | regex
@@ -313,6 +314,8 @@ private primaryExpr ::=
  | typeDeclaration
  | typeReference
  | typeAlias
+
+lhs ::= LOCAL_KEYWORD? identifierImpl { extends=expr }
 
 bracketedExpr ::= LEFT_BRACKET endOfLine expr endOfLine RIGHT_BRACKET { extends=expr }
 

@@ -156,6 +156,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.FALSE_KEYWORD,
 		JuliaTypes.QUOTE_KEYWORD,
 		JuliaTypes.MACRO_KEYWORD,
+		JuliaTypes.LOCAL_KEYWORD,
 		JuliaTypes.UNION_KEYWORD
 	)
 
@@ -212,6 +213,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char"), JuliaHighlighter.CHAR),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char-escape"), JuliaHighlighter.CHAR_ESCAPE),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char-escape-invalid"), JuliaHighlighter.CHAR_ESCAPE_INVALID),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.function-name"), JuliaHighlighter.FUNCTION_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.module-name"), JuliaHighlighter.MODULE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.macro-name"), JuliaHighlighter.MACRO_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.macro-name.ref"), JuliaHighlighter.MACRO_REFERENCE),
@@ -222,6 +224,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		)
 
 		private val ADDITIONAL_DESCRIPTORS = mapOf(
+			"functionName" to JuliaHighlighter.FUNCTION_NAME,
 			"moduleName" to JuliaHighlighter.MODULE_NAME,
 			"macroName" to JuliaHighlighter.MACRO_NAME,
 			"macroRef" to JuliaHighlighter.MACRO_REFERENCE,
@@ -268,6 +271,9 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		   |end
 		   |macro <macroName>assert</macroName>(condition)
 		   |    return :( ${JULIA_STRING_DOLLAR}ex ? nothing : throw(AssertionError($JULIA_STRING_DOLLAR{'$'}(string(ex)))) )
+		   |end
+		   |function <functionName>fib</functionName>(n)
+		   |    return n ≤ 2 ? 1 : fib(n - 1) + fib(n - 2)
 		   |end
 		   |for (k, v) in Dict("dog"=>"mammal", "cat"=>"mammal", "mouse"=>"mammal")
 		   |    println("${JULIA_STRING_DOLLAR}k is a ${JULIA_STRING_DOLLAR}v")
