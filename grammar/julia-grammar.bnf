@@ -7,7 +7,7 @@
   psiPackage='org.ice1000.julia.lang.psi'
   psiImplPackage='org.ice1000.julia.lang.psi.impl'
 
-  extends('.*Op|.*Expr|.*Lit')=expr
+  extends('.*Op|.*Expr|.*Lit|.*ymbol')=expr
 
   tokenTypeClass='org.ice1000.julia.lang.JuliaTokenType'
   elementTypeHolderClass='org.ice1000.julia.lang.psi.JuliaTypes'
@@ -17,12 +17,78 @@
 
 juliaFile ::= endOfLine statements
 
-symbol ::= SYM { extends=expr }
-macroSymbol ::= AT_SYM SYM { extends=expr }
+symbol ::= SYM
+macroSymbol ::= AT_SYM SYM
 identifier ::= identifierImpl { extends=expr }
 private identifierChain ::= endOfLine DOT_SYM endOfLine symbol
-private anySymbol ::= symbol | macroSymbol
-private identifierImpl ::= (anySymbol identifierChain*) | (anySymbol? identifierChain+)
+private anySym ::= symbol | macroSymbol
+private identifierImpl ::= (anySym identifierChain*) | (anySym? identifierChain+)
+
+operatorAsSymbol ::=
+   DOT_SYM
+ | SEMICOLON_SYM
+ | COMMA_SYM
+ | QUESTION_SYM
+ | AT_SYM
+ | SUBTYPE_SYM
+ | INTERPOLATE_SYM
+ | INVERSE_DIV_SYM
+ | IS_SYM
+ | ISNT_SYM
+ | LAMBDA_ABSTRACTION
+ | ARROW_SYM
+ | SLICE_SYM
+ | LESS_THAN_SYM
+ | LESS_THAN_OR_EQUAL_SYM
+ | AND_SYM
+ | OR_SYM
+ | PIPE_SYM
+ | INVRESE_PIPE_SYM
+ | SHL_SYM
+ | SHR_SYM
+ | USHR_SYM
+ | FRACTION_SYM
+ | DIVIDE_SYM
+ | REMAINDER_SYM
+ | EXPONENT_SYM
+ | MINUS_SYM
+ | MULTIPLY_SYM
+ | PLUS_SYM
+ | EQUALS_SYM
+ | UNEQUAL_SYM
+ | GREATER_THAN_SYM
+ | GREATER_THAN_OR_EQUAL_SYM
+ | TRANSPOSE_SYM
+ | IN_SYM
+ | MISC_COMPARISON_SYM
+ | MISC_PLUS_SYM
+ | MISC_MULTIPLY_SYM
+ | MISC_EXPONENT_SYM
+ | FACTORISE_SYM
+ | BITWISE_AND_SYM
+ | BITWISE_OR_SYM
+ | BITWISE_XOR_SYM
+ | SPECIAL_ARROW_SYM
+ | MISC_ARROW_SYM
+ | BITWISE_NOT_SYM
+ | EQ_SYM
+ | ASSIGN_SYM
+ | COLON_ASSIGN_SYM
+ | BITWISE_AND_ASSIGN_SYM
+ | BITWISE_OR_ASSIGN_SYM
+ | BITWISE_XOR_ASSIGN_SYM
+ | INVERSE_DIV_ASSIGN_SYM
+ | SHL_ASSIGN_SYM
+ | SHR_ASSIGN_SYM
+ | REMAINDER_ASSIGN_SYM
+ | USHR_ASSIGN_SYM
+ | PLUS_ASSIGN_SYM
+ | MINUS_ASSIGN_SYM
+ | MULTIPLY_ASSIGN_SYM
+ | FRACTION_ASSIGN_SYM
+ | DIVIDE_ASSIGN_SYM
+ | FACTORISE_ASSIGN_SYM
+ | EXPONENT_ASSIGN_SYM
 
 private comment ::= BLOCK_COMMENT | LINE_COMMENT
 string ::= STR | RAW_STR { extends=expr }
@@ -126,7 +192,6 @@ bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM endOfLine expr { rightAssocia
 inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 shlAssignOp ::= expr SHL_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 shrAssignOp ::= expr SHR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-assignOp ::= expr (EQ_SYM | ASSIGN_SYM) endOfLine expr { rightAssociative=true }
 remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 ushrAssignOp ::= expr USHR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 plusAssignOp ::= expr PLUS_ASSIGN_SYM endOfLine expr { rightAssociative=true }
@@ -136,6 +201,7 @@ fractionAssignOp ::= expr FRACTION_ASSIGN_SYM endOfLine expr { rightAssociative=
 divideAssignOp ::= expr DIVIDE_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM endOfLine expr { rightAssociative=true }
 exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM endOfLine expr { rightAssociative=true }
+assignOp ::= expr (EQ_SYM | ASSIGN_SYM) endOfLine expr { rightAssociative=true }
 
 // level 1.5
 arrowOp ::= expr ARROW_SYM endOfLine expr { rightAssociative=true }
@@ -290,6 +356,7 @@ private primaryExpr ::=
  | floatLit
  | booleanLit
  | lhs
+ | operatorAsSymbol
  | ifExpr
  | forExpr
  | regex
