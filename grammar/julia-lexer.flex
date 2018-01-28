@@ -56,6 +56,7 @@ QUOTE_KEYWORD=quote
 BEGIN_KEYWORD=begin
 MACRO_KEYWORD=macro
 LOCAL_KEYWORD=local
+LET_KEYWORD=let
 
 STRING_UNICODE=\\((u[a-fA-F0-9]{4})|(x[a-fA-F0-9]{2}))
 INCOMPLETE_STRING=\"([^\"\x00-\x1F\x7F]|(\\[^ux])|{STRING_UNICODE})*
@@ -306,7 +307,6 @@ OTHERWISE=[^ \t\r\n]
 {ABSTRACT_KEYWORD} { return JuliaTypes.ABSTRACT_KEYWORD; }
 {PRIMITIVE_KEYWORD} { return JuliaTypes.PRIMITIVE_KEYWORD; }
 {STRUCT_KEYWORD} { return JuliaTypes.STRUCT_KEYWORD; }
-
 {TYPEALIAS_KEYWORD} { return JuliaTypes.TYPEALIAS_KEYWORD; }
 {IMMUTABLE_KEYWORD} { return JuliaTypes.IMMUTABLE_KEYWORD; }
 {MUTABLE_KEYWORD} { return JuliaTypes.MUTABLE_KEYWORD; }
@@ -315,6 +315,7 @@ OTHERWISE=[^ \t\r\n]
 {BEGIN_KEYWORD} { return JuliaTypes.BEGIN_KEYWORD; }
 {MACRO_KEYWORD} { return JuliaTypes.MACRO_KEYWORD; }
 {LOCAL_KEYWORD} { return JuliaTypes.LOCAL_KEYWORD; }
+{LET_KEYWORD} { return JuliaTypes.LET_KEYWORD; }
 
 {REGEX_LITERAL} { return JuliaTypes.REGEX_LITERAL; }
 {BYTE_ARRAY_LITERAL} { return JuliaTypes.BYTE_ARRAY_LITERAL; }
