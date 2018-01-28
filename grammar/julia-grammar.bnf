@@ -155,6 +155,7 @@ compactFunction ::=
 
 typeName ::= identifierImpl
 abstractTypeName ::= identifierImpl
+primitiveTypeName ::= identifierImpl
 typeReference ::= identifier typeParameters? { extends=expr }
 typeDeclaration ::=
  typeModifiers (TYPE_KEYWORD | STRUCT_KEYWORD) endOfLine
@@ -172,6 +173,11 @@ typeDeclaration ::=
 abstractTypeDeclaration ::=
  ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
   abstractTypeName (SUBTYPE_SYM endOfLine identifier)? endOfLine
+ END_KEYWORD { extends=expr }
+
+primitiveTypeDeclaration ::=
+ PRIMITIVE_KEYWORD TYPE_KEYWORD endOfLine
+  primitiveTypeName SUBTYPE_SYM endOfLine identifier? expr endOfLine
  END_KEYWORD { extends=expr }
 
 // TODO
@@ -435,6 +441,7 @@ private primaryExpr ::=
  | macro
  | block
  | abstractTypeDeclaration
+ | primitiveTypeDeclaration
  | typeDeclaration
  | typeReference
  | typeAlias

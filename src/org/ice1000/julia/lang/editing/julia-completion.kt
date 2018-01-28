@@ -52,6 +52,8 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"else"
 		).map(LookupElementBuilder::create)
 		private val functionInside = listOf(LookupElementBuilder.create("return"))
+
+		// FIXME temp workaround. Should be replaced by reference resolving.
 		private val builtinFunction = listOf(
 			"typeof",
 			"isa",

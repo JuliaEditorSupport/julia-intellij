@@ -32,6 +32,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val BLOCK_COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
 	@JvmField val TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val ABSTRACT_TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_ABSTRACT_TYPE_NAME", DefaultLanguageHighlighterColors.INTERFACE_NAME)
+	@JvmField val PRIMITIVE_TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_PRIMITIVE_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val MODULE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_MODULE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val FUNCTION_NAME = TextAttributesKey.createTextAttributesKey("JULIA_FUNCTION_NAME", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
 
@@ -144,6 +145,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.FUNCTION_KEYWORD,
 		JuliaTypes.TYPE_KEYWORD,
 		JuliaTypes.ABSTRACT_KEYWORD,
+		JuliaTypes.PRIMITIVE_KEYWORD,
 		JuliaTypes.STRUCT_KEYWORD,
 		JuliaTypes.TYPEALIAS_KEYWORD,
 		JuliaTypes.IMMUTABLE_KEYWORD,
@@ -209,6 +211,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char-escape-invalid"), JuliaHighlighter.CHAR_ESCAPE_INVALID),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.module-name"), JuliaHighlighter.MODULE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.abs-type-name"), JuliaHighlighter.ABSTRACT_TYPE_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.prim-type-name"), JuliaHighlighter.PRIMITIVE_TYPE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.TYPE_NAME)
 
 		)
@@ -220,7 +223,8 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			"typeName" to JuliaHighlighter.TYPE_NAME,
 			"charEscape" to JuliaHighlighter.CHAR_ESCAPE,
 			"charEscapeInvalid" to JuliaHighlighter.CHAR_ESCAPE_INVALID,
-			"abstractTypeName" to JuliaHighlighter.ABSTRACT_TYPE_NAME
+			"abstractTypeName" to JuliaHighlighter.ABSTRACT_TYPE_NAME,
+			"primitiveTypeName" to JuliaHighlighter.PRIMITIVE_TYPE_NAME
 		)
 	}
 
@@ -251,6 +255,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		   |    println(exception)
 		   |end
 		   |abstract type <abstractTypeName>Cat</abstractTypeName> <: Animals end
+		   |primitive type <primitiveTypeName>Bool</primitiveTypeName> <: Integer 8 end
 		   |type <typeName>Dog</typeName> <: Animals
 		   |    age::Int64
 		   |end
