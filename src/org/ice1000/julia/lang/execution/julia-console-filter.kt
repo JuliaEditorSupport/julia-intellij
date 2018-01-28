@@ -6,6 +6,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.ice1000.julia.lang.JULIA_ERROR_FILE_LOCATION_REGEX
 import org.ice1000.julia.lang.JULIA_STACK_FRAME_LOCATION_REGEX
 import org.ice1000.julia.lang.module.projectSdk
+import java.nio.file.Paths
 import java.util.regex.Pattern
 
 
@@ -30,13 +31,15 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 			val matcher = STACK_FRAME_LOCATION.matcher(line)
 			if (matcher.find()) {
 				val (path, lineNumber) = matcher.group().drop(3).split(':') // "at ".length
-				// val sdkHome = sdkHomeCache ?: return null
-				val resultFile = project.baseDir.fileSystem.findFileByPath(path)
+				val sdkHome = sdkHomeCache ?: return null
+				// TODO confirm
+				val resultPath = Paths.get(sdkHome, "share", "julia", "base", path.trim('.', '/')).toAbsolutePath().toString()
+				val resultFile = project.baseDir.fileSystem.findFileByPath(resultPath)
 					?: return default(startPoint, entireLength)
 				return Filter.Result(
-					startPoint + matcher.start(),
+					startPoint + matcher.start() + 3,
 					startPoint + matcher.end(),
-					OpenFileHyperlinkInfo(project, resultFile, lineNumber.toInt()))
+					OpenFileHyperlinkInfo(project, resultFile, lineNumber.toInt().let { if (it > 0) it - 1 else it }))
 			}
 		} else {
 			val matcher = ERROR_FILE_LOCATION.matcher(line)
@@ -47,8 +50,8 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 					?: return default(startPoint, entireLength)
 				return Filter.Result(
 					startPoint + matcher.start(),
-					startPoint + matcher.end(),
-					OpenFileHyperlinkInfo(project, resultFile, if (lineNumber > 0) lineNumber - 1 else lineNumber))
+					startPoint + matcher.end() - 1,
+					OpenFileHyperlinkInfo(project, resultFile, lineNumber.let { if (it > 0) it - 1 else it }))
 			}
 		}
 		return default(startPoint, entireLength)
