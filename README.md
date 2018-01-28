@@ -15,19 +15,27 @@ install Julia plugin, and create a Julia project (you'll be asked to create a Ju
 
 The plugin is compatible with any IntelliJ based IDE starting from 2016.1.
 If you don't have any yet, try [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/),
-It's free.
+it's free.
 
 ## Alternatives
 
 If you search GitHub with "Julia IntelliJ" (data collected at 2018/1/28 (YYYY/M/DD)),
 you'll find 4 related repos:
 
-+ snefru/juliafy (poor syntax highlight, only support MacOS)
++ snefru/juliafy (poor syntax highlight, SDK management, file recognizing, only support MacOS)
 + sysint64/intellij-julia (this only recognize your file as a `Julia file`, and do nothing else)
 + satamas/julia-plugin (ditto)
-+ ice10000/julia-intellij (better syntax highlight, inspections and quick fixes, basic completions, code execution, support all three platforms, try-evaluate, and actively updated)
++ ice10000/julia-intellij
+ (better syntax highlight,
+  inspections and quick fixes,
+  basic completions,
+  code execution,
+  JetBrains style icons,
+  SDK management,
+  support all three platforms,
+  try-evaluate)
 
-Now you know which one should you choose :D
+Now you know your choice :wink:
 
 ## Unfinished features
 
