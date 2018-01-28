@@ -48,8 +48,8 @@ private fun findPathMac(): String {
 	val result = Files.list(appPath).collect(Collectors.toList()).firstOrNull { application ->
 		application.toString().contains("julia", true)
 	} ?: appPath
-	val folderAfterPath="/Contents/Resources/julia/"
-	return result.toAbsolutePath().toString()+folderAfterPath
+	val folderAfterPath = "/Contents/Resources/julia/"
+	return result.toAbsolutePath().toString() + folderAfterPath
 }
 
 private fun findPathWindows() = System.getenv("LOCALAPPDATA")

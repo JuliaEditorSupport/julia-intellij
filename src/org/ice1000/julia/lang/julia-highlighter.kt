@@ -246,13 +246,15 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		   |div(5, 2) # => 2 # for a truncated result, use div
 		   |@printf "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
 		   |assertTrue("1 + 2 = 3" == "1 + 2 = $(1 + 2)")
-		   |[1, 2, 3][2] # arrays
+		   |[1, 2, 3][2] # => 2, index start from 1
 		   |try
 		   |    println("Hello<stringEscape>\n</stringEscape>World <stringEscapeInvalid>'\xjb'</stringEscapeInvalid>" +
 		   |      '<charEscapeInvalid>\x</charEscapeInvalid>' + '<charEscape>\a<charEscape>')
 		   |    some_other_var # => Unresolved reference: some_other_var
 		   |catch exception
 		   |    println(exception)
+		   |end
+		   |struct <structName>structName</structName>
 		   |end
 		   |abstract type <abstractTypeName>Cat</abstractTypeName> <: Animals end
 		   |type <typeName>Dog</typeName> <: Animals
@@ -265,5 +267,6 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		   |while x ≤ 4
 		   |    println(x)
 		   |    x += 1
+		   |end
 		   |end""".trimMargin()
 }
