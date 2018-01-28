@@ -2,6 +2,7 @@ package org.ice1000.julia.lang.editing
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
+import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
@@ -76,20 +77,21 @@ class JuliaAnnotator : Annotator {
 		element: JuliaString,
 		holder: AnnotationHolder) {
 		val str = element.text.trimQuotePair()
+		fun AnnotationHolder.markStringEscape(beginOffset: Int, expandSize: Int,
+		                                      attrID: TextAttributesKey = JuliaHighlighter.STRING_ESCAPE) {
+			createInfoAnnotation(
+				element.textRange.subRangeBeginOffsetAndLength(beginOffset, expandSize),null)
+				.textAttributes = attrID
+		}
+
 		fun markEscapeChars(escapeString: String, expandSize: Int, matchRegex: String) {
 			str.indicesOf(escapeString).forEach continuing@ {
-				if (it + expandSize < str.length) {
+				if (it + expandSize <= str.length) {
 					val s = str.subSequence(it, it + expandSize)
-					if (s.matches(Regex(matchRegex))) holder.createInfoAnnotation(
-						element.textRange.subRangeBeginOffsetAndLength(it + 1, expandSize),
-						null)
-						.textAttributes = JuliaHighlighter.STRING_ESCAPE
-					else {
-						if (expandSize == 2) return@continuing
-						holder.createErrorAnnotation(
-							element.textRange.subRangeBeginOffsetAndLength(it + 1, expandSize),
-							JuliaBundle.message("julia.lint.invalid-string-escape"))
-							.textAttributes = JuliaHighlighter.STRING_ESCAPE_INVALID
+					when {
+						s.matches(Regex(matchRegex)) -> holder.markStringEscape(it+1,expandSize)
+						expandSize == 2 -> return@continuing
+						else -> holder.markStringEscape(it+1, expandSize, JuliaHighlighter.STRING_ESCAPE_INVALID)
 					}
 				} else holder.createErrorAnnotation(
 					element.textRange.narrow(it + 1, 1),//to the end

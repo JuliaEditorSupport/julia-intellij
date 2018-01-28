@@ -94,7 +94,20 @@ nonUnaryOpAsSymbol ::=
  | EXPONENT_ASSIGN_SYM
 
 private comment ::= BLOCK_COMMENT | LINE_COMMENT
-string ::= STR | RAW_STR { extends=expr }
+string ::= quoteString | STR | RAW_STR { extends=expr }
+quoteString ::= BACK_QUOTE_SYM stringTemplateElement* BACK_QUOTE_SYM
+stringTemplateElement::=
+   regularStringPart
+  | shortTemplate
+  | escapeSequence
+  | longTemplate
+private shortTemplate ::= INTERPOLATE_SYM symbol
+private regularStringPart ::= REGULAR_STRING_PART_LITERAL
+private escapeSequence ::= unicodeEscapeSequence | regularEscapeSequence
+	private unicodeEscapeSequence ::= STRING_UNICODE
+	private regularEscapeSequence ::= ANY_CHAR_OTHER_THAN_LF
+private longTemplate ::= STRING_LONG_TEMPLATE_START_SYM expr RIGHT_BRACKET
+
 integer ::= INT_LITERAL { extends=expr }
 floatLit ::= FLOAT_LITERAL | FLOAT_CONSTANT
 booleanLit ::= TRUE_KEYWORD | FALSE_KEYWORD
