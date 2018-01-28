@@ -22,6 +22,10 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"primitive type ",
 			"immutable ",
 			"module ",
+			"import ",
+			"using ",
+			"include ",
+			"export ",
 			"typealias ",
 			"while ",
 			"for ",
@@ -48,6 +52,48 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"else"
 		).map(LookupElementBuilder::create)
 		private val functionInside = listOf(LookupElementBuilder.create("return"))
+		private val builtinFunction = listOf(
+			"typeof",
+			"isa",
+			"sqrt",
+			"zero",
+			"zeros",
+			"zeta",
+			"abs",
+			"acos",
+			"cos",
+			"cosh",
+			"asin",
+			"sin",
+			"sinh",
+			"atan",
+			"tan",
+			"tanh",
+			"acsc",
+			"csc",
+			"csch",
+			"asec",
+			"sec",
+			"sech",
+			"acot",
+			"cot",
+			"coth",
+			"bessel",
+			"broadcast",
+			"accumulate",
+			"accept",
+			"checkindex",
+			"cholfact",
+			"chomp",
+			"clipboard",
+			"accept",
+			"cumprod",
+			"deserialize",
+			"serialize",
+			"shuffle",
+			"println",
+			"print"
+		).map(LookupElementBuilder::create)
 	}
 
 	init {
@@ -59,6 +105,9 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 					psiElement()
 						.afterLeaf(psiElement(JuliaTypes.SEMICOLON_SYM))),
 			JuliaCompletionProvider(statementBegin))
+		extend(CompletionType.BASIC,
+			psiElement().inside(psiElement(JuliaTypes.STATEMENTS)),
+			JuliaCompletionProvider(builtinFunction))
 		extend(CompletionType.BASIC,
 			psiElement()
 				.inside(psiElement(JuliaTypes.TRY_CATCH_STATEMENT))

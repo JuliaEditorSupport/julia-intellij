@@ -9,8 +9,12 @@ Julia language support.<br/>
 
 Functions provided:<br/>
 <ul>
-  <li>SDK management</li>
+  <li>SDK and module management</li>
   <li>Syntax highlight</li>
+  <li>Code execution</li>
+  <li>Live templates</li>
+  <li>Completions</li>
+  <li>Try Evaluate</li>
 </ul>
 ]]></description>
 

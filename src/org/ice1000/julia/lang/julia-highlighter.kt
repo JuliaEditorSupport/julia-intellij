@@ -32,7 +32,6 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val BLOCK_COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
 	@JvmField val TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val ABSTRACT_TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_ABSTRACT_TYPE_NAME", DefaultLanguageHighlighterColors.INTERFACE_NAME)
-	@JvmField val STRUCT_NAME = TextAttributesKey.createTextAttributesKey("JULIA_STRUCT_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val MODULE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_MODULE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val FUNCTION_NAME = TextAttributesKey.createTextAttributesKey("JULIA_FUNCTION_NAME", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
 
@@ -210,8 +209,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char-escape-invalid"), JuliaHighlighter.CHAR_ESCAPE_INVALID),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.module-name"), JuliaHighlighter.MODULE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.abs-type-name"), JuliaHighlighter.ABSTRACT_TYPE_NAME),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.TYPE_NAME),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.struct-name"), JuliaHighlighter.STRUCT_NAME)
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.TYPE_NAME)
 
 		)
 
@@ -220,11 +218,9 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			"stringEscape" to JuliaHighlighter.STRING_ESCAPE,
 			"stringEscapeInvalid" to JuliaHighlighter.STRING_ESCAPE_INVALID,
 			"typeName" to JuliaHighlighter.TYPE_NAME,
-			"char" to JuliaHighlighter.CHAR,
 			"charEscape" to JuliaHighlighter.CHAR_ESCAPE,
 			"charEscapeInvalid" to JuliaHighlighter.CHAR_ESCAPE_INVALID,
-			"abstractTypeName" to JuliaHighlighter.ABSTRACT_TYPE_NAME,
-			"structName" to JuliaHighlighter.STRUCT_NAME
+			"abstractTypeName" to JuliaHighlighter.ABSTRACT_TYPE_NAME
 		)
 	}
 
@@ -253,8 +249,6 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		   |    some_other_var # => Unresolved reference: some_other_var
 		   |catch exception
 		   |    println(exception)
-		   |end
-		   |struct <structName>structName</structName>
 		   |end
 		   |abstract type <abstractTypeName>Cat</abstractTypeName> <: Animals end
 		   |type <typeName>Dog</typeName> <: Animals
