@@ -93,6 +93,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"deserialize",
 			"serialize",
 			"shuffle",
+			"throw",
 			"println",
 			"print"
 		).map(LookupElementBuilder::create)
@@ -101,41 +102,24 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 	init {
 		extend(CompletionType.BASIC,
 			psiElement()
-				.inside(psiElement(JuliaTypes.STATEMENTS))
-				.andOr(psiElement()
-					.afterLeaf(psiElement(JuliaTypes.EOL)),
-					psiElement()
-						.afterLeaf(psiElement(JuliaTypes.SEMICOLON_SYM))),
+				.inside(psiElement(JuliaTypes.STATEMENTS)),
 			JuliaCompletionProvider(statementBegin))
 		extend(CompletionType.BASIC,
 			psiElement().inside(psiElement(JuliaTypes.STATEMENTS)),
 			JuliaCompletionProvider(builtinFunction))
 		extend(CompletionType.BASIC,
 			psiElement()
-				.inside(psiElement(JuliaTypes.TRY_CATCH))
-				.andOr(psiElement()
-					.afterLeaf(psiElement(JuliaTypes.EOL)),
-					psiElement()
-						.afterLeaf(psiElement(JuliaTypes.SEMICOLON_SYM))),
+				.inside(psiElement(JuliaTypes.TRY_CATCH)),
 			JuliaCompletionProvider(tryInside))
 		extend(CompletionType.BASIC,
 			psiElement()
 				.andOr(psiElement()
 					.inside(psiElement(JuliaTypes.WHILE_EXPR)),
 					psiElement()
-						.inside(psiElement(JuliaTypes.FOR_EXPR)))
-				.andOr(psiElement()
-					.afterLeaf(psiElement(JuliaTypes.EOL)),
-					psiElement()
-						.afterLeaf(psiElement(JuliaTypes.SEMICOLON_SYM))),
+						.inside(psiElement(JuliaTypes.FOR_EXPR))),
 			JuliaCompletionProvider(loopInside))
 		extend(CompletionType.BASIC,
-			psiElement()
-				.inside(psiElement(JuliaTypes.IF_EXPR))
-				.andOr(psiElement()
-					.afterLeaf(psiElement(JuliaTypes.EOL)),
-					psiElement()
-						.afterLeaf(psiElement(JuliaTypes.SEMICOLON_SYM))),
+			psiElement().inside(psiElement(JuliaTypes.IF_EXPR)),
 			JuliaCompletionProvider(ifInside))
 		extend(CompletionType.BASIC,
 			psiElement().inside(psiElement(JuliaTypes.FUNCTION)),
