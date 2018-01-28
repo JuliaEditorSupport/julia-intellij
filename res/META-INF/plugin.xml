@@ -11,7 +11,7 @@ Functions provided:<br/>
 <ul>
   <li>SDK and module management</li>
   <li>Syntax highlight</li>
-  <li>Code execution</li>
+  <li>Run configuration and code execution</li>
   <li>Live templates</li>
   <li>Completions</li>
   <li>Try Evaluate</li>
@@ -35,6 +35,7 @@ Functions provided:<br/>
 		<liveTemplateContext implementation="org.ice1000.julia.lang.JuliaContext"/>
 		<configurationType implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationType"/>
 		<runConfigurationProducer implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationProducer"/>
+		<consoleFilterProvider implementation="org.ice1000.julia.lang.execution.JuliaConsoleFilterProvider"/>
 		<completion.contributor
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor"/>

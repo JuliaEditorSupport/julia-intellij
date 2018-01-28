@@ -158,6 +158,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.MACRO_KEYWORD,
 		JuliaTypes.LOCAL_KEYWORD,
 		JuliaTypes.LET_KEYWORD,
+		JuliaTypes.BEGIN_KEYWORD,
 		JuliaTypes.UNION_KEYWORD
 	)
 
