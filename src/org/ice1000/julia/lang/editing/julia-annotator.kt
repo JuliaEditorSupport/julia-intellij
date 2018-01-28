@@ -109,48 +109,48 @@ class JuliaAnnotator : Annotator {
 		integer: JuliaInteger,
 		holder: AnnotationHolder) {
 		val (prefix, element) = when (integer.parent) {
-			is JuliaUnaryMinusOp -> -1 to integer.parent
-			is JuliaUnaryPlusOp -> 1 to integer.parent
-			else -> 1 to integer
+			is JuliaUnaryMinusOp -> true to integer.parent
+			is JuliaUnaryPlusOp -> false to integer.parent
+			else -> false to integer
 		}
 		val code = integer.text
 
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int")).run {
 			when {
 				code.startsWith("0x") -> {
-					val value = code.substring(2).toInt(16) * prefix
-					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
+					val value = code.substring(2).toInt(16)
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}$value",
 						JuliaBundle.message("julia.lint.int-replace-dec")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}0b${value.toString(2)}",
 						JuliaBundle.message("julia.lint.int-replace-bin")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}0o${value.toString(8)}",
 						JuliaBundle.message("julia.lint.int-replace-oct")))
 				}
 				code.startsWith("0b") -> {
-					val value = code.substring(2).toInt(2) * prefix
-					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
+					val value = code.substring(2).toInt(2)
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}$value",
 						JuliaBundle.message("julia.lint.int-replace-dec")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}0x${value.toString(16)}",
 						JuliaBundle.message("julia.lint.int-replace-hex")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}0o${value.toString(8)}",
 						JuliaBundle.message("julia.lint.int-replace-oct")))
 				}
 				code.startsWith("0o") -> {
-					val value = code.substring(2).toInt(8) * prefix
-					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
+					val value = code.substring(2).toInt(8)
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}$value",
 						JuliaBundle.message("julia.lint.int-replace-dec")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}0b${value.toString(2)}",
 						JuliaBundle.message("julia.lint.int-replace-bin")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}0x${value.toString(16)}",
 						JuliaBundle.message("julia.lint.int-replace-hex")))
 				}
 				else -> {
-					val value = code.toInt() * prefix
-					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
+					val value = code.toInt()
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}0b${value.toString(2)}",
 						JuliaBundle.message("julia.lint.int-replace-bin")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}0o${value.toString(8)}",
 						JuliaBundle.message("julia.lint.int-replace-oct")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
+					registerFix(JuliaReplaceWithTextIntention(element, "${if (prefix) "-" else ""}0x${value.toString(16)}",
 						JuliaBundle.message("julia.lint.int-replace-hex")))
 				}
 			}
