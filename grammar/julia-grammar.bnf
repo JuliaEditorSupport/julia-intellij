@@ -58,7 +58,7 @@ assignment ::=
 
 typeAnnotation ::= DOUBLE_COLON endOfLine identifier
 typedVariable ::=
- LOCAL_KEYWORD?
+ (LOCAL_KEYWORD endOfLine)?
  identifier endOfLine
   (typeAnnotation endOfLine)?
  typeParameters?
@@ -208,7 +208,7 @@ private level8 ::=
 spliceOp ::= expr SLICE_SYM
 // TODO review if this should be a quoted expression!!! with interpolation
 quoteOp ::= COLON_SYM endOfLine expr
-compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)+ END_KEYWORD
+compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
 
 // + - etc
 private level9 ::=
@@ -315,7 +315,7 @@ private primaryExpr ::=
  | typeReference
  | typeAlias
 
-lhs ::= LOCAL_KEYWORD? identifierImpl { extends=expr }
+lhs ::= (LOCAL_KEYWORD endOfLine)? identifierImpl { extends=expr }
 
 bracketedExpr ::= LEFT_BRACKET endOfLine expr endOfLine RIGHT_BRACKET { extends=expr }
 
