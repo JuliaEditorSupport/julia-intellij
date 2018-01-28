@@ -16,6 +16,12 @@ class JuliaAnnotator : Annotator {
 				.textAttributes = JuliaHighlighter.FUNCTION_NAME
 			is JuliaAbstractTypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
+			is JuliaPrimitiveTypeName -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
+			is JuliaMacroName -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.MACRO_NAME
+			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.MACRO_REFERENCE
 			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
 			is JuliaCharLit -> char(element, holder)

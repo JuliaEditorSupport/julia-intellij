@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list>
+	<option name="JULIA_FLOAT_LIT">
+		<value>
+			<option name="FOREGROUND" value="577F9D"/>
+		</value>
+	</option>
+	<option name="JULIA_MACRO_REFERENCE">
+		<value>
+			<option name="FOREGROUND" value="4EADE5"/>
+		</value>
+	</option>
+</list>

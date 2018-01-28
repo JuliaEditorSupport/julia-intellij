@@ -26,6 +26,8 @@ Functions provided:<br/>
 	<depends>com.intellij.modules.lang</depends>
 
 	<extensions defaultExtensionNs="com.intellij">
+		<additionalTextAttributes scheme="Darcula" file="/colorSchemes/Julia.xml"/>
+		<additionalTextAttributes scheme="Default" file="/colorSchemes/Julia.xml"/>
 		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>
 		<sdkType implementation="org.ice1000.julia.lang.module.JuliaSdkType"/>
 		<colorSettingsPage implementation="org.ice1000.julia.lang.JuliaColorSettingsPage"/>
