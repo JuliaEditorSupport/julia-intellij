@@ -94,7 +94,6 @@ EQ_SYM==
 AT_SYM=@
 SUBTYPE_SYM=<:
 BACK_QUOTE_SYM=`
-STRING_LONG_TEMPLATE_START_SYM=\$\(
 INTERPOLATE_SYM=\$
 INVERSE_DIV_ASSIGN_SYM=\\\\=
 INVERSE_DIV_SYM=\\
@@ -154,8 +153,9 @@ MISC_ARROW_SYM=[←→↔↚↛↞↠↢↣↦↤↮⇎⇍⇏⇐⇒⇔⇴⇶⇷�
 
 FLOAT_CONSTANT=Inf16|Inf32|Inf|-Inf16|-Inf32|-Inf|NaN16|NaN32|NaN
 //SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])+
-SYMBOL=[^\x00-\x20+\-*/\\$#\{\}()\[\]<>|&?~;\"\'\`@]+
-
+SYMBOL={VALID_CHAR}({VALID_CHAR}|[\d\!])*
+VALID_CHAR=[a-zA-Z_\u0100-\uffff]
+//SYMBOL=[^\x00-\x20+\-*/\\$#\{\}()\[\]<>|&?~;\"\'\`@]+
 DIGIT=[\d_]
 
 NUM_SUFFIX=-?{DIGIT}+
