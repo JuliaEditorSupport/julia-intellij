@@ -22,7 +22,7 @@ it's free.
 If you search GitHub with "Julia IntelliJ" (data collected at 2018/1/28 (YYYY/M/DD)),
 you'll find 4 related repos:
 
-+ snefru/juliafy (poor syntax highlight, SDK management, file recognizing, only support MacOS)
++ snefru/juliafy (incomplete syntax highlight, SDK management, file recognizing, only support MacOS)
 + sysint64/intellij-julia (this only recognize your file as a `Julia file`, and do nothing else)
 + satamas/julia-plugin (ditto)
 + ice1000/julia-intellij

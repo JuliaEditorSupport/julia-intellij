@@ -34,7 +34,10 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"mutable struct ",
 			"struct ",
 			"begin ",
+			"let ",
 			"quote ",
+			"const ",
+			"local ",
 			"macro ",
 			"function ",
 			"end"

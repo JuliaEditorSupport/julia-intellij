@@ -1,9 +1,11 @@
 package org.ice1000.julia.lang.editing
 
+import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.tree.CompositeElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 
@@ -25,12 +27,28 @@ class JuliaAnnotator : Annotator {
 				.textAttributes = JuliaHighlighter.MACRO_REFERENCE
 			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
+			is JuliaTypeAlias -> typeAlias(element, holder)
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
 			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
 				// TODO provide conversions
 			}
+		}
+	}
+
+	private fun typeAlias(
+		element: JuliaTypeAlias,
+		holder: AnnotationHolder) {
+		val keyword = (element.node as CompositeElement)
+			.findChildByType(JuliaTypes.TYPEALIAS_KEYWORD)
+			?: return
+		holder.createWarningAnnotation(keyword, JuliaBundle.message("julia.lint.typealias-hint")).run {
+			highlightType = ProblemHighlightType.LIKE_DEPRECATED
+			registerFix(JuliaReplaceNodeWithTextIntention(
+				keyword,
+				"const",
+				JuliaBundle.message("julia.lint.typealias-fix")))
 		}
 	}
 
