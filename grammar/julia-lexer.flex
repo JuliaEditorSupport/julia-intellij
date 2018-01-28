@@ -68,7 +68,7 @@ CHAR_LITERAL={INCOMPLETE_CHAR}'
 REGEX_LITERAL=r('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 BYTE_ARRAY_LITERAL=b('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 
-REGULAR_STRING_PART_LITERAL=[^\$`\n]
+REGULAR_STRING_PART_LITERAL=[^\$(\$\()`\n]
 ANY_CHAR_OTHER_THAN_LF=\\[^\n]
 
 LINE_COMMENT=#(\n|[^\n=][^\n]*)
