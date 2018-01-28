@@ -27,12 +27,14 @@ class JuliaCommandLineState(
 	override fun execute(executor: Executor, runner: ProgramRunner<*>): ExecutionResult {
 		val params = mutableListOf<String>()
 		params += configuration.juliaExecutable
-		// todo add options
-		params += configuration.targetFile
 		params += "--check-bounds=${configuration.checkBoundsOption.toYesNo()}"
 		params += "--history-file=${configuration.historyOption.toYesNo()}"
 		params += "--inline=${configuration.inlineOption.toYesNo()}"
 		params += "--color=${configuration.colorOption.toYesNo()}"
+		params += "--math-mode=${if (configuration.unsafeFloatOption) "fast" else "ieee"}"
+		params += "--handle-signals=${configuration.handleSignalOption.toYesNo()}"
+		params += "--startup-file=${configuration.startupFileOption.toYesNo()}"
+		params += configuration.targetFile
 		// params += configuration.programArgs.split(' ').filter(String::isNotBlank)
 		val handler = OSProcessHandler(GeneralCommandLine(params).also {
 			it.withCharset(Charset.forName("UTF-8"))

@@ -24,6 +24,9 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JCheckBox checkBoundsCheckBox;
 	private @NotNull JCheckBox colorCheckBox;
 	private @NotNull JCheckBox historyCheckBox;
+	private @NotNull JCheckBox unsafeFloatCheckBox;
+	private @NotNull JCheckBox handleSignalCheckBox;
+	private @NotNull JCheckBox startupFileCheckBox;
 
 	public JuliaRunConfigurationEditor(@NotNull JuliaRunConfiguration configuration) {
 		juliaExeField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-compiler"),
@@ -50,6 +53,9 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		checkBoundsCheckBox.setSelected(configuration.getCheckBoundsOption());
 		colorCheckBox.setSelected(configuration.getColorOption());
 		historyCheckBox.setSelected(configuration.getHistoryOption());
+		handleSignalCheckBox.setSelected(configuration.getHandleSignalOption());
+		unsafeFloatCheckBox.setSelected(configuration.getUnsafeFloatOption());
+		startupFileCheckBox.setSelected(configuration.getStartupFileOption());
 	}
 
 	@Override protected void applyEditorTo(@NotNull JuliaRunConfiguration configuration) throws ConfigurationException {
@@ -67,6 +73,9 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		configuration.setCheckBoundsOption(checkBoundsCheckBox.isSelected());
 		configuration.setColorOption(colorCheckBox.isSelected());
 		configuration.setHistoryOption(historyCheckBox.isSelected());
+		configuration.setHandleSignalOption(handleSignalCheckBox.isSelected());
+		configuration.setUnsafeFloatOption(unsafeFloatCheckBox.isSelected());
+		configuration.setStartupFileOption(startupFileCheckBox.isSelected());
 	}
 
 	@Contract("_ -> fail") private void reportInvalidPath(@NotNull String path) throws ConfigurationException {

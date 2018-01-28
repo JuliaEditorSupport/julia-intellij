@@ -38,6 +38,9 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 	var inlineOption = false
 	var checkBoundsOption = false
 	var colorOption = false
+	var unsafeFloatOption = false
+	var handleSignalOption = false
+	var startupFileOption = false
 	var historyOption = false
 
 	override fun getConfigurationEditor() = JuliaRunConfigurationEditor(this)
@@ -53,6 +56,9 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.write(element, "inlineOption", inlineOption)
 		JDOMExternalizer.write(element, "checkBoundsOption", checkBoundsOption)
 		JDOMExternalizer.write(element, "colorOption", colorOption)
+		JDOMExternalizer.write(element, "mathModeOption", unsafeFloatOption)
+		JDOMExternalizer.write(element, "handleSignalOption", handleSignalOption)
+		JDOMExternalizer.write(element, "startupFileOption", startupFileOption)
 		JDOMExternalizer.write(element, "historyOption", historyOption)
 	}
 
@@ -67,6 +73,9 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.readBoolean(element, "inlineOption").let { inlineOption = it }
 		JDOMExternalizer.readBoolean(element, "checkBoundsOption").let { checkBoundsOption = it }
 		JDOMExternalizer.readBoolean(element, "colorOption").let { colorOption = it }
+		JDOMExternalizer.readBoolean(element, "mathModeOption").let { unsafeFloatOption = it }
+		JDOMExternalizer.readBoolean(element, "handleSignalOption").let { handleSignalOption = it }
+		JDOMExternalizer.readBoolean(element, "startupFileOption").let { startupFileOption = it }
 		JDOMExternalizer.readBoolean(element, "historyOption").let { historyOption = it }
 		PathMacroManager.getInstance(project).collapsePathsRecursively(element)
 	}
