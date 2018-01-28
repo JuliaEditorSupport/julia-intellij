@@ -13,6 +13,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
+import org.ice1000.julia.lang.toYesNo
 import java.nio.charset.Charset
 
 class JuliaCommandLineState(
@@ -28,6 +29,10 @@ class JuliaCommandLineState(
 		params += configuration.juliaExecutable
 		// todo add options
 		params += configuration.targetFile
+		params += "--check-bounds=${configuration.checkBoundsOption.toYesNo()}"
+		params += "--history-file=${configuration.historyOption.toYesNo()}"
+		params += "--inline=${configuration.inlineOption.toYesNo()}"
+		params += "--color=${configuration.colorOption.toYesNo()}"
 		// params += configuration.programArgs.split(' ').filter(String::isNotBlank)
 		val handler = OSProcessHandler(GeneralCommandLine(params).also {
 			it.withCharset(Charset.forName("UTF-8"))

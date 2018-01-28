@@ -46,6 +46,10 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		targetFileField.setText(configuration.getTargetFile());
 		workingDirField.setText(configuration.getWorkingDir());
 		sdkComboBox.getComboBox().setSelectedItem(configuration.getSdkUsed());
+		inlineCheckBox.setSelected(configuration.getInlineOption());
+		checkBoundsCheckBox.setSelected(configuration.getCheckBoundsOption());
+		colorCheckBox.setSelected(configuration.getColorOption());
+		historyCheckBox.setSelected(configuration.getHistoryOption());
 	}
 
 	@Override protected void applyEditorTo(@NotNull JuliaRunConfiguration configuration) throws ConfigurationException {
@@ -59,6 +63,10 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		if (Files.isDirectory(Paths.get(workingDirectory))) configuration.setWorkingDir(workingDirectory);
 		else reportInvalidPath(workingDirectory);
 		configuration.setSdkUsed(sdkComboBox.getSelectedSdk());
+		configuration.setInlineOption(inlineCheckBox.isSelected());
+		configuration.setCheckBoundsOption(checkBoundsCheckBox.isSelected());
+		configuration.setColorOption(colorCheckBox.isSelected());
+		configuration.setHistoryOption(historyCheckBox.isSelected());
 	}
 
 	@Contract("_ -> fail") private void reportInvalidPath(@NotNull String path) throws ConfigurationException {

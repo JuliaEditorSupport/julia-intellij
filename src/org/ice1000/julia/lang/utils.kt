@@ -23,16 +23,16 @@ inline fun forceRun(lambda: () -> Any) {
  * @return (stdout, stderr)
  */
 fun executeJulia(homePath: String, code: String?, timeLimit: Long, vararg params: String) =
-		executeCommand(
-				"${Paths.get(homePath, "bin", "julia").toAbsolutePath()} ${params.joinToString(" ")}",
-				code?.let { "$it\nquit()" },
-				timeLimit
-		)
+	executeCommand(
+		"${Paths.get(homePath, "bin", "julia").toAbsolutePath()} ${params.joinToString(" ")}",
+		code?.let { "$it\nquit()" },
+		timeLimit
+	)
 
 fun executeCommand(
-		command: String,
-		input: String?,
-		timeLimit: Long): Pair<List<String>, List<String>> {
+	command: String,
+	input: String?,
+	timeLimit: Long): Pair<List<String>, List<String>> {
 	var processRef: Process? = null
 	var output: List<String> = emptyList()
 	var outputErr: List<String> = emptyList()
@@ -64,8 +64,8 @@ private fun collectLines(it: InputStream): List<String> {
 
 fun TextRange.narrow(fromStart: Int, toEnd: Int) = TextRange(startOffset + fromStart, endOffset - toEnd)
 fun TextRange.subRangeBeginOffsetAndLength(
-		beginOffset: Int,
-		textLength: Int) = TextRange(startOffset + beginOffset, startOffset + beginOffset + textLength)
+	beginOffset: Int,
+	textLength: Int) = TextRange(startOffset + beginOffset, startOffset + beginOffset + textLength)
 
 fun String.trimQuotePair() = trim('\'', '\"')
 
@@ -76,8 +76,8 @@ fun String.trimQuotePair() = trim('\'', '\"')
  * @param someStr String:
  */
 fun String.indicesOf(someStr: String) = indices
-		.map { indexOf(someStr, it) }
-		.filterTo(ArrayListSet()) { it > -1 }.toIntArray()
+	.map { indexOf(someStr, it) }
+	.filterTo(ArrayListSet()) { it > -1 }.toIntArray()
 
 fun String.splitsOf(someStr: String, expandSize: Int): Array<String> {
 	val ret = ArrayList<String>()
@@ -87,3 +87,5 @@ fun String.splitsOf(someStr: String, expandSize: Int): Array<String> {
 	}
 	return ret.toTypedArray()
 }
+
+fun Boolean.toYesNo() = if (this) "yes" else "no"
