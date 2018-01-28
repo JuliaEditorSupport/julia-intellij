@@ -1,9 +1,19 @@
 package org.ice1000.julia.lang
 
+import org.intellij.lang.annotations.Language
 import org.junit.Test
 import java.util.regex.Pattern
 
 class JuliaRegexTest {
+	@Test
+	fun testSymbol(){
+		@Language("RegExp")
+		fun String.identifierValid()=Regex("""[^\x00-\x20${'$'}#{}()\[\]<>|&*?~;"'`]*""").matches(this)
+		"asdfkjhla".identifierValid() shouldBe true
+		"男孩♂넥스♂".identifierValid() shouldBe true
+		"tab\t".identifierValid() shouldBe false
+		"nameWith$".identifierValid() shouldBe false
+	}
 	@Test
 	fun testCharRegex() {
 		val unicodeCharX = """\x23\x23\x23"""
