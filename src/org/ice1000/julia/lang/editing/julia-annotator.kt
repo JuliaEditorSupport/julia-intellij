@@ -19,7 +19,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
 			is JuliaCharLit -> char(element, holder)
-			is JuliaArray -> array(element, holder)
+		// is JuliaApplyIndexOp -> applyIndex(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
 			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
@@ -27,13 +27,13 @@ class JuliaAnnotator : Annotator {
 		}
 	}
 
-	private fun array(
-		element: JuliaArray,
-		holder: AnnotationHolder) {
-		val list = element.exprList
-		if (list.size == 2 && list[1] is JuliaInteger) holder.createInfoAnnotation(list[1], JuliaBundle.message("julia.lint.array-0"))
-			.registerFix(JuliaReplaceWithTextIntention(list[1], "1", JuliaBundle.message("julia.lint.array-0-replace-1")))
-	}
+//	private fun applyIndex(
+//		element: JuliaApplyIndexOp,
+//		holder: AnnotationHolder) {
+//		val list = element.exprList
+//		if (list.size == 2 && list[1] is JuliaInteger && list[1].text == "0") holder.createWarningAnnotation(list[1], JuliaBundle.message("julia.lint.array-0"))
+//			.registerFix(JuliaReplaceWithTextIntention(list[1], "1", JuliaBundle.message("julia.lint.array-0-replace-1")))
+//	}
 
 	private fun char(
 		element: JuliaCharLit,
@@ -106,13 +106,19 @@ class JuliaAnnotator : Annotator {
 	}
 
 	private fun integer(
-		element: JuliaInteger,
+		integer: JuliaInteger,
 		holder: AnnotationHolder) {
+		val (prefix, element) = when (integer.parent) {
+			is JuliaUnaryMinusOp -> -1 to integer.parent
+			is JuliaUnaryPlusOp -> 1 to integer.parent
+			else -> 1 to integer
+		}
+		val code = integer.text
+
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int")).run {
-			val code = element.text
 			when {
 				code.startsWith("0x") -> {
-					val value = code.substring(2).toInt(16)
+					val value = code.substring(2).toInt(16) * prefix
 					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
 						JuliaBundle.message("julia.lint.int-replace-dec")))
 					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
@@ -121,7 +127,7 @@ class JuliaAnnotator : Annotator {
 						JuliaBundle.message("julia.lint.int-replace-oct")))
 				}
 				code.startsWith("0b") -> {
-					val value = code.substring(2).toInt(2)
+					val value = code.substring(2).toInt(2) * prefix
 					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
 						JuliaBundle.message("julia.lint.int-replace-dec")))
 					registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
@@ -130,7 +136,7 @@ class JuliaAnnotator : Annotator {
 						JuliaBundle.message("julia.lint.int-replace-oct")))
 				}
 				code.startsWith("0o") -> {
-					val value = code.substring(2).toInt(8)
+					val value = code.substring(2).toInt(8) * prefix
 					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
 						JuliaBundle.message("julia.lint.int-replace-dec")))
 					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
@@ -139,7 +145,7 @@ class JuliaAnnotator : Annotator {
 						JuliaBundle.message("julia.lint.int-replace-hex")))
 				}
 				else -> {
-					val value = code.toInt()
+					val value = code.toInt() * prefix
 					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
 						JuliaBundle.message("julia.lint.int-replace-bin")))
 					registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
