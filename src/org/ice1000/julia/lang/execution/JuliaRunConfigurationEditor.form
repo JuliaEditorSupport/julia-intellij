@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="5" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="500" height="618"/>
     </constraints>
     <properties/>
     <border type="empty" title-resource-bundle="org/ice1000/julia/lang/julia-bundle" title-key="julia.run-config.title"/>
@@ -16,11 +16,6 @@
           <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.run-config.script-path"/>
         </properties>
       </component>
-      <vspacer id="6389b">
-        <constraints>
-          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </vspacer>
       <component id="e8b77" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="targetFileField">
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -68,6 +63,62 @@
         </constraints>
         <properties/>
       </component>
+      <scrollpane id="4ee50" class="com.intellij.ui.components.JBScrollPane">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="a48e" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints/>
+            <properties/>
+            <border type="empty" title-resource-bundle="org/ice1000/julia/lang/julia-bundle" title-key="julia.run-config.compiler-args">
+              <font/>
+            </border>
+            <children>
+              <vspacer id="4a7e9">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <component id="b1554" class="javax.swing.JCheckBox" binding="inlineCheckBox">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.run-config.inline"/>
+                </properties>
+              </component>
+              <component id="99fe4" class="javax.swing.JCheckBox" binding="checkBoundsCheckBox">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.run-config.check-bounds"/>
+                </properties>
+              </component>
+              <component id="61bb6" class="javax.swing.JCheckBox" binding="historyCheckBox">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.run-config.history"/>
+                </properties>
+              </component>
+              <component id="5cacb" class="javax.swing.JCheckBox" binding="colorCheckBox">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.run-config.color"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </scrollpane>
     </children>
   </grid>
 </form>

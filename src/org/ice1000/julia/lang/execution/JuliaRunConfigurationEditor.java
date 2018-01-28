@@ -20,6 +20,10 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JuliaSdkComboBox sdkComboBox;
 	private @NotNull TextFieldWithBrowseButton juliaExeField;
 	private @NotNull TextFieldWithBrowseButton workingDirField;
+	private @NotNull JCheckBox inlineCheckBox;
+	private @NotNull JCheckBox checkBoundsCheckBox;
+	private @NotNull JCheckBox colorCheckBox;
+	private @NotNull JCheckBox historyCheckBox;
 
 	public JuliaRunConfigurationEditor(@NotNull JuliaRunConfiguration configuration) {
 		juliaExeField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-compiler"),

@@ -29,6 +29,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
 			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
+				// TODO provide conversions
 			}
 		}
 	}
