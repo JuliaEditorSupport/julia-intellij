@@ -53,6 +53,7 @@ TRUE_KEYWORD=true
 FALSE_KEYWORD=false
 UNION_KEYWORD=union
 QUOTE_KEYWORD=quote
+BEGIN_KEYWORD=begin
 
 STRING_UNICODE=\\((u[a-fA-F0-9]{4})|(x[a-fA-F0-9]{2}))
 INCOMPLETE_STRING=\"([^\"\x00-\x1F\x7F]|(\\[^ux])|{STRING_UNICODE})*
@@ -312,6 +313,7 @@ OTHERWISE=[^ \t\r\n]
 {MUTABLE_KEYWORD} { return JuliaTypes.MUTABLE_KEYWORD; }
 {UNION_KEYWORD} { return JuliaTypes.UNION_KEYWORD; }
 {QUOTE_KEYWORD} { return JuliaTypes.QUOTE_KEYWORD; }
+{BEGIN_KEYWORD} { return JuliaTypes.BEGIN_KEYWORD; }
 
 {REGEX_LITERAL} { return JuliaTypes.REGEX_LITERAL; }
 {BYTE_ARRAY_LITERAL} { return JuliaTypes.BYTE_ARRAY_LITERAL; }

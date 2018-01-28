@@ -112,7 +112,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			JuliaCompletionProvider(builtinFunction))
 		extend(CompletionType.BASIC,
 			psiElement()
-				.inside(psiElement(JuliaTypes.TRY_CATCH_STATEMENT))
+				.inside(psiElement(JuliaTypes.TRY_CATCH))
 				.andOr(psiElement()
 					.afterLeaf(psiElement(JuliaTypes.EOL)),
 					psiElement()

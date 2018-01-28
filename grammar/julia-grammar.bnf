@@ -7,7 +7,7 @@
   psiPackage='org.ice1000.julia.lang.psi'
   psiImplPackage='org.ice1000.julia.lang.psi.impl'
 
-  extends('.*Op')=expr
+  extends('.*Op|.*Expr')=expr
 
   tokenTypeClass='org.ice1000.julia.lang.JuliaTokenType'
   elementTypeHolderClass='org.ice1000.julia.lang.psi.JuliaTypes'
@@ -37,32 +37,24 @@ private semi ::= endOfLineImpl | SEMICOLON_SYM
 statements ::= semi* (statement (semi+ statement)*)? semi*
 
 private statement ::=
-   includeStatement
- | moduleDeclaration
- | exportStatement
- | importStatement
- | usingStatement
- | tryCatchStatement
- | returnStatement
- | breakStatement
- | continueStatement
+   moduleDeclaration
  | expr
 
-breakStatement ::= BREAK_KEYWORD
-continueStatement ::= CONTINUE_KEYWORD
-includeStatement ::=
+breakExpr ::= BREAK_KEYWORD
+continueExpr ::= CONTINUE_KEYWORD
+include ::=
  INCLUDE_KEYWORD endOfLine
   LEFT_BRACKET endOfLine
    string endOfLine
-  RIGHT_BRACKET
+  RIGHT_BRACKET { extends=expr }
 
-exportStatement ::=
+export ::=
  EXPORT_KEYWORD endOfLine
   identifier
   (endOfLine COMMA_SYM endOfLine
-   identifier)*
+   identifier)* { extends=expr }
 
-importStatement ::=
+importExpr ::=
  IMPORT_KEYWORD endOfLine
   identifier endOfLine
   (COLON_SYM endOfLine
@@ -74,9 +66,9 @@ importStatement ::=
    )*
   )?
 
-usingStatement ::=
+using ::=
  USING_KEYWORD endOfLine
-  identifier? (endOfLine COMMA_SYM endOfLine identifier)*
+  identifier? (endOfLine COMMA_SYM endOfLine identifier)* { extends=expr }
 
 ifExpr ::=
  IF_KEYWORD statements
@@ -104,13 +96,13 @@ whileExpr ::=
    statements
  END_KEYWORD { extends=expr }
 
-returnStatement ::= RETURN_KEYWORD expr?
-tryCatchStatement ::=
+returnExpr ::= RETURN_KEYWORD expr?
+tryCatch ::=
  TRY_KEYWORD endOfLine
   statements
  catchClause?
  finallyClause?
- END_KEYWORD
+ END_KEYWORD { extends=expr }
 
 catchClause ::=
  CATCH_KEYWORD symbol? endOfLine
@@ -183,7 +175,7 @@ primitiveTypeDeclaration ::=
 macro ::= 'TODO' { extends=expr }
 
 block ::=
- BLOCK_KEYWORD
+ BEGIN_KEYWORD
   statements
  END_KEYWORD { extends=expr }
 
@@ -434,10 +426,18 @@ private primaryExpr ::=
  | whileExpr
  | function
  | compactFunction
+ | returnExpr
+ | breakExpr
+ | tryCatch
+ | continueExpr
  | array
  | union
  | macro
  | block
+ | include
+ | export
+ | importExpr
+ | using
  | abstractTypeDeclaration
  | primitiveTypeDeclaration
  | typeDeclaration
