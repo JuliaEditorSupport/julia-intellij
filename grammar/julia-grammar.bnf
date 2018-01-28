@@ -377,6 +377,7 @@ private primaryExpr ::=
  | array
  | union
  | macro
+ | let
  | block
  | include
  | export
@@ -461,10 +462,11 @@ macro ::=
   statements
  END_KEYWORD { extends=expr }
 
-block ::=
- BEGIN_KEYWORD
-  statements
- END_KEYWORD { extends=expr }
+let ::= LET_KEYWORD blockInternal { extends=expr }
+
+block ::= BEGIN_KEYWORD blockInternal { extends=expr }
+
+private blockInternal ::= statements END_KEYWORD
 
 breakExpr ::= BREAK_KEYWORD
 
