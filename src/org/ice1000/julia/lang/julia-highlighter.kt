@@ -159,6 +159,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.QUOTE_KEYWORD,
 		JuliaTypes.MACRO_KEYWORD,
 		JuliaTypes.LOCAL_KEYWORD,
+		JuliaTypes.CONST_KEYWORD,
 		JuliaTypes.LET_KEYWORD,
 		JuliaTypes.BEGIN_KEYWORD,
 		JuliaTypes.UNION_KEYWORD
@@ -177,8 +178,6 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.RAW_STR,
 		JuliaTypes.STRING_TEMPLATE_REGULAR_PART -> STRING_KEY
 		JuliaTypes.INTERPOLATE_SYM,
-		JuliaTypes.TEMPLATE_BEGIN,
-		JuliaTypes.TEMPLATE_END,
 		JuliaTypes.STRING_UNICODE-> STRING_VALID_KEY
 		JuliaTypes.CHAR_LITERAL -> CHAR_KEY
 		JuliaTypes.LINE_COMMENT -> COMMENT_KEY

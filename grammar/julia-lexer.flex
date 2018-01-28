@@ -56,6 +56,7 @@ QUOTE_KEYWORD=quote
 BEGIN_KEYWORD=begin
 MACRO_KEYWORD=macro
 LOCAL_KEYWORD=local
+CONST_KEYWORD=const
 LET_KEYWORD=let
 
 STRING_UNICODE=\\((u{HEXDIGIT}{4})|(x{HEXDIGIT}{2}))
@@ -68,7 +69,7 @@ CHAR_LITERAL={INCOMPLETE_CHAR}'
 REGEX_LITERAL=r('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 BYTE_ARRAY_LITERAL=b('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 
-REGULAR_STRING_PART_LITERAL=[^\$(\$\()`\n]
+REGULAR_STRING_PART_LITERAL=[^\$()`\n]
 ANY_CHAR_OTHER_THAN_LF=\\[^\n]
 
 LINE_COMMENT=#(\n|[^\n=][^\n]*)
@@ -153,7 +154,7 @@ MISC_ARROW_SYM=[←→↔↚↛↞↠↢↣↦↤↮⇎⇍⇏⇐⇒⇔⇴⇶⇷�
 
 FLOAT_CONSTANT=Inf16|Inf32|Inf|-Inf16|-Inf32|-Inf|NaN16|NaN32|NaN
 //SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])+
-SYMBOL=[^\x00-\x20+\-*/\\$#\{\}()\[\]<>|&?~;\"\'\`]+
+SYMBOL=[^\x00-\x20+\-*/\\$#\{\}()\[\]<>|&?~;\"\'\`@]+
 
 DIGIT=[\d_]
 
@@ -174,6 +175,7 @@ WHITE_SPACE=[ \t\r]
 OTHERWISE=[^ \t\r\n]
 
 %state NEST_COMMENT
+%state STRING_TEMPLATE
 
 %%
 
@@ -195,6 +197,12 @@ OTHERWISE=[^ \t\r\n]
   }
 }
 
+<STRING_TEMPLATE> {ANY_CHAR_OTHER_THAN_LF} { return JuliaTypes.ANY_CHAR_OTHER_THAN_LF; }
+<STRING_TEMPLATE> {BACK_QUOTE_SYM} { yybegin(YYINITIAL); return JuliaTypes.BACK_QUOTE_SYM; }
+<YYINITIAL> {BACK_QUOTE_SYM} { yybegin(STRING_TEMPLATE); return JuliaTypes.BACK_QUOTE_SYM; }
+<STRING_TEMPLATE> {REGULAR_STRING_PART_LITERAL} { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
+<STRING_TEMPLATE> {STRING_UNICODE} { return JuliaTypes.STRING_UNICODE; }
+
 {EOL}+ { return JuliaTypes.EOL; }
 {WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
 
@@ -212,9 +220,6 @@ OTHERWISE=[^ \t\r\n]
 {INCOMPLETE_STRING} { return TokenType.BAD_CHARACTER; }
 {CHAR_LITERAL} { return JuliaTypes.CHAR_LITERAL; }
 {INCOMPLETE_CHAR} { return TokenType.BAD_CHARACTER; }
-{REGULAR_STRING_PART_LITERAL} {return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
-{STRING_UNICODE} {return JuliaTypes.STRING_UNICODE; }
-{ANY_CHAR_OTHER_THAN_LF} {return JuliaTypes.ANY_CHAR_OTHER_THAN_LF; }
 
 {LEFT_BRACKET} { return JuliaTypes.LEFT_BRACKET; }
 {RIGHT_BRACKET} { return JuliaTypes.RIGHT_BRACKET; }
@@ -232,7 +237,6 @@ OTHERWISE=[^ \t\r\n]
 {AT_SYM} { return JuliaTypes.AT_SYM; }
 {SUBTYPE_SYM} { return JuliaTypes.SUBTYPE_SYM; }
 {INTERPOLATE_SYM} { return JuliaTypes.INTERPOLATE_SYM; }
-{BACK_QUOTE_SYM} { return JuliaTypes.BACK_QUOTE_SYM; }
 {LAMBDA_ABSTRACTION} { return JuliaTypes.LAMBDA_ABSTRACTION; }
 {ARROW_SYM} { return JuliaTypes.ARROW_SYM; }
 {SLICE_SYM} { return JuliaTypes.SLICE_SYM; }
@@ -326,6 +330,7 @@ OTHERWISE=[^ \t\r\n]
 {BEGIN_KEYWORD} { return JuliaTypes.BEGIN_KEYWORD; }
 {MACRO_KEYWORD} { return JuliaTypes.MACRO_KEYWORD; }
 {LOCAL_KEYWORD} { return JuliaTypes.LOCAL_KEYWORD; }
+{CONST_KEYWORD} { return JuliaTypes.CONST_KEYWORD; }
 {LET_KEYWORD} { return JuliaTypes.LET_KEYWORD; }
 
 {REGEX_LITERAL} { return JuliaTypes.REGEX_LITERAL; }

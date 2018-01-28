@@ -100,18 +100,11 @@ private quoteString ::= BACK_QUOTE_SYM stringTemplateElement* BACK_QUOTE_SYM
 
 stringTemplateElement::=
    escapeSequence
- | longAndShortTemplate
+ | template
  | stringTemplateRegularPart
 
-private longAndShortTemplate ::= templateSymbol ( shortTemplate | longTemplate )
-	private templateSymbol ::= INTERPOLATE_SYM
-	private shortTemplate ::= symbol
-	private longTemplate ::= templateBegin expr templateEnd
-	templateBegin ::= LEFT_BRACKET
-	templateEnd ::= RIGHT_BRACKET
-escapeSequence ::= unicodeEscapeSequence | regularEscapeSequence
-	private unicodeEscapeSequence ::= STRING_UNICODE
-	private regularEscapeSequence ::= ANY_CHAR_OTHER_THAN_LF
+private template ::= INTERPOLATE_SYM (primaryExpr | bracketedExpr)
+escapeSequence ::= STRING_UNICODE | ANY_CHAR_OTHER_THAN_LF
 stringTemplateRegularPart ::= REGULAR_STRING_PART_LITERAL
 
 integer ::= INT_LITERAL { extends=expr }
@@ -408,7 +401,7 @@ private primaryExpr ::=
  | typeReference
  | typeAlias
 
-lhs ::= (LOCAL_KEYWORD endOfLine)? identifierImpl { extends=expr }
+lhs ::= ((LOCAL_KEYWORD | CONST_KEYWORD) endOfLine)? identifierImpl { extends=expr }
 
 bracketedExpr ::= LEFT_BRACKET endOfLine expr endOfLine RIGHT_BRACKET { extends=expr }
 
