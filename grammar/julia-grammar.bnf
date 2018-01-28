@@ -435,7 +435,6 @@ private primaryExpr ::=
  | macro
  | block
  | abstractTypeDeclaration
- | structDeclaration
  | typeDeclaration
  | typeReference
  | typeAlias
