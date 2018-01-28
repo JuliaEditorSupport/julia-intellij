@@ -1,27 +1,26 @@
-# julia-intellij
+# Julia plugin for the IntelliJ Platform
 
 <!-- badges -->
 
-This is a Julia IDE based on the IntelliJ Platform -- say, the Julia plugin for IntelliJ IDEA.
+## Status
 
-## Why IntelliJ
+This is a **work in progress**, some features are implemented partially, there may be performance and stability problems.
 
-It's time to give up programming in a browser and turn to use a real integrated-developing-environment!<br/>
-┗:smiley:┛ ┏:smiley:┓ ┗:smiley:┛ ┏:smiley:┓ ┗:smiley:┛ ┏:smiley:┓
+## Installation \& Usage
 
-## Build
+Install IntelliJ IDEA, open `Settings | Plugins | Browse repositories`,
+install Julia plugin, and create a Julia project (you'll be asked to create a Julia SDK, don't worry it's easy).
 
-First clone this repo:
+## Compatible IDEs
 
-```shell
-$ git clone https://github.com/ice1000/julia-intellij.git
-```
+The plugin is compatible with any IntelliJ based IDE starting from 2016.1.
+If you don't have any yet, try [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/),
+It's free.
 
-Create a plugin project from your cloned source, and use [Grammar-Kit](https://github.com/JetBrains/Grammar-Kit)
-to generate the Parser and Lexer.
+## Contributing
 
-Then, click `Build | Prepare Plugin Module 'julia-intellij' for deployment`, and you'll see a jar
-appears at the project root.
+You're encouraged to contribute to the plugin in any form if you've found any issues or missing functionality that you'd want to see.
+Check out [CONTRIBUTING.md](./CONTRIBUTING.md) to learn how to setup the project and contributing guidelines.
 
 ## Contributors
 

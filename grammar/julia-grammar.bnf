@@ -17,11 +17,10 @@
 
 juliaFile ::= endOfLine statements
 
-macroIdentifier ::= AT_SYM identifier { extends=expr }
 symbol ::= SYM { extends=expr }
 identifier ::= identifierImpl { extends=expr }
 private identifierChain ::= endOfLine DOT_SYM endOfLine symbol
-private identifierImpl ::= (symbol identifierChain*) | (symbol? identifierChain+)
+private identifierImpl ::= (AT_SYM? symbol identifierChain*) | ((AT_SYM? symbol)? identifierChain+)
 
 private comment ::= BLOCK_COMMENT | LINE_COMMENT
 string ::= STR | RAW_STR { extends=expr }
@@ -59,9 +58,9 @@ includeStatement ::=
 
 exportStatement ::=
  EXPORT_KEYWORD endOfLine
-  (identifier | macroIdentifier)
+  identifier
   (endOfLine COMMA_SYM endOfLine
-   (identifier | macroIdentifier))*
+   identifier)*
 
 importStatement ::=
  IMPORT_KEYWORD endOfLine
@@ -177,7 +176,7 @@ abstractTypeDeclaration ::=
 
 primitiveTypeDeclaration ::=
  PRIMITIVE_KEYWORD TYPE_KEYWORD endOfLine
-  primitiveTypeName SUBTYPE_SYM endOfLine identifier? expr endOfLine
+  primitiveTypeName (SUBTYPE_SYM endOfLine identifier)? expr endOfLine
  END_KEYWORD { extends=expr }
 
 // TODO
@@ -427,7 +426,6 @@ private primaryExpr ::=
  | integer
  | floatLit
  | booleanLit
- | macroIdentifier
  | identifier
  | ifExpr
  | forExpr

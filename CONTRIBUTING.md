@@ -1,4 +1,18 @@
-# julia-intellij contributing guide
+# How to build
+
+First clone this repo:
+
+```shell
+$ git clone https://github.com/ice1000/julia-intellij.git
+```
+
+Create a plugin project from your cloned source, and use [Grammar-Kit](https://github.com/JetBrains/Grammar-Kit)
+to generate the Parser and Lexer.
+
+Then, click `Build | Prepare Plugin Module 'julia-intellij' for deployment`, and you'll see a jar
+appears at the project root.
+
+# Contributing guidelines
 
 ## You must
 
