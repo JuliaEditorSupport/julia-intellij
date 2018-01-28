@@ -27,12 +27,12 @@ private identifierImpl ::= (anySym identifierChain*) | (anySym? identifierChain+
 unaryOpAsSymbol ::=
    INTERPOLATE_SYM
  | MINUS_SYM
+ | DOT_SYM
  | PLUS_SYM
  | NOT_SYM
 
 nonUnaryOpAsSymbol ::=
-   DOT_SYM
- | SEMICOLON_SYM
+   SEMICOLON_SYM
  | COMMA_SYM
  | QUESTION_SYM
  | SUBTYPE_SYM
