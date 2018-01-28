@@ -119,10 +119,15 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 						.inside(psiElement(JuliaTypes.FOR_EXPR))),
 			JuliaCompletionProvider(loopInside))
 		extend(CompletionType.BASIC,
-			psiElement().inside(psiElement(JuliaTypes.IF_EXPR)),
+			psiElement()
+				.inside(psiElement(JuliaTypes.IF_EXPR)),
 			JuliaCompletionProvider(ifInside))
 		extend(CompletionType.BASIC,
-			psiElement().inside(psiElement(JuliaTypes.FUNCTION)),
+			psiElement()
+				.andOr(psiElement()
+					.inside(psiElement(JuliaTypes.FUNCTION)),
+					psiElement()
+						.inside(psiElement(JuliaTypes.MACRO))),
 			JuliaCompletionProvider(functionInside))
 	}
 }

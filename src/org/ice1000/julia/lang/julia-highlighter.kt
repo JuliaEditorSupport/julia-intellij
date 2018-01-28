@@ -35,6 +35,8 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val PRIMITIVE_TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_PRIMITIVE_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val MODULE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_MODULE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val FUNCTION_NAME = TextAttributesKey.createTextAttributesKey("JULIA_FUNCTION_NAME", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
+	@JvmField val MACRO_NAME = TextAttributesKey.createTextAttributesKey("JULIA_MACRO_NAME", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
+	@JvmField val MACRO_REFERENCE = TextAttributesKey.createTextAttributesKey("JULIA_MACRO_REFERENCE", DefaultLanguageHighlighterColors.FUNCTION_CALL)
 
 	private val KEYWORD_KEY = arrayOf(KEYWORD)
 	private val STRING_KEY = arrayOf(STRING)
@@ -153,6 +155,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.TRUE_KEYWORD,
 		JuliaTypes.FALSE_KEYWORD,
 		JuliaTypes.QUOTE_KEYWORD,
+		JuliaTypes.MACRO_KEYWORD,
 		JuliaTypes.UNION_KEYWORD
 	)
 
@@ -210,6 +213,8 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char-escape"), JuliaHighlighter.CHAR_ESCAPE),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char-escape-invalid"), JuliaHighlighter.CHAR_ESCAPE_INVALID),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.module-name"), JuliaHighlighter.MODULE_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.macro-name"), JuliaHighlighter.MACRO_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.macro-name.ref"), JuliaHighlighter.MACRO_REFERENCE),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.abs-type-name"), JuliaHighlighter.ABSTRACT_TYPE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.prim-type-name"), JuliaHighlighter.PRIMITIVE_TYPE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.TYPE_NAME)
@@ -218,6 +223,8 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 
 		private val ADDITIONAL_DESCRIPTORS = mapOf(
 			"moduleName" to JuliaHighlighter.MODULE_NAME,
+			"macroName" to JuliaHighlighter.MACRO_NAME,
+			"macroRef" to JuliaHighlighter.MACRO_REFERENCE,
 			"stringEscape" to JuliaHighlighter.STRING_ESCAPE,
 			"stringEscapeInvalid" to JuliaHighlighter.STRING_ESCAPE_INVALID,
 			"typeName" to JuliaHighlighter.TYPE_NAME,
@@ -244,7 +251,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		   |(1 + 3.2)::Float64
 		   |IntOrString = Union{Int, AbstractString}
 		   |div(5, 2) # => 2 # for a truncated result, use div
-		   |@printf "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
+		   |<macroRef>@printf</macroRef> "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
 		   |assertTrue("1 + 2 = 3" == "1 + 2 = $(1 + 2)")
 		   |[1, 2, 3][2] # => 2, index start from 1
 		   |try
@@ -258,6 +265,9 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		   |primitive type <primitiveTypeName>Bool</primitiveTypeName> <: Integer 8 end
 		   |type <typeName>Dog</typeName> <: Animals
 		   |    age::Int64
+		   |end
+		   |macro <macroName>assert</macroName>(condition)
+		   |    return :( ${JULIA_STRING_DOLLAR}ex ? nothing : throw(AssertionError($JULIA_STRING_DOLLAR{'$'}(string(ex)))) )
 		   |end
 		   |for (k, v) in Dict("dog"=>"mammal", "cat"=>"mammal", "mouse"=>"mammal")
 		   |    println("${JULIA_STRING_DOLLAR}k is a ${JULIA_STRING_DOLLAR}v")
