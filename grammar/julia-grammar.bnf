@@ -99,14 +99,12 @@ string ::= cmd | STR | RAW_STR { extends=expr }
 private cmd ::= BACK_QUOTE_SYM stringTemplateElement* BACK_QUOTE_SYM
 
 stringTemplateElement::=
-   escapeSequence
+   STRING_UNICODE
+ | STRING_ESCAPE
  | template
- | stringTemplateRegularPart
- | endOfLine
+ | REGULAR_STRING_PART_LITERAL
 
 private template ::= INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr RIGHT_BRACKET
-escapeSequence ::= STRING_UNICODE | STRING_ESCAPE
-stringTemplateRegularPart ::= REGULAR_STRING_PART_LITERAL
 
 integer ::= INT_LITERAL { extends=expr }
 floatLit ::= FLOAT_LITERAL | FLOAT_CONSTANT

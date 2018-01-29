@@ -3,13 +3,13 @@ package org.ice1000.julia.lang;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.TokenType;
-import com.intellij.util.containers.IntStack;
+import com.intellij.util.containers.BooleanStack;
 import org.ice1000.julia.lang.psi.JuliaTypes;
 
 %%
 
 %{
-  private IntStack stringTemplateStack = new IntStack(20);
+  private BooleanStack stringTemplateStack = new BooleanStack(25);
   private int commentDepth = 0;
   private int commentTokenStart = 0;
   public JuliaLexer() { this((java.io.Reader) null); }
@@ -71,8 +71,8 @@ CHAR_LITERAL={INCOMPLETE_CHAR}'
 REGEX_LITERAL=r('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 BYTE_ARRAY_LITERAL=b('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 
-REGULAR_STRING_PART_LITERAL=[^\$()`\n]
-STRING_ESCAPE=\\[^\n]
+REGULAR_STRING_PART_LITERAL=[^\$()`]+
+STRING_ESCAPE=\\[^]
 STRING_INTERPOLATE_START=\$\(
 
 LINE_COMMENT=#(\n|[^\n=][^\n]*)
@@ -200,22 +200,24 @@ OTHERWISE=[^ \t\r\n]
   }
 }
 
+<STRING_TEMPLATE> {STRING_UNICODE} { return JuliaTypes.STRING_UNICODE; }
 <STRING_TEMPLATE> {REGULAR_STRING_PART_LITERAL} { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
-<STRING_TEMPLATE> {STRING_INTERPOLATE_START} { yybegin(YYINITIAL); return JuliaTypes.STRING_INTERPOLATE_START; }
+<STRING_TEMPLATE> {STRING_INTERPOLATE_START} {
+  stringTemplateStack.push(true);
+  yybegin(YYINITIAL);
+  return JuliaTypes.STRING_INTERPOLATE_START;
+}
+
 <STRING_TEMPLATE> {STRING_ESCAPE} { return JuliaTypes.STRING_ESCAPE; }
 <STRING_TEMPLATE> {BACK_QUOTE_SYM} {
-  stringTemplateStack.push(1);
   yybegin(YYINITIAL);
   return JuliaTypes.BACK_QUOTE_SYM;
 }
 
 <YYINITIAL> {BACK_QUOTE_SYM} {
-  stringTemplateStack.push(1);
   yybegin(STRING_TEMPLATE);
   return JuliaTypes.BACK_QUOTE_SYM;
 }
-
-<STRING_TEMPLATE> {STRING_UNICODE} { return JuliaTypes.STRING_UNICODE; }
 
 {EOL}+ { return JuliaTypes.EOL; }
 {WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
@@ -234,8 +236,12 @@ OTHERWISE=[^ \t\r\n]
 {CHAR_LITERAL} { return JuliaTypes.CHAR_LITERAL; }
 {INCOMPLETE_CHAR} { return TokenType.BAD_CHARACTER; }
 
-{LEFT_BRACKET} { return JuliaTypes.LEFT_BRACKET; }
-{RIGHT_BRACKET} { return JuliaTypes.RIGHT_BRACKET; }
+{LEFT_BRACKET} { stringTemplateStack.push(false); return JuliaTypes.LEFT_BRACKET; }
+{RIGHT_BRACKET} {
+  if (stringTemplateStack.pop()) yybegin(STRING_TEMPLATE);
+  return JuliaTypes.RIGHT_BRACKET;
+}
+
 {LEFT_B_BRACKET} { return JuliaTypes.LEFT_B_BRACKET; }
 {RIGHT_B_BRACKET} { return JuliaTypes.RIGHT_B_BRACKET; }
 {LEFT_M_BRACKET} { return JuliaTypes.LEFT_M_BRACKET; }
