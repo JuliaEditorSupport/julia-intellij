@@ -512,7 +512,9 @@ using ::=
  USING_KEYWORD endOfLine
   identifier? (endOfLine COMMA_SYM endOfLine identifier)* { extends=expr }
 
-specialMultiplyOp ::= (integer | floatLit | string) expr
+// The block comment inside is a kind of strange behavior of the Julia compiler.
+// Not mentioned in the reference, but it's how the compiler works.
+specialMultiplyOp ::= (integer | floatLit | string) BLOCK_COMMENT? (integer | floatLit | string)
 
 ifExpr ::=
  IF_KEYWORD statements
