@@ -514,7 +514,12 @@ using ::=
 
 // The block comment inside is a kind of strange behavior of the Julia compiler.
 // Not mentioned in the reference, but it's how the compiler works.
-specialMultiplyOp ::= (integer | floatLit | string) BLOCK_COMMENT? (integer | floatLit | string)
+specialMultiplyOp ::= simpleSymbol BLOCK_COMMENT? simpleSymbol
+private simpleSymbol ::=
+   integer
+ | floatLit
+ | string
+ | symbol
 
 ifExpr ::=
  IF_KEYWORD statements
