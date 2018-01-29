@@ -31,10 +31,10 @@ class NewJuliaFile : CreateFileAction(
 		}
 		return arrayOf(directory.add(PsiFileFactory
 				.getInstance(directory.project)
-				.createFileFromText(fixedExtension, JuliaFileType, """$JULIA_DOC_SURROUNDING
+				.createFileFromText(fixedExtension, JuliaFileType, """$JULIA_BLOCK_COMMENT_BEGIN
 # $fileName
 ${JuliaBundle.message("julia.actions.new-file.content", System.getProperty("user.name"), LocalDate.now())}
-$JULIA_DOC_SURROUNDING
+$JULIA_BLOCK_COMMENT_END
 
 """)))
 	}

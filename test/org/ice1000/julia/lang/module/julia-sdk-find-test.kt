@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.module
 
+import com.intellij.openapi.roots.ProjectFileIndex
 import org.ice1000.julia.lang.MAC_APPLICATIONS
 import org.junit.Test
 import java.nio.file.Files

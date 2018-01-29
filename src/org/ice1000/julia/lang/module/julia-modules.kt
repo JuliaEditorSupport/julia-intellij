@@ -8,6 +8,8 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.projectRoots.SdkTypeId
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.LocalFileSystem
 import org.ice1000.julia.lang.*
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -30,8 +32,10 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 
 	override fun setupRootModel(model: ModifiableRootModel) {
 		model.sdk = sdk
-		Files.createDirectories(Paths.get(contentEntryPath, "src"))
-		doAddContentEntry(model)
+		val srcPath = Paths.get(contentEntryPath, "src")
+		Files.createDirectories(srcPath)
+		val sourceRoot = LocalFileSystem.getInstance()!!.refreshAndFindFileByPath(FileUtil.toSystemIndependentName(srcPath.toString()))
+		doAddContentEntry(model)?.addSourceFolder(sourceRoot!!, false, "")
 	}
 
 	override fun moduleCreated(module: Module) {

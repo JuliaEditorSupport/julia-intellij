@@ -6,11 +6,14 @@ import java.util.regex.Pattern
 
 class JuliaRegexTest {
 	@Test
-	fun testSymbol(){
+	fun testSymbol() {
 		@Language("RegExp")
-		fun String.identifierValid()=Regex("""[^\x00-\x20${'$'}#{}()\[\]<>|&*?~;"'`]*""").matches(this)
+		fun String.identifierValid() = Regex("""[a-zA-Z_\u0100-\uffff]([a-zA-Z_\u0100-\uffff]|[\d!])*""").matches(this)
 		"asdfkjhla".identifierValid() shouldBe true
 		"男孩♂넥스♂".identifierValid() shouldBe true
+		"喵喵喵!".identifierValid() shouldBe true
+		"啊".identifierValid() shouldBe true
+		"q".identifierValid() shouldBe true
 		"tab\t".identifierValid() shouldBe false
 		"nameWith$".identifierValid() shouldBe false
 	}
