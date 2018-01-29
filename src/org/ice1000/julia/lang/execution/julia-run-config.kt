@@ -10,13 +10,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.util.Ref
-import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.JuliaSdkType
 import org.ice1000.julia.lang.module.projectSdk
 import org.jdom.Element
 import java.nio.file.Paths
+import com.google.common.io.Files as GoogleFiles
 
 class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 	ModuleBasedConfiguration<RunConfigurationModule>(
@@ -107,7 +107,7 @@ class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfigura
 		if (context.psiLocation?.containingFile !is JuliaFile) return false
 		configuration.targetFile = context.location?.virtualFile?.path.orEmpty()
 		configuration.workingDir = context.project.basePath.orEmpty()
-		configuration.name = FileUtilRt.getNameWithoutExtension(configuration.targetFile)
+		configuration.name = GoogleFiles.getNameWithoutExtension(configuration.targetFile)
 		return true
 	}
 }
