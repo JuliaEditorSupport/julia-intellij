@@ -46,4 +46,13 @@ class UtilsKtTest {
 		.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
 		?.let { Paths.get(it).parent.toAbsolutePath().toString() }
 		.let(::println)
+
+	@Test
+	fun runMeWhileYourNotRunningAnythingElse() {
+		while (true) {
+			val (stdout, stderr) = executeCommand("git pull", null, 1000)
+			stdout.forEach(::println)
+			stderr.forEach(::println)
+		}
+	}
 }

@@ -11,11 +11,9 @@ import com.intellij.execution.ConsoleFolding
  * @date: 2018/1/29
  */
 class JuliaConsoleFolding : ConsoleFolding() {
-	override fun getPlaceholderText(p0: MutableList<String>): String? {
-		if (p0.size > 0) {
-			val fileNameIndex = p0[0].lastIndexOf("/")
-			return "julia ${p0[0].substring(fileNameIndex + 1)}"
-		} else return ""
+	override fun getPlaceholderText(lines: MutableList<String>): String {
+		val fileNameIndex = lines.firstOrNull()?.lastIndexOf("/") ?: return ""
+		return "julia ${lines[0].substring(fileNameIndex + 1)}"
 	}
 
 	override fun shouldFoldLine(output: String) = output.contains("julia ") && output.endsWith(".jl")

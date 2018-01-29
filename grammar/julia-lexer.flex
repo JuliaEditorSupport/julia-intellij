@@ -3,12 +3,13 @@ package org.ice1000.julia.lang;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.TokenType;
+import com.intellij.util.containers.IntStack;
 import org.ice1000.julia.lang.psi.JuliaTypes;
 
 %%
 
 %{
-  private int stringTemplateDepth = 0;
+  private IntStack stringTemplateStack = new IntStack(20);
   private int commentDepth = 0;
   private int commentTokenStart = 0;
   public JuliaLexer() { this((java.io.Reader) null); }
@@ -203,13 +204,13 @@ OTHERWISE=[^ \t\r\n]
 <STRING_TEMPLATE> {STRING_INTERPOLATE_START} { yybegin(YYINITIAL); return JuliaTypes.STRING_INTERPOLATE_START; }
 <STRING_TEMPLATE> {STRING_ESCAPE} { return JuliaTypes.STRING_ESCAPE; }
 <STRING_TEMPLATE> {BACK_QUOTE_SYM} {
-  stringTemplateDepth--;
+  stringTemplateStack.push(1);
   yybegin(YYINITIAL);
   return JuliaTypes.BACK_QUOTE_SYM;
 }
 
 <YYINITIAL> {BACK_QUOTE_SYM} {
-  stringTemplateDepth++;
+  stringTemplateStack.push(1);
   yybegin(STRING_TEMPLATE);
   return JuliaTypes.BACK_QUOTE_SYM;
 }
@@ -226,7 +227,6 @@ OTHERWISE=[^ \t\r\n]
 }
 
 {LINE_COMMENT} { return JuliaTypes.LINE_COMMENT; }
-
 {RAW_STRING} { return JuliaTypes.RAW_STR; }
 {INCOMPLETE_RAW_STRING} { return TokenType.BAD_CHARACTER; }
 {STRING} { return JuliaTypes.STR; }
