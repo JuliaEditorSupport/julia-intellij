@@ -27,6 +27,12 @@ class JuliaAnnotator : Annotator {
 			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
 			is JuliaTypeAlias -> typeAlias(element, holder)
+			is JuliaBitwiseXorOp -> {
+				// TODO replace with ⊻
+			}
+			is JuliaBitwiseXorAssignOp -> {
+				// TODO replace with ⊻=
+			}
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)

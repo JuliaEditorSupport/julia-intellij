@@ -95,16 +95,17 @@ nonUnaryOpAsSymbol ::=
 
 private comment ::= BLOCK_COMMENT | LINE_COMMENT
 
-string ::= quoteString | STR | RAW_STR { extends=expr }
-private quoteString ::= BACK_QUOTE_SYM stringTemplateElement* BACK_QUOTE_SYM
+string ::= cmd | STR | RAW_STR { extends=expr }
+private cmd ::= BACK_QUOTE_SYM stringTemplateElement* BACK_QUOTE_SYM
 
 stringTemplateElement::=
    escapeSequence
  | template
  | stringTemplateRegularPart
+ | endOfLine
 
-private template ::= INTERPOLATE_SYM (primaryExpr | bracketedExpr)
-escapeSequence ::= STRING_UNICODE | ANY_CHAR_OTHER_THAN_LF
+private template ::= INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr RIGHT_BRACKET
+escapeSequence ::= STRING_UNICODE | STRING_ESCAPE
 stringTemplateRegularPart ::= REGULAR_STRING_PART_LITERAL
 
 integer ::= INT_LITERAL { extends=expr }

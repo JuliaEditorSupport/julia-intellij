@@ -8,6 +8,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %%
 
 %{
+  private int stringTemplateDepth = 0;
   private int commentDepth = 0;
   private int commentTokenStart = 0;
   public JuliaLexer() { this((java.io.Reader) null); }
@@ -70,7 +71,8 @@ REGEX_LITERAL=r('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 BYTE_ARRAY_LITERAL=b('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 
 REGULAR_STRING_PART_LITERAL=[^\$()`\n]
-ANY_CHAR_OTHER_THAN_LF=\\[^\n]
+STRING_ESCAPE=\\[^\n]
+STRING_INTERPOLATE_START=\$\(
 
 LINE_COMMENT=#(\n|[^\n=][^\n]*)
 BLOCK_COMMENT_BEGIN=#=
@@ -153,9 +155,9 @@ MISC_ARROW_SYM=[←→↔↚↛↞↠↢↣↦↤↮⇎⇍⇏⇐⇒⇔⇴⇶⇷�
 
 FLOAT_CONSTANT=Inf16|Inf32|Inf|-Inf16|-Inf32|-Inf|NaN16|NaN32|NaN
 //SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])+
+//SYMBOL=[^\x00-\x20+\-*/\\$#\{\}()\[\]<>|&?~;\"\'\`@]+
 SYMBOL={VALID_CHAR}({VALID_CHAR}|[\d\!])*
 VALID_CHAR=[a-zA-Z_\u0100-\uffff]
-//SYMBOL=[^\x00-\x20+\-*/\\$#\{\}()\[\]<>|&?~;\"\'\`@]+
 DIGIT=[\d_]
 
 NUM_SUFFIX=-?{DIGIT}+
@@ -197,10 +199,21 @@ OTHERWISE=[^ \t\r\n]
   }
 }
 
-<STRING_TEMPLATE> {ANY_CHAR_OTHER_THAN_LF} { return JuliaTypes.ANY_CHAR_OTHER_THAN_LF; }
-<STRING_TEMPLATE> {BACK_QUOTE_SYM} { yybegin(YYINITIAL); return JuliaTypes.BACK_QUOTE_SYM; }
-<YYINITIAL> {BACK_QUOTE_SYM} { yybegin(STRING_TEMPLATE); return JuliaTypes.BACK_QUOTE_SYM; }
 <STRING_TEMPLATE> {REGULAR_STRING_PART_LITERAL} { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
+<STRING_TEMPLATE> {STRING_INTERPOLATE_START} { yybegin(YYINITIAL); return JuliaTypes.STRING_INTERPOLATE_START; }
+<STRING_TEMPLATE> {STRING_ESCAPE} { return JuliaTypes.STRING_ESCAPE; }
+<STRING_TEMPLATE> {BACK_QUOTE_SYM} {
+  stringTemplateDepth--;
+  yybegin(YYINITIAL);
+  return JuliaTypes.BACK_QUOTE_SYM;
+}
+
+<YYINITIAL> {BACK_QUOTE_SYM} {
+  stringTemplateDepth++;
+  yybegin(STRING_TEMPLATE);
+  return JuliaTypes.BACK_QUOTE_SYM;
+}
+
 <STRING_TEMPLATE> {STRING_UNICODE} { return JuliaTypes.STRING_UNICODE; }
 
 {EOL}+ { return JuliaTypes.EOL; }
