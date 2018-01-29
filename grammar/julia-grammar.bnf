@@ -327,6 +327,7 @@ private level11 ::=
  | inverseDivideOp
  | factoriseOp
  | miscMultiplyOp
+ | specialMultiplyOp
 
 multiplyOp ::= expr MULTIPLY_SYM endOfLine expr
 divideOp ::= expr DIVIDE_SYM endOfLine expr
@@ -510,6 +511,8 @@ importExpr ::=
 using ::=
  USING_KEYWORD endOfLine
   identifier? (endOfLine COMMA_SYM endOfLine identifier)* { extends=expr }
+
+specialMultiplyOp ::= (integer | floatLit | string) expr
 
 ifExpr ::=
  IF_KEYWORD statements

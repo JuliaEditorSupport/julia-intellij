@@ -5,6 +5,9 @@ import org.junit.Test
 import java.util.regex.Pattern
 
 class JuliaRegexTest {
+	@Language("RegExp")
+	private val regex = "-->?"
+
 	@Test
 	fun testSymbol() {
 		@Language("RegExp")
@@ -17,6 +20,7 @@ class JuliaRegexTest {
 		"tab\t".identifierValid() shouldBe false
 		"nameWith$".identifierValid() shouldBe false
 	}
+
 	@Test
 	fun testCharRegex() {
 		val unicodeCharX = """\x23\x23\x23"""
@@ -54,11 +58,8 @@ class JuliaRegexTest {
 		str.indicesOf("\\u").forEach {
 			if (it + 6 < str.length) {
 				val s = str.subSequence(it, it + 6)
-				if (s.matches(Regex(JULIA_CHAR_SINGLE_UNICODE_U_REGEX))) {
-					println(s)
-				} else {
-					println("error in:$s")
-				}
+				if (s.matches(Regex(JULIA_CHAR_SINGLE_UNICODE_U_REGEX))) println(s)
+				else println("error in:$s")
 			} else {
 				println("error in:${str.substring(it)}")
 			}

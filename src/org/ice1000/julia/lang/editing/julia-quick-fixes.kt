@@ -22,6 +22,18 @@ class JuliaRemoveElementIntention(
 	}
 }
 
+class JuliaRemoveElementChildIntention(
+	private val element: PsiElement,
+	private val child: ASTNode,
+	@Nls private val intentionText: String) : BaseIntentionAction() {
+	override fun getText() = intentionText
+	override fun isAvailable(project: Project, editor: Editor?, psiFile: PsiFile?) = true
+	override fun getFamilyName() = JuliaBundle.message("julia.name")
+	override operator fun invoke(project: Project, editor: Editor?, psiFile: PsiFile?) {
+		element.node.removeChild(child)
+	}
+}
+
 class JuliaReplaceWithTextIntention(
 	private val element: PsiElement,
 	@NonNls private val new: String,
