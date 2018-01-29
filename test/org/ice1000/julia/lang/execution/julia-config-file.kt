@@ -1,11 +1,11 @@
 package org.ice1000.julia.lang.execution
 
-import org.ice1000.julia.lang.getFileName
+import com.intellij.openapi.util.io.FileUtilRt
 import org.junit.Test
 
-class JuliaConfig{
+class JuliaConfig {
 	@Test
-	fun testFile(){
-		println("/home/zh/IdeaProjects/JuliaTest/src/lk.jl".getFileName())
+	fun testFile() {
+		println(FileUtilRt.getNameWithoutExtension("/home/zh/IdeaProjects/JuliaTest/src/lk.jl"))
 	}
 }

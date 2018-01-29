@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.util.Ref
+import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.JuliaSdkType
@@ -106,7 +107,7 @@ class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfigura
 		if (context.psiLocation?.containingFile !is JuliaFile) return false
 		configuration.targetFile = context.location?.virtualFile?.path.orEmpty()
 		configuration.workingDir = context.project.basePath.orEmpty()
-		configuration.name= configuration.targetFile.getFileName()
+		configuration.name = FileUtilRt.getNameWithoutExtension(configuration.targetFile)
 		return true
 	}
 }

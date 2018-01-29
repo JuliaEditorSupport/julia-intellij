@@ -90,4 +90,3 @@ fun String.splitsOf(someStr: String, expandSize: Int): Array<String> {
 }
 
 fun Boolean.toYesNo() = if (this) "yes" else "no"
-fun String.getFileName()= File(this).name!!
