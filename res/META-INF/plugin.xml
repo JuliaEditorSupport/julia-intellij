@@ -41,6 +41,7 @@ What you'll see in the future:<br/>
 		<configurationType implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationType"/>
 		<runConfigurationProducer implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationProducer"/>
 		<consoleFilterProvider implementation="org.ice1000.julia.lang.execution.JuliaConsoleFilterProvider"/>
+		<console.folding implementation="org.ice1000.julia.lang.execution.JuliaConsoleFolding"/>
 		<completion.contributor
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor"/>
