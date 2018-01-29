@@ -27,6 +27,9 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JCheckBox unsafeFloatCheckBox;
 	private @NotNull JCheckBox handleSignalCheckBox;
 	private @NotNull JCheckBox startupFileCheckBox;
+	private @NotNull JTextField programArgumentsField; // [args...]
+	private @NotNull JComboBox optimizationLevelComboBox; // --optimize
+	private @NotNull JComboBox jitCompilerOptions; // --compile
 
 	public JuliaRunConfigurationEditor(@NotNull JuliaRunConfiguration configuration) {
 		juliaExeField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-compiler"),
