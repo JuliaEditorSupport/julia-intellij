@@ -106,6 +106,7 @@ class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfigura
 		if (context.psiLocation?.containingFile !is JuliaFile) return false
 		configuration.targetFile = context.location?.virtualFile?.path.orEmpty()
 		configuration.workingDir = context.project.basePath.orEmpty()
+		configuration.name= configuration.targetFile.getFileName()
 		return true
 	}
 }

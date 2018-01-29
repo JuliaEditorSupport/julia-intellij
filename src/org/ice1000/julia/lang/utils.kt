@@ -3,6 +3,7 @@ package org.ice1000.julia.lang
 import com.google.common.util.concurrent.SimpleTimeLimiter
 import com.intellij.openapi.util.TextRange
 import com.intellij.util.containers.ArrayListSet
+import java.io.File
 import java.io.InputStream
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
@@ -89,3 +90,4 @@ fun String.splitsOf(someStr: String, expandSize: Int): Array<String> {
 }
 
 fun Boolean.toYesNo() = if (this) "yes" else "no"
+fun String.getFileName()= File(this).name!!
