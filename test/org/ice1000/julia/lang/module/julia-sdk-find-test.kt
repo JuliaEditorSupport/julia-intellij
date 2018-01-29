@@ -1,11 +1,6 @@
 package org.ice1000.julia.lang.module
 
-import com.intellij.openapi.roots.ProjectFileIndex
-import org.ice1000.julia.lang.MAC_APPLICATIONS
 import org.junit.Test
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.stream.Collectors
 
 /**
  * @date: 2018/1/28
@@ -17,18 +12,9 @@ import java.util.stream.Collectors
  * @author: zxj5470
  */
 
-class JuliaSdkFindTest{
+class JuliaSdkFindTest {
 	@Test
-	fun testFindPathMac(){
-		val JULIA_HOME=findPathMac()+"/Contents/Resources/julia/"
-		println(JULIA_HOME)
-	}
-
-	private fun findPathMac(): String {
-		val appPath = Paths.get(MAC_APPLICATIONS)
-		val result = Files.list(appPath).collect(Collectors.toList()).firstOrNull { application ->
-			application.toString().contains("julia", true)
-		} ?: appPath
-		return result.toAbsolutePath().toString()
+	fun testFindPathMac() {
+		println(findPathMac())
 	}
 }

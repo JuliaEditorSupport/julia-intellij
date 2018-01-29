@@ -5,6 +5,8 @@ import com.intellij.psi.*
 import com.intellij.psi.tree.IElementType
 import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy
 import com.intellij.spellchecker.tokenizer.Tokenizer
+import org.ice1000.julia.lang.JULIA_BLOCK_COMMENT_BEGIN
+import org.ice1000.julia.lang.JULIA_BLOCK_COMMENT_END
 import org.ice1000.julia.lang.psi.*
 
 class JuliaBraceMatcher : PairedBraceMatcher {
@@ -37,8 +39,8 @@ class JuliaBraceMatcher : PairedBraceMatcher {
 class JuliaCommenter : Commenter {
 	override fun getCommentedBlockCommentPrefix() = blockCommentPrefix
 	override fun getCommentedBlockCommentSuffix() = blockCommentSuffix
-	override fun getBlockCommentPrefix() = "#="
-	override fun getBlockCommentSuffix() = "=#"
+	override fun getBlockCommentPrefix() = JULIA_BLOCK_COMMENT_BEGIN
+	override fun getBlockCommentSuffix() = JULIA_BLOCK_COMMENT_END
 	override fun getLineCommentPrefix() = "# "
 }
 

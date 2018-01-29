@@ -43,7 +43,7 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	}
 }
 
-private fun findPathMac(): String {
+fun findPathMac(): String {
 	val appPath = Paths.get(MAC_APPLICATIONS)
 	val result = Files.list(appPath).collect(Collectors.toList()).firstOrNull { application ->
 		application.toString().contains("julia", true)

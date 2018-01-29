@@ -26,13 +26,13 @@ class JuliaParserDefinition : ParserDefinition {
 class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE) {
 	companion object {
 		@JvmField val COMMENTS = TokenSet.create(JuliaTypes.BLOCK_COMMENT, JuliaTypes.LINE_COMMENT)
-		@JvmField val STRINGS = TokenSet.create(JuliaTypes.RAW_STR, JuliaTypes.STRING)
+		@JvmField val STRINGS = TokenSet.create(JuliaTypes.RAW_STR, JuliaTypes.STR)
 		@JvmField val WHITE_SPACES: TokenSet = TokenSet.WHITE_SPACE
 		@JvmField val CONCATENATABLE_TOKENS = TokenSet.orSet(COMMENTS, STRINGS)
 		fun fromText(code: String, project: Project): PsiElement = PsiFileFactory
-				.getInstance(project)
-				.createFileFromText(JuliaLanguage.INSTANCE, code)
-				.firstChild
+			.getInstance(project)
+			.createFileFromText(JuliaLanguage.INSTANCE, code)
+			.firstChild
 	}
 }
 

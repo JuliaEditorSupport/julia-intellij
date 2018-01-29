@@ -20,5 +20,8 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 class JuliaLexerTest {
 	@Test
 	fun test0() {
+		JuliaLexer().let {
+			// Star platinum the world!
+		}
 	}
 }
