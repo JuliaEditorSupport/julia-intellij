@@ -14,6 +14,7 @@ import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.JuliaSdkType
 import org.ice1000.julia.lang.module.projectSdk
+import org.ice1000.julia.lang.module.sdkHomePath
 import org.jdom.Element
 import java.nio.file.Paths
 import com.google.common.io.Files as GoogleFiles
@@ -38,7 +39,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 	var jitCompiler = "yes"
 	var additionalOptions = ""
 	var programArgs = ""
-	var juliaExecutable = sdkUsed?.run { Paths.get(homePath, "bin", "julia").toAbsolutePath().toString() }.orEmpty()
+	var juliaExecutable = Paths.get(sdkHomePath,"bin","julia").toAbsolutePath().toString()
 	var inlineOption = false
 	var checkBoundsOption = false
 	var colorOption = false
