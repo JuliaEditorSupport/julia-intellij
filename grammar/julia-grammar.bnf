@@ -178,6 +178,7 @@ expr ::=
  | typeOp
  | level15
  | primaryExpr
+ | nonUnaryOpAsSymbol
  | unaryOpAsSymbol
  | bracketedExpr
 
@@ -235,7 +236,7 @@ applyMacroOp ::= macroSymbol expr*
 
 // level 2.375
 applyFunctionOp ::=
- expr LEFT_BRACKET endOfLine
+ expr typeParameters? LEFT_BRACKET endOfLine
   expressionList? endOfLine
  RIGHT_BRACKET { rightAssociative=true }
 
@@ -378,7 +379,6 @@ private primaryExpr ::=
  | integer
  | floatLit
  | booleanLit
- | nonUnaryOpAsSymbol
  | ifExpr
  | forExpr
  | whileExpr

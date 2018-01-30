@@ -228,12 +228,6 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> "local" { return JuliaTypes.LOCAL_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "const" { return JuliaTypes.CONST_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "let" { return JuliaTypes.LET_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> {SYMBOL} { return JuliaTypes.SYM; }
-
-<AFTER_SIMPLE_LIT> {SYMBOL} {
-  popState();
-  return JuliaTypes.AFTER_LIT_SYM;
-}
 
 <AFTER_SIMPLE_LIT> {OTHERWISE} { popState(); yypushback(1); }
 
@@ -305,6 +299,12 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> {DOT_SYM} { return JuliaTypes.DOT_SYM; }
 <YYINITIAL, LONG_TEMPLATE> {SPECIAL_ARROW_SYM} { return JuliaTypes.SPECIAL_ARROW_SYM; }
 <YYINITIAL, LONG_TEMPLATE> {BITWISE_NOT_SYM} { return JuliaTypes.BITWISE_NOT_SYM; }
+<YYINITIAL, LONG_TEMPLATE> {SYMBOL} { return JuliaTypes.SYM; }
+
+<AFTER_SIMPLE_LIT> {SYMBOL} {
+  popState();
+  return JuliaTypes.AFTER_LIT_SYM;
+}
 
 <YYINITIAL, LONG_TEMPLATE> {INTEGER} {
   pushState(AFTER_SIMPLE_LIT);

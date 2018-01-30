@@ -24,7 +24,7 @@ class JuliaProjectConfigurable : Configurable {
 	override fun apply() {
 	}
 
-	override fun createComponent(): JComponent? = panel {
+	override fun createComponent() = panel {
 		rustProjectSettings.attachTo(this@panel)
 	}
 
