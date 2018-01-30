@@ -3,13 +3,14 @@ package org.ice1000.julia.lang;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.TokenType;
-import com.intellij.util.containers.BooleanStack;
+import com.intellij.util.containers.IntStack;
 import org.ice1000.julia.lang.psi.JuliaTypes;
 
 %%
 
 %{
-  private BooleanStack stringTemplateStack = new BooleanStack(25);
+  private IntStack stateStack = new IntStack(25);
+  private IntStack leftBracketStack = new IntStack(25);
   private int commentDepth = 0;
   private int commentTokenStart = 0;
   public JuliaLexer() { this((java.io.Reader) null); }
@@ -23,43 +24,6 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %type IElementType
 %eof{ return;
 %eof}
-
-END_KEYWORD=end
-MODULE_KEYWORD=module
-BAREMODULE_KEYWORD=baremodule
-BREAK_KEYWORD=break
-CONTINUE_KEYWORD=continue
-INCLUDE_KEYWORD=include
-EXPORT_KEYWORD=export
-IMPORT_KEYWORD=import
-USING_KEYWORD=using
-IF_KEYWORD=if
-ELSEIF_KEYWORD=elseif
-ELSE_KEYWORD=else
-FOR_KEYWORD=for
-IN_KEYWORD=in
-WHILE_KEYWORD=while
-RETURN_KEYWORD=return
-TRY_KEYWORD=try
-CATCH_KEYWORD=catch
-FINALLY_KEYWORD=finally
-FUNCTION_KEYWORD=function
-TYPE_KEYWORD=type
-ABSTRACT_KEYWORD=abstract
-PRIMITIVE_KEYWORD=primitive
-STRUCT_KEYWORD=struct
-TYPEALIAS_KEYWORD=typealias
-IMMUTABLE_KEYWORD=immutable
-MUTABLE_KEYWORD=mutable
-TRUE_KEYWORD=true
-FALSE_KEYWORD=false
-UNION_KEYWORD=union
-QUOTE_KEYWORD=quote
-BEGIN_KEYWORD=begin
-MACRO_KEYWORD=macro
-LOCAL_KEYWORD=local
-CONST_KEYWORD=const
-LET_KEYWORD=let
 
 STRING_UNICODE=\\((u{HEXDIGIT}{4})|(x{HEXDIGIT}{2}))
 INCOMPLETE_STRING=\"([^\"\x00-\x1F\x7F]|(\\[^ux])|{STRING_UNICODE})*
@@ -326,42 +290,42 @@ OTHERWISE=[^ \t\r]
 {SPECIAL_ARROW_SYM} { return JuliaTypes.SPECIAL_ARROW_SYM; }
 {BITWISE_NOT_SYM} { return JuliaTypes.BITWISE_NOT_SYM; }
 
-{END_KEYWORD} { return JuliaTypes.END_KEYWORD; }
-{BREAK_KEYWORD} { return JuliaTypes.BREAK_KEYWORD; }
-{CONTINUE_KEYWORD} { return JuliaTypes.CONTINUE_KEYWORD; }
-{TRUE_KEYWORD} { return JuliaTypes.TRUE_KEYWORD; }
-{FALSE_KEYWORD} { return JuliaTypes.FALSE_KEYWORD; }
-{MODULE_KEYWORD} { return JuliaTypes.MODULE_KEYWORD; }
-{BAREMODULE_KEYWORD} { return JuliaTypes.BAREMODULE_KEYWORD; }
-{INCLUDE_KEYWORD} { return JuliaTypes.INCLUDE_KEYWORD; }
-{EXPORT_KEYWORD} { return JuliaTypes.EXPORT_KEYWORD; }
-{IF_KEYWORD} { return JuliaTypes.IF_KEYWORD; }
-{IN_KEYWORD} { return JuliaTypes.IN_KEYWORD; }
-{IMPORT_KEYWORD} { return JuliaTypes.IMPORT_KEYWORD; }
-{USING_KEYWORD} { return JuliaTypes.USING_KEYWORD; }
-{ELSEIF_KEYWORD} { return JuliaTypes.ELSEIF_KEYWORD; }
-{ELSE_KEYWORD} { return JuliaTypes.ELSE_KEYWORD; }
-{FOR_KEYWORD} { return JuliaTypes.FOR_KEYWORD; }
-{WHILE_KEYWORD} { return JuliaTypes.WHILE_KEYWORD; }
-{RETURN_KEYWORD} { return JuliaTypes.RETURN_KEYWORD; }
-{TRY_KEYWORD} { return JuliaTypes.TRY_KEYWORD; }
-{CATCH_KEYWORD} { return JuliaTypes.CATCH_KEYWORD; }
-{FINALLY_KEYWORD} { return JuliaTypes.FINALLY_KEYWORD; }
-{FUNCTION_KEYWORD} { return JuliaTypes.FUNCTION_KEYWORD; }
-{TYPE_KEYWORD} { return JuliaTypes.TYPE_KEYWORD; }
-{ABSTRACT_KEYWORD} { return JuliaTypes.ABSTRACT_KEYWORD; }
-{PRIMITIVE_KEYWORD} { return JuliaTypes.PRIMITIVE_KEYWORD; }
-{STRUCT_KEYWORD} { return JuliaTypes.STRUCT_KEYWORD; }
-{TYPEALIAS_KEYWORD} { return JuliaTypes.TYPEALIAS_KEYWORD; }
-{IMMUTABLE_KEYWORD} { return JuliaTypes.IMMUTABLE_KEYWORD; }
-{MUTABLE_KEYWORD} { return JuliaTypes.MUTABLE_KEYWORD; }
-{UNION_KEYWORD} { return JuliaTypes.UNION_KEYWORD; }
-{QUOTE_KEYWORD} { return JuliaTypes.QUOTE_KEYWORD; }
-{BEGIN_KEYWORD} { return JuliaTypes.BEGIN_KEYWORD; }
-{MACRO_KEYWORD} { return JuliaTypes.MACRO_KEYWORD; }
-{LOCAL_KEYWORD} { return JuliaTypes.LOCAL_KEYWORD; }
-{CONST_KEYWORD} { return JuliaTypes.CONST_KEYWORD; }
-{LET_KEYWORD} { return JuliaTypes.LET_KEYWORD; }
+"end" { return JuliaTypes.END_KEYWORD; }
+"break" { return JuliaTypes.BREAK_KEYWORD; }
+"continue" { return JuliaTypes.CONTINUE_KEYWORD; }
+"true" { return JuliaTypes.TRUE_KEYWORD; }
+"false" { return JuliaTypes.FALSE_KEYWORD; }
+"module" { return JuliaTypes.MODULE_KEYWORD; }
+"baremodule" { return JuliaTypes.BAREMODULE_KEYWORD; }
+"include" { return JuliaTypes.INCLUDE_KEYWORD; }
+"export" { return JuliaTypes.EXPORT_KEYWORD; }
+"if" { return JuliaTypes.IF_KEYWORD; }
+"in" { return JuliaTypes.IN_KEYWORD; }
+"import" { return JuliaTypes.IMPORT_KEYWORD; }
+"using" { return JuliaTypes.USING_KEYWORD; }
+"elseif" { return JuliaTypes.ELSEIF_KEYWORD; }
+"else" { return JuliaTypes.ELSE_KEYWORD; }
+"for" { return JuliaTypes.FOR_KEYWORD; }
+"while" { return JuliaTypes.WHILE_KEYWORD; }
+"return" { return JuliaTypes.RETURN_KEYWORD; }
+"try" { return JuliaTypes.TRY_KEYWORD; }
+"catch" { return JuliaTypes.CATCH_KEYWORD; }
+"finally" { return JuliaTypes.FINALLY_KEYWORD; }
+"function" { return JuliaTypes.FUNCTION_KEYWORD; }
+"type" { return JuliaTypes.TYPE_KEYWORD; }
+"abstract" { return JuliaTypes.ABSTRACT_KEYWORD; }
+"primitive" { return JuliaTypes.PRIMITIVE_KEYWORD; }
+"struct" { return JuliaTypes.STRUCT_KEYWORD; }
+"typealias" { return JuliaTypes.TYPEALIAS_KEYWORD; }
+"immutable" { return JuliaTypes.IMMUTABLE_KEYWORD; }
+"mutable" { return JuliaTypes.MUTABLE_KEYWORD; }
+"union" { return JuliaTypes.UNION_KEYWORD; }
+"quote" { return JuliaTypes.QUOTE_KEYWORD; }
+"begin" { return JuliaTypes.BEGIN_KEYWORD; }
+"macro" { return JuliaTypes.MACRO_KEYWORD; }
+"local" { return JuliaTypes.LOCAL_KEYWORD; }
+"const" { return JuliaTypes.CONST_KEYWORD; }
+"let" { return JuliaTypes.LET_KEYWORD; }
 
 {REGEX_LITERAL} { return JuliaTypes.REGEX_LITERAL; }
 {BYTE_ARRAY_LITERAL} { return JuliaTypes.BYTE_ARRAY_LITERAL; }
