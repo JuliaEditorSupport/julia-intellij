@@ -104,7 +104,7 @@ stringTemplateElement::=
    STRING_UNICODE
  | STRING_ESCAPE
  | template
- | REGULAR_STRING_PART_LITERAL
+ | REGULAR_STRING_PART_LITERAL { pin=1 }
 
 private template ::= INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
 
@@ -152,7 +152,7 @@ userType ::= identifier typeParameters?
 typeModifiers ::= (IMMUTABLE_KEYWORD | MUTABLE_KEYWORD)?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
 
-private expressionList ::= expr (endOfLine COMMA_SYM endOfLine expr)*
+private expressionList ::= expr (endOfLine COMMA_SYM endOfLine expr)* COMMA_SYM?
 
 expr ::=
    assigns

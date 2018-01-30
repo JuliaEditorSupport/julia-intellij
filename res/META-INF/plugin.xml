@@ -50,9 +50,6 @@ Please don't downvote our plugin for not having one of the features above, becau
 		<runConfigurationProducer implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationProducer"/>
 		<consoleFilterProvider implementation="org.ice1000.julia.lang.execution.JuliaConsoleFilterProvider"/>
 		<console.folding implementation="org.ice1000.julia.lang.execution.JuliaConsoleFolding"/>
-		<moduleType
-			id="JULIA_MODULE_TYPE"
-			implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>
 		<moduleConfigurationEditorProvider implementation="org.ice1000.julia.lang.module.JuliaModuleConfigEditor"/>
 		<completion.contributor
 			language="Julia"
@@ -75,6 +72,9 @@ Please don't downvote our plugin for not having one of the features above, becau
 		<lang.commenter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaCommenter"/>
+		<moduleType
+			id="JULIA_MODULE_TYPE"
+			implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>
 	</extensions>
 
 	<actions>
