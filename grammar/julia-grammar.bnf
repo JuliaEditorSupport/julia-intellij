@@ -160,6 +160,7 @@ expr ::=
  | arrowOp
  | ternaryOp
  | applyIndexOp
+ | applyMacroOp
  | applyFunctionOp
  | miscArrowsOp
  | orOp
@@ -228,6 +229,9 @@ ternaryOp ::= expr QUESTION_SYM endOfLine expr COLON_SYM endOfLine expr
 
 // level 2.25
 applyIndexOp ::= expr LEFT_M_BRACKET expr? endOfLine RIGHT_M_BRACKET { rightAssociative=true }
+
+// level 2.3125
+applyMacroOp ::= macroSymbol expr* { rightAssociative=true }
 
 // level 2.375
 applyFunctionOp ::=
