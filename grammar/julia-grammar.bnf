@@ -176,9 +176,9 @@ expr ::=
  | fractionOp
  | level13
  | typeOp
- | level14
  | level15
  | primaryExpr
+ | unaryOpAsSymbol
  | bracketedExpr
 
 private assigns ::=
@@ -332,7 +332,6 @@ private level11 ::=
  | inverseDivideOp
  | factoriseOp
  | miscMultiplyOp
- | specialMultiplyOp
 
 multiplyOp ::= expr MULTIPLY_SYM endOfLine expr
 divideOp ::= expr DIVIDE_SYM endOfLine expr
@@ -357,8 +356,6 @@ miscExponentOp ::= expr MISC_EXPONENT_SYM endOfLine expr
 // ::
 // level 13.5
 typeOp ::= expr DOUBLE_COLON endOfLine expr
-
-private level14 ::= unaryOpAsSymbol
 
 // TODO not sure if it covers all unary symbols
 private level15 ::=
@@ -493,7 +490,7 @@ export ::=
    identifier)* { extends=expr }
 
 importExpr ::=
- IMPORT_KEYWORD endOfLine
+ (IMPORT_KEYWORD | IMPORTALL_KEYWORD) endOfLine
   identifier endOfLine
   (COLON_SYM endOfLine
    identifier
@@ -507,15 +504,6 @@ importExpr ::=
 using ::=
  USING_KEYWORD endOfLine
   identifier? (endOfLine COMMA_SYM endOfLine identifier)* { extends=expr }
-
-// The block comment inside is a kind of strange behavior of the Julia compiler.
-// Not mentioned in the reference, but it's how the compiler works.
-specialMultiplyOp ::= simpleSymbol BLOCK_COMMENT? simpleSymbol
-private simpleSymbol ::=
-   integer
- | floatLit
- | string
- | symbol
 
 ifExpr ::=
  IF_KEYWORD statements

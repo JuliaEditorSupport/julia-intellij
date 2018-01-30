@@ -10,34 +10,20 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %%
 
 %{
-  private static final class State {
-    final int lBraceCount;
-    final int state;
-
-    public State(int state, int lBraceCount) {
-      this.state = state;
-      this.lBraceCount = lBraceCount;
-    }
-
-    @Override
-    public String toString() {
-      return "yystate = " + state + (lBraceCount == 0 ? "" : "lBraceCount = " + lBraceCount);
-    }
-  }
-
-  protected final Stack<State> myStateStack = new Stack<State>();
-  protected int myLeftBraceCount;
+  protected final IntStack stateStack = new IntStack();
+  protected final IntStack leftBracketStack = new IntStack();
+  protected int leftBraceCount;
 
   private void pushState(int state) {
-    myStateStack.push(new State(yystate(), myLeftBraceCount));
-    myLeftBraceCount = 0;
+    stateStack.push(yystate());
+    leftBracketStack.push(leftBraceCount);
+    leftBraceCount = 0;
     yybegin(state);
   }
 
   private void popState() {
-    State state = myStateStack.pop();
-    myLeftBraceCount = state.lBraceCount;
-    yybegin(state.state);
+    leftBraceCount = leftBracketStack.pop();
+    yybegin(stateStack.pop());
   }
 
   public JuliaLexer() {
@@ -52,8 +38,9 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %function advance
 %type IElementType
 %eof{
-  myLeftBraceCount = 0;
-  myStateStack.clear();
+  leftBraceCount = 0;
+  stateStack.clear();
+  leftBracketStack.clear();
 %eof}
 
 %xstate NESTED_COMMENT STRING_TEMPLATE RAW_STRING_TEMPLATE SHORT_TEMPLATE LONG_TEMPLATE CMD_STRING_TEMPLATE
@@ -172,13 +159,13 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> "}" { return JuliaTypes.RIGHT_B_BRACKET; }
 <YYINITIAL> "(" { return JuliaTypes.LEFT_BRACKET; }
 <YYINITIAL> ")" { return JuliaTypes.RIGHT_BRACKET; }
-<LONG_TEMPLATE> "(" { myLeftBraceCount++; return JuliaTypes.LEFT_BRACKET; }
+<LONG_TEMPLATE> "(" { leftBraceCount++; return JuliaTypes.LEFT_BRACKET; }
 <LONG_TEMPLATE> ")" {
-  if (myLeftBraceCount == 0) {
+  if (leftBraceCount == 0) {
     popState();
     return JuliaTypes.STRING_INTERPOLATE_END;
   }
-  myLeftBraceCount--;
+  leftBraceCount--;
   return JuliaTypes.RIGHT_BRACKET;
 }
 
@@ -190,14 +177,14 @@ OTHERWISE=[^]
 
 <NESTED_COMMENT> {BLOCK_COMMENT_START} {
   pushState(NESTED_COMMENT);
-  return JuliaTypes.BLOCK_COMMENT;
+  return JuliaTypes.BLOCK_COMMENT_START;
 }
 
 <NESTED_COMMENT> {BLOCK_COMMENT_CONTENT}+ { return JuliaTypes.BLOCK_COMMENT_BODY; }
 <NESTED_COMMENT> {BLOCK_COMMENT_END} {
   popState();
   return yystate() == NESTED_COMMENT
-      ? JuliaTypes.BLOCK_COMMENT
+      ? JuliaTypes.BLOCK_COMMENT_BODY
       : JuliaTypes.BLOCK_COMMENT_END;
 }
 
@@ -211,6 +198,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> "export" { return JuliaTypes.EXPORT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "if" { return JuliaTypes.IF_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "in" { return JuliaTypes.IN_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "importall" { return JuliaTypes.IMPORTALL_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "import" { return JuliaTypes.IMPORT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "using" { return JuliaTypes.USING_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "elseif" { return JuliaTypes.ELSEIF_KEYWORD; }
@@ -310,6 +298,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> {INTEGER} { return JuliaTypes.INT_LITERAL; }
 <YYINITIAL, LONG_TEMPLATE> {FLOAT_CONSTANT} { return JuliaTypes.FLOAT_CONSTANT; }
 <YYINITIAL, LONG_TEMPLATE> {FLOAT} { return JuliaTypes.FLOAT_LITERAL; }
+<YYINITIAL, LONG_TEMPLATE> {CHAR_LITERAL} { return JuliaTypes.CHAR_LITERAL; }
 
 <YYINITIAL, LONG_TEMPLATE> \" { pushState(STRING_TEMPLATE); return JuliaTypes.QUOTE_START; }
 <YYINITIAL, LONG_TEMPLATE> ` { pushState(CMD_STRING_TEMPLATE); return JuliaTypes.CMD_QUOTE_START; }
@@ -319,12 +308,13 @@ OTHERWISE=[^]
 <CMD_STRING_TEMPLATE> ` { popState(); return JuliaTypes.CMD_QUOTE_END; }
 <RAW_STRING_TEMPLATE> {TRIPLE_QUOTE_SYM} { popState(); return JuliaTypes.TRIPLE_QUOTE_END; }
 
-<STRING_TEMPLATE> ([^\\\"\n\$]|(\\[^\n]))+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
-<CMD_STRING_TEMPLATE> ([^\\`\n\$]|(\\[^\n]))+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
-<RAW_STRING_TEMPLATE> [^\\\"\$]+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
+<STRING_TEMPLATE> ([^\\\"\$]|(\\[^\n]))+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
+<CMD_STRING_TEMPLATE> [^\\`\$]+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
 <RAW_STRING_TEMPLATE> (\"[^\"])|(\"\"[^\"]) { yypushback(1); return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
-<RAW_STRING_TEMPLATE> \\[^] { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
+<RAW_STRING_TEMPLATE> [^\\\"\$]+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
 
+<STRING_TEMPLATE, CMD_STRING_TEMPLATE, RAW_STRING_TEMPLATE> {STRING_ESCAPE} { return JuliaTypes.STRING_ESCAPE; }
+<STRING_TEMPLATE, CMD_STRING_TEMPLATE, RAW_STRING_TEMPLATE> {STRING_UNICODE} { return JuliaTypes.STRING_UNICODE; }
 <STRING_TEMPLATE, CMD_STRING_TEMPLATE, RAW_STRING_TEMPLATE> \$ { return JuliaTypes.SHORT_INTERPOLATE_SYM; }
 <STRING_TEMPLATE, CMD_STRING_TEMPLATE, RAW_STRING_TEMPLATE> {SHORT_TEMPLATE} {
   pushState(SHORT_TEMPLATE);
