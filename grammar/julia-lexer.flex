@@ -46,17 +46,6 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
   leftBracketStack = null;
 %eof}
 
-STRING_UNICODE=\\((u{HEXDIGIT}{4})|(x{HEXDIGIT}{2}))
-CHAR_LITERAL='([^\\\'\x00-\x1F\x7F]|\\[^\'\x00-\x1F\x7F]+)'
-
-STRING_ESCAPE=\\[^]
-STRING_INTERPOLATE_START=\$\(
-
-LINE_COMMENT=#(\n|[^\n=][^\n]*)
-BLOCK_COMMENT_BEGIN=#=
-BLOCK_COMMENT_END==#
-BLOCK_COMMENT_CONTENT=[^#=]|(=[^#])
-
 LEFT_BRACKET=\(
 RIGHT_BRACKET=\)
 LEFT_B_BRACKET=\{
@@ -152,6 +141,18 @@ DEC_NUM={DIGIT}+({E_SUFFIX}|{F_SUFFIX})?
 INTEGER={HEX_NUM}|{OCT_NUM}|{BIN_NUM}|{DEC_NUM}
 FLOAT=(({DIGIT}+\.{DIGIT}*)|({DIGIT}*\.{DIGIT}+)){E_SUFFIX}?
 
+STRING_UNICODE=\\((u{HEXDIGIT}{4})|(x{HEXDIGIT}{2}))
+CHAR_LITERAL='([^\\\'\x00-\x1F\x7F]|\\[^\'\x00-\x1F\x7F]+)'
+
+STRING_ESCAPE=\\[^]
+STRING_INTERPOLATE_START=\$\(
+INTERPOLATED_SYMBOL=\${SYMBOL}
+
+LINE_COMMENT=#(\n|[^\n=][^\n]*)
+BLOCK_COMMENT_BEGIN=#=
+BLOCK_COMMENT_END==#
+BLOCK_COMMENT_CONTENT=[^#=]|(=[^#])
+
 EOL=\n
 WHITE_SPACE=[ \t\r]
 OTHERWISE=[^]
@@ -167,11 +168,6 @@ OTHERWISE=[^]
 
 <NEST_COMMENT> {BLOCK_COMMENT_BEGIN} { ++commentDepth; }
 <NEST_COMMENT> {BLOCK_COMMENT_CONTENT}+ { }
-<NEST_COMMENT> <<EOF>> {
-  popState();
-  zzStartRead = commentTokenStart;
-  return JuliaTypes.BLOCK_COMMENT;
-}
 
 <NEST_COMMENT> {BLOCK_COMMENT_END} {
   if (commentDepth > 0) {
@@ -189,6 +185,12 @@ OTHERWISE=[^]
 
 <STRING_TEMPLATE, CMD_TEMPLATE, RAW_STRING_TEMPLATE> {STRING_UNICODE} { return JuliaTypes.STRING_UNICODE; }
 <AFTER_INTERPOLATE> {SYMBOL} { popState(); return JuliaTypes.SYM; }
+<STRING_TEMPLATE, CMD_TEMPLATE, RAW_STRING_TEMPLATE> {INTERPOLATED_SYMBOL} {
+  pushState(AFTER_INTERPOLATE);
+  yypushback(yylength() - 1);
+  return JuliaTypes.STRING_INTERPOLATE_START;
+}
+
 <STRING_TEMPLATE, CMD_TEMPLATE, RAW_STRING_TEMPLATE> {STRING_INTERPOLATE_START} {
   pushState(LONG_TEMPLATE);
   return JuliaTypes.STRING_INTERPOLATE_START;
@@ -346,6 +348,6 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> {SYMBOL} { return JuliaTypes.SYM; }
 
 {OTHERWISE} {
-  System.out.println("Slaves get your ass back here");
+  System.out.println("Otherwise");
   return TokenType.BAD_CHARACTER;
 }
