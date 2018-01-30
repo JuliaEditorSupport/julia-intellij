@@ -11,6 +11,11 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 		doTest(true)
 	}
 
+	fun testParsing1() {
+		println(name)
+		doTest(true)
+	}
+
 	fun testParseFunctions() {
 		println(name)
 		doTest(true)

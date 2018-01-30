@@ -1,0 +1,7 @@
+FILE
+  JuliaStatementsImpl(STATEMENTS)
+    JuliaStringImpl(STRING)
+      PsiElement(QUOTE_START)('"')
+      JuliaStringTemplateElementImpl(STRING_TEMPLATE_ELEMENT)
+        PsiElement(REGULAR_STRING_PART_LITERAL)('What's happening?')
+      PsiElement(QUOTE_END)('"')
