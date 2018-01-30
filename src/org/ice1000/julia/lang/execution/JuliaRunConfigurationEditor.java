@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfiguration> {
 	private @NotNull JPanel mainPanel;
@@ -29,7 +30,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JCheckBox startupFileCheckBox;
 	private @NotNull JTextField programArgumentsField; // [args...]
 	private @NotNull JComboBox<String> optimizationLevelComboBox; // --optimize
-	private @NotNull JComboBox jitCompilerOptions; // --compile
+	private @NotNull JComboBox<String> jitCompilerOptions; // --compile
 	private @NotNull JTextField additionalOptionsField;
 
 	public JuliaRunConfigurationEditor(@NotNull JuliaRunConfiguration configuration) {
@@ -47,6 +48,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 			FileChooserDescriptorFactory.createSingleFileDescriptor(JuliaFileType.INSTANCE));
 
 		for (int i = 0; i < 4; i++) optimizationLevelComboBox.addItem(String.valueOf(i));
+		Arrays.asList("yes", "no", "all", "min").forEach(jitCompilerOptions::addItem);
 		resetEditorFrom(configuration);
 	}
 
@@ -66,6 +68,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		programArgumentsField.setText(configuration.getProgramArgs());
 		// same as setSelectedItem
 		optimizationLevelComboBox.setSelectedIndex(configuration.getOptimizationLevel());
+		jitCompilerOptions.setSelectedItem(configuration.getJitCompiler());
 	}
 
 	@Override protected void applyEditorTo(@NotNull JuliaRunConfiguration configuration) throws ConfigurationException {
@@ -90,6 +93,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		configuration.setProgramArgs((programArgumentsField.getText()));
 		// same as getSelectedItem
 		configuration.setOptimizationLevel(optimizationLevelComboBox.getSelectedIndex());
+		configuration.setJitCompiler(String.valueOf(jitCompilerOptions.getSelectedItem()));
 	}
 
 	@Contract("_ -> fail") private void reportInvalidPath(@NotNull String path) throws ConfigurationException {

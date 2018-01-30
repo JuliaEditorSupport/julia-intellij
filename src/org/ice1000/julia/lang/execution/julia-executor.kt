@@ -26,18 +26,21 @@ class JuliaCommandLineState(
 
 	override fun execute(executor: Executor, runner: ProgramRunner<*>): ExecutionResult {
 		val params = mutableListOf<String>()
-		params += configuration.juliaExecutable
-		params += "--check-bounds=${configuration.checkBoundsOption.toYesNo()}"
-		params += "--history-file=${configuration.historyOption.toYesNo()}"
-		params += "--inline=${configuration.inlineOption.toYesNo()}"
-		params += "--color=${configuration.colorOption.toYesNo()}"
-		params += "--math-mode=${if (configuration.unsafeFloatOption) "fast" else "ieee"}"
-		params += "--handle-signals=${configuration.handleSignalOption.toYesNo()}"
-		params += "--startup-file=${configuration.startupFileOption.toYesNo()}"
-		params += "--optimize=${configuration.optimizationLevel}"
-		params += configuration.additionalOptions.split(' ').filter(String::isNotBlank)
-		params += configuration.targetFile
-		params += configuration.programArgs.split(' ').filter(String::isNotBlank)
+		with(configuration) {
+			params += juliaExecutable
+			params += "--check-bounds=${checkBoundsOption.toYesNo()}"
+			params += "--history-file=${historyOption.toYesNo()}"
+			params += "--inline=${inlineOption.toYesNo()}"
+			params += "--color=${colorOption.toYesNo()}"
+			params += "--math-mode=${if (unsafeFloatOption) "fast" else "ieee"}"
+			params += "--handle-signals=${handleSignalOption.toYesNo()}"
+			params += "--startup-file=${startupFileOption.toYesNo()}"
+			params += "--optimize=$optimizationLevel"
+			params += "--compile=$jitCompiler"
+			params += configuration.additionalOptions.split(' ').filter(String::isNotBlank)
+			params += configuration.targetFile
+			params += configuration.programArgs.split(' ').filter(String::isNotBlank)
+		}
 		val handler = OSProcessHandler(GeneralCommandLine(params).also {
 			it.withCharset(Charset.forName("UTF-8"))
 			it.withWorkDirectory(configuration.workingDir)

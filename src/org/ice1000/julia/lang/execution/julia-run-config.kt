@@ -35,6 +35,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		}
 	var workingDir = ""
 	var targetFile = ""
+	var jitCompiler = "yes"
 	var additionalOptions = ""
 	var programArgs = ""
 	var juliaExecutable = sdkUsed?.run { Paths.get(homePath, "bin", "julia").toAbsolutePath().toString() }.orEmpty()
@@ -58,6 +59,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		super.writeExternal(element)
 		JDOMExternalizer.write(element, "workingDir", workingDir)
 		JDOMExternalizer.write(element, "targetFile", targetFile)
+		JDOMExternalizer.write(element, "jitCompiler", jitCompiler)
 		JDOMExternalizer.write(element, "juliaExecutive", juliaExecutable)
 		JDOMExternalizer.write(element, "sdkName", sdkName)
 		JDOMExternalizer.write(element, "additionalOptions", additionalOptions)
@@ -76,6 +78,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		super.readExternal(element)
 		JDOMExternalizer.readString(element, "workingDir")?.let { workingDir = it }
 		JDOMExternalizer.readString(element, "targetFile")?.let { targetFile = it }
+		JDOMExternalizer.readString(element, "jitCompiler")?.let { jitCompiler = it }
 		JDOMExternalizer.readString(element, "juliaExecutive")?.let { juliaExecutable = it }
 		JDOMExternalizer.readString(element, "sdkName")?.let { name ->
 			sdkUsed = juliaSdks.firstOrNull { it.name == name } ?: return@let
