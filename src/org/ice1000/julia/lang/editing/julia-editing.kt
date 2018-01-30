@@ -13,7 +13,7 @@ class JuliaBraceMatcher : PairedBraceMatcher {
 	private companion object Pairs {
 		private val PAIRS = arrayOf(
 			BracePair(JuliaTypes.LEFT_BRACKET, JuliaTypes.RIGHT_BRACKET, false),
-			BracePair(JuliaTypes.STRING_INTERPOLATE_START, JuliaTypes.RIGHT_BRACKET, false),
+			BracePair(JuliaTypes.STRING_INTERPOLATE_START, JuliaTypes.STRING_INTERPOLATE_END, false),
 			BracePair(JuliaTypes.LEFT_B_BRACKET, JuliaTypes.RIGHT_B_BRACKET, false),
 			BracePair(JuliaTypes.LEFT_M_BRACKET, JuliaTypes.RIGHT_M_BRACKET, false),
 			BracePair(JuliaTypes.TRY_KEYWORD, JuliaTypes.END_KEYWORD, false),
