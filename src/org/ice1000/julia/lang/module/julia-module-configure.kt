@@ -2,7 +2,6 @@ package org.ice1000.julia.lang.module
 
 import com.intellij.openapi.module.ModuleConfigurationEditor
 import com.intellij.openapi.roots.ui.configuration.*
-import javax.swing.JComponent
 
 /**
  * Module Configure
@@ -16,11 +15,11 @@ class JuliaModuleConfigEditor : ModuleConfigurationEditorProvider {
 		val module = state!!.rootModel!!.module
 
 		return arrayOf(ContentEntriesEditor(module.name, state),
-			OutputEditor(state))
+			JuliaCompileOutputEditor(state))
 	}
 }
 
-class OutputEditor(state: ModuleConfigurationState) : ModuleElementsEditor(state) {
+class JuliaCompileOutputEditor(state: ModuleConfigurationState) : ModuleElementsEditor(state) {
 	var myCompilerOutputEditor: BuildElementsEditor = object : BuildElementsEditor(state) {
 	}
 	override fun createComponentImpl() = myCompilerOutputEditor.createComponentImpl()!!
