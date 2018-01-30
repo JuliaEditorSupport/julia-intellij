@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfiguration> {
 	private @NotNull JPanel mainPanel;
@@ -28,8 +29,8 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JCheckBox handleSignalCheckBox;
 	private @NotNull JCheckBox startupFileCheckBox;
 	private @NotNull JTextField programArgumentsField; // [args...]
-	private @NotNull JComboBox optimizationLevelComboBox; // --optimize
-	private @NotNull JComboBox jitCompilerOptions; // --compile
+	private @NotNull JComboBox<String> optimizationLevelComboBox; // --optimize
+	private @NotNull JComboBox<String> jitCompilerOptions; // --compile
 	private @NotNull JTextField additionalOptionsField;
 
 	public JuliaRunConfigurationEditor(@NotNull JuliaRunConfiguration configuration) {
@@ -45,6 +46,9 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 			JuliaBundle.message("julia.messages.run.select-julia-file.description"),
 			null,
 			FileChooserDescriptorFactory.createSingleFileDescriptor(JuliaFileType.INSTANCE));
+
+		for (int i = 0; i < 4; i++) optimizationLevelComboBox.addItem(String.valueOf(i));
+		Arrays.asList("yes", "no", "all", "min").forEach(jitCompilerOptions::addItem);
 		resetEditorFrom(configuration);
 	}
 
@@ -60,6 +64,11 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		handleSignalCheckBox.setSelected(configuration.getHandleSignalOption());
 		unsafeFloatCheckBox.setSelected(configuration.getUnsafeFloatOption());
 		startupFileCheckBox.setSelected(configuration.getStartupFileOption());
+		additionalOptionsField.setText(configuration.getAdditionalOptions());
+		programArgumentsField.setText(configuration.getProgramArgs());
+		// same as setSelectedItem
+		optimizationLevelComboBox.setSelectedIndex(configuration.getOptimizationLevel());
+		jitCompilerOptions.setSelectedItem(configuration.getJitCompiler());
 	}
 
 	@Override protected void applyEditorTo(@NotNull JuliaRunConfiguration configuration) throws ConfigurationException {
@@ -80,6 +89,11 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		configuration.setHandleSignalOption(handleSignalCheckBox.isSelected());
 		configuration.setUnsafeFloatOption(unsafeFloatCheckBox.isSelected());
 		configuration.setStartupFileOption(startupFileCheckBox.isSelected());
+		configuration.setAdditionalOptions((additionalOptionsField.getText()));
+		configuration.setProgramArgs((programArgumentsField.getText()));
+		// same as getSelectedItem
+		configuration.setOptimizationLevel(optimizationLevelComboBox.getSelectedIndex());
+		configuration.setJitCompiler(String.valueOf(jitCompilerOptions.getSelectedItem()));
 	}
 
 	@Contract("_ -> fail") private void reportInvalidPath(@NotNull String path) throws ConfigurationException {
