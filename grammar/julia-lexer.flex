@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang;
 
+import java.util.*;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.TokenType;
@@ -9,22 +10,34 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %%
 
 %{
-  private IntStack stateStack = new IntStack(25);
-  private IntStack leftBracketStack = new IntStack(25);
-  private int leftBracketCount = 0;
-  private int commentDepth = 0;
-  private int commentTokenStart = 0;
+  private static final class State {
+    final int lBraceCount;
+    final int state;
+
+    public State(int state, int lBraceCount) {
+      this.state = state;
+      this.lBraceCount = lBraceCount;
+    }
+
+    @Override
+    public String toString() {
+      return "yystate = " + state + (lBraceCount == 0 ? "" : "lBraceCount = " + lBraceCount);
+    }
+  }
+
+  protected final Stack<State> myStateStack = new Stack<State>();
+  protected int myLeftBraceCount;
 
   private void pushState(int state) {
-    stateStack.push(yystate());
-    leftBracketStack.push(leftBracketCount);
-    leftBracketCount = 0;
+    myStateStack.push(new State(yystate(), myLeftBraceCount));
+    myLeftBraceCount = 0;
     yybegin(state);
   }
 
   private void popState() {
-    leftBracketCount = leftBracketStack.pop();
-    yybegin(stateStack.pop());
+    State state = myStateStack.pop();
+    myLeftBraceCount = state.lBraceCount;
+    yybegin(state.state);
   }
 
   public JuliaLexer() {
@@ -39,12 +52,11 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %function advance
 %type IElementType
 %eof{
-  leftBracketCount = 0;
-  stateStack.clear();
-  leftBracketStack.clear();
-  stateStack = null;
-  leftBracketStack = null;
+  myLeftBraceCount = 0;
+  myStateStack.clear();
 %eof}
+
+%xstate NESTED_COMMENT STRING_TEMPLATE RAW_STRING_TEMPLATE SHORT_TEMPLATE_ENTRY LONG_TEMPLATE
 
 LEFT_BRACKET=\(
 RIGHT_BRACKET=\)
@@ -122,188 +134,83 @@ MISC_EXPONENT_SYM=[↑↓⇵⟰⟱⤈⤉⤊⤋⤒⤓⥉⥌⥍⥏⥑⥔⥕⥘⥙�
 SPECIAL_ARROW_SYM=-->?
 MISC_ARROW_SYM=[←→↔↚↛↞↠↢↣↦↤↮⇎⇍⇏⇐⇒⇔⇴⇶⇷⇸⇹⇺⇻⇼⇽⇾⇿⟵⟶⟷⟹⟺⟻⟼⟽⟾⟿⤀⤁⤂⤃⤄⤅⤆⤇⤌⤍⤎⤏⤐⤑⤔⤕⤖⤗⤘⤝⤞⤟⤠⥄⥅⥆⥇⥈⥊⥋⥎⥐⥒⥓⥖⥗⥚⥛⥞⥟⥢⥤⥦⥧⥨⥩⥪⥫⥬⥭⥰⧴⬱⬰⬲⬳⬴⬵⬶⬷⬸⬹⬺⬻⬼⬽⬾⬿⭀⭁⭂⭃⭄⭇⭈⭉⭊⭋⭌￩￫⇜⇝↜↝↩↪↫↬↼↽⇀⇁⇄⇆⇇⇉⇋⇌⇚⇛⇠⇢]
 
-FLOAT_CONSTANT=Inf16|Inf32|Inf|-Inf16|-Inf32|-Inf|NaN16|NaN32|NaN
-//SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])+
-//SYMBOL=[^\x00-\x20+\-*/\\$#\{\}()\[\]<>|&?~;\"\'\`@]+
-SYMBOL={VALID_CHAR}({VALID_CHAR}|[\d\!])*
-VALID_CHAR=[a-zA-Z_\u0100-\uffff]
-DIGIT=[\d_]
+DIGIT=[0-9]
+HEX_DIGIT=[0-9a-fA-F]
+LETTER=[a-z]|[A-Z]
+WHITE_SPACE=[ \n\t\f]+
+PROGRAM_COMMENT="#""!"[^\n]*
+SINGLE_LINE_COMMENT="/""/"[^\n]*
 
-NUM_SUFFIX=-?{DIGIT}+
-P_SUFFIX=[pP]{NUM_SUFFIX}
-E_SUFFIX=[eE]{NUM_SUFFIX}
-F_SUFFIX=[fF]{NUM_SUFFIX}
-HEXDIGIT=[a-fA-F0-9]
-HEX_NUM=0[xX]{HEXDIGIT}+({P_SUFFIX}|{E_SUFFIX}|{F_SUFFIX})?
-OCT_NUM=0[oO][0-7]+
-BIN_NUM=0[bB][01]+
-DEC_NUM={DIGIT}+({E_SUFFIX}|{F_SUFFIX})?
-INTEGER={HEX_NUM}|{OCT_NUM}|{BIN_NUM}|{DEC_NUM}
-FLOAT=(({DIGIT}+\.{DIGIT}*)|({DIGIT}*\.{DIGIT}+)){E_SUFFIX}?
+MULTI_LINE_DEGENERATE_COMMENT = "/*" "*"+ "/"
+MULTI_LINE_COMMENT_START      = "/*"
+MULTI_LINE_DOC_COMMENT_START  = "/**"
+MULTI_LINE_COMMENT_END        = "*/"
 
-STRING_UNICODE=\\((u{HEXDIGIT}{4})|(x{HEXDIGIT}{2}))
-CHAR_LITERAL='([^\\\'\x00-\x1F\x7F]|\\[^\'\x00-\x1F\x7F]+)'
+RAW_SINGLE_QUOTED_STRING= "r" ((\" ([^\"\n])* \"?) | ("'" ([^\'\n])* \'?))
+RAW_TRIPLE_QUOTED_STRING= "r" ({RAW_TRIPLE_QUOTED_LITERAL} | {RAW_TRIPLE_APOS_LITERAL})
 
-STRING_ESCAPE=\\[^]
-STRING_INTERPOLATE_START=\$\(
-INTERPOLATED_SYMBOL=\${SYMBOL}
+RAW_TRIPLE_QUOTED_LITERAL = {THREE_QUO}  ([^\"] | \"[^\"] | \"\"[^\"])* {THREE_QUO}?
+RAW_TRIPLE_APOS_LITERAL   = {THREE_APOS} ([^\'] | \'[^\'] | \'\'[^\'])* {THREE_APOS}?
 
-LINE_COMMENT=#(\n|[^\n=][^\n]*)
-BLOCK_COMMENT_BEGIN=#=
-BLOCK_COMMENT_END==#
-BLOCK_COMMENT_CONTENT=[^#=]|(=[^#])
+THREE_QUO =  (\"\"\")
+THREE_APOS = (\'\'\')
 
-EOL=\n
-WHITE_SPACE=[ \t\r]
-OTHERWISE=[^]
+SHORT_TEMPLATE_ENTRY=\${IDENTIFIER_NO_DOLLAR}
+LONG_TEMPLATE_ENTRY_START=\$\{
 
-%state NEST_COMMENT
-%state STRING_TEMPLATE
-%state LONG_TEMPLATE
-%state RAW_STRING_TEMPLATE
-%state CMD_TEMPLATE
-%state AFTER_INTERPOLATE
+IDENTIFIER_START_NO_DOLLAR={LETTER}|"_"
+IDENTIFIER_START={IDENTIFIER_START_NO_DOLLAR}|"$"
+IDENTIFIER_PART_NO_DOLLAR={IDENTIFIER_START_NO_DOLLAR}|{DIGIT}
+IDENTIFIER_PART={IDENTIFIER_START}|{DIGIT}
+IDENTIFIER={IDENTIFIER_START}{IDENTIFIER_PART}*
+IDENTIFIER_NO_DOLLAR={IDENTIFIER_START_NO_DOLLAR}{IDENTIFIER_PART_NO_DOLLAR}*
+
+NUMERIC_LITERAL = {NUMBER} | {HEX_NUMBER}
+NUMBER = ({DIGIT}+ ("." {DIGIT}+)? {EXPONENT}?) | ("." {DIGIT}+ {EXPONENT}?)
+EXPONENT = [Ee] ["+""-"]? {DIGIT}*
+HEX_NUMBER = 0 [Xx] {HEX_DIGIT}*
 
 %%
 
-<NEST_COMMENT> {BLOCK_COMMENT_BEGIN} { ++commentDepth; }
-<NEST_COMMENT> {BLOCK_COMMENT_CONTENT}+ { }
-
-<NEST_COMMENT> {BLOCK_COMMENT_END} {
-  if (commentDepth > 0) {
-    --commentDepth;
-  } else {
+<YYINITIAL> "{" { return LBRACE; }
+<YYINITIAL> "}" { return RBRACE; }
+<LONG_TEMPLATE> "{" { myLeftBraceCount++; return LBRACE; }
+<LONG_TEMPLATE> "}" {
+  if (myLeftBraceCount == 0) {
     popState();
-    zzStartRead = commentTokenStart;
-    return JuliaTypes.BLOCK_COMMENT;
+    return LONG_TEMPLATE_ENTRY_END;
   }
+  myLeftBraceCount--;
+  return RBRACE;
 }
 
-<CMD_TEMPLATE> {BACK_QUOTE_SYM} { popState(); return JuliaTypes.BACK_QUOTE_END; }
-<STRING_TEMPLATE> {QUOTE_SYM} { popState(); return JuliaTypes.QUOTE_END; }
-<RAW_STRING_TEMPLATE> {TRIPLE_QUOTE_SYM} { popState(); return JuliaTypes.TRIPLE_QUOTE_END; }
+<YYINITIAL, LONG_TEMPLATE> {WHITE_SPACE} { return WHITE_SPACE; }
 
-<STRING_TEMPLATE, CMD_TEMPLATE, RAW_STRING_TEMPLATE> {STRING_UNICODE} { return JuliaTypes.STRING_UNICODE; }
-<AFTER_INTERPOLATE> {SYMBOL} { popState(); return JuliaTypes.SYM; }
-<STRING_TEMPLATE, CMD_TEMPLATE, RAW_STRING_TEMPLATE> {INTERPOLATED_SYMBOL} {
-  pushState(AFTER_INTERPOLATE);
-  yypushback(yylength() - 1);
-  return JuliaTypes.STRING_INTERPOLATE_START;
+// single-line comments
+<YYINITIAL, LONG_TEMPLATE> {SINGLE_LINE_COMMENT} { return SINGLE_LINE_COMMENT; }
+<YYINITIAL> {PROGRAM_COMMENT} { return SINGLE_LINE_COMMENT; }
+
+// multi-line comments
+<YYINITIAL, LONG_TEMPLATE> {MULTI_LINE_DEGENERATE_COMMENT} { return MULTI_LINE_COMMENT;      }
+
+// next rules return temporary IElementType's that are rplaced with DartTokenTypesSets#MULTI_LINE_COMMENT or DartTokenTypesSets#MULTI_LINE_DOC_COMMENT in com.jetbrains.lang.dart.lexer.DartLexer
+<YYINITIAL, LONG_TEMPLATE> {MULTI_LINE_DOC_COMMENT_START}  { pushState(MULTI_LINE_COMMENT_STATE); return MULTI_LINE_DOC_COMMENT_START; }
+<YYINITIAL, LONG_TEMPLATE> {MULTI_LINE_COMMENT_START}      { pushState(MULTI_LINE_COMMENT_STATE); return MULTI_LINE_COMMENT_START; }
+
+<NESTED_COMMENT> {MULTI_LINE_COMMENT_START} {
+  pushState(MULTI_LINE_COMMENT_STATE);
+  return MULTI_LINE_COMMENT_BODY;
 }
 
-<STRING_TEMPLATE, CMD_TEMPLATE, RAW_STRING_TEMPLATE> {STRING_INTERPOLATE_START} {
-  pushState(LONG_TEMPLATE);
-  return JuliaTypes.STRING_INTERPOLATE_START;
+<NESTED_COMMENT> [^] { return MULTI_LINE_COMMENT_BODY; }
+<NESTED_COMMENT> {MULTI_LINE_COMMENT_END} {
+  popState();
+  return yystate() == MULTI_LINE_COMMENT_STATE
+      ? MULTI_LINE_COMMENT_BODY // inner comment closed
+      : MULTI_LINE_COMMENT_END;
 }
 
-<STRING_TEMPLATE, CMD_TEMPLATE, RAW_STRING_TEMPLATE> {INTERPOLATE_SYM} {
-  pushState(AFTER_INTERPOLATE);
-  return JuliaTypes.INTERPOLATE_SYM;
-}
-
-<STRING_TEMPLATE, CMD_TEMPLATE, RAW_STRING_TEMPLATE> {STRING_ESCAPE} { return JuliaTypes.STRING_ESCAPE; }
-<STRING_TEMPLATE> [^$\\\"]+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
-<CMD_TEMPLATE> [^$\\`]+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
-<RAW_STRING_TEMPLATE> ([^$\\\"]|\"[^$\\\"]|\"\"[^$\\\"])+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
-<YYINITIAL, LONG_TEMPLATE> {BACK_QUOTE_SYM} { pushState(CMD_TEMPLATE); return JuliaTypes.BACK_QUOTE_START; }
-<YYINITIAL, LONG_TEMPLATE> {QUOTE_SYM} { pushState(STRING_TEMPLATE); return JuliaTypes.QUOTE_START; }
-<YYINITIAL, LONG_TEMPLATE> {TRIPLE_QUOTE_SYM} { pushState(RAW_STRING_TEMPLATE); return JuliaTypes.TRIPLE_QUOTE_START; }
-
-<YYINITIAL, LONG_TEMPLATE> {EOL}+ { return JuliaTypes.EOL; }
-<YYINITIAL, LONG_TEMPLATE> {WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
-<YYINITIAL, LONG_TEMPLATE> {BLOCK_COMMENT_BEGIN} {
-  pushState(NEST_COMMENT);
-  commentDepth = 0;
-  commentTokenStart = getTokenStart();
-}
-
-<YYINITIAL, LONG_TEMPLATE> {LINE_COMMENT} { return JuliaTypes.LINE_COMMENT; }
-<YYINITIAL, LONG_TEMPLATE> {CHAR_LITERAL} { return JuliaTypes.CHAR_LITERAL; }
-
-<YYINITIAL> {LEFT_BRACKET} { return JuliaTypes.LEFT_BRACKET; }
-<YYINITIAL> {RIGHT_BRACKET} { return JuliaTypes.RIGHT_BRACKET; }
-<LONG_TEMPLATE> {LEFT_BRACKET} { ++leftBracketCount; return JuliaTypes.LEFT_BRACKET; }
-<LONG_TEMPLATE> {RIGHT_BRACKET} {
-  if (leftBracketCount == 0) {
-    popState();
-    return JuliaTypes.STRING_INTERPOLATE_END;
-  }
-  --leftBracketCount;
-  return JuliaTypes.RIGHT_BRACKET;
-}
-
-<YYINITIAL, LONG_TEMPLATE> {LEFT_B_BRACKET} { return JuliaTypes.LEFT_B_BRACKET; }
-<YYINITIAL, LONG_TEMPLATE> {RIGHT_B_BRACKET} { return JuliaTypes.RIGHT_B_BRACKET; }
-<YYINITIAL, LONG_TEMPLATE> {LEFT_M_BRACKET} { return JuliaTypes.LEFT_M_BRACKET; }
-<YYINITIAL, LONG_TEMPLATE> {RIGHT_M_BRACKET} { return JuliaTypes.RIGHT_M_BRACKET; }
-<YYINITIAL, LONG_TEMPLATE> {DOUBLE_COLON} { return JuliaTypes.DOUBLE_COLON; }
-<YYINITIAL, LONG_TEMPLATE> {COLON_SYM} { return JuliaTypes.COLON_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {COLON_ASSIGN_SYM} { return JuliaTypes.COLON_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {SEMICOLON_SYM} { return JuliaTypes.SEMICOLON_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {COMMA_SYM} { return JuliaTypes.COMMA_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {QUESTION_SYM} { return JuliaTypes.QUESTION_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {EQ_SYM} { return JuliaTypes.EQ_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {AT_SYM} { return JuliaTypes.AT_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {SUBTYPE_SYM} { return JuliaTypes.SUBTYPE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {INTERPOLATE_SYM} { return JuliaTypes.INTERPOLATE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {LAMBDA_ABSTRACTION} { return JuliaTypes.LAMBDA_ABSTRACTION; }
-<YYINITIAL, LONG_TEMPLATE> {ARROW_SYM} { return JuliaTypes.ARROW_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {SLICE_SYM} { return JuliaTypes.SLICE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {AND_SYM} { return JuliaTypes.AND_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {OR_SYM} { return JuliaTypes.OR_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {INVERSE_DIV_ASSIGN_SYM} { return JuliaTypes.INVERSE_DIV_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {INVERSE_DIV_SYM} { return JuliaTypes.INVERSE_DIV_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {NOT_SYM} { return JuliaTypes.NOT_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {IS_SYM} { return JuliaTypes.IS_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {ISNT_SYM} { return JuliaTypes.ISNT_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {PIPE_SYM} { return JuliaTypes.PIPE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {INVRESE_PIPE_SYM} { return JuliaTypes.INVERSE_PIPE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {REMAINDER_SYM} { return JuliaTypes.REMAINDER_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {REMAINDER_ASSIGN_SYM} { return JuliaTypes.REMAINDER_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {SHL_ASSIGN_SYM} { return JuliaTypes.SHL_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {SHR_ASSIGN_SYM} { return JuliaTypes.SHR_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {USHR_ASSIGN_SYM} { return JuliaTypes.USHR_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {SHL_SYM} { return JuliaTypes.SHL_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {SHR_SYM} { return JuliaTypes.SHR_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {USHR_SYM} { return JuliaTypes.USHR_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {FRACTION_SYM} { return JuliaTypes.FRACTION_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {DIVIDE_SYM} { return JuliaTypes.DIVIDE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {DIVIDE_ASSIGN_SYM} { return JuliaTypes.DIVIDE_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {EXPONENT_ASSIGN_SYM} { return JuliaTypes.EXPONENT_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {FRACTION_ASSIGN_SYM} { return JuliaTypes.FRACTION_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {MULTIPLY_ASSIGN_SYM} { return JuliaTypes.MULTIPLY_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {REMAINDER_ASSIGN_SYM} { return JuliaTypes.REMAINDER_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {EXPONENT_SYM} { return JuliaTypes.EXPONENT_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {MINUS_SYM} { return JuliaTypes.MINUS_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {MULTIPLY_SYM} { return JuliaTypes.MULTIPLY_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {PLUS_SYM} { return JuliaTypes.PLUS_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {MINUS_ASSIGN_SYM} { return JuliaTypes.MINUS_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {PLUS_ASSIGN_SYM} { return JuliaTypes.PLUS_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {EQUALS_SYM} { return JuliaTypes.EQUALS_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {UNEQUAL_SYM} { return JuliaTypes.UNEQUAL_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {GREATER_THAN_SYM} { return JuliaTypes.GREATER_THAN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {LESS_THAN_SYM} { return JuliaTypes.LESS_THAN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {GREATER_THAN_OR_EQUAL_SYM} { return JuliaTypes.GREATER_THAN_OR_EQUAL_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {LESS_THAN_OR_EQUAL_SYM} { return JuliaTypes.LESS_THAN_OR_EQUAL_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {TRANSPOSE_SYM} { return JuliaTypes.TRANSPOSE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {IN_SYM} { return JuliaTypes.IN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {MISC_COMPARISON_SYM} { return JuliaTypes.MISC_COMPARISON_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {MISC_PLUS_SYM} { return JuliaTypes.MISC_PLUS_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {MISC_MULTIPLY_SYM} { return JuliaTypes.MISC_MULTIPLY_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {MISC_EXPONENT_SYM} { return JuliaTypes.MISC_EXPONENT_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {FACTORISE_SYM} { return JuliaTypes.FACTORISE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {BITWISE_AND_SYM} { return JuliaTypes.BITWISE_AND_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {BITWISE_OR_SYM} { return JuliaTypes.BITWISE_OR_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {BITWISE_XOR_SYM} { return JuliaTypes.BITWISE_XOR_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {BITWISE_AND_ASSIGN_SYM} { return JuliaTypes.BITWISE_AND_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {BITWISE_OR_ASSIGN_SYM} { return JuliaTypes.BITWISE_OR_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {BITWISE_XOR_ASSIGN_SYM} { return JuliaTypes.BITWISE_XOR_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {FACTORISE_ASSIGN_SYM} { return JuliaTypes.FACTORISE_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {MISC_ARROW_SYM} { return JuliaTypes.MISC_ARROW_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM}? {EQ_SYM} { return JuliaTypes.ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {DOT_SYM} { return JuliaTypes.DOT_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {SPECIAL_ARROW_SYM} { return JuliaTypes.SPECIAL_ARROW_SYM; }
-<YYINITIAL, LONG_TEMPLATE> {BITWISE_NOT_SYM} { return JuliaTypes.BITWISE_NOT_SYM; }
+// reserved words
 
 <YYINITIAL, LONG_TEMPLATE> "end" { return JuliaTypes.END_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "break" { return JuliaTypes.BREAK_KEYWORD; }
@@ -342,12 +249,94 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> "const" { return JuliaTypes.CONST_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "let" { return JuliaTypes.LET_KEYWORD; }
 
-<YYINITIAL, LONG_TEMPLATE> {INTEGER} { return JuliaTypes.INT_LITERAL; }
-<YYINITIAL, LONG_TEMPLATE> {FLOAT} { return JuliaTypes.FLOAT_LITERAL; }
-<YYINITIAL, LONG_TEMPLATE> {FLOAT_CONSTANT} { return JuliaTypes.FLOAT_CONSTANT; }
-<YYINITIAL, LONG_TEMPLATE> {SYMBOL} { return JuliaTypes.SYM; }
+<YYINITIAL, LONG_TEMPLATE> {IDENTIFIER}           { return IDENTIFIER; }
+<YYINITIAL, LONG_TEMPLATE> "["                { return LBRACKET; }
+<YYINITIAL, LONG_TEMPLATE> "]"                { return RBRACKET; }
+<YYINITIAL, LONG_TEMPLATE> "("                { return LPAREN; }
+<YYINITIAL, LONG_TEMPLATE> ")"                { return RPAREN; }
+<YYINITIAL, LONG_TEMPLATE> ";"                { return SEMICOLON; }
+<YYINITIAL, LONG_TEMPLATE> "-"                { return MINUS; }
+<YYINITIAL, LONG_TEMPLATE> "-="               { return MINUS_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "--"               { return MINUS_MINUS; }
+<YYINITIAL, LONG_TEMPLATE> "+"                { return PLUS; }
+<YYINITIAL, LONG_TEMPLATE> "++"               { return PLUS_PLUS; }
+<YYINITIAL, LONG_TEMPLATE> "+="               { return PLUS_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "/"                { return DIV; }
+<YYINITIAL, LONG_TEMPLATE> "/="               { return DIV_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "*"                { return MUL; }
+<YYINITIAL, LONG_TEMPLATE> "*="               { return MUL_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "~/"               { return INT_DIV; }
+<YYINITIAL, LONG_TEMPLATE> "~/="              { return INT_DIV_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "%="               { return REM_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "%"                { return REM; }
+<YYINITIAL, LONG_TEMPLATE> "~"                { return BIN_NOT; }
+<YYINITIAL, LONG_TEMPLATE> "!"                { return NOT; }
 
-{OTHERWISE} {
-  System.out.println("Otherwise");
-  return TokenType.BAD_CHARACTER;
+<YYINITIAL, LONG_TEMPLATE> "=>"  { return EXPRESSION_BODY_DEF; }
+<YYINITIAL, LONG_TEMPLATE> "="   { return EQ; }
+<YYINITIAL, LONG_TEMPLATE> "=="  { return EQ_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "!="  { return NEQ; }
+<YYINITIAL, LONG_TEMPLATE> "."   { return DOT; }
+<YYINITIAL, LONG_TEMPLATE> ".."  { return DOT_DOT; }
+<YYINITIAL, LONG_TEMPLATE> ","   { return COMMA; }
+<YYINITIAL, LONG_TEMPLATE> ":"   { return COLON; }
+<YYINITIAL, LONG_TEMPLATE> ">"   { return GT; }
+<YYINITIAL, LONG_TEMPLATE> "<"   { return LT; }
+<YYINITIAL, LONG_TEMPLATE> "<="  { return LT_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "<<"  { return LT_LT; }
+<YYINITIAL, LONG_TEMPLATE> "<<=" { return LT_LT_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "?"   { return QUEST; }
+<YYINITIAL, LONG_TEMPLATE> "?."  { return QUEST_DOT; }
+<YYINITIAL, LONG_TEMPLATE> "??"  { return QUEST_QUEST; }
+<YYINITIAL, LONG_TEMPLATE> "??=" { return QUEST_QUEST_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "|"   { return OR; }
+<YYINITIAL, LONG_TEMPLATE> "|="  { return OR_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "||"  { return OR_OR; }
+<YYINITIAL, LONG_TEMPLATE> "||=" { return OR_OR_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "^"   { return XOR; }
+<YYINITIAL, LONG_TEMPLATE> "^="  { return XOR_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "&"   { return AND; }
+<YYINITIAL, LONG_TEMPLATE> "&="  { return AND_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "&&"  { return AND_AND; }
+<YYINITIAL, LONG_TEMPLATE> "&&=" { return AND_AND_EQ; }
+<YYINITIAL, LONG_TEMPLATE> "@"   { return AT; }
+<YYINITIAL, LONG_TEMPLATE> "#"   { return HASH; }
+
+<YYINITIAL, LONG_TEMPLATE> {NUMERIC_LITERAL} { return NUMBER; }
+
+// raw strings
+<YYINITIAL, LONG_TEMPLATE> {RAW_TRIPLE_QUOTED_STRING} { return RAW_TRIPLE_QUOTED_STRING; }
+<YYINITIAL, LONG_TEMPLATE> {RAW_SINGLE_QUOTED_STRING} { return RAW_SINGLE_QUOTED_STRING; }
+
+// string start
+<YYINITIAL, LONG_TEMPLATE> \"           { pushState(QUO_STRING);        return OPEN_QUOTE;    }
+<YYINITIAL, LONG_TEMPLATE> \'           { pushState(APOS_STRING);       return OPEN_QUOTE;    }
+<YYINITIAL, LONG_TEMPLATE> {THREE_QUO}  { pushState(THREE_QUO_STRING);  return OPEN_QUOTE;    }
+<YYINITIAL, LONG_TEMPLATE> {THREE_APOS} { pushState(THREE_APOS_STRING); return OPEN_QUOTE;    }
+// correct string end
+<STRING_TEMPLATE> \" { popState(); return CLOSING_QUOTE; }
+<RAW_STRING_TEMPLATE> {THREE_QUO} { popState(); return CLOSING_QUOTE; }
+// string content
+<STRING_TEMPLATE> ([^\\\"\n\$] | (\\ [^\n]))*   { return REGULAR_STRING_PART; }
+<RAW_STRING_TEMPLATE> ([^\\\"\$])* { return REGULAR_STRING_PART; }
+<RAW_STRING_TEMPLATE> (\"[^\"]) | (\"\"[^\"]) { yypushback(1); return REGULAR_STRING_PART; } // pushback because we could capture '\' that escapes something
+<RAW_STRING_TEMPLATE> (\\[^]) { return REGULAR_STRING_PART; } // escape sequence
+
+// bad string interpolation (no identifier after '$')
+<STRING_TEMPLATE, RAW_STRING_TEMPLATE> \$   { return SHORT_TEMPLATE_ENTRY_START; }
+// short string interpolation
+<STRING_TEMPLATE, RAW_STRING_TEMPLATE> {SHORT_TEMPLATE_ENTRY} {
+  pushState(SHORT_TEMPLATE_ENTRY);
+  yypushback(yylength() - 1);
+  return SHORT_TEMPLATE_ENTRY_START;
 }
+
+// long string interpolation
+<STRING_TEMPLATE, RAW_STRING_TEMPLATE> {LONG_TEMPLATE_ENTRY_START} {
+  pushState(LONG_TEMPLATE_ENTRY);
+  return LONG_TEMPLATE_ENTRY_START;
+}
+
+<SHORT_TEMPLATE_ENTRY> {IDENTIFIER_NO_DOLLAR}    { popState(); return IDENTIFIER; }
+
+[^] { return BAD_CHARACTER; }
