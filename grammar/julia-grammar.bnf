@@ -93,10 +93,11 @@ nonUnaryOpAsSymbol ::=
  | FACTORISE_ASSIGN_SYM
  | EXPONENT_ASSIGN_SYM
 
-private comment ::= BLOCK_COMMENT | LINE_COMMENT
+private comment ::= blockComment | LINE_COMMENT
+private blockComment ::= BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | blockComment) BLOCK_COMMENT_END
 
 string ::= cmd | str | rawStr { extends=expr }
-private cmd ::= BACK_QUOTE_START stringTemplateElement* BACK_QUOTE_END
+private cmd ::= CMD_QUOTE_START stringTemplateElement* CMD_QUOTE_END
 private str ::= QUOTE_START stringTemplateElement* QUOTE_END
 private rawStr ::= TRIPLE_QUOTE_START stringTemplateElement* TRIPLE_QUOTE_END
 
@@ -106,7 +107,7 @@ stringTemplateElement::=
  | template
  | REGULAR_STRING_PART_LITERAL { pin=1 }
 
-private template ::= INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
+private template ::= SHORT_INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
 
 integer ::= INT_LITERAL { extends=expr }
 floatLit ::= FLOAT_LITERAL | FLOAT_CONSTANT
@@ -389,7 +390,6 @@ private primaryExpr ::=
  | macro
  | let
  | block
- | include
  | export
  | importExpr
  | using
@@ -481,12 +481,6 @@ private blockInternal ::= statements END_KEYWORD
 breakExpr ::= BREAK_KEYWORD
 
 continueExpr ::= CONTINUE_KEYWORD
-
-include ::=
- INCLUDE_KEYWORD endOfLine
-  LEFT_BRACKET endOfLine
-   string endOfLine
-  RIGHT_BRACKET { extends=expr }
 
 export ::=
  EXPORT_KEYWORD endOfLine
