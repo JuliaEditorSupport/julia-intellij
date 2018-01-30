@@ -1,6 +1,5 @@
 package org.ice1000.julia.lang;
 
-import java.util.*;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.TokenType;
@@ -10,9 +9,9 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %%
 
 %{
-  protected final IntStack stateStack = new IntStack();
-  protected final IntStack leftBracketStack = new IntStack();
-  protected int leftBraceCount;
+  private final IntStack stateStack = new IntStack();
+  private final IntStack leftBracketStack = new IntStack();
+  private int leftBraceCount;
 
   private void pushState(int state) {
     stateStack.push(yystate());
@@ -43,7 +42,13 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
   leftBracketStack.clear();
 %eof}
 
-%xstate NESTED_COMMENT STRING_TEMPLATE RAW_STRING_TEMPLATE SHORT_TEMPLATE LONG_TEMPLATE CMD_STRING_TEMPLATE
+%state NESTED_COMMENT
+%state STRING_TEMPLATE
+%state RAW_STRING_TEMPLATE
+%state SHORT_TEMPLATE
+%state LONG_TEMPLATE
+%state CMD_STRING_TEMPLATE
+%state AFTER_SIMPLE_LIT
 
 DOT_SYM=\.
 COMMA_SYM=,
@@ -145,7 +150,6 @@ FLOAT=(({DIGIT}+\.{DIGIT}*)|({DIGIT}*\.{DIGIT}+)){E_SUFFIX}?
 
 STRING_UNICODE=\\((u{HEXDIGIT}{4})|(x{HEXDIGIT}{2}))
 CHAR_LITERAL='([^\\\'\x00-\x1F\x7F]|\\[^\'\x00-\x1F\x7F]+)'
-
 STRING_ESCAPE=\\[^]
 
 EOL=\n
@@ -153,14 +157,14 @@ OTHERWISE=[^]
 
 %%
 
-<YYINITIAL, LONG_TEMPLATE> "[" { return JuliaTypes.LEFT_M_BRACKET; }
-<YYINITIAL, LONG_TEMPLATE> "]" { return JuliaTypes.RIGHT_M_BRACKET; }
-<YYINITIAL, LONG_TEMPLATE> "{" { return JuliaTypes.LEFT_B_BRACKET; }
-<YYINITIAL, LONG_TEMPLATE> "}" { return JuliaTypes.RIGHT_B_BRACKET; }
-<YYINITIAL> "(" { return JuliaTypes.LEFT_BRACKET; }
-<YYINITIAL> ")" { return JuliaTypes.RIGHT_BRACKET; }
-<LONG_TEMPLATE> "(" { leftBraceCount++; return JuliaTypes.LEFT_BRACKET; }
-<LONG_TEMPLATE> ")" {
+<YYINITIAL, LONG_TEMPLATE> \[ { return JuliaTypes.LEFT_M_BRACKET; }
+<YYINITIAL, LONG_TEMPLATE> \] { return JuliaTypes.RIGHT_M_BRACKET; }
+<YYINITIAL, LONG_TEMPLATE> \{ { return JuliaTypes.LEFT_B_BRACKET; }
+<YYINITIAL, LONG_TEMPLATE> \} { return JuliaTypes.RIGHT_B_BRACKET; }
+<YYINITIAL> \( { return JuliaTypes.LEFT_BRACKET; }
+<YYINITIAL> \) { return JuliaTypes.RIGHT_BRACKET; }
+<LONG_TEMPLATE> \( { leftBraceCount++; return JuliaTypes.LEFT_BRACKET; }
+<LONG_TEMPLATE> \) {
   if (leftBraceCount == 0) {
     popState();
     return JuliaTypes.STRING_INTERPOLATE_END;
@@ -225,6 +229,13 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> "const" { return JuliaTypes.CONST_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "let" { return JuliaTypes.LET_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> {SYMBOL} { return JuliaTypes.SYM; }
+
+<AFTER_SIMPLE_LIT> {SYMBOL} {
+  popState();
+  return JuliaTypes.AFTER_LIT_SYM;
+}
+
+<AFTER_SIMPLE_LIT> {OTHERWISE} { popState(); yypushback(1); }
 
 <YYINITIAL, LONG_TEMPLATE> {DOUBLE_COLON} { return JuliaTypes.DOUBLE_COLON; }
 <YYINITIAL, LONG_TEMPLATE> {COLON_SYM} { return JuliaTypes.COLON_SYM; }
@@ -295,18 +306,47 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> {SPECIAL_ARROW_SYM} { return JuliaTypes.SPECIAL_ARROW_SYM; }
 <YYINITIAL, LONG_TEMPLATE> {BITWISE_NOT_SYM} { return JuliaTypes.BITWISE_NOT_SYM; }
 
-<YYINITIAL, LONG_TEMPLATE> {INTEGER} { return JuliaTypes.INT_LITERAL; }
-<YYINITIAL, LONG_TEMPLATE> {FLOAT_CONSTANT} { return JuliaTypes.FLOAT_CONSTANT; }
-<YYINITIAL, LONG_TEMPLATE> {FLOAT} { return JuliaTypes.FLOAT_LITERAL; }
-<YYINITIAL, LONG_TEMPLATE> {CHAR_LITERAL} { return JuliaTypes.CHAR_LITERAL; }
+<YYINITIAL, LONG_TEMPLATE> {INTEGER} {
+  pushState(AFTER_SIMPLE_LIT);
+  return JuliaTypes.INT_LITERAL;
+}
+
+<YYINITIAL, LONG_TEMPLATE> {FLOAT_CONSTANT} {
+  pushState(AFTER_SIMPLE_LIT);
+  return JuliaTypes.FLOAT_CONSTANT;
+}
+
+<YYINITIAL, LONG_TEMPLATE> {FLOAT} {
+  // pushState(AFTER_SIMPLE_LIT);
+  return JuliaTypes.FLOAT_LITERAL;
+}
+
+<YYINITIAL, LONG_TEMPLATE> {CHAR_LITERAL} {
+  // pushState(AFTER_SIMPLE_LIT);
+  return JuliaTypes.CHAR_LITERAL;
+}
 
 <YYINITIAL, LONG_TEMPLATE> \" { pushState(STRING_TEMPLATE); return JuliaTypes.QUOTE_START; }
 <YYINITIAL, LONG_TEMPLATE> ` { pushState(CMD_STRING_TEMPLATE); return JuliaTypes.CMD_QUOTE_START; }
 <YYINITIAL, LONG_TEMPLATE> {TRIPLE_QUOTE_SYM} { pushState(RAW_STRING_TEMPLATE); return JuliaTypes.TRIPLE_QUOTE_START; }
 
-<STRING_TEMPLATE> \" { popState(); return JuliaTypes.QUOTE_END; }
-<CMD_STRING_TEMPLATE> ` { popState(); return JuliaTypes.CMD_QUOTE_END; }
-<RAW_STRING_TEMPLATE> {TRIPLE_QUOTE_SYM} { popState(); return JuliaTypes.TRIPLE_QUOTE_END; }
+<STRING_TEMPLATE> \" {
+  popState();
+  // pushState(AFTER_SIMPLE_LIT);
+  return JuliaTypes.QUOTE_END;
+}
+
+<CMD_STRING_TEMPLATE> ` {
+  popState();
+  // pushState(AFTER_SIMPLE_LIT);
+  return JuliaTypes.CMD_QUOTE_END;
+}
+
+<RAW_STRING_TEMPLATE> {TRIPLE_QUOTE_SYM} {
+  popState();
+  // pushState(AFTER_SIMPLE_LIT);
+  return JuliaTypes.TRIPLE_QUOTE_END;
+}
 
 <STRING_TEMPLATE> ([^\\\"\$]|(\\[^\n]))+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
 <CMD_STRING_TEMPLATE> [^\\`\$]+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }

@@ -28,7 +28,6 @@ class JuliaAnnotator : Annotator {
 			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
 			is JuliaTypeAlias -> typeAlias(element, holder)
-			is JuliaSpecialMultiplyOp -> specialMultiply(element, holder)
 			is JuliaBitwiseXorOp -> {
 				// TODO replace with ⊻
 			}
@@ -41,19 +40,6 @@ class JuliaAnnotator : Annotator {
 			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
 				// TODO provide conversions
 			}
-		}
-	}
-
-	private fun specialMultiply(
-		element: JuliaSpecialMultiplyOp,
-		holder: AnnotationHolder) {
-		element.node.findChildByType(TokenType.WHITE_SPACE)?.let { astNode ->
-			holder
-				.createErrorAnnotation(astNode, JuliaBundle.message("julia.lint.spaces-in-multiply"))
-				.registerFix(JuliaRemoveElementChildIntention(
-					element,
-					astNode,
-					JuliaBundle.message("julia.lint.remove-spaces-in-multiply")))
 		}
 	}
 
