@@ -27,7 +27,7 @@ you'll find 4 related repos:
 + sysint64/intellij-julia (this only recognize your file as a `Julia file`, and do nothing else)
 + satamas/julia-plugin (ditto)
 + ice1000/julia-intellij
- (better syntax highlight,
+ (better syntax highlight (may not be 100% correct, though),
   inspections and quick fixes,
   basic completions,
   code execution,

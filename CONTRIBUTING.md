@@ -1,11 +1,15 @@
 # How to build
 
+## Prerequirements
+
 First install required plugins in your IntelliJ IDEA:
 
 + Grammar-Kit [![JetBrains Plugins](https://img.shields.io/jetbrains/plugin/v/6606-grammar-kit.svg)](https://plugins.jetbrains.com/plugin/6606-grammar-kit)
 + UI Designer (built-in, just make sure you've enabled it)
 + Plugin DevKit (built-in, just make sure you've enabled it)
 + Kotlin [![JetBrains Plugins](https://img.shields.io/jetbrains/plugin/v/6954-kotlin.svg)](https://plugins.jetbrains.com/plugin/6954-kotlin)
+
+## Build
 
 Clone this repo:
 
@@ -15,6 +19,9 @@ $ git clone https://github.com/ice1000/julia-intellij.git
 
 Create a plugin project from your cloned source, and use Grammar-Kit
 to generate the Parser and Lexer.
+
+Then, click `File | Settings | Build, Execution, Deployment | Compiler | Kotlin Compiler`,
+make sure "Target Kotlin version" is "1.8".
 
 Then, click `Build | Prepare Plugin Module 'julia-intellij' for deployment`, and you'll see a jar
 appears at the project root.
