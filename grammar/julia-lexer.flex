@@ -16,7 +16,8 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
   private int commentTokenStart = 0;
 
   private void pushState(int state) {
-    myStateStack.push(yystate(), leftBracketStack));
+    stateStack.push(yystate());
+    leftBracketStack.push(leftBracketCount);
     leftBracketCount = 0;
     yybegin(state);
   }
@@ -24,7 +25,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
   private void popState() {
     int state = stateStack.pop();
     leftBracketCount = leftBracketStack.pop();
-    yybegin(state.state);
+    yybegin(state);
   }
 
   public JuliaLexer() {
