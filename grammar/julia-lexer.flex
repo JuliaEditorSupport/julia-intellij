@@ -16,7 +16,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
   private int commentTokenStart = 0;
 
   private void pushState(int state) {
-    myStateStack.push(yystate(), leftBracketStack));
+    myStateStack.push(yystate(), leftBracketStack);
     leftBracketCount = 0;
     yybegin(state);
   }
