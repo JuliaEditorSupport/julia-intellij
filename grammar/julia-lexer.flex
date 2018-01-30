@@ -122,7 +122,7 @@ WHITE_SPACE=[ \r\t\f]+
 LINE_COMMENT=#(\n|[^\n=][^\n]*)
 BLOCK_COMMENT_START=#=
 BLOCK_COMMENT_END==#
-BLOCK_COMMENT_CONTENT=[^=]|(=[^#])
+BLOCK_COMMENT_CONTENT=([^#=]|(=[^#])|(#[^=]))
 
 TRIPLE_QUOTE_SYM=\"\"\"
 
@@ -187,9 +187,7 @@ OTHERWISE=[^]
 <NESTED_COMMENT> {BLOCK_COMMENT_CONTENT}+ { return JuliaTypes.BLOCK_COMMENT_BODY; }
 <NESTED_COMMENT> {BLOCK_COMMENT_END} {
   popState();
-  return yystate() == NESTED_COMMENT
-      ? JuliaTypes.BLOCK_COMMENT_BODY
-      : JuliaTypes.BLOCK_COMMENT_END;
+  return JuliaTypes.BLOCK_COMMENT_END;
 }
 
 <YYINITIAL, LONG_TEMPLATE> "end" { return JuliaTypes.END_KEYWORD; }
