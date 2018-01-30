@@ -41,8 +41,13 @@ Now you know your choice :wink:
 ## Unfinished features
 
 + Formatter
++ Reference resolving
++ Completion based on context
++ Displaying numeral output as images
 + More handy run configuration
 + Minor features like folding, bread crumbs, etc.
+
+Please don't downvote our plugin for not having one of the features above, because we're just working on it.
 
 ## Contributing
 

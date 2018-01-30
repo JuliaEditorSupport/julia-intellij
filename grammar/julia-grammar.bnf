@@ -104,7 +104,7 @@ stringTemplateElement::=
  | template
  | REGULAR_STRING_PART_LITERAL
 
-private template ::= INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr RIGHT_BRACKET
+private template ::= INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
 
 integer ::= INT_LITERAL { extends=expr }
 floatLit ::= FLOAT_LITERAL | FLOAT_CONSTANT

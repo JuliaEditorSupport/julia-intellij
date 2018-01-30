@@ -13,14 +13,22 @@ Functions provided:<br/>
   <li>Syntax highlight</li>
   <li>Run configuration and code execution</li>
   <li>Live templates</li>
-  <li>Completions</li>
+  <li>Very basic completions</li>
   <li>Try Evaluate</li>
 </ul>
 
 What you'll see in the future:<br/>
 <ul>
-  <li>Reformat</li>
+  <li>Formatter</li>
+  <li>Reference resolving</li>
+  <li>Completion based on context</li>
+  <li>Displaying numeral output as images</li>
+  <li>More handy run configuration</li>
+  <li>Minor features like folding, bread crumbs, etc.</li>
 </ul>
+
+Please don't downvote our plugin for not having one of the features above, because we're just working on it.
+
 ]]></description>
 
 	<change-notes><![CDATA[

@@ -11,9 +11,25 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %{
   private IntStack stateStack = new IntStack(25);
   private IntStack leftBracketStack = new IntStack(25);
+  private int leftBracketCount = 0;
   private int commentDepth = 0;
   private int commentTokenStart = 0;
-  public JuliaLexer() { this((java.io.Reader) null); }
+
+  private void pushState(int state) {
+    myStateStack.push(yystate(), leftBracketStack));
+    leftBracketCount = 0;
+    yybegin(state);
+  }
+
+  private void popState() {
+    int state = stateStack.pop();
+    leftBracketCount = leftBracketStack.pop();
+    yybegin(state.state);
+  }
+
+  public JuliaLexer() {
+    this((java.io.Reader) null);
+  }
 %}
 
 %class JuliaLexer
@@ -26,16 +42,12 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %eof}
 
 STRING_UNICODE=\\((u{HEXDIGIT}{4})|(x{HEXDIGIT}{2}))
-INCOMPLETE_STRING=\"([^\"\x00-\x1F\x7F]|(\\[^ux])|{STRING_UNICODE})*
-STRING={INCOMPLETE_STRING}\"
-INCOMPLETE_RAW_STRING=\"\"\"([^\"]|\"(\?!\"\")|\"\"(\?!\"))*
-RAW_STRING={INCOMPLETE_RAW_STRING}\"\"\"
 INCOMPLETE_CHAR='([^\\\'\x00-\x1F\x7F]|\\[^\'\x00-\x1F\x7F]+)
 CHAR_LITERAL={INCOMPLETE_CHAR}'
 REGEX_LITERAL=r('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 BYTE_ARRAY_LITERAL=b('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 
-REGULAR_STRING_PART_LITERAL=[^$`]+
+REGULAR_STRING_PART_LITERAL=[^$\\]+
 STRING_ESCAPE=\\[^]
 STRING_INTERPOLATE_START=\$\(
 
@@ -61,6 +73,8 @@ EQ_SYM==
 AT_SYM=@
 SUBTYPE_SYM=<:
 BACK_QUOTE_SYM=`
+QUOTE_SYM=\"
+TRIPLE_QUOTE_SYM=\"\"\"
 INTERPOLATE_SYM=\$
 INVERSE_DIV_ASSIGN_SYM=\\\\=
 INVERSE_DIV_SYM=\\
@@ -143,6 +157,9 @@ OTHERWISE=[^ \t\r]
 
 %state NEST_COMMENT
 %state STRING_TEMPLATE
+%state LONG_TEMPLATE
+%state RAW_STRING_TEMPLATE
+%state CMD_TEMPLATE
 %state AFTER_INTERPOLATE
 
 %%
@@ -150,7 +167,7 @@ OTHERWISE=[^ \t\r]
 <NEST_COMMENT> {BLOCK_COMMENT_BEGIN} { ++commentDepth; }
 <NEST_COMMENT> {BLOCK_COMMENT_CONTENT}+ { }
 <NEST_COMMENT> <<EOF>> {
-  yybegin(YYINITIAL);
+  popState();
   zzStartRead = commentTokenStart;
   return JuliaTypes.BLOCK_COMMENT;
 }
@@ -159,61 +176,55 @@ OTHERWISE=[^ \t\r]
   if (commentDepth > 0) {
     --commentDepth;
   } else {
-    yybegin(YYINITIAL);
+    popState();
     zzStartRead = commentTokenStart;
     return JuliaTypes.BLOCK_COMMENT;
   }
 }
 
-<STRING_TEMPLATE> {BACK_QUOTE_SYM} {
-  yybegin(YYINITIAL);
-  return JuliaTypes.BACK_QUOTE_SYM;
-}
+<CMD_TEMPLATE> {BACK_QUOTE_SYM} { popState(); return JuliaTypes.BACK_QUOTE_SYM; }
+<STRING_TEMPLATE> {QUOTE_SYM} { popState(); return JuliaTypes.QUOTE_SYM; }
+<RAW_STRING_TEMPLATE> {TRIPLE_QUOTE_SYM} { popState(); return JuliaTypes.TRIPLE_QUOTE_SYM; }
 
-<STRING_TEMPLATE> <<EOF>> {
-  yybegin(YYINITIAL);
-  return TokenType.BAD_CHARACTER;
-}
+<STRING_TEMPLATE, CMD_TEMPLATE, RAW_STRING_TEMPLATE> <<EOF>> { return TokenType.BAD_CHARACTER; }
 
 <STRING_TEMPLATE> {STRING_UNICODE} { return JuliaTypes.STRING_UNICODE; }
-<AFTER_INTERPOLATE> {SYMBOL} { yybegin(STRING_TEMPLATE); return JuliaTypes.SYM; }
+<AFTER_INTERPOLATE> {SYMBOL} { popState(); return JuliaTypes.SYM; }
 <AFTER_INTERPOLATE> {WHITE_SPACE} | {OTHERWISE} { return TokenType.BAD_CHARACTER; }
 <STRING_TEMPLATE> {STRING_INTERPOLATE_START} {
-  stringTemplateStack.push(true);
-  yybegin(YYINITIAL);
+  pushState(LONG_TEMPLATE);
   return JuliaTypes.STRING_INTERPOLATE_START;
 }
 
-<STRING_TEMPLATE> {INTERPOLATE_SYM} { yybegin(AFTER_INTERPOLATE); return JuliaTypes.INTERPOLATE_SYM; }
+<STRING_TEMPLATE> {INTERPOLATE_SYM} { pushState(AFTER_INTERPOLATE); return JuliaTypes.INTERPOLATE_SYM; }
 
 <STRING_TEMPLATE> {STRING_ESCAPE} { return JuliaTypes.STRING_ESCAPE; }
 <STRING_TEMPLATE> {REGULAR_STRING_PART_LITERAL} { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
 <STRING_TEMPLATE> {OTHERWISE} { return TokenType.BAD_CHARACTER; }
-{BACK_QUOTE_SYM} {
-  yybegin(STRING_TEMPLATE);
-  return JuliaTypes.BACK_QUOTE_SYM;
-}
+{BACK_QUOTE_SYM} { pushState(CMD_TEMPLATE); return JuliaTypes.BACK_QUOTE_SYM; }
+{QUOTE_SYM} { pushState(STRING_TEMPLATE); return JuliaTypes.QUOTE_SYM; }
+{TRIPLE_QUOTE_SYM} { pushState(RAW_STRING_TEMPLATE); return JuliaTypes.TRIPLE_QUOTE_SYM; }
 
 {EOL}+ { return JuliaTypes.EOL; }
 {WHITE_SPACE}+ { return TokenType.WHITE_SPACE; }
 
 {BLOCK_COMMENT_BEGIN} {
-  yybegin(NEST_COMMENT);
+  pushState(NEST_COMMENT);
   commentDepth = 0;
   commentTokenStart = getTokenStart();
 }
 
 {LINE_COMMENT} { return JuliaTypes.LINE_COMMENT; }
-{RAW_STRING} { return JuliaTypes.RAW_STR; }
-{INCOMPLETE_RAW_STRING} { return TokenType.BAD_CHARACTER; }
-{STRING} { return JuliaTypes.STR; }
-{INCOMPLETE_STRING} { return TokenType.BAD_CHARACTER; }
 {CHAR_LITERAL} { return JuliaTypes.CHAR_LITERAL; }
 {INCOMPLETE_CHAR} { return TokenType.BAD_CHARACTER; }
 
-{LEFT_BRACKET} { stringTemplateStack.push(false); return JuliaTypes.LEFT_BRACKET; }
+{LEFT_BRACKET} { ++leftBracketCount; return JuliaTypes.LEFT_BRACKET; }
 {RIGHT_BRACKET} {
-  if (stringTemplateStack.pop()) yybegin(STRING_TEMPLATE);
+  if (leftBracketCount == 0) {
+    popState();
+    return JuliaTypes.STRING_INTERPOLATE_END;
+  }
+  --leftBracketCount;
   return JuliaTypes.RIGHT_BRACKET;
 }
 
