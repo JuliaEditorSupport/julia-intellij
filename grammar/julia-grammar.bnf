@@ -94,7 +94,7 @@ nonUnaryOpAsSymbol ::=
  | EXPONENT_ASSIGN_SYM
 
 private comment ::= blockComment | LINE_COMMENT
-private blockComment ::= BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | blockComment) BLOCK_COMMENT_END
+private blockComment ::= BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | blockComment)* BLOCK_COMMENT_END
 
 string ::= cmd | str | rawStr { extends=expr }
 private cmd ::= CMD_QUOTE_START stringTemplateElement* CMD_QUOTE_END
