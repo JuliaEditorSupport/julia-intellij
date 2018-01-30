@@ -9,8 +9,8 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %%
 
 %{
-  private IntStack stateStack = new IntStack(10);
-  private IntStack leftBracketStack = new IntStack(10);
+  private IntStack stateStack = new IntStack(25);
+  private IntStack leftBracketStack = new IntStack(25);
   private int leftBracketCount = 0;
   private int commentDepth = 0;
   private int commentTokenStart = 0;
