@@ -83,6 +83,9 @@ fun versionOf(sdkHome: String, timeLimit: Long = 500L) =
 fun validateJuliaSDK(sdkHome: String) = Files.isExecutable(Paths.get(sdkHome, "bin", "julia")) or
 	Files.isExecutable(Paths.get(sdkHome, "bin", "julia.exe"))
 
+val sdkHomePath
+	get() = JuliaSdkType().suggestHomePath()
+
 class JuliaSdkComboBox : ComboboxWithBrowseButton() {
 	val selectedSdk get() = comboBox.selectedItem as? Sdk
 	val sdkName get() = selectedSdk?.name.orEmpty()
