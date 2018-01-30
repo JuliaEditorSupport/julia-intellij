@@ -30,6 +30,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JTextField programArgumentsField; // [args...]
 	private @NotNull JComboBox optimizationLevelComboBox; // --optimize
 	private @NotNull JComboBox jitCompilerOptions; // --compile
+	private @NotNull JTextField additionalOptionsField;
 
 	public JuliaRunConfigurationEditor(@NotNull JuliaRunConfiguration configuration) {
 		juliaExeField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-compiler"),
