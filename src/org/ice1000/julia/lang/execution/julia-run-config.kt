@@ -35,6 +35,8 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		}
 	var workingDir = ""
 	var targetFile = ""
+	var additionalOptions = ""
+	var programArgs = ""
 	var juliaExecutable = sdkUsed?.run { Paths.get(homePath, "bin", "julia").toAbsolutePath().toString() }.orEmpty()
 	var inlineOption = false
 	var checkBoundsOption = false
@@ -54,6 +56,8 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.write(element, "targetFile", targetFile)
 		JDOMExternalizer.write(element, "juliaExecutive", juliaExecutable)
 		JDOMExternalizer.write(element, "sdkName", sdkName)
+		JDOMExternalizer.write(element, "additionalOptions", additionalOptions)
+		JDOMExternalizer.write(element, "programArgs", programArgs)
 		JDOMExternalizer.write(element, "inlineOption", inlineOption)
 		JDOMExternalizer.write(element, "checkBoundsOption", checkBoundsOption)
 		JDOMExternalizer.write(element, "colorOption", colorOption)
@@ -71,6 +75,8 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.readString(element, "sdkName")?.let { name ->
 			sdkUsed = juliaSdks.firstOrNull { it.name == name } ?: return@let
 		}
+		JDOMExternalizer.readString(element, "additionalOptions").let { additionalOptions = it?:"" }
+		JDOMExternalizer.readString(element, "programArgs").let { programArgs = it?:"" }
 		JDOMExternalizer.readBoolean(element, "inlineOption").let { inlineOption = it }
 		JDOMExternalizer.readBoolean(element, "checkBoundsOption").let { checkBoundsOption = it }
 		JDOMExternalizer.readBoolean(element, "colorOption").let { colorOption = it }

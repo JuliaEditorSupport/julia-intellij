@@ -11,8 +11,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.awt.event.ItemEvent;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfiguration> {
 	private @NotNull JPanel mainPanel;
@@ -46,6 +48,16 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 			null,
 			FileChooserDescriptorFactory.createSingleFileDescriptor(JuliaFileType.INSTANCE));
 		resetEditorFrom(configuration);
+
+		// optimizationLevelComboBox ( A Version Choose??)
+		String versionsOf[]={"0.6.2","0.5"};//Needs Loading SDK List??
+		Arrays.stream(versionsOf).forEach(optimizationLevelComboBox::addItem);
+		optimizationLevelComboBox.addItemListener(e -> {
+			if(e.getStateChange()==ItemEvent.SELECTED){
+				String item = (String) e.getItem();
+				System.out.println(item);
+			}
+		});
 	}
 
 	@Override protected void resetEditorFrom(@NotNull JuliaRunConfiguration configuration) {
@@ -60,6 +72,8 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		handleSignalCheckBox.setSelected(configuration.getHandleSignalOption());
 		unsafeFloatCheckBox.setSelected(configuration.getUnsafeFloatOption());
 		startupFileCheckBox.setSelected(configuration.getStartupFileOption());
+		additionalOptionsField.setText(configuration.getAdditionalOptions());
+		programArgumentsField.setText(configuration.getProgramArgs());
 	}
 
 	@Override protected void applyEditorTo(@NotNull JuliaRunConfiguration configuration) throws ConfigurationException {
@@ -80,6 +94,8 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		configuration.setHandleSignalOption(handleSignalCheckBox.isSelected());
 		configuration.setUnsafeFloatOption(unsafeFloatCheckBox.isSelected());
 		configuration.setStartupFileOption(startupFileCheckBox.isSelected());
+		configuration.setAdditionalOptions((additionalOptionsField.getText()));
+		configuration.setProgramArgs((programArgumentsField.getText()));
 	}
 
 	@Contract("_ -> fail") private void reportInvalidPath(@NotNull String path) throws ConfigurationException {

@@ -34,8 +34,9 @@ class JuliaCommandLineState(
 		params += "--math-mode=${if (configuration.unsafeFloatOption) "fast" else "ieee"}"
 		params += "--handle-signals=${configuration.handleSignalOption.toYesNo()}"
 		params += "--startup-file=${configuration.startupFileOption.toYesNo()}"
+		params += configuration.additionalOptions.split(' ').filter(String::isNotBlank)
 		params += configuration.targetFile
-		// params += configuration.programArgs.split(' ').filter(String::isNotBlank)
+		params += configuration.programArgs.split(' ').filter(String::isNotBlank)
 		val handler = OSProcessHandler(GeneralCommandLine(params).also {
 			it.withCharset(Charset.forName("UTF-8"))
 			it.withWorkDirectory(configuration.workingDir)
