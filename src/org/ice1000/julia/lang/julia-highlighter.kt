@@ -18,6 +18,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val STRING = TextAttributesKey.createTextAttributesKey("JULIA_STRING", DefaultLanguageHighlighterColors.STRING)
 	@JvmField val STRING_TEMPLATE = TextAttributesKey.createTextAttributesKey("STRING_TEMPLATE", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
 	@JvmField val STRING_ESCAPE = TextAttributesKey.createTextAttributesKey("JULIA_STRING_ESCAPE", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
+	@JvmField val STRING_INTERPOLATE = TextAttributesKey.createTextAttributesKey("JULIA_STRING_INTERPOLATE", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
 	@JvmField val STRING_ESCAPE_INVALID = TextAttributesKey.createTextAttributesKey("JULIA_STRING_ESCAPE_INVALID", DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE)
 	@JvmField val CHAR = TextAttributesKey.createTextAttributesKey("JULIA_CHAR", DefaultLanguageHighlighterColors.STRING)
 	@JvmField val CHAR_ESCAPE = TextAttributesKey.createTextAttributesKey("JULIA_CHAR_ESCAPE", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
@@ -42,6 +43,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 	private val KEYWORD_KEY = arrayOf(KEYWORD)
 	private val STRING_KEY = arrayOf(STRING)
 	private val STRING_VALID_KEY = arrayOf(STRING_TEMPLATE)
+	private val STRING_INTERPOLATE_KEY = arrayOf(STRING_INTERPOLATE)
 	private val CHAR_KEY = arrayOf(CHAR)
 	private val NUMBER_KEY = arrayOf(NUMBER)
 	private val FLOAT_LIT_KEY = arrayOf(FLOAT_LIT)
@@ -181,7 +183,8 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.TRIPLE_QUOTE_END,
 		JuliaTypes.REGULAR_STRING_PART_LITERAL -> STRING_KEY
 		JuliaTypes.STRING_INTERPOLATE_START,
-		JuliaTypes.STRING_INTERPOLATE_END,
+		JuliaTypes.STRING_INTERPOLATE_END -> STRING_INTERPOLATE_KEY
+		JuliaTypes.STRING_ESCAPE,
 		JuliaTypes.STRING_UNICODE -> STRING_VALID_KEY
 		JuliaTypes.CHAR_LITERAL -> CHAR_KEY
 		JuliaTypes.LINE_COMMENT -> COMMENT_KEY
@@ -210,31 +213,31 @@ class JuliaHighlighterFactory : SyntaxHighlighterFactory() {
 class JuliaColorSettingsPage : ColorSettingsPage {
 	private companion object DescriptorHolder {
 		private val DESCRIPTORS = arrayOf(
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.comment"), JuliaHighlighter.COMMENT),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.block-comment"), JuliaHighlighter.BLOCK_COMMENT),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.keyword"), JuliaHighlighter.KEYWORD),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.num"), JuliaHighlighter.NUMBER),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.operator"), JuliaHighlighter.OPERATOR),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.operator-assign"), JuliaHighlighter.ASSIGNMENT_OPERATOR),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.operator-unicode"), JuliaHighlighter.UNICODE_OPERATOR),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.brackets"), JuliaHighlighter.BRACKET),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.brackets.b"), JuliaHighlighter.B_BRACKET),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.brackets.m"), JuliaHighlighter.M_BRACKET),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.num-float-lit"), JuliaHighlighter.FLOAT_LIT),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string"), JuliaHighlighter.STRING),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string-escape"), JuliaHighlighter.STRING_ESCAPE),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.string-escape-invalid"), JuliaHighlighter.STRING_ESCAPE_INVALID),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char"), JuliaHighlighter.CHAR),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char-escape"), JuliaHighlighter.CHAR_ESCAPE),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.char-escape-invalid"), JuliaHighlighter.CHAR_ESCAPE_INVALID),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.function-name"), JuliaHighlighter.FUNCTION_NAME),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.module-name"), JuliaHighlighter.MODULE_NAME),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.macro-name"), JuliaHighlighter.MACRO_NAME),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.macro-name.ref"), JuliaHighlighter.MACRO_REFERENCE),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.abs-type-name"), JuliaHighlighter.ABSTRACT_TYPE_NAME),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.prim-type-name"), JuliaHighlighter.PRIMITIVE_TYPE_NAME),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.color-settings-pane.type-name"), JuliaHighlighter.TYPE_NAME)
-
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.comment"), JuliaHighlighter.COMMENT),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.block-comment"), JuliaHighlighter.BLOCK_COMMENT),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.keyword"), JuliaHighlighter.KEYWORD),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.num"), JuliaHighlighter.NUMBER),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.operator"), JuliaHighlighter.OPERATOR),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.operator-assign"), JuliaHighlighter.ASSIGNMENT_OPERATOR),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.operator-unicode"), JuliaHighlighter.UNICODE_OPERATOR),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.brackets"), JuliaHighlighter.BRACKET),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.brackets.b"), JuliaHighlighter.B_BRACKET),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.brackets.m"), JuliaHighlighter.M_BRACKET),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.num-float-lit"), JuliaHighlighter.FLOAT_LIT),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.string"), JuliaHighlighter.STRING),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.string-interpolate"), JuliaHighlighter.STRING_INTERPOLATE),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.string-escape"), JuliaHighlighter.STRING_ESCAPE),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.string-escape-invalid"), JuliaHighlighter.STRING_ESCAPE_INVALID),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.char"), JuliaHighlighter.CHAR),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.char-escape"), JuliaHighlighter.CHAR_ESCAPE),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.char-escape-invalid"), JuliaHighlighter.CHAR_ESCAPE_INVALID),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.function-name"), JuliaHighlighter.FUNCTION_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.module-name"), JuliaHighlighter.MODULE_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.macro-name"), JuliaHighlighter.MACRO_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.macro-name.ref"), JuliaHighlighter.MACRO_REFERENCE),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.abs-type-name"), JuliaHighlighter.ABSTRACT_TYPE_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.prim-type-name"), JuliaHighlighter.PRIMITIVE_TYPE_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.type-name"), JuliaHighlighter.TYPE_NAME)
 		)
 
 		private val ADDITIONAL_DESCRIPTORS = mapOf(
