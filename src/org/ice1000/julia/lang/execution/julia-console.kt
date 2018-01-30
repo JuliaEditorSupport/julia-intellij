@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.execution
 
+import com.intellij.execution.ConsoleFolding
 import com.intellij.execution.filters.*
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
@@ -10,12 +11,14 @@ import java.nio.file.Paths
 import java.util.regex.Pattern
 
 
-/*
-Stack trace example:
+/**
+ Stack trace example:
  [1] include_from_node1(::String) at ./loading.jl:576
 ...
  while loading /home/ice1000/git-repos/big-projects/cov/cov-plugin-test/src/a.jl, in expression starting on line 8
-*/
+ * Console Linkenizing
+ * @author: ice1000
+ */
 class JuliaConsoleFilter(private val project: Project) : Filter {
 	private val sdkHomeCache = project.projectSdk?.homePath
 
@@ -61,4 +64,22 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 class JuliaConsoleFilterProvider : ConsoleFilterProviderEx {
 	override fun getDefaultFilters(project: Project, scope: GlobalSearchScope) = getDefaultFilters(project)
 	override fun getDefaultFilters(project: Project) = arrayOf(JuliaConsoleFilter(project))
+}
+
+
+/**
+ * Console folding
+ * You will see the console with
+ * `julia *.jl` instead of
+ * `/PATH-TO-JULIA_HOME/bin/julia --COMMANDS /PATH-TO-SOURCE/_____.jl`
+ * @author: zxj5470
+ * @date: 2018/1/29
+ */
+class JuliaConsoleFolding : ConsoleFolding() {
+	override fun getPlaceholderText(lines: MutableList<String>): String {
+		val fileNameIndex = lines.firstOrNull()?.lastIndexOf("/") ?: return ""
+		return "julia ${lines[0].substring(fileNameIndex + 1)}"
+	}
+
+	override fun shouldFoldLine(output: String) = "julia " in output && output.endsWith(".jl")
 }

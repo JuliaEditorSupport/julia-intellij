@@ -11,10 +11,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.event.ItemEvent;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfiguration> {
 	private @NotNull JPanel mainPanel;
@@ -30,7 +28,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JCheckBox handleSignalCheckBox;
 	private @NotNull JCheckBox startupFileCheckBox;
 	private @NotNull JTextField programArgumentsField; // [args...]
-	private @NotNull JComboBox optimizationLevelComboBox; // --optimize
+	private @NotNull JComboBox<String> optimizationLevelComboBox; // --optimize
 	private @NotNull JComboBox jitCompilerOptions; // --compile
 	private @NotNull JTextField additionalOptionsField;
 
@@ -47,17 +45,9 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 			JuliaBundle.message("julia.messages.run.select-julia-file.description"),
 			null,
 			FileChooserDescriptorFactory.createSingleFileDescriptor(JuliaFileType.INSTANCE));
-		resetEditorFrom(configuration);
 
-		// optimizationLevelComboBox ( A Version Choose??)
-		String versionsOf[]={"0.6.2","0.5"};//Needs Loading SDK List??
-		Arrays.stream(versionsOf).forEach(optimizationLevelComboBox::addItem);
-		optimizationLevelComboBox.addItemListener(e -> {
-			if(e.getStateChange()==ItemEvent.SELECTED){
-				String item = (String) e.getItem();
-				System.out.println(item);
-			}
-		});
+		for (int i = 0; i < 4; i++) optimizationLevelComboBox.addItem(String.valueOf(i));
+		resetEditorFrom(configuration);
 	}
 
 	@Override protected void resetEditorFrom(@NotNull JuliaRunConfiguration configuration) {
@@ -74,6 +64,8 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		startupFileCheckBox.setSelected(configuration.getStartupFileOption());
 		additionalOptionsField.setText(configuration.getAdditionalOptions());
 		programArgumentsField.setText(configuration.getProgramArgs());
+		// same as setSelectedItem
+		optimizationLevelComboBox.setSelectedIndex(configuration.getOptimizationLevel());
 	}
 
 	@Override protected void applyEditorTo(@NotNull JuliaRunConfiguration configuration) throws ConfigurationException {
@@ -96,6 +88,8 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		configuration.setStartupFileOption(startupFileCheckBox.isSelected());
 		configuration.setAdditionalOptions((additionalOptionsField.getText()));
 		configuration.setProgramArgs((programArgumentsField.getText()));
+		// same as getSelectedItem
+		configuration.setOptimizationLevel(optimizationLevelComboBox.getSelectedIndex());
 	}
 
 	@Contract("_ -> fail") private void reportInvalidPath(@NotNull String path) throws ConfigurationException {
