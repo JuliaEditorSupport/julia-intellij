@@ -132,7 +132,6 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.BAREMODULE_KEYWORD,
 		JuliaTypes.BREAK_KEYWORD,
 		JuliaTypes.CONTINUE_KEYWORD,
-		JuliaTypes.INCLUDE_KEYWORD,
 		JuliaTypes.EXPORT_KEYWORD,
 		JuliaTypes.IMPORT_KEYWORD,
 		JuliaTypes.USING_KEYWORD,
