@@ -174,8 +174,12 @@ object JuliaHighlighter : SyntaxHighlighter {
 
 	override fun getHighlightingLexer() = JuliaLexerAdapter()
 	override fun getTokenHighlights(type: IElementType?): Array<TextAttributesKey> = when (type) {
-		JuliaTypes.STR,
-		JuliaTypes.RAW_STR,
+		JuliaTypes.QUOTE_START,
+		JuliaTypes.QUOTE_END,
+		JuliaTypes.BACK_QUOTE_START,
+		JuliaTypes.BACK_QUOTE_END,
+		JuliaTypes.TRIPLE_QUOTE_START,
+		JuliaTypes.TRIPLE_QUOTE_END,
 		JuliaTypes.REGULAR_STRING_PART_LITERAL -> STRING_KEY
 		JuliaTypes.INTERPOLATE_SYM,
 		JuliaTypes.STRING_UNICODE-> STRING_VALID_KEY
