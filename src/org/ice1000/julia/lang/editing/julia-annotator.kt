@@ -34,11 +34,19 @@ class JuliaAnnotator : Annotator {
 			}
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
-			is JuliaString -> string(element, holder)
+			is JuliaStringTemplateElement -> stringTemplateElement(element, holder)
 			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
 				// TODO provide conversions
 			}
 		}
+	}
+
+	private fun stringTemplateElement(
+		element: JuliaStringTemplateElement,
+		holder: AnnotationHolder) {
+		if (element.firstChild.node.elementType == JuliaTypes.STRING_ESCAPE &&
+			(element.textContains('x') || element.textContains('u')))
+			holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.invalid-string-escape"))
 	}
 
 	private fun definition(element: PsiElement, holder: AnnotationHolder, attributesKey: TextAttributesKey) {
@@ -98,39 +106,6 @@ class JuliaAnnotator : Annotator {
 				JuliaBundle.message("julia.lint.invalid-char-escape"))
 				.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 		}
-	}
-
-	private fun string(
-		element: JuliaString,
-		holder: AnnotationHolder) {
-		return Unit
-		val str = element.text.trimQuotePair()
-		fun AnnotationHolder.markStringEscape(
-			beginOffset: Int, expandSize: Int,
-			attrID: TextAttributesKey = JuliaHighlighter.STRING_ESCAPE) {
-			createInfoAnnotation(
-				element.textRange.subRangeBeginOffsetAndLength(beginOffset, expandSize), null)
-				.textAttributes = attrID
-		}
-
-		fun markEscapeChars(escapeString: String, expandSize: Int, matchRegex: String) {
-			str.indicesOf(escapeString).forEach continuing@ {
-				if (it + expandSize <= str.length) {
-					val s = str.subSequence(it, it + expandSize)
-					when {
-						s.matches(Regex(matchRegex)) -> holder.markStringEscape(it + 1, expandSize)
-						expandSize == 2 -> return@continuing
-						else -> holder.markStringEscape(it + 1, expandSize, JuliaHighlighter.STRING_ESCAPE_INVALID)
-					}
-				} else holder.createErrorAnnotation(
-					element.textRange.narrow(it + 1, 1),//to the end
-					JuliaBundle.message("julia.lint.invalid-string-escape"))
-					.textAttributes = JuliaHighlighter.STRING_ESCAPE_INVALID
-			}
-		}
-		markEscapeChars("\\", 2, JULIA_CHAR_NOT_UX_REGEX)
-		markEscapeChars("\\x", 4, JULIA_CHAR_SINGLE_UNICODE_X_REGEX)
-		markEscapeChars("\\u", 6, JULIA_CHAR_SINGLE_UNICODE_U_REGEX)
 	}
 
 	private fun integer(

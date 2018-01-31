@@ -478,7 +478,7 @@ export ::=
 
 importExpr ::=
  (IMPORT_KEYWORD | IMPORTALL_KEYWORD) endOfLine
-  identifier endOfLine
+  identifier
   (COLON_SYM endOfLine
    identifier
    (
