@@ -2,10 +2,7 @@
 
 package org.ice1000.julia.lang.module
 
-import com.intellij.ide.util.projectWizard.AbstractNewProjectStep
-import com.intellij.ide.util.projectWizard.CustomStepProjectGenerator
-import com.intellij.ide.util.projectWizard.ProjectSettingsStepBase
-import com.intellij.ide.util.projectWizard.SettingsStep
+import com.intellij.ide.util.projectWizard.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -13,20 +10,14 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModifiableModelsProvider
 import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.ui.TextComponentAccessor
-import com.intellij.openapi.ui.TextFieldWithBrowseButton
-import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.ui.*
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.platform.DirectoryProjectGenerator
-import com.intellij.platform.DirectoryProjectGeneratorBase
-import com.intellij.platform.ProjectGeneratorPeer
-import com.intellij.platform.WebProjectGenerator
-import org.ice1000.julia.lang.*
-import javax.swing.Icon
+import com.intellij.platform.*
 import com.intellij.ui.DocumentAdapter
-import com.intellij.ui.layout.Row
 import com.intellij.ui.layout.panel
-import javax.swing.JLabel
+import org.ice1000.julia.lang.JULIA_BIG_ICON
+import org.ice1000.julia.lang.JULIA_LANGUAGE_NAME
+import javax.swing.Icon
 
 
 /**

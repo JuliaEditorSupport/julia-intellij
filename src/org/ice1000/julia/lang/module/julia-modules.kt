@@ -8,6 +8,7 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.projectRoots.SdkTypeId
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.roots.ui.configuration.*
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.ice1000.julia.lang.*
@@ -60,4 +61,29 @@ var Project.projectSdk
 		ProjectRootManager.getInstance(this).projectSdk = value
 	}
 
+
+/**
+ * Module Configure
+ * Inspired by Haskell plugin
+ * @author: zxj5470
+ * @date: 2018/1/29
+ */
+class JuliaModuleConfigEditor : ModuleConfigurationEditorProvider {
+
+	override fun createEditors(state: ModuleConfigurationState): Array<ModuleConfigurationEditor> {
+		val module = state.rootModel?.module ?: return emptyArray()
+		return arrayOf(ContentEntriesEditor(module.name, state),
+			JuliaCompileOutputEditor(state))
+	}
+}
+
+class JuliaCompileOutputEditor(state: ModuleConfigurationState) : ModuleElementsEditor(state) {
+	var editor: BuildElementsEditor = object : BuildElementsEditor(state) {
+	}
+
+	override fun createComponentImpl() = editor.createComponentImpl()
+	override fun saveData() = editor.saveData()
+	override fun getDisplayName() = "Paths"
+	override fun getHelpTopic() = editor.helpTopic
+}
 
