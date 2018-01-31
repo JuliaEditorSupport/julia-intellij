@@ -3,6 +3,7 @@ package org.ice1000.julia.lang.action
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.util.ui.JBUI
+import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.module.JuliaProjectGenerator
 import org.ice1000.julia.lang.module.JuliaProjectSettingsStep
 import javax.swing.JComponent
@@ -22,7 +23,7 @@ class NewJuliaProject : JuliaProjectSettingsStep(JuliaProjectGenerator()) {
 
 	private class JuliaNewProjectDialog(private val centerPanel: JPanel) : DialogWrapper(true) {
 		init {
-			title = "New Julia Project"
+			title = JuliaBundle.message("julia.actions.new-proj.dialog.title")
 			init()
 		}
 

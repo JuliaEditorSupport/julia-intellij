@@ -7,6 +7,7 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.ColoredListCellRenderer
 import com.intellij.ui.ComboboxWithBrowseButton
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
 import org.jdom.Element
 import java.nio.file.Files
 import java.nio.file.Paths

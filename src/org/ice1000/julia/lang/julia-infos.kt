@@ -7,6 +7,7 @@ import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.*
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
+import org.ice1000.julia.lang.editing.JULIA_ICON
 import org.ice1000.julia.lang.psi.impl.processDeclTrivial
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
@@ -23,10 +24,10 @@ object JuliaFileType : LanguageFileType(JuliaLanguage.INSTANCE) {
 class JuliaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, JuliaLanguage.INSTANCE) {
 	override fun getFileType() = JuliaFileType
 	override fun processDeclarations(
-			processor: PsiScopeProcessor,
-			state: ResolveState,
-			lastParent: PsiElement?,
-			place: PsiElement) = processDeclTrivial(processor, state, lastParent, place)
+		processor: PsiScopeProcessor,
+		state: ResolveState,
+		lastParent: PsiElement?,
+		place: PsiElement) = processDeclTrivial(processor, state, lastParent, place)
 }
 
 class JuliaFileTypeFactory : FileTypeFactory() {
@@ -52,6 +53,6 @@ object JuliaBundle {
 
 	@JvmStatic
 	fun message(@PropertyKey(resourceBundle = BUNDLE) key: String, vararg params: Any) =
-			CommonBundle.message(bundle, key, *params)
+		CommonBundle.message(bundle, key, *params)
 }
 

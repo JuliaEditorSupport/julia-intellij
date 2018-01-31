@@ -12,6 +12,7 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.util.ui.JBUI
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
 import org.ice1000.julia.lang.module.JuliaSdkData
 import org.ice1000.julia.lang.module.projectSdk
 import java.awt.Dimension

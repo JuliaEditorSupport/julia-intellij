@@ -13,6 +13,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
 import java.nio.file.Files
 import java.nio.file.Paths
 

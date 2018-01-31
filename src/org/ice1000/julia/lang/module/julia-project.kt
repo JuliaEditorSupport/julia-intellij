@@ -19,8 +19,9 @@ import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.layout.panel
 import com.intellij.util.Consumer
 import com.intellij.util.PlatformUtils
-import org.ice1000.julia.lang.*
-import javax.swing.Icon
+import org.ice1000.julia.lang.JULIA_LANGUAGE_NAME
+import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
 import javax.swing.event.DocumentEvent
 
 
@@ -34,8 +35,8 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings
 		projectGenerator: DirectoryProjectGenerator<JuliaProjectSettings>,
 		callback: AbstractNewProjectStep.AbstractCallback<JuliaProjectSettings>?) = JuliaProjectSettingsStep(projectGenerator)
 
-	override fun getLogo(): Icon = JULIA_BIG_ICON
-	override fun getName(): String = JULIA_LANGUAGE_NAME
+	override fun getLogo() = JULIA_BIG_ICON
+	override fun getName() = JULIA_LANGUAGE_NAME
 	override fun createPeer() = JuliaProjectGeneratorPeer()
 
 	override fun generateProject(project: Project, baseDir: VirtualFile, settings: JuliaProjectSettings, module: Module) {

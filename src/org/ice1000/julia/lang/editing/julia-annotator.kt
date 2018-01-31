@@ -23,8 +23,9 @@ class JuliaAnnotator : Annotator {
 				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
 			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MACRO_REFERENCE
-			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.MODULE_NAME
+			is JuliaModuleName -> {
+				holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.MODULE_NAME
+			}
 			is JuliaTypeAlias -> typeAlias(element, holder)
 			is JuliaBitwiseXorOp -> {
 				// TODO replace with ⊻
@@ -41,9 +42,7 @@ class JuliaAnnotator : Annotator {
 		}
 	}
 
-	private fun stringTemplateElement(
-		element: JuliaStringTemplateElement,
-		holder: AnnotationHolder) {
+	private fun stringTemplateElement(element: JuliaStringTemplateElement, holder: AnnotationHolder) {
 		if (element.firstChild.node.elementType == JuliaTypes.STRING_ESCAPE &&
 			(element.textContains('x') || element.textContains('u')))
 			holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.invalid-string-escape"))

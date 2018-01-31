@@ -8,6 +8,7 @@ import com.intellij.openapi.options.colors.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.tree.IElementType
+import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
 import org.ice1000.julia.lang.psi.JuliaTypes
 import org.intellij.lang.annotations.Language
 
