@@ -1,7 +1,5 @@
 package org.ice1000.julia.lang.module
 
-import com.intellij.openapi.module.ModuleConfigurationEditor
-import com.intellij.openapi.roots.ui.configuration.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.Configurable

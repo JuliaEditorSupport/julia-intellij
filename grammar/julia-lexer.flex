@@ -9,9 +9,9 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %%
 
 %{
-  private final IntStack stateStack = new IntStack();
-  private final IntStack leftBracketStack = new IntStack();
-  private int leftBraceCount;
+  private static final IntStack stateStack = new IntStack();
+  private static final IntStack leftBracketStack = new IntStack();
+  private static int leftBraceCount;
 
   private void pushState(int state) {
     stateStack.push(yystate());
