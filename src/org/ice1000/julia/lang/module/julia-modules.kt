@@ -11,6 +11,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.*
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.*
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -35,11 +36,18 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 		if (::sdk.isInitialized) model.sdk = sdk
 		val srcPath = Paths.get(contentEntryPath, "src")
 		Files.createDirectories(srcPath)
-		val sourceRoot = LocalFileSystem
-			.getInstance()
-			.refreshAndFindFileByPath(FileUtil.toSystemIndependentName(srcPath.toString()))
-			?: return
-		doAddContentEntry(model)?.addSourceFolder(sourceRoot, false, "")
+		//Idea Only
+		if (PlatformUtils.isIntelliJ()) {
+			val sourceRoot = LocalFileSystem
+				.getInstance()
+				.refreshAndFindFileByPath(FileUtil.toSystemIndependentName(srcPath.toString()))
+				?: return
+			doAddContentEntry(model)?.addSourceFolder(sourceRoot, false, "")
+		}
+		else {
+			//other Platform just doAddContentEntry
+			doAddContentEntry(model)
+		}
 	}
 
 	override fun moduleCreated(module: Module) {

@@ -42,7 +42,7 @@ Please don't downvote our plugin for not having one of the features above, becau
 	<idea-version since-build="145.0"/>
 
 	<depends>com.intellij.modules.lang</depends>
-
+	<depends optional="true" config-file="plugin-clion.xml">com.intellij.modules.clion</depends>
 	<extensions defaultExtensionNs="com.intellij">
 		<additionalTextAttributes scheme="Darcula" file="/colorSchemes/Julia.xml"/>
 		<additionalTextAttributes scheme="Default" file="/colorSchemes/Julia.xml"/>
@@ -96,6 +96,13 @@ Please don't downvote our plugin for not having one of the features above, becau
 			text="Julia File"
 			description="Create a new Julia file">
 			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
+		</action>
+		<action
+			id="Julia.NewJuliaProject"
+			class="org.ice1000.julia.lang.action.NewJuliaProject"
+			text="Julia Project"
+			description="Create a new Julia file">
+			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewProject"/>
 		</action>
 		<action
 			id="Julia.TryEvaluate"

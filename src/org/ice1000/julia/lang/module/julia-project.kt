@@ -5,16 +5,19 @@ package org.ice1000.julia.lang.module
 import com.intellij.ide.util.projectWizard.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModifiableModelsProvider
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.ui.*
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.*
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.layout.panel
+import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.JULIA_BIG_ICON
 import org.ice1000.julia.lang.JULIA_LANGUAGE_NAME
 import javax.swing.Icon
@@ -24,13 +27,10 @@ import javax.swing.Icon
  * @author: zxj5470
  * @date: 2018/1/31
  */
-class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings>(), CustomStepProjectGenerator<Any> {
+class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings>(), CustomStepProjectGenerator<JuliaProjectSettings> {
 	override fun createStep(
-		projectGenerator: DirectoryProjectGenerator<Any>,
-		callback: AbstractNewProjectStep.AbstractCallback<Any>?) = JuliaProjectSettingsStep(projectGenerator)
-
-	class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<Any>)
-		: ProjectSettingsStepBase<Any>(generator, AbstractNewProjectStep.AbstractCallback<Any>())
+		projectGenerator: DirectoryProjectGenerator<JuliaProjectSettings>,
+		callback: AbstractNewProjectStep.AbstractCallback<JuliaProjectSettings>?) = JuliaProjectSettingsStep(projectGenerator)
 
 	override fun getLogo(): Icon = JULIA_BIG_ICON
 	override fun getName(): String = JULIA_LANGUAGE_NAME
@@ -41,9 +41,22 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings
 			val modifiableModel: ModifiableRootModel = ModifiableModelsProvider.SERVICE.getInstance().getModuleModifiableModel(module)
 			JuliaModuleBuilder().setupRootModel(modifiableModel)
 			ModifiableModelsProvider.SERVICE.getInstance().commitModuleModifiableModel(modifiableModel)
+			if(PlatformUtils.isCLion()){
+				generateCMakeFile(project, baseDir)
+			}
 		}
 	}
+	private fun generateCMakeFile(project: Project, baseDir: VirtualFile) = runWriteAction {
+		val cmakeList = baseDir.createChildData(this, "CMakeLists.txt")
+		VfsUtil.saveText(cmakeList, """
+                project(${project.name})
+                add_executable(${project.name}
+                        main.jl""".trimIndent())
+	}
 }
+
+open class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<JuliaProjectSettings>)
+	: ProjectSettingsStepBase<JuliaProjectSettings>(generator, AbstractNewProjectStep.AbstractCallback<Any>())
 
 class JuliaProjectSettings(
 	var sdkHome: String = defaultSdkHome,

@@ -1,0 +1,7 @@
+<idea-plugin>
+	<actions>
+		<reference id="Julia.NewJuliaProject">
+			<add-to-group group-id="WelcomeScreen.QuickStart.Platform"/>
+		</reference>
+	</actions>
+</idea-plugin>
