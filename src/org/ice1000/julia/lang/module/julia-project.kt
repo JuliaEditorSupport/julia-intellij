@@ -15,11 +15,13 @@ import com.intellij.openapi.ui.*
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.*
+import com.intellij.psi.PsiFileFactory
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.layout.panel
 import com.intellij.util.Consumer
 import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.*
+import java.time.LocalDate
 import javax.swing.Icon
 import javax.swing.event.DocumentEvent
 
@@ -43,19 +45,34 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings
 			val modifiableModel: ModifiableRootModel = ModifiableModelsProvider.SERVICE.getInstance().getModuleModifiableModel(module)
 			JuliaModuleBuilder().setupRootModel(modifiableModel)
 			ModifiableModelsProvider.SERVICE.getInstance().commitModuleModifiableModel(modifiableModel)
-			if (PlatformUtils.isCLion()) {
-				generateCMakeFile(project, baseDir)
-			}
 		}
 	}
 
-	private fun generateCMakeFile(project: Project, baseDir: VirtualFile) = runWriteAction {
-		val cmakeList = baseDir.createChildData(this, "CMakeLists.txt")
-		VfsUtil.saveText(cmakeList, """
+	@Deprecated("wait until Julia v0.7 or later if Julia can compile to executable easily")
+	private fun Project.forCLion() {
+		fun generateCMakeFile(project: Project, baseDir: VirtualFile) = runWriteAction {
+			val cmakeList = baseDir.createChildData(this, "CMakeLists.txt")
+			VfsUtil.saveText(cmakeList, """
                 project(${project.name})
                 add_executable(${project.name}
-                        main.jl""".trimIndent())
+                        main.jl)""".trimIndent())
+		}
+		if (PlatformUtils.isCLion()) {
+			val fileName = "main.jl"
+			//CreateFileAction.create is prote
+			PsiFileFactory
+				.getInstance(this)
+				.createFileFromText(fileName, JuliaFileType, """
+					$JULIA_BLOCK_COMMENT_BEGIN
+					# $fileName
+					${JuliaBundle.message("julia.actions.new-file.content", System.getProperty("user.name"), LocalDate.now())}
+					$JULIA_BLOCK_COMMENT_END
+
+					""".trimIndent())
+			generateCMakeFile(this, baseDir)
+		}
 	}
+
 }
 
 open class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<JuliaProjectSettings>)
