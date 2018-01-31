@@ -223,6 +223,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> "quote" { return JuliaTypes.QUOTE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "begin" { return JuliaTypes.BEGIN_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "macro" { return JuliaTypes.MACRO_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "global" { return JuliaTypes.GLOBAL_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "local" { return JuliaTypes.LOCAL_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "const" { return JuliaTypes.CONST_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "let" { return JuliaTypes.LET_KEYWORD; }

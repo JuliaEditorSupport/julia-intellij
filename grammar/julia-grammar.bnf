@@ -104,6 +104,7 @@ statements ::= semi* (statement (semi+ statement)*)? semi*
 
 private statement ::=
    moduleDeclaration
+ | globalStatement
  | expr
 
 moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
@@ -112,6 +113,10 @@ moduleDeclaration ::=
  moduleType moduleName endOfLine
   statements
  END_KEYWORD
+
+globalStatement ::=
+ GLOBAL_KEYWORD endOfLine
+ identifier (COMMA_SYM endOfLine identifier)*
 
 assignment ::=
  typedVariable endOfLine
