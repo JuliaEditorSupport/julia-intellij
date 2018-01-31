@@ -92,8 +92,8 @@ stringTemplateElement::=
 
 template ::= SHORT_INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
 stringContent ::= REGULAR_STRING_PART_LITERAL {
-	mixin='org.ice1000.julia.lang.psi.impl.JuliaStringContentMixin'
 	implements=['com.intellij.psi.PsiLanguageInjectionHost']
+	methods=[isValidHost createLiteralTextEscaper updateText]
 }
 
 integer ::= INT_LITERAL { extends=expr }
