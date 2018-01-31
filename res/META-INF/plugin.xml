@@ -101,7 +101,7 @@ Please don't downvote our plugin for not having one of the features above, becau
 		<action
 			id="Julia.NewJuliaProject"
 			class="org.ice1000.julia.lang.action.NewJuliaProject"
-			text="Julia Project"
+			text="New Julia Project"
 			description="Create a new Julia file">
 			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewProject"/>
 		</action>
