@@ -11,9 +11,8 @@ import com.intellij.openapi.roots.ui.configuration.*
  */
 class JuliaModuleConfigEditor : ModuleConfigurationEditorProvider {
 
-	override fun createEditors(state: ModuleConfigurationState?): Array<ModuleConfigurationEditor> {
-		val module = state!!.rootModel!!.module
-
+	override fun createEditors(state: ModuleConfigurationState): Array<ModuleConfigurationEditor> {
+		val module = state.rootModel?.module ?: return emptyArray()
 		return arrayOf(ContentEntriesEditor(module.name, state),
 			JuliaCompileOutputEditor(state))
 	}
@@ -22,8 +21,9 @@ class JuliaModuleConfigEditor : ModuleConfigurationEditorProvider {
 class JuliaCompileOutputEditor(state: ModuleConfigurationState) : ModuleElementsEditor(state) {
 	var myCompilerOutputEditor: BuildElementsEditor = object : BuildElementsEditor(state) {
 	}
+
 	override fun createComponentImpl() = myCompilerOutputEditor.createComponentImpl()!!
-	override fun saveData() =	myCompilerOutputEditor.saveData()
+	override fun saveData() = myCompilerOutputEditor.saveData()
 	override fun getDisplayName() = "Paths"
 	override fun getHelpTopic() = myCompilerOutputEditor.helpTopic!!
 }
