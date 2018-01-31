@@ -17,17 +17,19 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.*
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.layout.panel
+import com.intellij.util.Consumer
 import com.intellij.util.PlatformUtils
-import org.ice1000.julia.lang.JULIA_BIG_ICON
-import org.ice1000.julia.lang.JULIA_LANGUAGE_NAME
+import org.ice1000.julia.lang.*
 import javax.swing.Icon
+import javax.swing.event.DocumentEvent
 
 
 /**
  * @author: zxj5470
  * @date: 2018/1/31
  */
-class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings>(), CustomStepProjectGenerator<JuliaProjectSettings> {
+class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings>(),
+	CustomStepProjectGenerator<JuliaProjectSettings> {
 	override fun createStep(
 		projectGenerator: DirectoryProjectGenerator<JuliaProjectSettings>,
 		callback: AbstractNewProjectStep.AbstractCallback<JuliaProjectSettings>?) = JuliaProjectSettingsStep(projectGenerator)
@@ -41,11 +43,12 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings
 			val modifiableModel: ModifiableRootModel = ModifiableModelsProvider.SERVICE.getInstance().getModuleModifiableModel(module)
 			JuliaModuleBuilder().setupRootModel(modifiableModel)
 			ModifiableModelsProvider.SERVICE.getInstance().commitModuleModifiableModel(modifiableModel)
-			if(PlatformUtils.isCLion()){
+			if (PlatformUtils.isCLion()) {
 				generateCMakeFile(project, baseDir)
 			}
 		}
 	}
+
 	private fun generateCMakeFile(project: Project, baseDir: VirtualFile) = runWriteAction {
 		val cmakeList = baseDir.createChildData(this, "CMakeLists.txt")
 		VfsUtil.saveText(cmakeList, """
@@ -64,6 +67,7 @@ class JuliaProjectSettings(
 	tryEvaluateTextLimit: Int = 320) : JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit)
 
 class JuliaProjectGeneratorPeer : ProjectGeneratorPeer<JuliaProjectSettings>, Disposable {
+	private val settings = JuliaProjectSettings()
 	override fun getComponent() = panel {
 		row("Julia SDK Home Location:") { sdkEditor() }
 		row("Julia SDK version:") { versionToLabel() }
@@ -71,19 +75,16 @@ class JuliaProjectGeneratorPeer : ProjectGeneratorPeer<JuliaProjectSettings>, Di
 	}
 
 	override fun dispose() = Unit
-	override fun validate(): ValidationInfo? {
-//		return ValidationInfo("Validate")
-		return null
-	}
+	override fun validate() =
+		if (validateJuliaSDK(settings.sdkHome)) null
+		else ValidationInfo(JuliaBundle.message("julia.projects.sdk.invalid"))
 
-	override fun buildUI(settingsStep: SettingsStep) {
-		settingsStep.addExpertPanel(component)
-	}
+	override fun buildUI(settingsStep: SettingsStep) = settingsStep.addExpertPanel(component)
 
 	private val sdkEditor = pathToDirectoryTextField(defaultSdkHome)
 	private fun pathToDirectoryTextField(
 		content: String,
-		onTextChanged: (e: javax.swing.event.DocumentEvent?) -> Unit = {})
+		onTextChanged: Consumer<DocumentEvent?>? = null)
 		: TextFieldWithBrowseButton {
 		val component = TextFieldWithBrowseButton(null, this)
 		component.text = content
@@ -91,15 +92,15 @@ class JuliaProjectGeneratorPeer : ProjectGeneratorPeer<JuliaProjectSettings>, Di
 			FileChooserDescriptorFactory.createSingleFolderDescriptor(),
 			TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT)
 		component.childComponent.document.addDocumentListener(object : DocumentAdapter() {
-			override fun textChanged(e: javax.swing.event.DocumentEvent?) {
-				onTextChanged(e)
+			override fun textChanged(e: DocumentEvent?) {
+				onTextChanged?.consume(e)
 			}
 		})
 		return component
 	}
 
 	override fun isBackgroundJobRunning() = false
-	override fun getSettings() = JuliaProjectSettings()
+	override fun getSettings() = settings
 	override fun addSettingsListener(listener: ProjectGeneratorPeer.SettingsListener) {
 	}
 

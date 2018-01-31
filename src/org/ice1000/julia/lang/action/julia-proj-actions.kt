@@ -13,18 +13,20 @@ import javax.swing.JPanel
  * @author: zxj5470
  * @date: 2018/1/30
  */
-object NewJuliaProject : JuliaProjectSettingsStep(JuliaProjectGenerator()){
+class NewJuliaProject : JuliaProjectSettingsStep(JuliaProjectGenerator()) {
 	override fun actionPerformed(e: AnActionEvent) {
 		val panel = createPanel()
 		panel.preferredSize = JBUI.size(600, 300)
 		JuliaNewProjectDialog(panel).show()
 	}
+
 	private class JuliaNewProjectDialog(private val centerPanel: JPanel) : DialogWrapper(true) {
 		init {
 			title = "New Julia Project"
 			init()
 		}
-		override fun createCenterPanel(): JComponent? = centerPanel
+
+		override fun createCenterPanel() = centerPanel
 		override fun createSouthPanel(): JComponent? = null
 	}
 }

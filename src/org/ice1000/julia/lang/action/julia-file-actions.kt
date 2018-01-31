@@ -24,7 +24,6 @@ class NewJuliaFile : CreateFileAction(
 	override fun getErrorTitle(): String = CommonBundle.getErrorTitle()
 	override fun getDefaultExtension() = JULIA_EXTENSION
 	override fun create(name: String, directory: PsiDirectory): Array<PsiElement> {
-		val fileName = FileUtilRt.getNameWithoutExtension(name)
 		val fixedExtension = when (FileUtilRt.getExtension(name)) {
 			JULIA_EXTENSION -> name
 			else -> "$name.$JULIA_EXTENSION"
@@ -32,7 +31,7 @@ class NewJuliaFile : CreateFileAction(
 		return arrayOf(directory.add(PsiFileFactory
 				.getInstance(directory.project)
 				.createFileFromText(fixedExtension, JuliaFileType, """$JULIA_BLOCK_COMMENT_BEGIN
-# $fileName
+# ${FileUtilRt.getNameWithoutExtension(name)}
 ${JuliaBundle.message("julia.actions.new-file.content", System.getProperty("user.name"), LocalDate.now())}
 $JULIA_BLOCK_COMMENT_END
 
