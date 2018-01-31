@@ -75,11 +75,11 @@ class JuliaConsoleFilterProvider : ConsoleFilterProviderEx {
  * @author: zxj5470
  * @date: 2018/1/29
  */
-class JuliaConsoleFolding : ConsoleFolding() {
+object JuliaConsoleFolding : ConsoleFolding() {
 	override fun getPlaceholderText(lines: MutableList<String>): String {
 		val fileNameIndex = lines.firstOrNull()?.lastIndexOf("/") ?: return ""
 		return "julia ${lines[0].substring(fileNameIndex + 1)}"
 	}
 
-	override fun shouldFoldLine(output: String) = "julia " in output && output.endsWith(".jl")
+	override fun shouldFoldLine(output: String) = "julia " in output && ".jl" in output
 }
