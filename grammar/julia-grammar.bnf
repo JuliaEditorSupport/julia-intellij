@@ -88,9 +88,13 @@ stringTemplateElement::=
    STRING_UNICODE
  | STRING_ESCAPE
  | template
- | REGULAR_STRING_PART_LITERAL { pin=1 }
+ | stringContent { pin=1 }
 
-private template ::= SHORT_INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
+template ::= SHORT_INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
+stringContent ::= REGULAR_STRING_PART_LITERAL {
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaStringContentMixin'
+	implements=['com.intellij.psi.PsiLanguageInjectionHost']
+}
 
 integer ::= INT_LITERAL { extends=expr }
 floatLit ::= FLOAT_LITERAL | FLOAT_CONSTANT

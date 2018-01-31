@@ -32,7 +32,10 @@ class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.
 			JuliaTypes.LINE_COMMENT
 		)
 
-		@JvmField val STRINGS = TokenSet.create(JuliaTypes.REGULAR_STRING_PART_LITERAL)
+		@JvmField val STRINGS = TokenSet.create(
+			JuliaTypes.REGULAR_STRING_PART_LITERAL,
+			JuliaTypes.STRING_CONTENT
+		)
 
 		@JvmField val WHITE_SPACES: TokenSet = TokenSet.WHITE_SPACE
 		@JvmField val CONCATENATABLE_TOKENS = TokenSet.orSet(COMMENTS, STRINGS)
