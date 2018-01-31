@@ -32,15 +32,18 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	}
 
 	override fun setupRootModel(model: ModifiableRootModel) {
-		model.sdk = sdk
+		if (::sdk.isInitialized) model.sdk = sdk
 		val srcPath = Paths.get(contentEntryPath, "src")
 		Files.createDirectories(srcPath)
-		val sourceRoot = LocalFileSystem.getInstance()!!.refreshAndFindFileByPath(FileUtil.toSystemIndependentName(srcPath.toString()))
-		doAddContentEntry(model)?.addSourceFolder(sourceRoot!!, false, "")
+		val sourceRoot = LocalFileSystem
+			.getInstance()
+			.refreshAndFindFileByPath(FileUtil.toSystemIndependentName(srcPath.toString()))
+			?: return
+		doAddContentEntry(model)?.addSourceFolder(sourceRoot, false, "")
 	}
 
 	override fun moduleCreated(module: Module) {
-		module.project.projectSdk = sdk
+		if (::sdk.isInitialized) module.project.projectSdk = sdk
 	}
 }
 
