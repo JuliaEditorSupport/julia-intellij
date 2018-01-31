@@ -20,12 +20,7 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun getIconForAddAction() = icon
 	override fun isValidSdkHome(sdkHome: String?) = validateJuliaSDK(sdkHome.orEmpty())
 	override fun suggestSdkName(s: String?, p1: String?) = JuliaBundle.message("julia.modules.sdk.name")
-	override fun suggestHomePath() = when {
-		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
-		SystemInfo.isMac -> findPathMac()
-		else -> findPathLinux() ?: "/usr/share/julia"
-	}
-
+	override fun suggestHomePath() = defaultSdkHome
 	override fun getDownloadSdkUrl() = JULIA_WEBSITE
 	override fun createAdditionalDataConfigurable(md: SdkModel, m: SdkModificator) = JuliaSdkDataConfigurable()
 	override fun getVersionString(sdkHome: String?) = versionOf(sdkHome.orEmpty())
@@ -40,6 +35,14 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 
 	companion object InstanceHolder {
 		val instance get() = SdkType.findInstance(JuliaSdkType::class.java)
+	}
+}
+
+val defaultSdkHome by lazy {
+	when {
+		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
+		SystemInfo.isMac -> findPathMac()
+		else -> findPathLinux() ?: "/usr/share/julia"
 	}
 }
 
@@ -67,7 +70,7 @@ private fun findPathLinux() = executeCommand("whereis julia", null, 500L)
 
 fun SdkAdditionalData?.toJuliaSdkData() = this as? JuliaSdkData
 
-class JuliaSdkData(
+open class JuliaSdkData(
 	var tryEvaluateTimeLimit: Long = 2500L,
 	var tryEvaluateTextLimit: Int = 320) : SdkAdditionalData {
 	override fun clone() = JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit)
@@ -82,9 +85,6 @@ fun versionOf(sdkHome: String, timeLimit: Long = 500L) =
 
 fun validateJuliaSDK(sdkHome: String) = Files.isExecutable(Paths.get(sdkHome, "bin", "julia")) or
 	Files.isExecutable(Paths.get(sdkHome, "bin", "julia.exe"))
-
-val sdkHomePath
-	get() = JuliaSdkType().suggestHomePath()
 
 class JuliaSdkComboBox : ComboboxWithBrowseButton() {
 	val selectedSdk get() = comboBox.selectedItem as? Sdk

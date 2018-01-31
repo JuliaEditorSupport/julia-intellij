@@ -45,7 +45,7 @@ class JuliaProjectSettingsPanel : Disposable {
 //		}
 //	}
 
-	private val sdkEditor = pathToDirectoryTextField(this, sdkHomePath)
+	private val sdkEditor = pathToDirectoryTextField(this, defaultSdkHome)
 
 	fun attachTo(layout: LayoutBuilder) = with(layout) {
 		row("Julia SDK Home Location:") { sdkEditor() }
@@ -58,7 +58,7 @@ val downloadJuliaSdkLink = Link(JULIA_WEBSITE, action = {
 	getDesktop().takeIf { it.isSupported(java.awt.Desktop.Action.BROWSE) }?.browse(URI.create(JULIA_WEBSITE))
 })
 
-val versionToLabel = JLabel(versionOf(sdkHomePath))
+val versionToLabel = JLabel(versionOf(defaultSdkHome))
 fun pathToDirectoryTextField(
 	disposable: Disposable,
 	title: String,

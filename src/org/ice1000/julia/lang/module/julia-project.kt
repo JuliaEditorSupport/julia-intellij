@@ -24,20 +24,19 @@ import javax.swing.Icon
  * @author: zxj5470
  * @date: 2018/1/31
  */
-class JuliaProjectGenerator : DirectoryProjectGeneratorBase<Any>(), CustomStepProjectGenerator<Any> {
-	override fun createStep(projectGenerator: DirectoryProjectGenerator<Any>, callback: AbstractNewProjectStep.AbstractCallback<Any>?)
-		= JuliaProjectSettingsStep(projectGenerator)
+class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings>(), CustomStepProjectGenerator<Any> {
+	override fun createStep(
+		projectGenerator: DirectoryProjectGenerator<Any>,
+		callback: AbstractNewProjectStep.AbstractCallback<Any>?) = JuliaProjectSettingsStep(projectGenerator)
 
 	class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<Any>)
 		: ProjectSettingsStepBase<Any>(generator, AbstractNewProjectStep.AbstractCallback<Any>())
 
 	override fun getLogo(): Icon = JULIA_BIG_ICON
 	override fun getName(): String = JULIA_LANGUAGE_NAME
-	override fun createPeer(): ProjectGeneratorPeer<Any> {
-		return JuliaProjectGeneratorPeer()
-	}
+	override fun createPeer() = JuliaProjectGeneratorPeer()
 
-	override fun generateProject(project: Project, baseDir: VirtualFile, settings: Any, module: Module) {
+	override fun generateProject(project: Project, baseDir: VirtualFile, settings: JuliaProjectSettings, module: Module) {
 		ApplicationManager.getApplication().runWriteAction {
 			val modifiableModel: ModifiableRootModel = ModifiableModelsProvider.SERVICE.getInstance().getModuleModifiableModel(module)
 			JuliaModuleBuilder().setupRootModel(modifiableModel)
@@ -46,8 +45,12 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<Any>(), CustomStepPr
 	}
 }
 
-class JuliaProjectGeneratorPeer : ProjectGeneratorPeer<Any>, Disposable {
+class JuliaProjectSettings(
+	var sdkHome: String = defaultSdkHome,
+	tryEvaluateTimeLimit: Long = 2500L,
+	tryEvaluateTextLimit: Int = 320) : JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit)
 
+class JuliaProjectGeneratorPeer : ProjectGeneratorPeer<JuliaProjectSettings>, Disposable {
 	override fun getComponent() = panel {
 		row("Julia SDK Home Location:") { sdkEditor() }
 		row("Julia SDK version:") { versionToLabel() }
@@ -55,9 +58,6 @@ class JuliaProjectGeneratorPeer : ProjectGeneratorPeer<Any>, Disposable {
 	}
 
 	override fun dispose() = Unit
-	/**
-	 * null is validate ... wtf
-	 */
 	override fun validate(): ValidationInfo? {
 //		return ValidationInfo("Validate")
 		return null
@@ -67,8 +67,10 @@ class JuliaProjectGeneratorPeer : ProjectGeneratorPeer<Any>, Disposable {
 		settingsStep.addExpertPanel(component)
 	}
 
-	private val sdkEditor = pathToDirectoryTextField(sdkHomePath)
-	private fun pathToDirectoryTextField(content: String, onTextChanged: (e: javax.swing.event.DocumentEvent?) -> Unit = {})
+	private val sdkEditor = pathToDirectoryTextField(defaultSdkHome)
+	private fun pathToDirectoryTextField(
+		content: String,
+		onTextChanged: (e: javax.swing.event.DocumentEvent?) -> Unit = {})
 		: TextFieldWithBrowseButton {
 		val component = TextFieldWithBrowseButton(null, this)
 		component.text = content
@@ -84,13 +86,8 @@ class JuliaProjectGeneratorPeer : ProjectGeneratorPeer<Any>, Disposable {
 	}
 
 	override fun isBackgroundJobRunning() = false
-
-	override fun getSettings(): Any {
-		return ""
-	}
-
+	override fun getSettings() = JuliaProjectSettings()
 	override fun addSettingsListener(listener: ProjectGeneratorPeer.SettingsListener) {
-
 	}
 
 	/** Deprecated in 2017.3 But We must override it. */
