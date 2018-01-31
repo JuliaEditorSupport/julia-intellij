@@ -63,7 +63,7 @@ class JuliaAnnotator : Annotator {
 			highlightType = ProblemHighlightType.LIKE_DEPRECATED
 			registerFix(JuliaReplaceWithTextIntention(
 				element,
-				"const ${element.typeName.text} = ${element.userType.text}${element.typeParameters?.text ?: ""}",
+				"const ${element.typeName.text} = ${element.userType.text}",
 				JuliaBundle.message("julia.lint.typealias-fix")))
 		}
 	}

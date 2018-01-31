@@ -11,6 +11,6 @@ class JuliaConsoleTest{
 	@Test
 	fun testShouldFolding(){
 		val command = "/Applications/Julia-0.6.app/Contents/Resources/julia/bin/julia --check-bounds=no --history-file=no --inline=no --color=no --math-mode=ieee --handle-signals=no --startup-file=no --optimize=0 --compile=yes -q /Users/paul/IdeaProjects/julia-project-test2/src/Jul.jl 23 f jh"
-		JuliaConsoleFolding.shouldFoldLine(command) shouldBe true
+		JuliaConsoleFolding().shouldFoldLine(command) shouldBe true
 	}
 }

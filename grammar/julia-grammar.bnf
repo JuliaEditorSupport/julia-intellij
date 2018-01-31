@@ -136,7 +136,7 @@ typedVariable ::=
   (typeAnnotation endOfLine)?
  typeParameters?
 
-typeParameters ::=
+private typeParameters ::=
  LEFT_B_BRACKET endOfLine
   expr (endOfLine COMMA_SYM endOfLine expr?)* endOfLine
  RIGHT_B_BRACKET
@@ -151,9 +151,6 @@ expr ::=
    assigns
  | arrowOp
  | ternaryOp
- | applyIndexOp
- | applyMacroOp
- | applyFunctionOp
  | miscArrowsOp
  | orOp
  | andOp
@@ -169,6 +166,7 @@ expr ::=
  | level13
  | typeOp
  | level15
+ | suffixedLevel
  | primaryExpr
  | nonUnaryOpAsSymbol
  | unaryOpAsSymbol
@@ -221,12 +219,18 @@ arrowOp ::= expr ARROW_SYM endOfLine expr { rightAssociative=true }
 ternaryOp ::= expr QUESTION_SYM endOfLine expr COLON_SYM endOfLine expr
 
 // level 2.25
+private suffixedLevel ::=
+   applyIndexOp
+ | applyMacroOp
+// | typedReference
+ | applyFunctionOp
+
 applyIndexOp ::= expr LEFT_M_BRACKET expr? endOfLine RIGHT_M_BRACKET { rightAssociative=true }
 
-// level 2.3125
+typedReference ::= expr typeParameters? { extends=expr }
+
 applyMacroOp ::= macroSymbol expr*
 
-// level 2.375
 applyFunctionOp ::=
  expr typeParameters? LEFT_BRACKET endOfLine
   expressionList? endOfLine
@@ -392,7 +396,6 @@ private primaryExpr ::=
  | abstractTypeDeclaration
  | primitiveTypeDeclaration
  | typeDeclaration
- | typeReference
  | typeAlias
  | lhs
 
@@ -437,7 +440,6 @@ compactFunction ::=
 typeName ::= identifierImpl
 abstractTypeName ::= identifierImpl
 primitiveTypeName ::= identifierImpl
-typeReference ::= identifier typeParameters? { extends=expr }
 typeDeclaration ::=
  typeModifiers (TYPE_KEYWORD | STRUCT_KEYWORD) endOfLine
   typeName typeParameters? (SUBTYPE_SYM endOfLine identifier)? endOfLine
