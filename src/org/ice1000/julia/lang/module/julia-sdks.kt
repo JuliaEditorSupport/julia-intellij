@@ -1,5 +1,8 @@
 package org.ice1000.julia.lang.module
 
+import com.intellij.ide.util.ProjectPropertiesComponentImpl
+import com.intellij.ide.util.PropertiesComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.projectRoots.*
 import com.intellij.openapi.projectRoots.ui.ProjectJdksEditor
@@ -40,7 +43,9 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 }
 
 val defaultSdkHome by lazy {
+	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
 	when {
+		validateJuliaSDK(existPath) -> existPath
 		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
 		SystemInfo.isMac -> findPathMac()
 		else -> findPathLinux() ?: "/usr/share/julia"
@@ -72,8 +77,8 @@ private fun findPathLinux() = executeCommand("whereis julia", null, 500L)
 fun SdkAdditionalData?.toJuliaSdkData() = this as? JuliaSdkData
 
 open class JuliaSdkData(
-	var tryEvaluateTimeLimit: Long = 2500L,
-	var tryEvaluateTextLimit: Int = 320) : SdkAdditionalData {
+	open var tryEvaluateTimeLimit: Long = 2500L,
+	open var tryEvaluateTextLimit: Int = 320) : SdkAdditionalData {
 	override fun clone() = JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit)
 }
 

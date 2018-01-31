@@ -2,6 +2,7 @@
 
 package org.ice1000.julia.lang.module
 
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.ide.util.projectWizard.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -23,6 +24,7 @@ import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
 import java.time.LocalDate
+import javax.swing.JLabel
 import javax.swing.event.DocumentEvent
 
 
@@ -38,7 +40,7 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings
 
 	override fun getLogo() = JULIA_BIG_ICON
 	override fun getName() = JULIA_LANGUAGE_NAME
-	override fun createPeer() = JuliaProjectGeneratorPeer()
+	override fun createPeer() = JuliaProjectGeneratorPeer(JuliaProjectSettings())
 
 	override fun generateProject(project: Project, baseDir: VirtualFile, settings: JuliaProjectSettings, module: Module) {
 		ApplicationManager.getApplication().runWriteAction {
@@ -77,27 +79,38 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings
 open class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<JuliaProjectSettings>)
 	: ProjectSettingsStepBase<JuliaProjectSettings>(generator, AbstractNewProjectStep.AbstractCallback<Any>())
 
-class JuliaProjectSettings(
+data class JuliaProjectSettings(
 	var sdkHome: String = defaultSdkHome,
-	tryEvaluateTimeLimit: Long = 2500L,
-	tryEvaluateTextLimit: Int = 320) : JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit)
+	override var tryEvaluateTimeLimit: Long = 2500L,
+	override var tryEvaluateTextLimit: Int = 320) : JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit) {
+}
 
-class JuliaProjectGeneratorPeer : ProjectGeneratorPeer<JuliaProjectSettings>, Disposable {
-	private val settings = JuliaProjectSettings()
+/**
+ * for other platform
+ */
+class JuliaProjectGeneratorPeer(private val projectSettings: JuliaProjectSettings) : ProjectGeneratorPeer<JuliaProjectSettings>, Disposable {
+	override fun getSettings() = projectSettings
+	override fun dispose() = Unit
 	override fun getComponent() = panel {
 		row("Julia SDK Home Location:") { sdkEditor() }
 		row("Julia SDK version:") { versionToLabel() }
+		row(JuliaBundle.message("julia.modules.sdk.selection.help")) {}
 		row("Download SDK:") { downloadJuliaSdkLink() }
 	}
 
-	override fun dispose() = Unit
 	override fun validate() =
 		if (validateJuliaSDK(settings.sdkHome)) null
 		else ValidationInfo(JuliaBundle.message("julia.projects.sdk.invalid"))
 
 	override fun buildUI(settingsStep: SettingsStep) = settingsStep.addExpertPanel(component)
+	override fun isBackgroundJobRunning() = false
+	override fun addSettingsListener(listener: ProjectGeneratorPeer.SettingsListener) = Unit
+	/** Deprecated in 2017.3 But We must override it. */
+	@Deprecated("", ReplaceWith("addSettingsListener"))
+	override fun addSettingsStateListener(listener: WebProjectGenerator.SettingsStateListener) = Unit
 
 	private val sdkEditor = pathToDirectoryTextField(defaultSdkHome)
+	private val versionToLabel = JLabel(versionOf(projectSettings.sdkHome))
 	private fun pathToDirectoryTextField(
 		content: String,
 		onTextChanged: Consumer<DocumentEvent?>? = null)
@@ -112,15 +125,10 @@ class JuliaProjectGeneratorPeer : ProjectGeneratorPeer<JuliaProjectSettings>, Di
 				onTextChanged?.consume(e)
 			}
 		})
+		val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
+		if (validateJuliaSDK(existPath)) {
+			component.text = existPath
+		}
 		return component
 	}
-
-	override fun isBackgroundJobRunning() = false
-	override fun getSettings() = settings
-	override fun addSettingsListener(listener: ProjectGeneratorPeer.SettingsListener) {
-	}
-
-	/** Deprecated in 2017.3 But We must override it. */
-	@Deprecated("", ReplaceWith("addSettingsListener"))
-	override fun addSettingsStateListener(listener: WebProjectGenerator.SettingsStateListener) = Unit
 }

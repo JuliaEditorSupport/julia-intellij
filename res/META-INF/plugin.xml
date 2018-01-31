@@ -57,6 +57,8 @@ Please don't downvote our plugin for not having one of the features above, becau
 		<console.folding implementation="org.ice1000.julia.lang.execution.JuliaConsoleFolding"/>
 		<moduleConfigurationEditorProvider implementation="org.ice1000.julia.lang.module.JuliaModuleConfigEditor"/>
 		<directoryProjectGenerator implementation="org.ice1000.julia.lang.module.JuliaProjectGenerator"/>
+		<projectService serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceI"
+										serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
 		<iconProvider implementation="org.ice1000.julia.lang.editing.JuliaIconProvider"/>
 		<lang.elementManipulator
 			forClass="org.ice1000.julia.lang.psi.impl.JuliaStringContentMixin"

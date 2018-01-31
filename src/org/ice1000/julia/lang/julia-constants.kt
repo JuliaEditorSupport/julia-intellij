@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NonNls
 @NonNls const val JULIA_BLOCK_COMMENT_BEGIN = "#="
 @NonNls const val JULIA_BLOCK_COMMENT_END= "=#"
 @NonNls const val JULIA_STRING_DOLLAR = '\$'
+@NonNls const val JULIA_SDK_HOME_PATH_ID = "JULIA_SDK_HOME_PATH_ID"
 @NonNls const val JULIA_MODULE_ID = "JULIA_MODULE_TYPE"
 @NonNls const val JULIA_RUN_CONFIG_ID = "JULIA_RUN_CONFIG_ID"
 @NonNls @Language("RegExp") const val JULIA_CHAR_SINGLE_UNICODE_X_REGEX = "\\\\x([A-Fa-f0-9]){2}"
