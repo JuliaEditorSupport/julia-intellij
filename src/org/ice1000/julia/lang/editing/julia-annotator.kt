@@ -5,7 +5,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
-import com.intellij.psi.TokenType
+import com.intellij.psi.PsiWhiteSpace
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 
@@ -13,16 +13,14 @@ import org.ice1000.julia.lang.psi.*
 class JuliaAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		when (element) {
+			is JuliaFunctionName -> definition(element, holder, JuliaHighlighter.FUNCTION_NAME)
+			is JuliaMacroName -> definition(element, holder, JuliaHighlighter.MACRO_NAME)
 			is JuliaTypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_NAME
-			is JuliaFunctionName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.FUNCTION_NAME
 			is JuliaAbstractTypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
 			is JuliaPrimitiveTypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
-			is JuliaMacroName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.MACRO_NAME
 			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MACRO_REFERENCE
 			is JuliaModuleName -> holder.createInfoAnnotation(element, null)
@@ -41,6 +39,13 @@ class JuliaAnnotator : Annotator {
 				// TODO provide conversions
 			}
 		}
+	}
+
+	private fun definition(element: PsiElement, holder: AnnotationHolder, attributesKey: TextAttributesKey) {
+		holder.createInfoAnnotation(element, null).textAttributes = attributesKey
+		val space = element.nextSibling as? PsiWhiteSpace ?: return
+		holder.createErrorAnnotation(space, JuliaBundle.message("julia.lint.space-function-name"))
+			.registerFix(JuliaRemoveElementIntention(space, JuliaBundle.message("julia.lint.space-function-name-fix")))
 	}
 
 	private fun typeAlias(
