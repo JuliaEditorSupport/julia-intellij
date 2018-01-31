@@ -93,9 +93,7 @@ class JuliaProjectGeneratorPeer : ProjectGeneratorPeer<Any>, Disposable {
 
 	}
 
-	/**
-	 * Deprecated in 2017.3 ! But We must override it.
-	 */
+	/** Deprecated in 2017.3 But We must override it. */
 	@Deprecated("", ReplaceWith("addSettingsListener"))
 	override fun addSettingsStateListener(listener: WebProjectGenerator.SettingsStateListener) = Unit
 }

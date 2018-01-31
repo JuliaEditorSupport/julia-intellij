@@ -1,7 +1,8 @@
 # Julia plugin for the IntelliJ Platform
 
 [![](https://tinyurl.com/y9e4n2zh)](https://github.com/ice1000/julia-intellij)
-<!-- badges -->
+[![JetBrains plugins](https://img.shields.io/jetbrains/plugin/v/10413-julia.svg)](https://plugins.jetbrains.com/plugin/10413-julia)
+[![JetBrains plugins](https://img.shields.io/jetbrains/plugin/d/10413-julia.svg)](https://plugins.jetbrains.com/plugin/10413-julia)
 
 ## Status
 
