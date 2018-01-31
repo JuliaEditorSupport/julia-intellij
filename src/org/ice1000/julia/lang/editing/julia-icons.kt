@@ -18,8 +18,8 @@ class JuliaIconProvider : IconProvider() {
 		val file = element as? JuliaFile ?: return null
 		val statements = file.children
 			.firstOrNull { it is JuliaStatements }
-			?.let { it as? JuliaStatements } ?: return null
-		if (statements.children.size != 1 && statements.firstChild !is JuliaModuleDeclaration) return null
+			?.let { it as? JuliaStatements } ?: return JULIA_ICON
+		if (statements.children.size != 1 || statements.firstChild !is JuliaModuleDeclaration) return JULIA_ICON
 		return JULIA_MODULE_ICON
 	}
 }
