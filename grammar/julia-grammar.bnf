@@ -132,8 +132,7 @@ assignment ::=
 typeAnnotation ::= DOUBLE_COLON endOfLine identifier
 typedVariable ::=
  (LOCAL_KEYWORD endOfLine)?
- identifier endOfLine
-  (typeAnnotation endOfLine)?
+ identifier typeAnnotation?
  typeParameters?
 
 private typeParameters ::=
@@ -222,12 +221,9 @@ ternaryOp ::= expr QUESTION_SYM endOfLine expr COLON_SYM endOfLine expr
 private suffixedLevel ::=
    applyIndexOp
  | applyMacroOp
-// | typedReference
  | applyFunctionOp
 
 applyIndexOp ::= expr LEFT_M_BRACKET expr? endOfLine RIGHT_M_BRACKET { rightAssociative=true }
-
-typedReference ::= expr typeParameters? { extends=expr }
 
 applyMacroOp ::= macroSymbol expr*
 
@@ -379,7 +375,6 @@ private primaryExpr ::=
  | forExpr
  | whileExpr
  | function
- | compactFunction
  | returnExpr
  | breakExpr
  | tryCatch
@@ -397,9 +392,12 @@ private primaryExpr ::=
  | primitiveTypeDeclaration
  | typeDeclaration
  | typeAlias
+ | type
  | lhs
 
-lhs ::= ((LOCAL_KEYWORD | CONST_KEYWORD) endOfLine)? identifierImpl { extends=expr }
+type ::= symbol typeParameters { extends=expr }
+
+lhs ::= ((LOCAL_KEYWORD | CONST_KEYWORD) endOfLine)? identifier (COMMA_SYM endOfLine identifier)* { extends=expr }
 
 bracketedExpr ::= LEFT_BRACKET endOfLine expr endOfLine RIGHT_BRACKET { extends=expr }
 
@@ -425,17 +423,11 @@ private untypedVariables ::=
 functionName ::= SYM
 function ::=
  FUNCTION_KEYWORD endOfLine
-    functionName endOfLine
+    functionName
      (typeParameters endOfLine)?
    variables typeAnnotation? endOfLine
   statements
  END_KEYWORD { extends=expr }
-
-compactFunction ::=
- functionName endOfLine
-  (typeParameters endOfLine)?
-   variables EQ_SYM endOfLine
- expr { extends=expr }
 
 typeName ::= identifierImpl
 abstractTypeName ::= identifierImpl
@@ -443,14 +435,7 @@ primitiveTypeName ::= identifierImpl
 typeDeclaration ::=
  typeModifiers (TYPE_KEYWORD | STRUCT_KEYWORD) endOfLine
   typeName typeParameters? (SUBTYPE_SYM endOfLine identifier)? endOfLine
-  (
-   ( assignment
-   | function
-   | compactFunction
-   | identifier
-   )
-   endOfLine
-  )*
+  (expr endOfLine)*
  END_KEYWORD { extends=expr }
 
 abstractTypeDeclaration ::=
