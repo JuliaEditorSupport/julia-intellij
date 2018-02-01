@@ -4,7 +4,6 @@ import com.intellij.application.options.*
 import com.intellij.openapi.options.Configurable
 import com.intellij.psi.codeStyle.*
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings
 import com.intellij.psi.codeStyle.CodeStyleSettingsProvider
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
@@ -61,7 +60,7 @@ class JuliaLanguageCodeStyleSettingsProvider : LanguageCodeStyleSettingsProvider
 				consumer.renameStandardOption("SPACE_AROUND_ASSIGNMENT_OPERATORS", "Separator")
 			}
 			SettingsType.WRAPPING_AND_BRACES_SETTINGS -> {
-				consumer.showStandardOptions("WRAPPING_KEEP","WRAPPING_BRACES")
+				consumer.showStandardOptions("WRAPPING_KEEP", "WRAPPING_BRACES")
 			}
 			SettingsType.BLANK_LINES_SETTINGS -> consumer.showStandardOptions("KEEP_BLANK_LINES_IN_CODE")
 //			SettingsType.LANGUAGE_SPECIFIC -> TODO()
@@ -71,7 +70,27 @@ class JuliaLanguageCodeStyleSettingsProvider : LanguageCodeStyleSettingsProvider
 	override fun getIndentOptionsEditor() = SmartIndentOptionsEditor()
 
 	override fun getCodeSample(settingsType: SettingsType) =
-		"""|#=
+		when (settingsType) {
+			SettingsType.INDENT_SETTINGS ->
+				"""
+					|type a
+					|	s::Int
+					|	function a(a,b)
+					| 	new(1)
+					| end
+					|end
+				""".trimMargin()
+			SettingsType.BLANK_LINES_SETTINGS ->
+				"""
+					|Blank=1
+					|
+					|
+					|Blank=2
+					|
+					|
+				""".trimMargin()
+			else ->
+				"""|#=
 		   |   BLOCK COMMENT
 		   |=#
 		   |module <moduleName>ice1000</moduleName>
@@ -109,4 +128,6 @@ class JuliaLanguageCodeStyleSettingsProvider : LanguageCodeStyleSettingsProvider
 		   |    x += 1
 		   |end
 		   |end""".trimMargin()
+		}
+
 }
