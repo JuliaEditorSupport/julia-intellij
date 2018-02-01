@@ -27,6 +27,9 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 
   public JuliaLexer() {
     this((java.io.Reader) null);
+    leftBraceCount = 0;
+    stateStack.clear();
+    leftBracketStack.clear();
   }
 %}
 

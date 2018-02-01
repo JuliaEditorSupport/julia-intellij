@@ -145,7 +145,7 @@ userType ::= identifier typeParameters?
 typeModifiers ::= (IMMUTABLE_KEYWORD | MUTABLE_KEYWORD)?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
 
-private expressionList ::= expr (endOfLine COMMA_SYM endOfLine expr)* COMMA_SYM?
+private expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 
 expr ::=
    assigns

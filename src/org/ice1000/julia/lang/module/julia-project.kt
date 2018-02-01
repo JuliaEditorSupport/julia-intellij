@@ -79,16 +79,16 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings
 open class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<JuliaProjectSettings>)
 	: ProjectSettingsStepBase<JuliaProjectSettings>(generator, AbstractNewProjectStep.AbstractCallback<Any>())
 
-data class JuliaProjectSettings(
+class JuliaProjectSettings(
 	var sdkHome: String = defaultSdkHome,
-	override var tryEvaluateTimeLimit: Long = 2500L,
-	override var tryEvaluateTextLimit: Int = 320) : JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit) {
-}
+	tryEvaluateTimeLimit: Long = 2500L,
+	tryEvaluateTextLimit: Int = 320) : JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit)
 
 /**
  * for other platform
  */
-class JuliaProjectGeneratorPeer(private val projectSettings: JuliaProjectSettings) : ProjectGeneratorPeer<JuliaProjectSettings>, Disposable {
+class JuliaProjectGeneratorPeer(private val projectSettings: JuliaProjectSettings) :
+	ProjectGeneratorPeer<JuliaProjectSettings>, Disposable {
 	override fun getSettings() = projectSettings
 	override fun dispose() = Unit
 	override fun getComponent() = panel {
@@ -113,8 +113,7 @@ class JuliaProjectGeneratorPeer(private val projectSettings: JuliaProjectSetting
 	private val versionToLabel = JLabel(versionOf(projectSettings.sdkHome))
 	private fun pathToDirectoryTextField(
 		content: String,
-		onTextChanged: Consumer<DocumentEvent?>? = null)
-		: TextFieldWithBrowseButton {
+		onTextChanged: Consumer<DocumentEvent?>? = null): TextFieldWithBrowseButton {
 		val component = TextFieldWithBrowseButton(null, this)
 		component.text = content
 		component.addBrowseFolderListener(content, null, null,
