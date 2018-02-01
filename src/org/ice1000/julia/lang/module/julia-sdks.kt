@@ -59,7 +59,16 @@ fun findPathMac(): String {
 	return result.toAbsolutePath().toString() + folderAfterPath
 }
 
-private fun findPathWindows() = System.getenv("LOCALAPPDATA")
+fun findPathWindows() = executeCommand("where julia", null, 500L)
+	.first
+	.firstOrNull()
+	?.split(' ')
+	?.firstOrNull { Files.isExecutable(Paths.get(it)) }
+	?.let { Paths.get(it).parent.parent.toAbsolutePath().toString() }
+	?: System.getenv("PATH")
+		.split(":")
+		.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
+		?.let { Paths.get(it).parent.toAbsolutePath().toString() }
 
 private fun findPathLinux() = executeCommand("whereis julia", null, 500L)
 	.first
