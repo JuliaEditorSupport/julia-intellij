@@ -222,6 +222,7 @@ private suffixedLevel ::=
    applyIndexOp
  | applyMacroOp
  | applyFunctionOp
+ | applyNewInstanceOp
 
 applyIndexOp ::= expr LEFT_M_BRACKET expr? endOfLine RIGHT_M_BRACKET { rightAssociative=true }
 
@@ -232,6 +233,10 @@ applyFunctionOp ::=
   expressionList? endOfLine
  RIGHT_BRACKET { rightAssociative=true }
 
+applyNewInstanceOp ::=
+ NEW_KEYWORD typeParameters? LEFT_BRACKET endOfLine
+  expressionList? endOfLine
+ RIGHT_BRACKET { rightAssociative=true }
 // All reserved but unassigned
 // level 2.5
 miscArrowsOp ::= expr (SPECIAL_ARROW_SYM | MISC_ARROW_SYM) endOfLine expr

@@ -150,6 +150,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.FINALLY_KEYWORD,
 		JuliaTypes.FUNCTION_KEYWORD,
 		JuliaTypes.TYPE_KEYWORD,
+		JuliaTypes.NEW_KEYWORD,
 		JuliaTypes.ABSTRACT_KEYWORD,
 		JuliaTypes.PRIMITIVE_KEYWORD,
 		JuliaTypes.STRUCT_KEYWORD,
