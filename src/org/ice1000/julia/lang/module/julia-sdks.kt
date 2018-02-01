@@ -62,6 +62,8 @@ fun findPathMac(): String {
 fun findPathWindows() = executeCommandToFindPath("where julia")
 private fun findPathLinux() = executeCommandToFindPath("whereis julia")
 
+fun SdkAdditionalData?.toJuliaSdkData() = this as? JuliaSdkData
+
 open class JuliaSdkData(
 	var tryEvaluateTimeLimit: Long = 2500L,
 	var tryEvaluateTextLimit: Int = 320) : SdkAdditionalData {
