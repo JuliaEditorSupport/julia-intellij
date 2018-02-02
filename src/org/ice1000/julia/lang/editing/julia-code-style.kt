@@ -3,10 +3,6 @@ package org.ice1000.julia.lang.editing
 import com.intellij.application.options.*
 import com.intellij.openapi.options.Configurable
 import com.intellij.psi.codeStyle.*
-import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.psi.codeStyle.CustomCodeStyleSettings
-import com.intellij.psi.codeStyle.CodeStyleSettingsProvider
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import org.ice1000.julia.lang.*
 
 
@@ -21,15 +17,12 @@ class JuliaCodeStyleSettingsProvider : CodeStyleSettingsProvider() {
 
 	override fun createSettingsPage(settings: CodeStyleSettings, originalSettings: CodeStyleSettings): Configurable {
 		return object : CodeStyleAbstractConfigurable(settings, originalSettings, JULIA_LANGUAGE_NAME) {
-			override fun createPanel(settings: CodeStyleSettings): CodeStyleAbstractPanel {
-				return SimpleCodeStyleMainPanel(currentSettings, settings)
-			}
-
-			override fun getHelpTopic() = ""
+			override fun createPanel(settings: CodeStyleSettings) = SimpleCodeStyleMainPanel(currentSettings, settings)
 		}
 	}
 
-	private class SimpleCodeStyleMainPanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings) : TabbedLanguageCodeStylePanel(JuliaLanguage.INSTANCE, currentSettings, settings) {
+	private class SimpleCodeStyleMainPanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings) :
+		TabbedLanguageCodeStylePanel(JuliaLanguage.INSTANCE, currentSettings, settings) {
 		override fun initTabs(settings: CodeStyleSettings?) {
 			addIndentOptionsTab(settings)
 			addSpacesTab(settings)

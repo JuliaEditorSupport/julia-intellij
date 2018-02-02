@@ -3,22 +3,22 @@ package org.ice1000.julia.lang.editing
 import com.intellij.formatting.*
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
-import com.intellij.psi.TokenType
+import com.intellij.psi.*
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.formatter.common.AbstractBlock
 import org.ice1000.julia.lang.JuliaLanguage
+import org.ice1000.julia.lang.JuliaTokenType
 import org.ice1000.julia.lang.psi.JuliaTypes
 import java.util.*
 
 
-class JuliaBlock(node: ASTNode,
-								 wrap: Wrap?,
-								 alignment: Alignment?,
-								 private var spacingBuilder: SpacingBuilder) : AbstractBlock(node, wrap, alignment) {
+class JuliaBlock(
+	node: ASTNode,
+	wrap: Wrap?,
+	alignment: Alignment?,
+	private var spacingBuilder: SpacingBuilder) : AbstractBlock(node, wrap, alignment) {
 	override fun isLeaf() = myNode.firstChildNode == null
-	override fun getSpacing(child1: Block?, child2: Block)=spacingBuilder.getSpacing(this, child1, child2)
+	override fun getSpacing(child1: Block?, child2: Block) = spacingBuilder.getSpacing(this, child1, child2)
 
 	override fun buildChildren(): MutableList<Block> {
 		val blocks = ArrayList<Block>()
@@ -52,8 +52,8 @@ class JuliaFormattingModelBuilder : FormattingModelBuilder {
 //		val spacesAroundAssign = if (commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS) 1 else 0
 // TODO: FIX
 		return SpacingBuilder(settings, JuliaLanguage.INSTANCE)
-			.aroundInside(JuliaTypes.ASSIGN_SYMBOL,JuliaTypes.ASSIGNMENT).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
-			.afterInside(JuliaTypes.COMMA_SYM,JuliaTypes.APPLY_FUNCTION_OP).spaces(1)
+			.aroundInside(JuliaTokenType.ASSIGN_OPERATORS, JuliaTypes.EXPR).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+			.afterInside(JuliaTypes.COMMA_SYM, JuliaTypes.APPLY_FUNCTION_OP).spaces(1)
 	}
 
 	override fun getRangeAffectingIndent(file: PsiFile, offset: Int, elementAtOffset: ASTNode): TextRange? {

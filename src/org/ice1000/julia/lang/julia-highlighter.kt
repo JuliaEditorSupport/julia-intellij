@@ -66,7 +66,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.MISC_EXPONENT_SYM
 	)
 
-	private val ASSIGNMENT_OPERATOR_LIST = listOf(
+	val ASSIGNMENT_OPERATOR_LIST = listOf(
 		JuliaTypes.INVERSE_DIV_ASSIGN_SYM,
 		JuliaTypes.USHR_ASSIGN_SYM,
 		JuliaTypes.SHL_ASSIGN_SYM,

@@ -37,6 +37,8 @@ class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.
 			JuliaTypes.STRING_CONTENT
 		)
 
+		@JvmField val ASSIGN_OPERATORS = TokenSet.create(*JuliaHighlighter.ASSIGNMENT_OPERATOR_LIST.toTypedArray())
+
 		@JvmField val WHITE_SPACES: TokenSet = TokenSet.WHITE_SPACE
 		@JvmField val CONCATENATABLE_TOKENS = TokenSet.orSet(COMMENTS, STRINGS)
 		fun fromText(code: String, project: Project): PsiElement = PsiFileFactory
