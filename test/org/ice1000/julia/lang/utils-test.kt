@@ -5,7 +5,7 @@ import org.junit.Test
 import java.nio.file.Files
 import java.nio.file.Paths
 
-private const val SDK_HOME = "/home/ice1000/SDK/julia-6.2"
+private const val SDK_HOME = "/home/ice1000/SDK/julia-6.2/bin/julia"
 
 class UtilsKtTest {
 	@Test

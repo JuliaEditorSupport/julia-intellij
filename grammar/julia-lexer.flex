@@ -202,6 +202,7 @@ OTHERWISE=[^]
 
 <YYINITIAL, LONG_TEMPLATE> "end" { return noEnd ? JuliaTypes.SYM : JuliaTypes.END_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "break" { return JuliaTypes.BREAK_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "where" { return JuliaTypes.WHERE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "do" { noEnd = false; return JuliaTypes.DO_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "continue" { return JuliaTypes.CONTINUE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "true" { return JuliaTypes.TRUE_KEYWORD; }

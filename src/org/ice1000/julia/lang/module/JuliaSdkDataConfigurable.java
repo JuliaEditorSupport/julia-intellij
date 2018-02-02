@@ -4,6 +4,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.projectRoots.AdditionalDataConfigurable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkModificator;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.ice1000.julia.lang.JuliaBundle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,12 +14,14 @@ import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import java.text.NumberFormat;
 
+import static org.ice1000.julia.lang.module.Julia_sdksKt.importPathOf;
 import static org.ice1000.julia.lang.module.Julia_sdksKt.toJuliaSdkData;
 
 public class JuliaSdkDataConfigurable implements AdditionalDataConfigurable {
 	private @NotNull JPanel mainPanel;
 	private @NotNull JFormattedTextField textLimitField;
 	private @NotNull JFormattedTextField timeLimitField;
+	private @NotNull TextFieldWithBrowseButton importPathField;
 	private @Nullable Sdk sdk;
 
 	public JuliaSdkDataConfigurable() {
@@ -33,6 +36,9 @@ public class JuliaSdkDataConfigurable implements AdditionalDataConfigurable {
 		this.sdk = sdk;
 		JuliaSdkData data = toJuliaSdkData(sdk.getSdkAdditionalData());
 		if (data == null) return;
+		String home = sdk.getHomePath();
+		if (home == null) return;
+		importPathField.setText(importPathOf(home, 500L));
 		timeLimitField.setValue(data.getTryEvaluateTimeLimit());
 		textLimitField.setValue(data.getTryEvaluateTextLimit());
 	}
@@ -41,12 +47,13 @@ public class JuliaSdkDataConfigurable implements AdditionalDataConfigurable {
 		if (sdk == null) return false;
 		JuliaSdkData data = toJuliaSdkData(sdk.getSdkAdditionalData());
 		return data == null ||
-				!textLimitField.getValue().equals(Integer.valueOf(data.getTryEvaluateTextLimit()).longValue()) ||
-				!timeLimitField.getValue().equals(data.getTryEvaluateTimeLimit());
+			!textLimitField.getValue().equals(Integer.valueOf(data.getTryEvaluateTextLimit()).longValue()) ||
+			!timeLimitField.getValue().equals(data.getTryEvaluateTimeLimit()) ||
+			!importPathField.getText().equals(data.getImportPath());
 	}
 
 	@Override public @NotNull String getTabName() {
-		return JuliaBundle.message("julia.modules.sdk.try-eval.title");
+		return JuliaBundle.message("julia.modules.sdk.additional.title");
 	}
 
 	@Override public void apply() throws ConfigurationException {
@@ -56,7 +63,8 @@ public class JuliaSdkDataConfigurable implements AdditionalDataConfigurable {
 		Object textLimitFieldValue = textLimitField.getValue();
 		if (!(timeLimitFieldValue instanceof Number && textLimitFieldValue instanceof Number)) return;
 		modificator.setSdkAdditionalData(new JuliaSdkData(((Number) timeLimitFieldValue).longValue(),
-				((Number) textLimitFieldValue).intValue()));
+			((Number) textLimitFieldValue).intValue(),
+			importPathField.getText()));
 		modificator.commitChanges();
 	}
 

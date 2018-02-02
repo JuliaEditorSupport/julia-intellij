@@ -82,7 +82,7 @@ open class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<JuliaPr
 class JuliaProjectSettings(
 	var sdkHome: String = defaultSdkHome,
 	tryEvaluateTimeLimit: Long = 2500L,
-	tryEvaluateTextLimit: Int = 320) : JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit)
+	tryEvaluateTextLimit: Int = 320) : JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit, "")
 
 /**
  * for other platform
@@ -92,7 +92,8 @@ class JuliaProjectGeneratorPeer(private val projectSettings: JuliaProjectSetting
 	override fun getSettings() = projectSettings
 	override fun dispose() = Unit
 	override fun getComponent() = panel {
-		row("Julia SDK Home Location:") { sdkEditor() }
+		// FIXME move to bundle file
+		row("Julia Executable Path:") { sdkEditor() }
 		row("Julia SDK version:") { versionToLabel() }
 		row(JuliaBundle.message("julia.modules.sdk.selection.help")) {}
 		row("Download SDK:") { downloadJuliaSdkLink() }

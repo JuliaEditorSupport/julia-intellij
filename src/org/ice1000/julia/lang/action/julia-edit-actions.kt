@@ -28,16 +28,16 @@ class TryEvaluate {
 	fun tryEval(editor: Editor, text: String, project: Project?) {
 		try {
 			val builder = StringBuilder()
-			var covRoot = ""
+			var juliaRoot = ""
 			var covVersion = ""
 			project?.projectSdk?.let {
-				covRoot = it.homePath.orEmpty()
+				juliaRoot = it.homePath.orEmpty()
 				covVersion = it.versionString.orEmpty()
 				val data = it.sdkAdditionalData as? JuliaSdkData ?: return@let
 				textLimit = data.tryEvaluateTextLimit
 				timeLimit = data.tryEvaluateTimeLimit
 			}
-			val (stdout, stderr) = executeJulia(covRoot, text, timeLimit)
+			val (stdout, stderr) = executeJulia(juliaRoot, text, timeLimit)
 			builder.appendln(JuliaBundle.message("julia.messages.try-eval.version-text", covVersion))
 			if (stdout.isNotEmpty()) {
 				builder.appendln(JuliaBundle.message("julia.messages.try-eval.stdout"))

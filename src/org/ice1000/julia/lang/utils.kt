@@ -3,9 +3,8 @@ package org.ice1000.julia.lang
 import com.google.common.util.concurrent.SimpleTimeLimiter
 import com.intellij.openapi.util.TextRange
 import com.intellij.util.containers.ArrayListSet
-import java.io.File
+import org.ice1000.julia.lang.module.validateJuliaSDK
 import java.io.InputStream
-import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
@@ -18,29 +17,27 @@ inline fun forceRun(lambda: () -> Any) {
 }
 
 /**
- * @param homePath the home path of the Julia SDK currently used
+ * @param exePath the home path of the Julia SDK currently used
  * @param code doesn't need to `quit()`, because this function will automatically add one if code != null
  * @param timeLimit the time limit. Will wait for this long and kill process after 100 ms
  * @param params additional parameters to the Julia compiler
  * @return (stdout, stderr)
  */
-fun executeJulia(homePath: String, code: String?, timeLimit: Long, vararg params: String) =
+fun executeJulia(exePath: String, code: String?, timeLimit: Long, vararg params: String) =
 	executeCommand(
-		"${Paths.get(homePath, "bin", "julia").toAbsolutePath()} ${params.joinToString(" ")}",
+		"${Paths.get(exePath).toAbsolutePath()} ${params.joinToString(" ")}",
 		code?.let { "$it\nquit()" },
 		timeLimit
 	)
 
-fun executeCommandToFindPath(command:String)= executeCommand(command, null, 500L)
+fun executeCommandToFindPath(command: String) = executeCommand(command, null, 500L)
 	.first
 	.firstOrNull()
 	?.split(' ')
-	?.firstOrNull { Files.isExecutable(Paths.get(it)) }
-	?.let { Paths.get(it).parent.parent.toAbsolutePath().toString() }
+	?.firstOrNull(::validateJuliaSDK)
 	?: System.getenv("PATH")
 		.split(":")
-		.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
-		?.let { Paths.get(it).parent.toAbsolutePath().toString() }
+		.firstOrNull(::validateJuliaSDK)
 
 fun executeCommand(
 	command: String,

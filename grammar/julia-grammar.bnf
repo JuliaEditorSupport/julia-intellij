@@ -405,7 +405,8 @@ private primaryExpr ::=
 
 bracketedExpr ::= LEFT_BRACKET endOfLine statements endOfLine (COMMA_SYM endOfLine)? RIGHT_BRACKET { extends=expr }
 
-// TODO range
+whereClause ::= WHERE_KEYWORD
+
 array ::= LEFT_M_BRACKET endOfLine expressionList? RIGHT_M_BRACKET { extends=expr }
 
 union ::= UNION_KEYWORD tuple { extends=expr }

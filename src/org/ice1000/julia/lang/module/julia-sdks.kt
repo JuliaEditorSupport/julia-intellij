@@ -29,7 +29,7 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun saveAdditionalData(additionalData: SdkAdditionalData, element: Element) = Unit // leave blank
 	override fun setupSdkPaths(sdk: Sdk, sdkModel: SdkModel): Boolean {
 		val modificator = sdk.sdkModificator
-		modificator.sdkAdditionalData = sdk.sdkAdditionalData ?: JuliaSdkData()
+		modificator.sdkAdditionalData = sdk.sdkAdditionalData ?: JuliaSdkData(importPath = "")
 		modificator.versionString = getVersionString(sdk) ?: JuliaBundle.message("julia.modules.sdk.unknown-version")
 		modificator.commitChanges()
 		return true
@@ -55,7 +55,7 @@ fun findPathMac(): String {
 	val result = Files.list(appPath).collect(Collectors.toList()).firstOrNull { application ->
 		application.toString().contains("julia", true)
 	} ?: appPath
-	val folderAfterPath = "/Contents/Resources/julia/"
+	val folderAfterPath = "/Contents/Resources/julia/bin/julia"
 	return result.toAbsolutePath().toString() + folderAfterPath
 }
 
@@ -66,19 +66,25 @@ fun SdkAdditionalData?.toJuliaSdkData() = this as? JuliaSdkData
 
 open class JuliaSdkData(
 	var tryEvaluateTimeLimit: Long = 2500L,
-	var tryEvaluateTextLimit: Int = 320) : SdkAdditionalData {
-	override fun clone() = JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit)
+	var tryEvaluateTextLimit: Int = 320,
+	var importPath: String) : SdkAdditionalData {
+	override fun clone() = JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit, "")
 }
 
-fun versionOf(sdkHome: String, timeLimit: Long = 500L) =
-	executeJulia(sdkHome, null, timeLimit, "--version")
+fun versionOf(exePath: String, timeLimit: Long = 500L) =
+	executeJulia(exePath, null, timeLimit, "--version")
 		.first
 		.firstOrNull { it.startsWith("julia version", true) }
 		?.dropWhile { it.isLetter() or it.isWhitespace() }
 		?: JuliaBundle.message("julia.modules.sdk.unknown-version")
 
-fun validateJuliaSDK(sdkHome: String) = Files.isExecutable(Paths.get(sdkHome, "bin", "julia")) or
-	Files.isExecutable(Paths.get(sdkHome, "bin", "julia.exe"))
+fun importPathOf(exePath: String, timeLimit: Long = 500L) =
+	executeJulia(exePath, null, timeLimit, "--print", "\"Pkg.dir()\"")
+		.first
+		.firstOrNull { Files.isDirectory(Paths.get(it)) }
+		?: Paths.get(exePath).parent.parent.toString()
+
+fun validateJuliaSDK(exePath: String) = versionOf(exePath) != JuliaBundle.message("julia.modules.sdk.unknown-version")
 
 class JuliaSdkComboBox : ComboboxWithBrowseButton() {
 	val selectedSdk get() = comboBox.selectedItem as? Sdk
