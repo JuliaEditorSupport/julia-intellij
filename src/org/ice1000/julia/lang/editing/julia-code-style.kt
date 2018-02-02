@@ -32,6 +32,7 @@ class JuliaCodeStyleSettingsProvider : CodeStyleSettingsProvider() {
 	private class SimpleCodeStyleMainPanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings) : TabbedLanguageCodeStylePanel(JuliaLanguage.INSTANCE, currentSettings, settings) {
 		override fun initTabs(settings: CodeStyleSettings?) {
 			addIndentOptionsTab(settings)
+			addSpacesTab(settings)
 			addWrappingAndBracesTab(settings)
 			addBlankLinesTab(settings)
 		}

@@ -52,8 +52,7 @@ Please don't downvote our plugin for not having one of the features above, becau
 		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>
 		<colorSettingsPage implementation="org.ice1000.julia.lang.JuliaColorSettingsPage"/>
 		<codeStyleSettingsProvider implementation="org.ice1000.julia.lang.editing.JuliaCodeStyleSettingsProvider"/>
-		<langCodeStyleSettingsProvider
-			implementation="org.ice1000.julia.lang.editing.JuliaLanguageCodeStyleSettingsProvider"/>
+		<langCodeStyleSettingsProvider implementation="org.ice1000.julia.lang.editing.JuliaLanguageCodeStyleSettingsProvider"/>
 		<defaultLiveTemplatesProvider implementation="org.ice1000.julia.lang.JuliaLiveTemplateProvider"/>
 		<liveTemplateContext implementation="org.ice1000.julia.lang.JuliaContext"/>
 		<configurationType implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationType"/>
@@ -93,6 +92,10 @@ Please don't downvote our plugin for not having one of the features above, becau
 		<lang.commenter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaCommenter"/>
+		<lang.formatter
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaFormattingModelBuilder"
+			/>
 		<moduleType
 			id="JULIA_MODULE_TYPE"
 			implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>
