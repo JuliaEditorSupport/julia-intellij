@@ -56,7 +56,10 @@ public class JuliaProjectConfigurable implements Configurable {
 	}
 
 	@Override public boolean isModified() {
-		return false;
+		return settings.getImportPath().equals(importPathField.getText()) ||
+			settings.getExePath().equals(juliaExeField.getText()) ||
+			settings.getTryEvaluateTextLimit() == (Long) textLimitField.getValue() ||
+			settings.getTryEvaluateTimeLimit() == (Long) timeLimitField.getValue();
 	}
 
 	@Override public void apply() throws ConfigurationException {
