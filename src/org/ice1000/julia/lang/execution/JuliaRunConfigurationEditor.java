@@ -6,7 +6,6 @@ import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.ice1000.julia.lang.JuliaBundle;
 import org.ice1000.julia.lang.JuliaFileType;
-import org.ice1000.julia.lang.module.JuliaSdkComboBox;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +17,6 @@ import java.util.Arrays;
 public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfiguration> {
 	private @NotNull JPanel mainPanel;
 	private @NotNull TextFieldWithBrowseButton targetFileField;
-	private @NotNull JuliaSdkComboBox sdkComboBox;
 	private @NotNull TextFieldWithBrowseButton juliaExeField;
 	private @NotNull TextFieldWithBrowseButton workingDirField;
 	private @NotNull JCheckBox inlineCheckBox;
@@ -56,7 +54,6 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		juliaExeField.setText(configuration.getJuliaExecutable());
 		targetFileField.setText(configuration.getTargetFile());
 		workingDirField.setText(configuration.getWorkingDir());
-		sdkComboBox.getComboBox().setSelectedItem(configuration.getSdkUsed());
 		inlineCheckBox.setSelected(configuration.getInlineOption());
 		checkBoundsCheckBox.setSelected(configuration.getCheckBoundsOption());
 		colorCheckBox.setSelected(configuration.getColorOption());
@@ -81,7 +78,6 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		String workingDirectory = workingDirField.getText();
 		if (Files.isDirectory(Paths.get(workingDirectory))) configuration.setWorkingDir(workingDirectory);
 		else reportInvalidPath(workingDirectory);
-		configuration.setSdkUsed(sdkComboBox.getSelectedSdk());
 		configuration.setInlineOption(inlineCheckBox.isSelected());
 		configuration.setCheckBoundsOption(checkBoundsCheckBox.isSelected());
 		configuration.setColorOption(colorCheckBox.isSelected());

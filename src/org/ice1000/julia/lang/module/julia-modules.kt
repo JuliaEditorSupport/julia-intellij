@@ -22,7 +22,7 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 		addListener(this)
 	}
 
-	lateinit var sdk: Sdk
+	lateinit var sdkData: JuliaSdkData
 	override fun isSuitableSdkType(sdkType: SdkTypeId?) = sdkType is JuliaSdkType
 	override fun getWeight() = 98
 	override fun getNodeIcon() = JULIA_BIG_ICON
@@ -34,7 +34,6 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	}
 
 	override fun setupRootModel(model: ModifiableRootModel) {
-		if (::sdk.isInitialized) model.sdk = sdk
 		val srcPath = Paths.get(contentEntryPath, "src")
 		Files.createDirectories(srcPath)
 		//Idea Only
@@ -52,7 +51,6 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	}
 
 	override fun moduleCreated(module: Module) {
-		if (::sdk.isInitialized) module.project.projectSdk = sdk
 	}
 }
 

@@ -80,9 +80,16 @@ open class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<JuliaPr
 	: ProjectSettingsStepBase<JuliaProjectSettings>(generator, AbstractNewProjectStep.AbstractCallback<Any>())
 
 class JuliaProjectSettings(
-	var sdkHome: String = defaultSdkHome,
+	exePath: String = defaultExePath,
 	tryEvaluateTimeLimit: Long = 2500L,
-	tryEvaluateTextLimit: Int = 320) : JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit, "")
+	tryEvaluateTextLimit: Int = 320,
+	importPath: String = "") : JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit, importPath) {
+	var exePath = exePath
+		set(value) {
+			importPath = importPathOf(exePath)
+			field = value
+		}
+}
 
 /**
  * for other platform
@@ -100,7 +107,7 @@ class JuliaProjectGeneratorPeer(private val projectSettings: JuliaProjectSetting
 	}
 
 	override fun validate() =
-		if (validateJuliaSDK(settings.sdkHome)) null
+		if (validateJuliaSDK(settings.exePath)) null
 		else ValidationInfo(JuliaBundle.message("julia.projects.sdk.invalid"))
 
 	override fun buildUI(settingsStep: SettingsStep) = settingsStep.addExpertPanel(component)
@@ -110,8 +117,8 @@ class JuliaProjectGeneratorPeer(private val projectSettings: JuliaProjectSetting
 	@Deprecated("", ReplaceWith("addSettingsListener"))
 	override fun addSettingsStateListener(listener: WebProjectGenerator.SettingsStateListener) = Unit
 
-	private val sdkEditor = pathToDirectoryTextField(defaultSdkHome)
-	private val versionToLabel = JLabel(versionOf(projectSettings.sdkHome))
+	private val sdkEditor = pathToDirectoryTextField(defaultExePath)
+	private val versionToLabel = JLabel(versionOf(projectSettings.exePath))
 	private fun pathToDirectoryTextField(
 		content: String,
 		onTextChanged: Consumer<DocumentEvent?>? = null): TextFieldWithBrowseButton {

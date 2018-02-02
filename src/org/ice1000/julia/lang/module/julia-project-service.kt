@@ -52,7 +52,7 @@ class JuliaProjectSettingsServiceImpl(private val project: Project) :
 		}
 		set(value) {
 			val newState = State(
-				sdkHome = value.settings?.sdkHome.orEmpty()
+				sdkHome = value.settings?.exePath.orEmpty()
 			)
 			if (state != newState) {
 				state = newState

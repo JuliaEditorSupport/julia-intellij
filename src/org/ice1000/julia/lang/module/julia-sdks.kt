@@ -16,31 +16,7 @@ import java.util.stream.Collectors
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JList
 
-class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
-	override fun getPresentableName() = JuliaBundle.message("julia.modules.sdk.name")
-	override fun getIcon() = JULIA_BIG_ICON
-	override fun getIconForAddAction() = icon
-	override fun isValidSdkHome(sdkHome: String?) = validateJuliaSDK(sdkHome.orEmpty())
-	override fun suggestSdkName(s: String?, p1: String?) = JuliaBundle.message("julia.modules.sdk.name")
-	override fun suggestHomePath() = defaultSdkHome
-	override fun getDownloadSdkUrl() = JULIA_WEBSITE
-	override fun createAdditionalDataConfigurable(md: SdkModel, m: SdkModificator) = JuliaSdkDataConfigurable()
-	override fun getVersionString(sdkHome: String?) = versionOf(sdkHome.orEmpty())
-	override fun saveAdditionalData(additionalData: SdkAdditionalData, element: Element) = Unit // leave blank
-	override fun setupSdkPaths(sdk: Sdk, sdkModel: SdkModel): Boolean {
-		val modificator = sdk.sdkModificator
-		modificator.sdkAdditionalData = sdk.sdkAdditionalData ?: JuliaSdkData(importPath = "")
-		modificator.versionString = getVersionString(sdk) ?: JuliaBundle.message("julia.modules.sdk.unknown-version")
-		modificator.commitChanges()
-		return true
-	}
-
-	companion object InstanceHolder {
-		val instance get() = SdkType.findInstance(JuliaSdkType::class.java)
-	}
-}
-
-val defaultSdkHome by lazy {
+val defaultExePath by lazy {
 	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
 	when {
 		validateJuliaSDK(existPath) -> existPath
@@ -85,40 +61,3 @@ fun importPathOf(exePath: String, timeLimit: Long = 500L) =
 		?: Paths.get(exePath).parent.parent.toString()
 
 fun validateJuliaSDK(exePath: String) = versionOf(exePath) != JuliaBundle.message("julia.modules.sdk.unknown-version")
-
-class JuliaSdkComboBox : ComboboxWithBrowseButton() {
-	val selectedSdk get() = comboBox.selectedItem as? Sdk
-	val sdkName get() = selectedSdk?.name.orEmpty()
-
-	init {
-		comboBox.setRenderer(object : ColoredListCellRenderer<Sdk?>() {
-			override fun customizeCellRenderer(
-				list: JList<out Sdk?>,
-				value: Sdk?,
-				index: Int,
-				selected: Boolean,
-				hasFocus: Boolean) {
-				value?.name?.let(::append)
-			}
-		})
-		addActionListener {
-			var selectedSdk = selectedSdk
-			val project = ProjectManager.getInstance().defaultProject
-			val editor = ProjectJdksEditor(selectedSdk, project, this@JuliaSdkComboBox)
-			editor.title = JuliaBundle.message("julia.modules.sdk.selection.title")
-			editor.show()
-			if (editor.isOK) {
-				selectedSdk = editor.selectedJdk
-				updateSdkList(selectedSdk)
-			}
-		}
-		updateSdkList()
-	}
-
-	private fun updateSdkList(sdkToSelectOuter: Sdk? = null) {
-		ProjectJdkTable.getInstance().getSdksOfType(JuliaSdkType.instance).run {
-			comboBox.model = DefaultComboBoxModel(toTypedArray())
-			comboBox.selectedItem = sdkToSelectOuter ?: firstOrNull()
-		}
-	}
-}

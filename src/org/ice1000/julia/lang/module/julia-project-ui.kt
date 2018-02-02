@@ -37,13 +37,14 @@ class JuliaProjectConfigurable(private val project: Project) : Configurable {
 		val text = juliaProjectSettingsPanel.sdkEditor.text
 		if (JuliaSdkType().isValidSdkHome(text)) {
 			settings.configData = JuliaProjectSettingsServiceI.JuliaConfigData(JuliaProjectSettings(text))
-			juliaProjectSettingsPanel.versionToLabel.text = juliaProjectSettings.configData.settings?.sdkHome?.let { versionOf(it) }.orEmpty()
+			juliaProjectSettingsPanel.versionToLabel.text = juliaProjectSettings.configData.settings?.exePath?.let { versionOf(it) }.orEmpty()
 //			"juliaSdkHome" name needed in Bundle
 			PropertiesComponent.getInstance().setValue(JULIA_SDK_HOME_PATH_ID, text)
 		}
 	}
 
 	override fun reset() {
+		// TODO
 	}
 
 	override fun createComponent() = panel {
@@ -65,7 +66,7 @@ class JuliaProjectSettingsPanel(projectSettings: JuliaProjectSettingsServiceI) :
 //	}
  */
 	val sdkEditor = pathToDirectoryTextField(this)
-	val versionToLabel = JLabel(projectSettings.configData.settings?.sdkHome?.let { versionOf(it) }.orEmpty())
+	val versionToLabel = JLabel(projectSettings.configData.settings?.exePath?.let { versionOf(it) }.orEmpty())
 	fun attachTo(layout: LayoutBuilder) = with(layout) {
 		row("Julia SDK Home Location:") { sdkEditor() }
 		row("Julia SDK version:") { versionToLabel() }
@@ -80,8 +81,7 @@ val downloadJuliaSdkLink = Link(JULIA_WEBSITE, action = {
 fun pathToDirectoryTextField(
 	disposable: Disposable,
 	title: String = JuliaBundle.message("julia.modules.sdk.selection.title"),
-	onTextChanged: ((e: DocumentEvent?) -> Unit)? = null)
-	: TextFieldWithBrowseButton {
+	onTextChanged: ((e: DocumentEvent?) -> Unit)? = null): TextFieldWithBrowseButton {
 	val component = TextFieldWithBrowseButton(null, disposable)
 	component.addBrowseFolderListener(title, null, null,
 		FileChooserDescriptorFactory.createSingleFolderDescriptor(),
