@@ -105,6 +105,7 @@ statements ::= semi* (statement (semi+ statement)*)? semi*
 private statement ::=
    moduleDeclaration
  | globalStatement
+ | assignment
  | expr
 
 moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
@@ -140,9 +141,36 @@ applyMacroOp ::= macroSymbol expr*
 
 memberAccessOp ::= expr DOT_SYM symbol
 
+assignment ::= (lhs assignSymbol)+ expr
+
+lhs ::=
+   symbolLhs
+ | applyIndexOp
+ | memberAccessOp
+ | applyMacroOp
+
+assignSymbol ::=
+   COLON_ASSIGN_SYM
+ | BITWISE_AND_ASSIGN_SYM
+ | BITWISE_OR_ASSIGN_SYM
+ | BITWISE_XOR_ASSIGN_SYM
+ | INVERSE_DIV_ASSIGN_SYM
+ | SHL_ASSIGN_SYM
+ | SHR_ASSIGN_SYM
+ | REMAINDER_ASSIGN_SYM
+ | USHR_ASSIGN_SYM
+ | PLUS_ASSIGN_SYM
+ | MINUS_ASSIGN_SYM
+ | MULTIPLY_ASSIGN_SYM
+ | FRACTION_ASSIGN_SYM
+ | DIVIDE_ASSIGN_SYM
+ | FACTORISE_ASSIGN_SYM
+ | EXPONENT_ASSIGN_SYM
+ | EQ_SYM
+ | ASSIGN_SYM
+
 expr ::=
-   assigns
- | arrowOp
+   arrowOp
  | ternaryOp
  | miscArrowsOp
  | applyMacroOp
@@ -159,51 +187,12 @@ expr ::=
  | fractionOp
  | level13
  | typeOp
- | level15
+ | unaryLevel
  | memberAccessOp
  | primaryExpr
  | nonUnaryOpAsSymbol
  | unaryOpAsSymbol
  | bracketedExpr
-
-private assigns ::=
-   assignOp
- | remainderAssignOp
- | plusAssignOp
- | minusAssignOp
- | multiplyAssignOp
- | fractionAssignOp
- | divideAssignOp
- | factoriseAssignOp
- | exponentAssignOp
- | ushrAssignOp
- | shlAssignOp
- | shrAssignOp
- | colonAssignOp
- | inverseDivAssignOp
- | bitwiseAndAssignOp
- | bitwiseOrAssignOp
- | bitwiseXorAssignOp
- | bitWiseNotOp
-
-bitWiseNotOp ::= BITWISE_NOT_SYM endOfLine expr
-colonAssignOp ::= expr COLON_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-bitwiseAndAssignOp ::= expr BITWISE_AND_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-bitwiseOrAssignOp ::= expr BITWISE_OR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-shlAssignOp ::= expr SHL_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-shrAssignOp ::= expr SHR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-ushrAssignOp ::= expr USHR_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-plusAssignOp ::= expr PLUS_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-minusAssignOp ::= expr MINUS_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-fractionAssignOp ::= expr FRACTION_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-divideAssignOp ::= expr DIVIDE_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM endOfLine expr { rightAssociative=true }
-assignOp ::= expr (EQ_SYM | ASSIGN_SYM) endOfLine expr { rightAssociative=true }
 
 // level 1.5
 arrowOp ::= expr ARROW_SYM endOfLine expr { rightAssociative=true }
@@ -225,9 +214,9 @@ applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expressionList? endOfLine RIGHT_M
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
   expressionList? endOfLine
- RIGHT_BRACKET doBlock?
+ RIGHT_BRACKET doBlock? whereClause?
 
-lhs ::=
+symbolLhs ::=
  ((LOCAL_KEYWORD | CONST_KEYWORD)
   endOfLine)?
  symbol
@@ -354,14 +343,16 @@ miscExponentOp ::= expr MISC_EXPONENT_SYM endOfLine expr
 // level 13.5
 typeOp ::= expr DOUBLE_COLON endOfLine expr
 
-// TODO not sure if it covers all unary symbols
-private level15 ::=
+// level 15
+private unaryLevel ::=
    unaryPlusOp
  | unaryMinusOp
  | unaryTypeOp
  | notOp
  | interpolateOp
+ | bitWiseNotOp
 
+bitWiseNotOp ::= BITWISE_NOT_SYM endOfLine expr
 unaryTypeOp ::= DOUBLE_COLON endOfLine expr
 unaryMinusOp ::= MINUS_SYM endOfLine expr
 notOp ::= NOT_SYM endOfLine expr
@@ -397,11 +388,11 @@ private primaryExpr ::=
  | typeDeclaration
  | typeAlias
  | suffixedExpr
- | lhs
+ | symbolLhs
 
 bracketedExpr ::= LEFT_BRACKET endOfLine statements endOfLine (COMMA_SYM endOfLine)? RIGHT_BRACKET { extends=expr }
 
-whereClause ::= WHERE_KEYWORD
+whereClause ::= WHERE_KEYWORD assignment
 
 array ::= LEFT_M_BRACKET endOfLine expressionList? RIGHT_M_BRACKET { extends=expr }
 
@@ -437,7 +428,7 @@ primitiveTypeName ::= SYM
 typeDeclaration ::=
  typeModifiers (TYPE_KEYWORD | STRUCT_KEYWORD) endOfLine
   typeName typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
-  (assigns endOfLine)*
+  (assignment endOfLine)*
  END_KEYWORD { extends=expr }
 
 abstractTypeDeclaration ::=
