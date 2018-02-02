@@ -90,8 +90,7 @@ class JuliaProjectGeneratorPeer(private val projectSettings: JuliaSettings) :
 		// FIXME move to bundle file
 		row("Julia Executable Path:") { sdkEditor() }
 		row("Julia SDK version:") { versionToLabel() }
-		row(JuliaBundle.message("julia.modules.sdk.selection.help")) {}
-		row("Download SDK:") { downloadJuliaSdkLink() }
+//		row("Download SDK:") { downloadJuliaSdkLink() }
 	}
 
 	override fun validate() =

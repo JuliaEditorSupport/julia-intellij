@@ -9,17 +9,10 @@ import com.intellij.openapi.project.Project
  */
 interface JuliaProjectSettingsService {
 	var settings: JuliaSettings
-
-	companion object {
-		fun getInstance(project: Project): JuliaProjectSettingsService = ServiceManager
-			.getService(project, JuliaProjectSettingsService::class.java)
-	}
 }
 
 val Project.juliaSettings: JuliaProjectSettingsService
 	get() = ServiceManager.getService(this, JuliaProjectSettingsService::class.java)
-	// FIXME move to bundle
-		?: error("Failed to get ProjectSettingsService for $this")
 
 @State(name = "JuliaProjectSettings")
 class JuliaProjectSettingsServiceImpl(private val project: Project) :

@@ -9,9 +9,6 @@ import org.ice1000.julia.lang.JuliaBundle;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.text.DefaultFormatterFactory;
-import javax.swing.text.NumberFormatter;
-import java.text.NumberFormat;
 
 import static org.ice1000.julia.lang.module.UtilsKt.importPathOf;
 import static org.ice1000.julia.lang.module.UtilsKt.validateJuliaExe;
@@ -23,18 +20,11 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 	private @NotNull JLabel usefulText;
 	private @NotNull TextFieldWithBrowseButton juliaExeField;
 	private @NotNull TextFieldWithBrowseButton importPathField;
-	private @NotNull JFormattedTextField textLimitField;
-	private @NotNull JFormattedTextField timeLimitField;
 
 	public JuliaSetupSdkWizardStep(@NotNull JuliaModuleBuilder builder) {
 		this.builder = builder;
 		this.usefulText.setVisible(false);
 		juliaWebsite.setListener((label, o) -> BrowserLauncher.getInstance().open(juliaWebsite.getText()), null);
-		NumberFormat format = NumberFormat.getIntegerInstance();
-		format.setGroupingUsed(false);
-		DefaultFormatterFactory factory = new DefaultFormatterFactory(new NumberFormatter(format));
-		timeLimitField.setFormatterFactory(factory);
-		textLimitField.setFormatterFactory(factory);
 		juliaExeField.addActionListener(actionEvent -> importPathField.setText(importPathOf(juliaExeField.getText(),
 			500L)));
 	}
@@ -46,21 +36,16 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 	@Override public boolean validate() throws ConfigurationException {
 		if (!validateJuliaExe(juliaExeField.getText())) {
 			usefulText.setVisible(true);
-			throw new ConfigurationException(JuliaBundle.message("julia.modules.sdk.invalid"));
+			throw new ConfigurationException(JuliaBundle.message("julia.modules.invalid"));
 		}
-		if (!(timeLimitField.getValue() instanceof Number) || !(textLimitField.getValue() instanceof Number))
-			throw new ConfigurationException(JuliaBundle.message("julia.module.try-eval.invalid"));
 		usefulText.setVisible(false);
 		return super.validate();
 	}
 
 	@Override public void updateDataModel() {
-		Object timeLimitFieldValue = timeLimitField.getValue();
-		Object textLimitFieldValue = textLimitField.getValue();
-		if (!(timeLimitFieldValue instanceof Number && textLimitFieldValue instanceof Number)) return;
-		builder.settings = new JuliaSettings(importPathField.getText(),
-			juliaExeField.getText(),
-			((Number) timeLimitFieldValue).longValue(),
-			((Number) textLimitFieldValue).intValue());
+		JuliaSettings settings = new JuliaSettings();
+		settings.setExePath(juliaExeField.getText());
+		settings.setImportPath(importPathField.getText());
+		builder.settings = settings;
 	}
 }

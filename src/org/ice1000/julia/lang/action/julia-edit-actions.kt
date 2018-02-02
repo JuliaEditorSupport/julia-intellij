@@ -13,8 +13,7 @@ import com.intellij.ui.ScrollPaneFactory
 import com.intellij.util.ui.JBUI
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
-import org.ice1000.julia.lang.module.JuliaSettings
-import org.ice1000.julia.lang.module.projectSdk
+import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Dimension
 import javax.swing.JLabel
 import javax.swing.JTextArea
@@ -28,16 +27,15 @@ class TryEvaluate {
 	fun tryEval(editor: Editor, text: String, project: Project?) {
 		try {
 			val builder = StringBuilder()
-			var juliaRoot = ""
+			var juliaExe = ""
 			var covVersion = ""
-			project?.projectSdk?.let {
-				juliaRoot = it.homePath.orEmpty()
-				covVersion = it.versionString.orEmpty()
-				val data = it.sdkAdditionalData as? JuliaSettings ?: return@let
-				textLimit = data.tryEvaluateTextLimit
-				timeLimit = data.tryEvaluateTimeLimit
+			project?.juliaSettings?.settings?.let {
+				juliaExe = it.exePath
+				covVersion = it.version
+				textLimit = it.tryEvaluateTextLimit
+				timeLimit = it.tryEvaluateTimeLimit
 			}
-			val (stdout, stderr) = executeJulia(juliaRoot, text, timeLimit)
+			val (stdout, stderr) = executeJulia(juliaExe, text, timeLimit)
 			builder.appendln(JuliaBundle.message("julia.messages.try-eval.version-text", covVersion))
 			if (stdout.isNotEmpty()) {
 				builder.appendln(JuliaBundle.message("julia.messages.try-eval.stdout"))
@@ -106,8 +104,7 @@ class TryEvaluateJuliaExpressionAction :
 	}
 
 	override fun update(event: AnActionEvent) {
-		event.presentation.isEnabledAndVisible = event.getData(CommonDataKeys.PROJECT)?.projectSdk != null &&
-			event.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
+		event.presentation.isEnabledAndVisible = event.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
 	}
 }
 

@@ -33,15 +33,10 @@ private fun findPathLinux() = executeCommandToFindPath("whereis julia")
 @State(name = "JULIA_SETTINGS", storages = [])
 class JuliaSettings(
 	var importPath: String = "",
-	exePath: String = "",
+	var exePath: String = "",
+	var version: String = JuliaBundle.message("julia.modules.sdk.unknown-version"),
 	var tryEvaluateTimeLimit: Long = 2500L,
-	var tryEvaluateTextLimit: Int = 320) {
-	var exePath = exePath
-		set(value) {
-			field = value
-			importPath = importPathOf(value)
-		}
-}
+	var tryEvaluateTextLimit: Int = 320)
 
 fun versionOf(exePath: String, timeLimit: Long = 500L) =
 	executeJulia(exePath, null, timeLimit, "--version")

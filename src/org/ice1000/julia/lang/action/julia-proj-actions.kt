@@ -11,8 +11,8 @@ import javax.swing.JPanel
 
 /**
  * create project for CLion
- * @author: zxj5470
- * @date: 2018/1/30
+ * @author zxj5470
+ * @date 2018/1/30
  */
 class NewJuliaProject : JuliaProjectSettingsStep(JuliaProjectGenerator()) {
 	override fun actionPerformed(e: AnActionEvent) {

@@ -13,8 +13,7 @@ import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
-import org.ice1000.julia.lang.module.JuliaProjectSettingsService
-import org.ice1000.julia.lang.module.validateJuliaExe
+import org.ice1000.julia.lang.module.*
 import org.jdom.Element
 import com.google.common.io.Files as GoogleFiles
 
@@ -98,19 +97,17 @@ object JuliaRunConfigurationType : ConfigurationType {
 class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfiguration>(JuliaRunConfigurationType) {
 	override fun isConfigurationFromContext(
 		configuration: JuliaRunConfiguration, context: ConfigurationContext) =
-		configuration.targetFile == context
-			.location
-			?.virtualFile
-			?.path
+		configuration.targetFile == context.dataContext.getData(CommonDataKeys.VIRTUAL_FILE)?.path
 
 	override fun setupConfigurationFromContext(
 		configuration: JuliaRunConfiguration, context: ConfigurationContext, ref: Ref<PsiElement>?): Boolean {
-		if (context.dataContext.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType != JuliaFileType) return false
-		configuration.targetFile = context.location?.virtualFile?.path.orEmpty()
+		val file = context.dataContext.getData(CommonDataKeys.VIRTUAL_FILE)
+		if (file?.fileType != JuliaFileType) return false
+		configuration.targetFile = file.path
 		configuration.workingDir = context.project.basePath.orEmpty()
 		configuration.name = GoogleFiles.getNameWithoutExtension(configuration.targetFile)
-		val existPath = JuliaProjectSettingsService
-			.getInstance(context.project)
+		val existPath = context.project
+			.juliaSettings
 			.settings
 			.exePath
 		if (validateJuliaExe(existPath)) configuration.juliaExecutable = existPath
