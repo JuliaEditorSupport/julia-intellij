@@ -30,7 +30,6 @@ class JuliaProjectConfigurable(private val project: Project) : Configurable {
 			settings.settings = JuliaSettings(exePath = text)
 			juliaProjectSettingsPanel.versionToLabel.text = juliaProjectSettings.settings.exePath.let { versionOf(it) }
 //			"juliaSdkHome" name needed in Bundle
-			PropertiesComponent.getInstance().setValue(JULIA_SDK_HOME_PATH_ID, text)
 		}
 	}
 

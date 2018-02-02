@@ -54,9 +54,9 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 		fun generateCMakeFile(project: Project, baseDir: VirtualFile) = runWriteAction {
 			val cmakeList = baseDir.createChildData(this, "CMakeLists.txt")
 			VfsUtil.saveText(cmakeList, """
-                project(${project.name})
-                add_executable(${project.name}
-                        main.jl)""".trimIndent())
+project(${project.name})
+add_executable(${project.name}
+main.jl)""")
 		}
 		if (PlatformUtils.isCLion()) {
 			val fileName = "main.jl"
@@ -80,6 +80,7 @@ open class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<JuliaSe
 
 /**
  * for other platform
+ * FIXME replace soon
  */
 class JuliaProjectGeneratorPeer(private val projectSettings: JuliaSettings) :
 	ProjectGeneratorPeer<JuliaSettings>, Disposable {

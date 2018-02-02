@@ -5,18 +5,17 @@ import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.*
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.ide.util.PropertiesComponent
+import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
+import org.ice1000.julia.lang.module.JuliaProjectSettingsService
 import org.ice1000.julia.lang.module.validateJuliaExe
 import org.jdom.Element
-import java.nio.file.Paths
 import com.google.common.io.Files as GoogleFiles
 
 class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
@@ -106,14 +105,15 @@ class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfigura
 
 	override fun setupConfigurationFromContext(
 		configuration: JuliaRunConfiguration, context: ConfigurationContext, ref: Ref<PsiElement>?): Boolean {
-		if (context.psiLocation?.containingFile !is JuliaFile) return false
+		if (context.dataContext.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType != JuliaFileType) return false
 		configuration.targetFile = context.location?.virtualFile?.path.orEmpty()
 		configuration.workingDir = context.project.basePath.orEmpty()
 		configuration.name = GoogleFiles.getNameWithoutExtension(configuration.targetFile)
-		val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
-		if (validateJuliaExe(existPath)) {
-			configuration.juliaExecutable = Paths.get(existPath, "bin", "julia").toAbsolutePath().toString()
-		}
+		val existPath = JuliaProjectSettingsService
+			.getInstance(context.project)
+			.settings
+			.exePath
+		if (validateJuliaExe(existPath)) configuration.juliaExecutable = existPath
 		return true
 	}
 }
