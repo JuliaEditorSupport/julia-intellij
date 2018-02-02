@@ -216,6 +216,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> "finally" { return JuliaTypes.FINALLY_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "function" { return JuliaTypes.FUNCTION_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "type" { return JuliaTypes.TYPE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "new" { return JuliaTypes.NEW_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "abstract" { return JuliaTypes.ABSTRACT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "primitive" { return JuliaTypes.PRIMITIVE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "struct" { return JuliaTypes.STRUCT_KEYWORD; }

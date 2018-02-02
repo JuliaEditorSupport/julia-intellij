@@ -17,4 +17,8 @@ class JuliaSdkFindTest {
 	fun testFindPathMac() {
 		println(findPathMac())
 	}
+	@Test
+	fun testFindPathWindows(){
+		println(findPathWindows())
+	}
 }

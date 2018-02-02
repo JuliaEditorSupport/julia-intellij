@@ -5,6 +5,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.util.containers.ArrayListSet
 import java.io.File
 import java.io.InputStream
+import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
@@ -29,6 +30,17 @@ fun executeJulia(homePath: String, code: String?, timeLimit: Long, vararg params
 		code?.let { "$it\nquit()" },
 		timeLimit
 	)
+
+fun executeCommandToFindPath(command:String)= executeCommand(command, null, 500L)
+	.first
+	.firstOrNull()
+	?.split(' ')
+	?.firstOrNull { Files.isExecutable(Paths.get(it)) }
+	?.let { Paths.get(it).parent.parent.toAbsolutePath().toString() }
+	?: System.getenv("PATH")
+		.split(":")
+		.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
+		?.let { Paths.get(it).parent.toAbsolutePath().toString() }
 
 fun executeCommand(
 	command: String,

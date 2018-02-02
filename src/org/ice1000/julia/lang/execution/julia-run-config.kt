@@ -5,6 +5,7 @@ import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.*
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -13,8 +14,7 @@ import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
-import org.ice1000.julia.lang.module.JuliaSdkType
-import org.ice1000.julia.lang.module.projectSdk
+import org.ice1000.julia.lang.module.*
 import org.jdom.Element
 import java.nio.file.Paths
 import com.google.common.io.Files as GoogleFiles
@@ -31,7 +31,12 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 			value?.let {
 				sdkName = it.name
 				field = it
-				juliaExecutable = Paths.get(it.homePath, "bin", "julia").toAbsolutePath().toString()
+				val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
+				juliaExecutable =
+					if (validateJuliaSDK(existPath)) {
+						Paths.get(existPath, "bin", "julia").toAbsolutePath().toString()
+					} else
+						Paths.get(it.homePath, "bin", "julia").toAbsolutePath().toString()
 			}
 		}
 	var workingDir = ""
@@ -124,6 +129,10 @@ class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfigura
 		configuration.targetFile = context.location?.virtualFile?.path.orEmpty()
 		configuration.workingDir = context.project.basePath.orEmpty()
 		configuration.name = GoogleFiles.getNameWithoutExtension(configuration.targetFile)
+		val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
+		if (validateJuliaSDK(existPath)) {
+			configuration.juliaExecutable = Paths.get(existPath, "bin", "julia").toAbsolutePath().toString()
+		}
 		return true
 	}
 }
