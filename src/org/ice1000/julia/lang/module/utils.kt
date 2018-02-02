@@ -45,6 +45,7 @@ fun tryGetBase(exePath: String): String? {
 	val exePathBase = Paths.get("$home", "share", "julia", "base")?.toAbsolutePath() ?: return null
 	if (Files.exists(exePathBase)) return exePathBase.toString()
 	else if (SystemInfo.isLinux) return "/usr/share/julia/base"
+	return null
 }
 
 fun versionOf(exePath: String, timeLimit: Long = 800L) =
@@ -62,3 +63,4 @@ fun importPathOf(exePath: String, timeLimit: Long = 800L) =
 		.trim('"')
 
 fun validateJuliaExe(exePath: String) = versionOf(exePath) != JuliaBundle.message("julia.modules.sdk.unknown-version")
+fun validateJulia(settings: JuliaSettings) = settings.version != JuliaBundle.message("julia.modules.sdk.unknown-version")

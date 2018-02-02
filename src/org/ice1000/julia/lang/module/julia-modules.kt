@@ -61,8 +61,8 @@ class JuliaModuleType : ModuleType<JuliaModuleBuilder>(JULIA_MODULE_ID) {
 /**
  * Module Configure
  * Inspired by Haskell plugin
- * @author zxj5470
- * @date 2018/1/29
+ * @author: zxj5470
+ * @date: 2018/1/29
  */
 class JuliaModuleConfigEditor : ModuleConfigurationEditorProvider {
 

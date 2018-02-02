@@ -18,7 +18,7 @@ install Julia plugin, and create a Julia project.
 If you're creating a new project, the plugin will automatically detect a julia executable.<br/>
 But the automatically detected executable might not be correct, so you can select one yourself as well.
 
-#### Configure on an existing project
+#### Configure an existing project
 
 Open `File | Settings | Languages & Frameworks | Julia`,
 choose a valid Julia executable and click `Apply`.
