@@ -122,17 +122,10 @@ globalStatement ::=
  GLOBAL_KEYWORD endOfLine
  identifier (COMMA_SYM endOfLine identifier)*
 
-assignment ::=
- typedVariable endOfLine
- (
-  EQ_SYM endOfLine
-  expr
- )?
-
 typeAnnotation ::= DOUBLE_COLON endOfLine identifier
 typedVariable ::=
  (LOCAL_KEYWORD endOfLine)?
- identifier typeAnnotation?
+ identifier? typeAnnotation?
  typeParameters?
 
 private typeParameters ::=
@@ -146,11 +139,14 @@ typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr
 
 private expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 
+applyMacroOp ::= macroSymbol expr*
+
 expr ::=
    assigns
  | arrowOp
  | ternaryOp
  | miscArrowsOp
+ | applyMacroOp
  | orOp
  | andOp
  | lambda
@@ -165,7 +161,6 @@ expr ::=
  | level13
  | typeOp
  | level15
- | suffixedLevel
  | primaryExpr
  | nonUnaryOpAsSymbol
  | unaryOpAsSymbol
@@ -217,20 +212,26 @@ arrowOp ::= expr ARROW_SYM endOfLine expr { rightAssociative=true }
 // level 2
 ternaryOp ::= expr QUESTION_SYM endOfLine expr COLON_SYM endOfLine expr
 
-// level 2.25
-private suffixedLevel ::=
+// level 16
+private suffixedExpr ::=
    applyIndexOp
- | applyMacroOp
  | applyFunctionOp
+ | type
 
-applyIndexOp ::= expr LEFT_M_BRACKET expr? endOfLine RIGHT_M_BRACKET { rightAssociative=true }
+type ::= expr typeParameters { extends=expr }
 
-applyMacroOp ::= macroSymbol expr*
+applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expr? endOfLine RIGHT_M_BRACKET
 
 applyFunctionOp ::=
- expr typeParameters? LEFT_BRACKET endOfLine
+ expr LEFT_BRACKET endOfLine
   expressionList? endOfLine
  RIGHT_BRACKET { rightAssociative=true }
+
+lhs ::=
+ ((LOCAL_KEYWORD | CONST_KEYWORD)
+  endOfLine)?
+ identifier
+  (COMMA_SYM endOfLine identifier)* { extends=expr }
 
 // All reserved but unassigned
 // level 2.5
@@ -357,9 +358,11 @@ typeOp ::= expr DOUBLE_COLON endOfLine expr
 private level15 ::=
    unaryPlusOp
  | unaryMinusOp
+ | unaryTypeOp
  | notOp
  | interpolateOp
 
+unaryTypeOp ::= DOUBLE_COLON endOfLine expr
 unaryMinusOp ::= MINUS_SYM endOfLine expr
 notOp ::= NOT_SYM endOfLine expr
 unaryPlusOp ::= PLUS_SYM endOfLine expr
@@ -392,12 +395,8 @@ private primaryExpr ::=
  | primitiveTypeDeclaration
  | typeDeclaration
  | typeAlias
- | type
+ | suffixedExpr
  | lhs
-
-type ::= symbol typeParameters { extends=expr }
-
-lhs ::= ((LOCAL_KEYWORD | CONST_KEYWORD) endOfLine)? identifier (COMMA_SYM endOfLine identifier)* { extends=expr }
 
 bracketedExpr ::= LEFT_BRACKET endOfLine expr endOfLine RIGHT_BRACKET { extends=expr }
 
