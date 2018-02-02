@@ -142,6 +142,8 @@ expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 
 applyMacroOp ::= macroSymbol expr*
 
+memberAccessOp ::= expr DOT_SYM expr
+
 expr ::=
    assigns
  | arrowOp
@@ -162,6 +164,7 @@ expr ::=
  | level13
  | typeOp
  | level15
+ | memberAccessOp
  | primaryExpr
  | nonUnaryOpAsSymbol
  | unaryOpAsSymbol
@@ -211,7 +214,7 @@ arrowOp ::= expr ARROW_SYM endOfLine expr { rightAssociative=true }
 
 // ? :
 // level 2
-ternaryOp ::= expr QUESTION_SYM endOfLine expr COLON_SYM endOfLine expr
+ternaryOp ::= expr QUESTION_SYM endOfLine rangeOp
 
 // level 16
 private suffixedExpr ::=
@@ -226,7 +229,7 @@ applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expressionList? endOfLine RIGHT_M
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
   expressionList? endOfLine
- RIGHT_BRACKET { rightAssociative=true }
+ RIGHT_BRACKET doBlock?
 
 lhs ::=
  ((LOCAL_KEYWORD | CONST_KEYWORD)
@@ -386,10 +389,10 @@ private primaryExpr ::=
  | array
  | union
  | tuple
- | singleTuple
  | macro
  | let
  | block
+ | colonBlock
  | export
  | importExpr
  | using
@@ -400,14 +403,12 @@ private primaryExpr ::=
  | suffixedExpr
  | lhs
 
-bracketedExpr ::= LEFT_BRACKET endOfLine expr endOfLine RIGHT_BRACKET { extends=expr }
+bracketedExpr ::= LEFT_BRACKET endOfLine statements endOfLine (COMMA_SYM endOfLine)? RIGHT_BRACKET { extends=expr }
 
 // TODO range
 array ::= LEFT_M_BRACKET endOfLine expressionList? RIGHT_M_BRACKET { extends=expr }
 
 union ::= UNION_KEYWORD tuple { extends=expr }
-
-singleTuple ::= LEFT_BRACKET endOfLine expr endOfLine COMMA_SYM endOfLine RIGHT_BRACKET { extends=expr }
 
 tuple ::=
  LEFT_BRACKET endOfLine
@@ -463,6 +464,10 @@ macro ::=
 let ::= LET_KEYWORD blockInternal { extends=expr }
 
 block ::= BEGIN_KEYWORD blockInternal { extends=expr }
+
+colonBlock ::= COLON_SYM LEFT_BRACKET statements RIGHT_BRACKET { extends=expr }
+
+doBlock ::= DO_KEYWORD blockInternal { extends=expr }
 
 private blockInternal ::= statements END_KEYWORD
 

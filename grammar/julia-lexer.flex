@@ -60,6 +60,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 DOT_SYM=\.
 COMMA_SYM=,
 COLON_SYM=:
+COLON_BEGIN_SYM=:\(
 COLON_ASSIGN_SYM=:=
 SEMICOLON_SYM=;
 DOUBLE_COLON=::
@@ -141,7 +142,9 @@ FLOAT_CONSTANT=Inf16|Inf32|Inf|-Inf16|-Inf32|-Inf|NaN16|NaN32|NaN
 //SYMBOL=[^\x00-\x20+\-*/\\$#\{\}()\[\]<>|&?~;\"\'\`@]+
 SYMBOL={VALID_CHAR}({VALID_CHAR}|[\d\!])*
 VALID_CHAR=[a-zA-Z_\u0100-\uffff]
+
 DIGIT=[\d_]
+NUM_PART=\d({DIGIT}*\d)?
 
 NUM_SUFFIX=-?{DIGIT}+
 P_SUFFIX=[pP]{NUM_SUFFIX}
@@ -151,9 +154,9 @@ HEXDIGIT=[a-fA-F0-9]
 HEX_NUM=0[xX]{HEXDIGIT}+({P_SUFFIX}|{E_SUFFIX}|{F_SUFFIX})?
 OCT_NUM=0[oO][0-7]+
 BIN_NUM=0[bB][01]+
-DEC_NUM={DIGIT}+({E_SUFFIX}|{F_SUFFIX})?
+DEC_NUM={NUM_PART}({E_SUFFIX}|{F_SUFFIX})?
 INTEGER={HEX_NUM}|{OCT_NUM}|{BIN_NUM}|{DEC_NUM}
-FLOAT=(({DIGIT}+\.{DIGIT}*)|({DIGIT}*\.{DIGIT}+)){E_SUFFIX}?
+FLOAT=(({NUM_PART}+\.{NUM_PART}*)|({NUM_PART}*\.{NUM_PART}+)){E_SUFFIX}?
 
 STRING_UNICODE=\\((u{HEXDIGIT}{4})|(x{HEXDIGIT}{2}))
 CHAR_LITERAL='([^\\\'\x00-\x1F\x7F]|\\[^\'\x00-\x1F\x7F]+)'
@@ -199,6 +202,7 @@ OTHERWISE=[^]
 
 <YYINITIAL, LONG_TEMPLATE> "end" { return noEnd ? JuliaTypes.SYM : JuliaTypes.END_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "break" { return JuliaTypes.BREAK_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "do" { noEnd = false; return JuliaTypes.DO_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "continue" { return JuliaTypes.CONTINUE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "true" { return JuliaTypes.TRUE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "false" { return JuliaTypes.FALSE_KEYWORD; }

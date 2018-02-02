@@ -45,7 +45,7 @@ class JuliaAnnotator : Annotator {
 	private fun applyFunction(
 		element: JuliaApplyFunctionOp,
 		holder: AnnotationHolder) {
-		val name = element.expr
+		val name = element.exprList.first()
 		if (name is JuliaSymbol) {
 			if (name.text == "new") holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.KEYWORD
 		}
