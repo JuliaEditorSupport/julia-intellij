@@ -13,7 +13,7 @@ import com.intellij.ui.ScrollPaneFactory
 import com.intellij.util.ui.JBUI
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
-import org.ice1000.julia.lang.module.JuliaSdkData
+import org.ice1000.julia.lang.module.JuliaSettings
 import org.ice1000.julia.lang.module.projectSdk
 import java.awt.Dimension
 import javax.swing.JLabel
@@ -33,7 +33,7 @@ class TryEvaluate {
 			project?.projectSdk?.let {
 				juliaRoot = it.homePath.orEmpty()
 				covVersion = it.versionString.orEmpty()
-				val data = it.sdkAdditionalData as? JuliaSdkData ?: return@let
+				val data = it.sdkAdditionalData as? JuliaSettings ?: return@let
 				textLimit = data.tryEvaluateTextLimit
 				timeLimit = data.tryEvaluateTimeLimit
 			}

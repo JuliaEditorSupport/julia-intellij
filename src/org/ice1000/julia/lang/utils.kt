@@ -3,7 +3,7 @@ package org.ice1000.julia.lang
 import com.google.common.util.concurrent.SimpleTimeLimiter
 import com.intellij.openapi.util.TextRange
 import com.intellij.util.containers.ArrayListSet
-import org.ice1000.julia.lang.module.validateJuliaSDK
+import org.ice1000.julia.lang.module.validateJuliaExe
 import java.io.InputStream
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
@@ -34,10 +34,10 @@ fun executeCommandToFindPath(command: String) = executeCommand(command, null, 50
 	.first
 	.firstOrNull()
 	?.split(' ')
-	?.firstOrNull(::validateJuliaSDK)
+	?.firstOrNull(::validateJuliaExe)
 	?: System.getenv("PATH")
 		.split(":")
-		.firstOrNull(::validateJuliaSDK)
+		.firstOrNull(::validateJuliaExe)
 
 fun executeCommand(
 	command: String,

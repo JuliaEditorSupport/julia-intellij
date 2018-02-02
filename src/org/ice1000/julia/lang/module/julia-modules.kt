@@ -3,11 +3,8 @@ package org.ice1000.julia.lang.module
 import com.intellij.ide.util.projectWizard.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.*
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.projectRoots.SdkTypeId
 import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.*
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -17,23 +14,21 @@ import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
-	init {
-		addListener(this)
-	}
-
-	lateinit var sdkData: JuliaSdkData
-	override fun isSuitableSdkType(sdkType: SdkTypeId?) = sdkType is JuliaSdkType
+class JuliaModuleBuilder : ModuleBuilder() {
+	lateinit var settings: JuliaSettings
+	override fun isSuitableSdkType(sdkType: SdkTypeId?) = true
 	override fun getWeight() = 98
 	override fun getNodeIcon() = JULIA_BIG_ICON
 	override fun getModuleType() = JuliaModuleType.instance
 	override fun getCustomOptionsStep(context: WizardContext, parentDisposable: Disposable): ModuleWizardStep? {
 		parentDisposable.dispose()
 		context.projectName = JULIA_DEFAULT_MODULE_NAME
+		context.defaultModuleName = JULIA_DEFAULT_MODULE_NAME
 		return JuliaSetupSdkWizardStep(this)
 	}
 
 	override fun setupRootModel(model: ModifiableRootModel) {
+		model.project.juliaSettings.settings = settings
 		val srcPath = Paths.get(contentEntryPath, "src")
 		Files.createDirectories(srcPath)
 		//Idea Only
@@ -49,9 +44,6 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 			doAddContentEntry(model)
 		}
 	}
-
-	override fun moduleCreated(module: Module) {
-	}
 }
 
 class JuliaModuleType : ModuleType<JuliaModuleBuilder>(JULIA_MODULE_ID) {
@@ -65,18 +57,11 @@ class JuliaModuleType : ModuleType<JuliaModuleBuilder>(JULIA_MODULE_ID) {
 	}
 }
 
-var Project.projectSdk
-	get() = ProjectRootManager.getInstance(this).projectSdk
-	set(value) {
-		ProjectRootManager.getInstance(this).projectSdk = value
-	}
-
-
 /**
  * Module Configure
  * Inspired by Haskell plugin
- * @author: zxj5470
- * @date: 2018/1/29
+ * @author zxj5470
+ * @date 2018/1/29
  */
 class JuliaModuleConfigEditor : ModuleConfigurationEditorProvider {
 

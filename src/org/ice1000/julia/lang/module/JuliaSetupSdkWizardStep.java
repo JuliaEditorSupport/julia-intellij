@@ -13,8 +13,8 @@ import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import java.text.NumberFormat;
 
-import static org.ice1000.julia.lang.module.Julia_sdksKt.importPathOf;
-import static org.ice1000.julia.lang.module.Julia_sdksKt.validateJuliaSDK;
+import static org.ice1000.julia.lang.module.UtilsKt.importPathOf;
+import static org.ice1000.julia.lang.module.UtilsKt.validateJuliaExe;
 
 public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 	private @NotNull JuliaModuleBuilder builder;
@@ -35,7 +35,8 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 		DefaultFormatterFactory factory = new DefaultFormatterFactory(new NumberFormatter(format));
 		timeLimitField.setFormatterFactory(factory);
 		textLimitField.setFormatterFactory(factory);
-		juliaExeField.addActionListener(actionEvent -> importPathField.setText(importPathOf(juliaExeField.getText(), 500L)));
+		juliaExeField.addActionListener(actionEvent -> importPathField.setText(importPathOf(juliaExeField.getText(),
+			500L)));
 	}
 
 	@Override public @NotNull JPanel getComponent() {
@@ -43,7 +44,7 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 	}
 
 	@Override public boolean validate() throws ConfigurationException {
-		if (!validateJuliaSDK(juliaExeField.getText())) {
+		if (!validateJuliaExe(juliaExeField.getText())) {
 			usefulText.setVisible(true);
 			throw new ConfigurationException(JuliaBundle.message("julia.modules.sdk.invalid"));
 		}
@@ -57,6 +58,9 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 		Object timeLimitFieldValue = timeLimitField.getValue();
 		Object textLimitFieldValue = textLimitField.getValue();
 		if (!(timeLimitFieldValue instanceof Number && textLimitFieldValue instanceof Number)) return;
-		builder.sdkData = new JuliaSdkData();
+		builder.settings = new JuliaSettings(importPathField.getText(),
+			juliaExeField.getText(),
+			((Number) timeLimitFieldValue).longValue(),
+			((Number) textLimitFieldValue).intValue());
 	}
 }

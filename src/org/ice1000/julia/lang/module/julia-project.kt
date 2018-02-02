@@ -27,22 +27,21 @@ import java.time.LocalDate
 import javax.swing.JLabel
 import javax.swing.event.DocumentEvent
 
-
 /**
  * @author: zxj5470
  * @date: 2018/1/31
  */
-class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings>(),
-	CustomStepProjectGenerator<JuliaProjectSettings> {
+class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
+	CustomStepProjectGenerator<JuliaSettings> {
 	override fun createStep(
-		projectGenerator: DirectoryProjectGenerator<JuliaProjectSettings>,
-		callback: AbstractNewProjectStep.AbstractCallback<JuliaProjectSettings>?) = JuliaProjectSettingsStep(projectGenerator)
+		projectGenerator: DirectoryProjectGenerator<JuliaSettings>,
+		callback: AbstractNewProjectStep.AbstractCallback<JuliaSettings>?) = JuliaProjectSettingsStep(projectGenerator)
 
 	override fun getLogo() = JULIA_BIG_ICON
 	override fun getName() = JULIA_LANGUAGE_NAME
-	override fun createPeer() = JuliaProjectGeneratorPeer(JuliaProjectSettings())
+	override fun createPeer() = JuliaProjectGeneratorPeer(JuliaSettings())
 
-	override fun generateProject(project: Project, baseDir: VirtualFile, settings: JuliaProjectSettings, module: Module) {
+	override fun generateProject(project: Project, baseDir: VirtualFile, settings: JuliaSettings, module: Module) {
 		ApplicationManager.getApplication().runWriteAction {
 			val modifiableModel: ModifiableRootModel = ModifiableModelsProvider.SERVICE.getInstance().getModuleModifiableModel(module)
 			JuliaModuleBuilder().setupRootModel(modifiableModel)
@@ -76,26 +75,14 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaProjectSettings
 	}
 }
 
-open class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<JuliaProjectSettings>)
-	: ProjectSettingsStepBase<JuliaProjectSettings>(generator, AbstractNewProjectStep.AbstractCallback<Any>())
-
-class JuliaProjectSettings(
-	exePath: String = defaultExePath,
-	tryEvaluateTimeLimit: Long = 2500L,
-	tryEvaluateTextLimit: Int = 320,
-	importPath: String = "") : JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit, importPath) {
-	var exePath = exePath
-		set(value) {
-			importPath = importPathOf(exePath)
-			field = value
-		}
-}
+open class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<JuliaSettings>)
+	: ProjectSettingsStepBase<JuliaSettings>(generator, AbstractNewProjectStep.AbstractCallback<Any>())
 
 /**
  * for other platform
  */
-class JuliaProjectGeneratorPeer(private val projectSettings: JuliaProjectSettings) :
-	ProjectGeneratorPeer<JuliaProjectSettings>, Disposable {
+class JuliaProjectGeneratorPeer(private val projectSettings: JuliaSettings) :
+	ProjectGeneratorPeer<JuliaSettings>, Disposable {
 	override fun getSettings() = projectSettings
 	override fun dispose() = Unit
 	override fun getComponent() = panel {
@@ -107,7 +94,7 @@ class JuliaProjectGeneratorPeer(private val projectSettings: JuliaProjectSetting
 	}
 
 	override fun validate() =
-		if (validateJuliaSDK(settings.exePath)) null
+		if (validateJuliaExe(settings.exePath)) null
 		else ValidationInfo(JuliaBundle.message("julia.projects.sdk.invalid"))
 
 	override fun buildUI(settingsStep: SettingsStep) = settingsStep.addExpertPanel(component)
@@ -133,7 +120,7 @@ class JuliaProjectGeneratorPeer(private val projectSettings: JuliaProjectSetting
 			}
 		})
 		val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
-		if (validateJuliaSDK(existPath)) {
+		if (validateJuliaExe(existPath)) {
 			component.text = existPath
 		}
 		return component

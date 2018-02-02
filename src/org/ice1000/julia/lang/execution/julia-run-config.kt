@@ -14,7 +14,7 @@ import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
-import org.ice1000.julia.lang.module.*
+import org.ice1000.julia.lang.module.validateJuliaExe
 import org.jdom.Element
 import java.nio.file.Paths
 import com.google.common.io.Files as GoogleFiles
@@ -24,21 +24,6 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JuliaBundle.message("julia.name"),
 		RunConfigurationModule(project),
 		factory) {
-	private val juliaSdks get() = ProjectJdkTable.getInstance().getSdksOfType(JuliaSdkType.instance)
-	private var sdkName = ""
-	var sdkUsed = project.projectSdk
-		set(value) {
-			value?.let {
-				sdkName = it.name
-				field = it
-				val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
-				juliaExecutable =
-					if (validateJuliaSDK(existPath)) {
-						Paths.get(existPath, "bin", "julia").toAbsolutePath().toString()
-					} else
-						Paths.get(it.homePath, "bin", "julia").toAbsolutePath().toString()
-			}
-		}
 	var workingDir = ""
 	var targetFile = ""
 	var jitCompiler = "yes"
@@ -59,7 +44,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 
 	override fun getConfigurationEditor() = JuliaRunConfigurationEditor(this)
 	override fun getState(executor: Executor, env: ExecutionEnvironment) = JuliaCommandLineState(this, env)
-	override fun getValidModules() = allModules.filter { it.project.projectSdk?.sdkType is JuliaSdkType }
+	override fun getValidModules() = allModules
 	override fun writeExternal(element: Element) {
 		PathMacroManager.getInstance(project).expandPaths(element)
 		super.writeExternal(element)
@@ -67,7 +52,6 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.write(element, "targetFile", targetFile)
 		JDOMExternalizer.write(element, "jitCompiler", jitCompiler)
 		JDOMExternalizer.write(element, "juliaExecutive", juliaExecutable)
-		JDOMExternalizer.write(element, "sdkName", sdkName)
 		JDOMExternalizer.write(element, "additionalOptions", additionalOptions)
 		JDOMExternalizer.write(element, "programArgs", programArgs)
 		JDOMExternalizer.write(element, "inlineOption", inlineOption)
@@ -86,9 +70,6 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.readString(element, "targetFile")?.let { targetFile = it }
 		JDOMExternalizer.readString(element, "jitCompiler")?.let { jitCompiler = it }
 		JDOMExternalizer.readString(element, "juliaExecutive")?.let { juliaExecutable = it }
-		JDOMExternalizer.readString(element, "sdkName")?.let { name ->
-			sdkUsed = juliaSdks.firstOrNull { it.name == name } ?: return@let
-		}
 		JDOMExternalizer.readString(element, "additionalOptions").let { additionalOptions = it ?: "" }
 		JDOMExternalizer.readString(element, "programArgs").let { programArgs = it ?: "" }
 		JDOMExternalizer.readBoolean(element, "inlineOption").let { inlineOption = it }
@@ -130,7 +111,7 @@ class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfigura
 		configuration.workingDir = context.project.basePath.orEmpty()
 		configuration.name = GoogleFiles.getNameWithoutExtension(configuration.targetFile)
 		val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
-		if (validateJuliaSDK(existPath)) {
+		if (validateJuliaExe(existPath)) {
 			configuration.juliaExecutable = Paths.get(existPath, "bin", "julia").toAbsolutePath().toString()
 		}
 		return true

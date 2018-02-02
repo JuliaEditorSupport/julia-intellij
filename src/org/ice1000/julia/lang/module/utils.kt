@@ -1,25 +1,17 @@
 package org.ice1000.julia.lang.module
 
 import com.intellij.ide.util.PropertiesComponent
-import com.intellij.openapi.project.ProjectManager
-import com.intellij.openapi.projectRoots.*
-import com.intellij.openapi.projectRoots.ui.ProjectJdksEditor
+import com.intellij.openapi.components.State
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.ui.ColoredListCellRenderer
-import com.intellij.ui.ComboboxWithBrowseButton
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
-import org.jdom.Element
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.stream.Collectors
-import javax.swing.DefaultComboBoxModel
-import javax.swing.JList
 
 val defaultExePath by lazy {
 	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
 	when {
-		validateJuliaSDK(existPath) -> existPath
+		validateJuliaExe(existPath) -> existPath
 		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
 		SystemInfo.isMac -> findPathMac()
 		else -> findPathLinux() ?: "/usr/share/julia"
@@ -38,13 +30,17 @@ fun findPathMac(): String {
 fun findPathWindows() = executeCommandToFindPath("where julia")
 private fun findPathLinux() = executeCommandToFindPath("whereis julia")
 
-fun SdkAdditionalData?.toJuliaSdkData() = this as? JuliaSdkData
-
-open class JuliaSdkData(
+@State(name = "JULIA_SETTINGS", storages = [])
+class JuliaSettings(
+	var importPath: String = "",
+	exePath: String = "",
 	var tryEvaluateTimeLimit: Long = 2500L,
-	var tryEvaluateTextLimit: Int = 320,
-	var importPath: String) : SdkAdditionalData {
-	override fun clone() = JuliaSdkData(tryEvaluateTimeLimit, tryEvaluateTextLimit, "")
+	var tryEvaluateTextLimit: Int = 320) {
+	var exePath = exePath
+		set(value) {
+			field = value
+			importPath = importPathOf(value)
+		}
 }
 
 fun versionOf(exePath: String, timeLimit: Long = 500L) =
@@ -60,4 +56,4 @@ fun importPathOf(exePath: String, timeLimit: Long = 500L) =
 		.firstOrNull { Files.isDirectory(Paths.get(it)) }
 		?: Paths.get(exePath).parent.parent.toString()
 
-fun validateJuliaSDK(exePath: String) = versionOf(exePath) != JuliaBundle.message("julia.modules.sdk.unknown-version")
+fun validateJuliaExe(exePath: String) = versionOf(exePath) != JuliaBundle.message("julia.modules.sdk.unknown-version")
