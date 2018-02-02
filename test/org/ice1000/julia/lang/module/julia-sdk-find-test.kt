@@ -1,6 +1,9 @@
 package org.ice1000.julia.lang.module
 
+import org.ice1000.julia.lang.executeJulia
 import org.junit.Test
+import java.nio.file.Files
+import java.nio.file.Paths
 
 /**
  * @date: 2018/1/28
@@ -17,8 +20,17 @@ class JuliaSdkFindTest {
 	fun testFindPathMac() {
 		println(findPathMac())
 	}
+
 	@Test
-	fun testFindPathWindows(){
+	fun testFindPathWindows() {
 		println(findPathWindows())
+	}
+
+	@Test
+	fun testFindImport() {
+		val (stdout, stderr) = executeJulia(defaultExePath, null, 1000L, "--print", "Pkg.dir()")
+		println(stdout)
+		println(stdout.first())
+		println(Files.exists(Paths.get(stdout.first())))
 	}
 }

@@ -10,6 +10,6 @@ class JuliaSdkTypeTest {
 	fun suggestHomePath() {
 		println(executeCommand("ls", null, 100L).first)
 		println(executeCommand("whereis julia", null, 500L).first)
-		println(JuliaSdkType().suggestHomePath())
+		println(defaultExePath)
 	}
 }

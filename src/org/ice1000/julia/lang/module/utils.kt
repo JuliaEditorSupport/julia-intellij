@@ -1,6 +1,5 @@
 package org.ice1000.julia.lang.module
 
-import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.util.SystemInfo
 import org.ice1000.julia.lang.*
@@ -9,12 +8,10 @@ import java.nio.file.Paths
 import java.util.stream.Collectors
 
 val defaultExePath by lazy {
-	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
 	when {
-		validateJuliaExe(existPath) -> existPath
 		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
 		SystemInfo.isMac -> findPathMac()
-		else -> findPathLinux() ?: "/usr/share/julia"
+		else -> findPathLinux() ?: "/usr/bin/julia"
 	}
 }
 
@@ -31,24 +28,25 @@ fun findPathWindows() = executeCommandToFindPath("where julia")
 private fun findPathLinux() = executeCommandToFindPath("whereis julia")
 
 @State(name = "JULIA_SETTINGS", storages = [])
-class JuliaSettings(
+open class JuliaSettings(
 	var importPath: String = "",
 	var exePath: String = "",
+	var basePath: String = "",
 	var version: String = JuliaBundle.message("julia.modules.sdk.unknown-version"),
 	var tryEvaluateTimeLimit: Long = 2500L,
 	var tryEvaluateTextLimit: Int = 320)
 
-fun versionOf(exePath: String, timeLimit: Long = 500L) =
+fun versionOf(exePath: String, timeLimit: Long = 800L) =
 	executeJulia(exePath, null, timeLimit, "--version")
 		.first
 		.firstOrNull { it.startsWith("julia version", true) }
 		?.dropWhile { it.isLetter() or it.isWhitespace() }
 		?: JuliaBundle.message("julia.modules.sdk.unknown-version")
 
-fun importPathOf(exePath: String, timeLimit: Long = 500L) =
-	executeJulia(exePath, null, timeLimit, "--print", "\"Pkg.dir()\"")
+fun importPathOf(exePath: String, timeLimit: Long = 800L) =
+	executeJulia(exePath, null, timeLimit, "--print", "Pkg.dir()")
 		.first
-		.firstOrNull { Files.isDirectory(Paths.get(it)) }
-		?: Paths.get(exePath).parent.parent.toString()
+		.first()
+		.trim('"')
 
 fun validateJuliaExe(exePath: String) = versionOf(exePath) != JuliaBundle.message("julia.modules.sdk.unknown-version")

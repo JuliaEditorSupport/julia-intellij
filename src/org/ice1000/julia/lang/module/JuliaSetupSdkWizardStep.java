@@ -2,7 +2,9 @@ package org.ice1000.julia.lang.module;
 
 import com.intellij.ide.browsers.BrowserLauncher;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.labels.LinkLabel;
 import org.ice1000.julia.lang.JuliaBundle;
@@ -10,8 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-import static org.ice1000.julia.lang.module.UtilsKt.importPathOf;
-import static org.ice1000.julia.lang.module.UtilsKt.validateJuliaExe;
+import static org.ice1000.julia.lang.module.UtilsKt.*;
 
 public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 	private @NotNull JuliaModuleBuilder builder;
@@ -25,8 +26,12 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 		this.builder = builder;
 		this.usefulText.setVisible(false);
 		juliaWebsite.setListener((label, o) -> BrowserLauncher.getInstance().open(juliaWebsite.getText()), null);
-		juliaExeField.addActionListener(actionEvent -> importPathField.setText(importPathOf(juliaExeField.getText(),
+		juliaExeField.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor()));
+		juliaExeField.addPropertyChangeListener(actionEvent -> importPathField.setText(importPathOf(juliaExeField.getText(),
 			500L)));
+		juliaExeField.setText(getDefaultExePath());
+		importPathField.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor()));
+		importPathField.setText(importPathOf(getDefaultExePath(), 800L));
 	}
 
 	@Override public @NotNull JPanel getComponent() {
