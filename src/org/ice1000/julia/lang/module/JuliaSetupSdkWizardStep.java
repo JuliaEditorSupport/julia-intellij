@@ -6,11 +6,13 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.labels.LinkLabel;
 import org.ice1000.julia.lang.JuliaBundle;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
 
 import static org.ice1000.julia.lang.module.UtilsKt.*;
 
@@ -27,8 +29,11 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 		this.usefulText.setVisible(false);
 		juliaWebsite.setListener((label, o) -> BrowserLauncher.getInstance().open(juliaWebsite.getText()), null);
 		juliaExeField.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor()));
-		juliaExeField.addPropertyChangeListener(actionEvent -> importPathField.setText(importPathOf(juliaExeField.getText(),
-			500L)));
+		juliaExeField.getTextField().getDocument().addDocumentListener(new DocumentAdapter() {
+			@Override protected void textChanged(DocumentEvent e) {
+				importPathField.setText(importPathOf(juliaExeField.getText(), 500L));
+			}
+		});
 		juliaExeField.setText(getDefaultExePath());
 		importPathField.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor()));
 		importPathField.setText(importPathOf(getDefaultExePath(), 800L));
@@ -50,7 +55,7 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 	@Override public void updateDataModel() {
 		JuliaSettings settings = new JuliaSettings();
 		settings.setExePath(juliaExeField.getText());
-		settings.setImportPath(importPathField.getText());
+		settings.initWithExe();
 		builder.settings = settings;
 	}
 }

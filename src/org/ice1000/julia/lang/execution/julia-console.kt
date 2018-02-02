@@ -17,7 +17,7 @@ Stack trace example:
 ...
 while loading /home/ice1000/git-repos/big-projects/cov/cov-plugin-test/src/a.jl, in expression starting on line 8
  * Console Linkenizing
- * @author: ice1000
+ * @author ice1000
  */
 class JuliaConsoleFilter(private val project: Project) : Filter {
 	private val sdkHomeCache = project.juliaSettings.settings.basePath

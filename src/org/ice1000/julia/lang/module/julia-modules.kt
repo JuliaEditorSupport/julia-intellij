@@ -29,6 +29,7 @@ class JuliaModuleBuilder : ModuleBuilder() {
 
 	override fun setupRootModel(model: ModifiableRootModel) {
 		model.project.juliaSettings.settings = settings
+		model.inheritSdk()
 		val srcPath = Paths.get(contentEntryPath, "src")
 		Files.createDirectories(srcPath)
 		//Idea Only

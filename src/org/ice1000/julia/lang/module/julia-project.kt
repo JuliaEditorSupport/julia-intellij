@@ -38,7 +38,7 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 		callback: AbstractNewProjectStep.AbstractCallback<JuliaSettings>?) = JuliaProjectSettingsStep(projectGenerator)
 
 	override fun getLogo() = JULIA_BIG_ICON
-	override fun getName() = JULIA_LANGUAGE_NAME
+	override fun getName() = JuliaBundle.message("julia.name")
 	override fun createPeer() = JuliaProjectGeneratorPeer(JuliaSettings())
 
 	override fun generateProject(project: Project, baseDir: VirtualFile, settings: JuliaSettings, module: Module) {

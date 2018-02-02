@@ -28,15 +28,15 @@ class TryEvaluate {
 		try {
 			val builder = StringBuilder()
 			var juliaExe = ""
-			var covVersion = ""
+			var juliaVersion = ""
 			project?.juliaSettings?.settings?.let {
 				juliaExe = it.exePath
-				covVersion = it.version
+				juliaVersion = it.version
 				textLimit = it.tryEvaluateTextLimit
 				timeLimit = it.tryEvaluateTimeLimit
 			}
 			val (stdout, stderr) = executeJulia(juliaExe, text, timeLimit)
-			builder.appendln(JuliaBundle.message("julia.messages.try-eval.version-text", covVersion))
+			builder.appendln(JuliaBundle.message("julia.messages.try-eval.version-text", juliaVersion))
 			if (stdout.isNotEmpty()) {
 				builder.appendln(JuliaBundle.message("julia.messages.try-eval.stdout"))
 				stdout.forEach { builder.appendln(it) }
