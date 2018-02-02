@@ -21,8 +21,7 @@ symbol ::= SYM
 macroSymbol ::= AT_SYM SYM
 
 unaryOpAsSymbol ::=
-   INTERPOLATE_SYM
- | MINUS_SYM
+   MINUS_SYM
  | DOT_SYM
  | PLUS_SYM
  | NOT_SYM
@@ -32,7 +31,6 @@ nonUnaryOpAsSymbol ::=
  | COMMA_SYM
  | QUESTION_SYM
  | SUBTYPE_SYM
- | INTERPOLATE_SYM
  | INVERSE_DIV_SYM
  | IS_SYM
  | ISNT_SYM
@@ -349,7 +347,6 @@ private unaryLevel ::=
  | unaryMinusOp
  | unaryTypeOp
  | notOp
- | interpolateOp
  | bitWiseNotOp
 
 bitWiseNotOp ::= BITWISE_NOT_SYM endOfLine expr
@@ -357,7 +354,6 @@ unaryTypeOp ::= DOUBLE_COLON endOfLine expr
 unaryMinusOp ::= MINUS_SYM endOfLine expr
 notOp ::= NOT_SYM endOfLine expr
 unaryPlusOp ::= PLUS_SYM endOfLine expr
-interpolateOp ::= INTERPOLATE_SYM endOfLine expr
 
 private primaryExpr ::=
    string
