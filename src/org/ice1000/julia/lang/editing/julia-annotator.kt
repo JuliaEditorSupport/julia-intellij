@@ -24,9 +24,8 @@ class JuliaAnnotator : Annotator {
 			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MACRO_REFERENCE
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
-			is JuliaModuleName -> {
-				holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.MODULE_NAME
-			}
+			is JuliaSymbol -> if (element.text == "end") holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.KEYWORD
+			is JuliaModuleName -> holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.MODULE_NAME
 			is JuliaTypeAlias -> typeAlias(element, holder)
 			is JuliaBitwiseXorOp -> {
 				// TODO replace with ⊻
@@ -44,8 +43,8 @@ class JuliaAnnotator : Annotator {
 	}
 
 	private fun applyFunction(
-			element: JuliaApplyFunctionOp,
-			holder: AnnotationHolder) {
+		element: JuliaApplyFunctionOp,
+		holder: AnnotationHolder) {
 		val name = element.expr
 		if (name is JuliaSymbol) {
 			if (name.text == "new") holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.KEYWORD
