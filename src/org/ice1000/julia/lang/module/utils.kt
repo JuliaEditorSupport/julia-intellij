@@ -1,6 +1,5 @@
 package org.ice1000.julia.lang.module
 
-import com.intellij.openapi.components.*
 import com.intellij.openapi.util.SystemInfo
 import org.ice1000.julia.lang.*
 import java.nio.file.Files
@@ -37,11 +36,15 @@ open class JuliaSettings(
 	fun initWithExe() {
 		version = versionOf(exePath)
 		importPath = importPathOf(exePath)
-		val exe = Paths.get(exePath)?.parent?.parent ?: return
-		val exePathBase = Paths.get("$exe", "share", "julia", "base")?.toAbsolutePath() ?: return
-		if (Files.exists(exePathBase)) basePath = exePathBase.toString()
-		else if (SystemInfo.isLinux) basePath = "/usr/share/julia/base"
+		tryGetBase(exePath)?.let { basePath = it }
 	}
+}
+
+fun tryGetBase(exePath: String): String? {
+	val home = Paths.get(exePath)?.parent?.parent ?: return null
+	val exePathBase = Paths.get("$home", "share", "julia", "base")?.toAbsolutePath() ?: return null
+	if (Files.exists(exePathBase)) return exePathBase.toString()
+	else if (SystemInfo.isLinux) return "/usr/share/julia/base"
 }
 
 fun versionOf(exePath: String, timeLimit: Long = 800L) =

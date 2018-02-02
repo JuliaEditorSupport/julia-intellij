@@ -12,6 +12,7 @@ import com.intellij.ui.components.labels.LinkLabel;
 import org.ice1000.julia.lang.JuliaBundle;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -30,11 +31,11 @@ public class JuliaProjectConfigurable implements Configurable {
 	private @NotNull TextFieldWithBrowseButton juliaExeField;
 	private @NotNull LinkLabel<Object> juliaWebsite;
 	private @NotNull JLabel version;
+	private @NotNull TextFieldWithBrowseButton basePathField;
 	private @NotNull JuliaSettings settings;
 
 	public JuliaProjectConfigurable(@NotNull Project project) {
 		settings = getJuliaSettings(project).getSettings();
-		importPathField.setText(settings.getImportPath());
 		version.setText(settings.getVersion());
 		NumberFormat format = NumberFormat.getIntegerInstance();
 		format.setGroupingUsed(false);
@@ -44,15 +45,22 @@ public class JuliaProjectConfigurable implements Configurable {
 		textLimitField.setFormatterFactory(factory);
 		textLimitField.setValue((long) settings.getTryEvaluateTextLimit());
 		juliaWebsite.setListener((label, o) -> BrowserLauncher.getInstance().open(juliaWebsite.getText()), null);
+		importPathField.setText(settings.getImportPath());
 		importPathField.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(),
+			project));
+		basePathField.setText(settings.getBasePath());
+		basePathField.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(),
 			project));
 		juliaExeField.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor(),
 			project));
 		juliaExeField.setText(settings.getExePath());
 		juliaExeField.getTextField().getDocument().addDocumentListener(new DocumentAdapter() {
 			@Override protected void textChanged(DocumentEvent e) {
-				importPathField.setText(importPathOf(juliaExeField.getText(), 800L));
-				version.setText(versionOf(juliaExeField.getText(), 800L));
+				String exePath = juliaExeField.getText();
+				importPathField.setText(importPathOf(exePath, 800L));
+				version.setText(versionOf(exePath, 800L));
+				@Nullable String base = tryGetBase(exePath);
+				if (base != null) basePathField.setText(base);
 			}
 		});
 	}
@@ -67,6 +75,7 @@ public class JuliaProjectConfigurable implements Configurable {
 
 	@Override public boolean isModified() {
 		return !settings.getImportPath().equals(importPathField.getText()) ||
+			!settings.getBasePath().equals(basePathField.getText()) ||
 			!settings.getExePath().equals(juliaExeField.getText()) ||
 			settings.getTryEvaluateTextLimit() != (Long) textLimitField.getValue() ||
 			settings.getTryEvaluateTimeLimit() != (Long) timeLimitField.getValue();
@@ -82,7 +91,8 @@ public class JuliaProjectConfigurable implements Configurable {
 		if (!validateJuliaExe(juliaExeField.getText()))
 			throw new ConfigurationException(JuliaBundle.message("julia.modules.invalid"));
 		settings.setExePath(juliaExeField.getText());
-		settings.initWithExe();
+		settings.setVersion(version.getText());
+		settings.setBasePath(basePathField.getText());
 		settings.setImportPath(importPathField.getText());
 	}
 }

@@ -11,18 +11,17 @@ This is a **work in progress**, some features are implemented partially, there m
 ## Installation \& Usage
 
 Install IntelliJ IDEA, open `Settings | Plugins | Browse repositories`,
-install Julia plugin, and create a Julia project (you'll be asked to create a Julia SDK, don't worry it's easy).
+install Julia plugin, and create a Julia project.
 
-### SDK Home Configuration 
+### Configuration
 
-+ Auto Detect:
-	+ Windows:	`C:\Users\yourAccount\AppData\Local\Julia-0.6.0\bin` in System PATH
-	+ Linux: env `PATH:$JULIA_HOME/bin:$PATH` <del>Maybe you need reboot and I don't know whether `ln -s` is useful to find it</del>
-	+ Mac: Auto detect `/Application/Julia-0.6.app/Contents/Resources/julia/`
-+ Set Manually:
-	`Settings(Perference) -> Languages & Frameworks -> Julia -> Julia SDK Home Location`
-	after choosing the location and click `apply`,if you see `Julia SDK version` become a number instead <Unknown>.
-	It's OK~
+If you're creating a new project, the plugin will automatically detect a julia executable.<br/>
+But the automatically detected executable might not be correct, so you can select one yourself as well.
+
+#### Configure on an existing project
+
+Open `File | Settings | Languages & Frameworks | Julia`,
+choose a valid Julia executable and click `Apply`.
 
 ## Compatible IDEs
 
