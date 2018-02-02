@@ -137,7 +137,7 @@ userType ::= identifier typeParameters?
 typeModifiers ::= (IMMUTABLE_KEYWORD | MUTABLE_KEYWORD)?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
 
-private expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
+expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 
 applyMacroOp ::= macroSymbol expr*
 
@@ -400,7 +400,8 @@ private primaryExpr ::=
 
 bracketedExpr ::= LEFT_BRACKET endOfLine expr endOfLine RIGHT_BRACKET { extends=expr }
 
-array ::= LEFT_M_BRACKET endOfLine expressionList? RIGHT_M_BRACKET { extends=expr }
+// TODO range
+array ::= LEFT_M_BRACKET endOfLine (expressionList) RIGHT_M_BRACKET { extends=expr }
 
 union ::= UNION_KEYWORD tuple { extends=expr }
 
