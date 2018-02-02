@@ -214,7 +214,7 @@ applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expressionList? endOfLine RIGHT_M
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
   expressionList? endOfLine
- RIGHT_BRACKET doBlock? whereClause?
+ RIGHT_BRACKET doBlock?
 
 symbolLhs ::=
  ((LOCAL_KEYWORD | CONST_KEYWORD)
@@ -419,6 +419,7 @@ function ::=
     functionName
      (typeParameters endOfLine)?
    variables typeAnnotation? endOfLine
+    (whereClause endOfLine)?
   statements
  END_KEYWORD { extends=expr }
 
