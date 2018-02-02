@@ -122,11 +122,12 @@ globalStatement ::=
  GLOBAL_KEYWORD endOfLine
  identifier (COMMA_SYM endOfLine identifier)*
 
-typeAnnotation ::= DOUBLE_COLON endOfLine identifier
+typeAnnotation ::= DOUBLE_COLON endOfLine identifier typeParameters?
+
 typedVariable ::=
  (LOCAL_KEYWORD endOfLine)?
  identifier? typeAnnotation?
- typeParameters?
+ (EQ_SYM expr)?
 
 private typeParameters ::=
  LEFT_B_BRACKET endOfLine
@@ -223,7 +224,7 @@ type ::= expr typeParameters { extends=expr }
 applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expressionList? endOfLine RIGHT_M_BRACKET
 
 applyFunctionOp ::=
- expr LEFT_BRACKET endOfLine
+ expr DOT_SYM? LEFT_BRACKET endOfLine
   expressionList? endOfLine
  RIGHT_BRACKET { rightAssociative=true }
 
@@ -385,6 +386,7 @@ private primaryExpr ::=
  | array
  | union
  | tuple
+ | singleTuple
  | macro
  | let
  | block
@@ -404,6 +406,8 @@ bracketedExpr ::= LEFT_BRACKET endOfLine expr endOfLine RIGHT_BRACKET { extends=
 array ::= LEFT_M_BRACKET endOfLine expressionList? RIGHT_M_BRACKET { extends=expr }
 
 union ::= UNION_KEYWORD tuple { extends=expr }
+
+singleTuple ::= LEFT_BRACKET endOfLine expr endOfLine COMMA_SYM endOfLine RIGHT_BRACKET { extends=expr }
 
 tuple ::=
  LEFT_BRACKET endOfLine
