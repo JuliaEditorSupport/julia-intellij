@@ -11,7 +11,8 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %{
   private static final IntStack stateStack = new IntStack();
   private static final IntStack leftBracketStack = new IntStack();
-  private static int leftBraceCount;
+  private static int leftBraceCount = 0;
+  private static boolean noEnd = false;
 
   private void pushState(int state) {
     stateStack.push(yystate());
@@ -25,11 +26,16 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
     yybegin(stateStack.pop());
   }
 
-  public JuliaLexer() {
-    this((java.io.Reader) null);
+  private void init() {
     leftBraceCount = 0;
+    noEnd = false;
     stateStack.clear();
     leftBracketStack.clear();
+  }
+
+  public JuliaLexer() {
+    this((java.io.Reader) null);
+    init();
   }
 %}
 
@@ -40,9 +46,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %function advance
 %type IElementType
 %eof{
-  leftBraceCount = 0;
-  stateStack.clear();
-  leftBracketStack.clear();
+  init();
 %eof}
 
 %state NESTED_COMMENT
@@ -160,8 +164,8 @@ OTHERWISE=[^]
 
 %%
 
-<YYINITIAL, LONG_TEMPLATE> \[ { return JuliaTypes.LEFT_M_BRACKET; }
-<YYINITIAL, LONG_TEMPLATE> \] { return JuliaTypes.RIGHT_M_BRACKET; }
+<YYINITIAL, LONG_TEMPLATE> \[ { noEnd = true; return JuliaTypes.LEFT_M_BRACKET; }
+<YYINITIAL, LONG_TEMPLATE> \] { noEnd = false; return JuliaTypes.RIGHT_M_BRACKET; }
 <YYINITIAL, LONG_TEMPLATE> \{ { return JuliaTypes.LEFT_B_BRACKET; }
 <YYINITIAL, LONG_TEMPLATE> \} { return JuliaTypes.RIGHT_B_BRACKET; }
 <YYINITIAL> \( { return JuliaTypes.LEFT_BRACKET; }
@@ -193,43 +197,43 @@ OTHERWISE=[^]
   return JuliaTypes.BLOCK_COMMENT_END;
 }
 
-<YYINITIAL, LONG_TEMPLATE> "end" { return JuliaTypes.END_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "end" { return noEnd ? JuliaTypes.SYM : JuliaTypes.END_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "break" { return JuliaTypes.BREAK_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "continue" { return JuliaTypes.CONTINUE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "true" { return JuliaTypes.TRUE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "false" { return JuliaTypes.FALSE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "module" { return JuliaTypes.MODULE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "baremodule" { return JuliaTypes.BAREMODULE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "module" { noEnd = false; return JuliaTypes.MODULE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "baremodule" { noEnd = false; return JuliaTypes.BAREMODULE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "export" { return JuliaTypes.EXPORT_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "if" { return JuliaTypes.IF_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "if" { noEnd = false; return JuliaTypes.IF_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "in" { return JuliaTypes.IN_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "importall" { return JuliaTypes.IMPORTALL_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "import" { return JuliaTypes.IMPORT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "using" { return JuliaTypes.USING_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "elseif" { return JuliaTypes.ELSEIF_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "else" { return JuliaTypes.ELSE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "for" { return JuliaTypes.FOR_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "while" { return JuliaTypes.WHILE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "for" { noEnd = false; return JuliaTypes.FOR_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "while" { noEnd = false; return JuliaTypes.WHILE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "return" { return JuliaTypes.RETURN_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "try" { return JuliaTypes.TRY_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "try" { noEnd = false; return JuliaTypes.TRY_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "catch" { return JuliaTypes.CATCH_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "finally" { return JuliaTypes.FINALLY_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "function" { return JuliaTypes.FUNCTION_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "type" { return JuliaTypes.TYPE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "function" { noEnd = false; return JuliaTypes.FUNCTION_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "type" { noEnd = false; return JuliaTypes.TYPE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "abstract" { return JuliaTypes.ABSTRACT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "primitive" { return JuliaTypes.PRIMITIVE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "struct" { return JuliaTypes.STRUCT_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "struct" { noEnd = false; return JuliaTypes.STRUCT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "typealias" { return JuliaTypes.TYPEALIAS_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "immutable" { return JuliaTypes.IMMUTABLE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "mutable" { return JuliaTypes.MUTABLE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "union" { return JuliaTypes.UNION_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "quote" { return JuliaTypes.QUOTE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "union" { noEnd = false; return JuliaTypes.UNION_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "quote" { noEnd = false; return JuliaTypes.QUOTE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "begin" { return JuliaTypes.BEGIN_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "macro" { return JuliaTypes.MACRO_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "macro" { noEnd = false; return JuliaTypes.MACRO_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "global" { return JuliaTypes.GLOBAL_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "local" { return JuliaTypes.LOCAL_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> "const" { return JuliaTypes.CONST_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> "let" { return JuliaTypes.LET_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> "let" { noEnd = false; return JuliaTypes.LET_KEYWORD; }
 
 <AFTER_SIMPLE_LIT> {OTHERWISE} { popState(); yypushback(1); }
 

@@ -37,7 +37,7 @@ class JuliaProjectConfigurable(private val project: Project) : Configurable {
 		val text = juliaProjectSettingsPanel.sdkEditor.text
 		if (JuliaSdkType().isValidSdkHome(text)) {
 			settings.configData = JuliaProjectSettingsServiceI.JuliaConfigData(JuliaProjectSettings(text))
-			juliaProjectSettingsPanel.versionToLabel.text = versionOf(juliaProjectSettings.configData.settings!!.sdkHome)
+			juliaProjectSettingsPanel.versionToLabel.text = juliaProjectSettings.configData.settings?.sdkHome?.let { versionOf(it) }.orEmpty()
 //			"juliaSdkHome" name needed in Bundle
 			PropertiesComponent.getInstance().setValue(JULIA_SDK_HOME_PATH_ID, text)
 		}
@@ -65,7 +65,7 @@ class JuliaProjectSettingsPanel(projectSettings: JuliaProjectSettingsServiceI) :
 //	}
  */
 	val sdkEditor = pathToDirectoryTextField(this)
-	val versionToLabel = JLabel(versionOf(projectSettings.configData.settings!!.sdkHome))
+	val versionToLabel = JLabel(projectSettings.configData.settings?.sdkHome?.let { versionOf(it) }.orEmpty())
 	fun attachTo(layout: LayoutBuilder) = with(layout) {
 		row("Julia SDK Home Location:") { sdkEditor() }
 		row("Julia SDK version:") { versionToLabel() }

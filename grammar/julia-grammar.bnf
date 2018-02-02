@@ -220,7 +220,7 @@ private suffixedExpr ::=
 
 type ::= expr typeParameters { extends=expr }
 
-applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expr? endOfLine RIGHT_M_BRACKET
+applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expressionList? endOfLine RIGHT_M_BRACKET
 
 applyFunctionOp ::=
  expr LEFT_BRACKET endOfLine
@@ -401,7 +401,7 @@ private primaryExpr ::=
 bracketedExpr ::= LEFT_BRACKET endOfLine expr endOfLine RIGHT_BRACKET { extends=expr }
 
 // TODO range
-array ::= LEFT_M_BRACKET endOfLine (expressionList) RIGHT_M_BRACKET { extends=expr }
+array ::= LEFT_M_BRACKET endOfLine expressionList? RIGHT_M_BRACKET { extends=expr }
 
 union ::= UNION_KEYWORD tuple { extends=expr }
 
