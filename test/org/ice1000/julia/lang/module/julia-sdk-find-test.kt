@@ -28,7 +28,7 @@ class JuliaSdkFindTest {
 
 	@Test
 	fun testFindImport() {
-		val (stdout, stderr) = executeJulia(defaultExePath, null, 1000L, "--print", "Pkg.dir()")
+		val (stdout, _) = executeJulia(defaultExePath, null, 1000L, "--print", "Pkg.dir()")
 		println(stdout)
 		println(stdout.first())
 		println(Files.exists(Paths.get(stdout.first())))

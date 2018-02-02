@@ -19,10 +19,6 @@ juliaFile ::= endOfLine statements
 
 symbol ::= SYM
 macroSymbol ::= AT_SYM SYM
-identifier ::= identifierImpl { extends=expr }
-private identifierChain ::= endOfLine DOT_SYM endOfLine symbol
-private anySym ::= symbol | macroSymbol
-private identifierImpl ::= (anySym identifierChain*) | (anySym? identifierChain+)
 
 unaryOpAsSymbol ::=
    INTERPOLATE_SYM
@@ -112,7 +108,7 @@ private statement ::=
  | expr
 
 moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
-moduleName ::= identifierImpl
+moduleName ::= SYM
 moduleDeclaration ::=
  moduleType moduleName endOfLine
   statements
@@ -120,13 +116,13 @@ moduleDeclaration ::=
 
 globalStatement ::=
  GLOBAL_KEYWORD endOfLine
- identifier (COMMA_SYM endOfLine identifier)*
+ symbol (COMMA_SYM endOfLine symbol)*
 
-typeAnnotation ::= DOUBLE_COLON endOfLine identifier typeParameters?
+typeAnnotation ::= DOUBLE_COLON endOfLine expr typeParameters?
 
 typedVariable ::=
  (LOCAL_KEYWORD endOfLine)?
- identifier? typeAnnotation?
+ symbol? typeAnnotation?
  (EQ_SYM expr)?
 
 private typeParameters ::=
@@ -134,7 +130,7 @@ private typeParameters ::=
   expr (endOfLine COMMA_SYM endOfLine expr?)* endOfLine
  RIGHT_B_BRACKET
 
-userType ::= identifier typeParameters?
+userType ::= expr typeParameters?
 typeModifiers ::= (IMMUTABLE_KEYWORD | MUTABLE_KEYWORD)?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
 
@@ -142,7 +138,7 @@ expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 
 applyMacroOp ::= macroSymbol expr*
 
-memberAccessOp ::= expr DOT_SYM expr
+memberAccessOp ::= expr DOT_SYM symbol
 
 expr ::=
    assigns
@@ -234,8 +230,8 @@ applyFunctionOp ::=
 lhs ::=
  ((LOCAL_KEYWORD | CONST_KEYWORD)
   endOfLine)?
- identifier
-  (COMMA_SYM endOfLine identifier)* { extends=expr }
+ symbol
+  (COMMA_SYM endOfLine symbol)* { extends=expr }
 
 // All reserved but unassigned
 // level 2.5
@@ -435,23 +431,23 @@ function ::=
   statements
  END_KEYWORD { extends=expr }
 
-typeName ::= identifierImpl
-abstractTypeName ::= identifierImpl
-primitiveTypeName ::= identifierImpl
+typeName ::= SYM
+abstractTypeName ::= SYM
+primitiveTypeName ::= SYM
 typeDeclaration ::=
  typeModifiers (TYPE_KEYWORD | STRUCT_KEYWORD) endOfLine
-  typeName typeParameters? (SUBTYPE_SYM endOfLine identifier)? endOfLine
-  (expr endOfLine)*
+  typeName typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
+  (assigns endOfLine)*
  END_KEYWORD { extends=expr }
 
 abstractTypeDeclaration ::=
  ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
-  abstractTypeName (SUBTYPE_SYM endOfLine identifier)? endOfLine
+  abstractTypeName (SUBTYPE_SYM endOfLine expr)? endOfLine
  END_KEYWORD { extends=expr }
 
 primitiveTypeDeclaration ::=
  PRIMITIVE_KEYWORD TYPE_KEYWORD endOfLine
-  primitiveTypeName (SUBTYPE_SYM endOfLine identifier)? expr endOfLine
+  primitiveTypeName (SUBTYPE_SYM endOfLine expr)? expr endOfLine
  END_KEYWORD { extends=expr }
 
 macroName ::= SYM
@@ -478,25 +474,25 @@ continueExpr ::= CONTINUE_KEYWORD
 
 export ::=
  EXPORT_KEYWORD endOfLine
-  identifier
+  memberAccessOp
   (endOfLine COMMA_SYM endOfLine
-   identifier)* { extends=expr }
+   memberAccessOp)* { extends=expr }
 
 importExpr ::=
  (IMPORT_KEYWORD | IMPORTALL_KEYWORD) endOfLine
-  identifier
+  memberAccessOp
   (COLON_SYM endOfLine
-   identifier
+   memberAccessOp
    (
     endOfLine
     COMMA_SYM endOfLine
-    identifier
+    memberAccessOp
    )*
   )?
 
 using ::=
  USING_KEYWORD endOfLine
-  identifier? (endOfLine COMMA_SYM endOfLine identifier)* { extends=expr }
+  memberAccessOp? (endOfLine COMMA_SYM endOfLine memberAccessOp)* { extends=expr }
 
 ifExpr ::=
  IF_KEYWORD statements
