@@ -30,8 +30,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaBitwiseXorOp -> {
 				// TODO replace with ⊻
 			}
-			is JuliaAssignSymbol -> {
-				if (element.text == "$=") {}
+			is JuliaBitwiseXorAssignOp -> {
 				// TODO replace with ⊻=
 			}
 			is JuliaCharLit -> char(element, holder)
