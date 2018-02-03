@@ -35,7 +35,7 @@ class JuliaAnnotator : Annotator {
 			}
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
-			is JuliaStringTemplateElement -> stringTemplateElement(element, holder)
+			is JuliaString -> string(element, holder)
 			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
 				// TODO provide conversions
 			}
@@ -51,11 +51,9 @@ class JuliaAnnotator : Annotator {
 		}
 	}
 
-	private fun stringTemplateElement(element: JuliaStringTemplateElement, holder: AnnotationHolder) {
-		if (element.firstChild.node.elementType == JuliaTypes.STRING_ESCAPE &&
-			(element.textContains('x') || element.textContains('u')))
-			holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.invalid-string-escape"))
-	}
+	private fun string(string: JuliaString, holder: AnnotationHolder) = string.children
+		.filter { it.firstChild.node.elementType == JuliaTypes.STRING_ESCAPE && (it.textContains('x') || it.textContains('u')) }
+		.forEach { holder.createErrorAnnotation(it, JuliaBundle.message("julia.lint.invalid-string-escape")) }
 
 	private fun definition(element: PsiElement, holder: AnnotationHolder, attributesKey: TextAttributesKey) {
 		holder.createInfoAnnotation(element, null).textAttributes = attributesKey

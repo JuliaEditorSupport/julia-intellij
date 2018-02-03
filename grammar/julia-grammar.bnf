@@ -78,11 +78,11 @@ private str ::= QUOTE_START stringTemplateElement* QUOTE_END
 private rawStr ::= TRIPLE_QUOTE_START stringTemplateElement* TRIPLE_QUOTE_END
 string ::= cmd | str | rawStr { extends=expr }
 
-stringTemplateElement::=
+private stringTemplateElement::=
    STRING_UNICODE
  | STRING_ESCAPE
  | template
- | stringContent { pin=1 }
+ | stringContent
 
 template ::= SHORT_INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
 stringContent ::= REGULAR_STRING_PART_LITERAL {
