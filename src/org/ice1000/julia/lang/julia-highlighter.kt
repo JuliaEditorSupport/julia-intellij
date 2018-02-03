@@ -66,8 +66,8 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.MISC_EXPONENT_SYM
 	)
 
-	private val ASSIGNMENT_OPERATOR_LIST = JuliaTokenType.ASSIGN_OPERATORS.types.toList()
-	private val OPERATOR_LIST = JuliaTokenType.BINARY_OPERATORS.types.toList()
+	private val ASSIGNMENT_OPERATOR_LIST = JuliaTokenType.ASSIGN_OPERATORS.types.asList()
+	private val OPERATOR_LIST = JuliaTokenType.BINARY_OPERATORS.types.asList()
 
 	private val KEYWORDS_LIST = listOf(
 		JuliaTypes.END_KEYWORD,
