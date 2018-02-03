@@ -3,6 +3,7 @@ package org.ice1000.julia.lang.execution;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.ice1000.julia.lang.JuliaBundle;
 import org.ice1000.julia.lang.JuliaFileType;
@@ -13,6 +14,7 @@ import javax.swing.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 
 public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfiguration> {
 	private @NotNull JPanel mainPanel;
@@ -26,27 +28,37 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JCheckBox unsafeFloatCheckBox;
 	private @NotNull JCheckBox handleSignalCheckBox;
 	private @NotNull JCheckBox startupFileCheckBox;
+	// TODO replace with RawCommandLineEditor
 	private @NotNull JTextField programArgumentsField; // [args...]
 	private @NotNull JComboBox<String> optimizationLevelComboBox; // --optimize
 	private @NotNull JComboBox<String> jitCompilerOptions; // --compile
+	// TODO replace with RawCommandLineEditor
 	private @NotNull JTextField additionalOptionsField;
+	private @NotNull JComboBox<String> depWarnOptions;
+	private @NotNull JComboBox<String> codeCovOptions;
+	private @NotNull JComboBox<String> trackAllocOptions;
 
-	public JuliaRunConfigurationEditor(@NotNull JuliaRunConfiguration configuration) {
+	public JuliaRunConfigurationEditor(@NotNull JuliaRunConfiguration configuration, @NotNull Project project) {
 		juliaExeField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-compiler"),
 			JuliaBundle.message("julia.messages.run.select-compiler.description"),
-			null,
+			project,
 			FileChooserDescriptorFactory.createSingleFileDescriptor());
 		workingDirField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-working-dir"),
 			JuliaBundle.message("julia.messages.run.select-working-dir.description"),
-			null,
+			project,
 			FileChooserDescriptorFactory.createSingleFolderDescriptor());
 		targetFileField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-julia-file"),
 			JuliaBundle.message("julia.messages.run.select-julia-file.description"),
-			null,
+			project,
 			FileChooserDescriptorFactory.createSingleFileDescriptor(JuliaFileType.INSTANCE));
-
-		for (int i = 0; i < 4; i++) optimizationLevelComboBox.addItem(String.valueOf(i));
+		String def = "2 (" + JuliaBundle.message("julia.run-config.opt-level.default") + ")";
+		String rec = "3 (" + JuliaBundle.message("julia.run-config.opt-level.recommended") + ")";
+		Arrays.asList("0", "1", def, rec).forEach(optimizationLevelComboBox::addItem);
 		Arrays.asList("yes", "no", "all", "min").forEach(jitCompilerOptions::addItem);
+		Arrays.asList("yes", "no", "error").forEach(depWarnOptions::addItem);
+		List<String> noneUserAll = Arrays.asList("none", "user", "all");
+		noneUserAll.forEach(codeCovOptions::addItem);
+		noneUserAll.forEach(trackAllocOptions::addItem);
 		resetEditorFrom(configuration);
 	}
 
@@ -63,9 +75,11 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		startupFileCheckBox.setSelected(configuration.getStartupFileOption());
 		additionalOptionsField.setText(configuration.getAdditionalOptions());
 		programArgumentsField.setText(configuration.getProgramArgs());
-		// same as setSelectedItem
 		optimizationLevelComboBox.setSelectedIndex(configuration.getOptimizationLevel());
 		jitCompilerOptions.setSelectedItem(configuration.getJitCompiler());
+		depWarnOptions.setSelectedItem(configuration.getDeprecationWarning());
+		codeCovOptions.setSelectedItem(configuration.getCodeCoverage());
+		trackAllocOptions.setSelectedItem(configuration.getTrackAllocation());
 	}
 
 	@Override protected void applyEditorTo(@NotNull JuliaRunConfiguration configuration) throws ConfigurationException {
@@ -87,9 +101,11 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		configuration.setStartupFileOption(startupFileCheckBox.isSelected());
 		configuration.setAdditionalOptions((additionalOptionsField.getText()));
 		configuration.setProgramArgs((programArgumentsField.getText()));
-		// same as getSelectedItem
 		configuration.setOptimizationLevel(optimizationLevelComboBox.getSelectedIndex());
 		configuration.setJitCompiler(String.valueOf(jitCompilerOptions.getSelectedItem()));
+		configuration.setDeprecationWarning(String.valueOf(depWarnOptions.getSelectedItem()));
+		configuration.setCodeCoverage(String.valueOf(codeCovOptions.getSelectedItem()));
+		configuration.setTrackAllocation(String.valueOf(trackAllocOptions.getSelectedItem()));
 	}
 
 	@Contract("_ -> fail") private void reportInvalidPath(@NotNull String path) throws ConfigurationException {

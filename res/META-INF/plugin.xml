@@ -21,6 +21,7 @@ Functions provided:<br/>
 What you'll see in the future:<br/>
 <ul>
   <li>Formatter</li>
+  <li>Integrating existing Julia tools</li>
   <li>Reference resolving</li>
   <li>Completion based on context</li>
   <li>Displaying numeral output as images</li>
@@ -33,7 +34,11 @@ Please don't downvote our plugin for not having one of the features above, becau
 ]]></description>
 
 	<change-notes><![CDATA[
-0.0.2<br/><br/>
+0.0.3<br/>
+<ul>
+  <li>Parser and run configuration improvements</li>
+</ul><br/>
+0.0.2<br/>
 <ul>
   <li>Language injection in strings</li>
   <li>File icon will change when the it's just a module</li>

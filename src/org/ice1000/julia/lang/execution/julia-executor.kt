@@ -37,6 +37,9 @@ class JuliaCommandLineState(
 			params += "--startup-file=${startupFileOption.toYesNo()}"
 			params += "--optimize=$optimizationLevel"
 			params += "--compile=$jitCompiler"
+			params += "--depwarn=$deprecationWarning"
+			params += "--code-coverage=$codeCoverage"
+			params += "--track-allocation=$trackAllocation"
 			params += configuration.additionalOptions.split(' ').filter(String::isNotBlank)
 			params += configuration.targetFile
 			params += configuration.programArgs.split(' ').filter(String::isNotBlank)

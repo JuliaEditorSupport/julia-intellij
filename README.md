@@ -31,14 +31,18 @@ it's free.
 
 ## Feedback
 
-You can report the error to us, this will create a GitHub issue labeled with `pending` and we'll deal with it.<br/>
+You can report the error to us when you see this plugin throwing exceptions, this will create a GitHub issue labeled
+with `pending` and we'll deal with it.<br/>
 This function comes from the Mathematica plugin and I just did very little refactor without changing any classes' or
 functions' names.
 
-## Which Julia Plugin should I choose
+## Alternatives
 
+If you don't like JetBrains IDE, turn right and search `JuliaPro` or `Juno`.
+
+Otherwise:<br/>
 If you search GitHub with "Julia IntelliJ" (data collected at 2018/1/28 (YYYY/M/DD)),
-you'll find 4 related repos:
+you'll find 4 related repositories:
 
 + snefru/juliafy (incomplete syntax highlight, SDK management, file recognizing, only support MacOS)
 + sysint64/intellij-julia (this only recognize your file as a `Julia file`, and do nothing else)
@@ -58,6 +62,7 @@ Now you know your choice :wink:
 ## Unfinished features
 
 + Formatter
++ Integrating existing Julia tools
 + Reference resolving
 + Completion based on context
 + Displaying numeral output as images

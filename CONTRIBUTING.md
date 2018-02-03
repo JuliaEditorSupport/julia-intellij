@@ -9,6 +9,9 @@ First install required plugins in your IntelliJ IDEA:
 + Plugin DevKit (built-in, just make sure you've enabled it)
 + Kotlin [![JetBrains Plugins](https://img.shields.io/jetbrains/plugin/v/6954-kotlin.svg)](https://plugins.jetbrains.com/plugin/6954-kotlin)
 
+I've compiled a Grammar-Kit which supports completing Java codes in the jflex code fragment which can be found
+[here](https://github.com/ice1000/julia-intellij/releases/download/0.0.2/grammar-kit-2017.1.1.zip).
+
 ## Build
 
 Clone this repo:
@@ -48,6 +51,7 @@ For more information, see [the official doc](http://www.jetbrains.org/intellij/s
 0. Name your files like `julia-xxx.kt`
 0. Put all highly related classes into a single file
 0. Use English, but we also read Chinese so if you only know Chinese just use it
+0. Write commit message starts with `[ issue id or refactor type ]`
 
 ## You don't have to
 

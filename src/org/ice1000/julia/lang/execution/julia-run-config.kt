@@ -22,10 +22,13 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 	LocatableConfigurationBase(project, factory, JuliaBundle.message("julia.name")) {
 	var workingDir = ""
 	var targetFile = ""
-	var jitCompiler = "yes"
 	var additionalOptions = ""
 	var programArgs = ""
 	var juliaExecutable = ""
+	var jitCompiler = "yes"
+	var deprecationWarning = "yes"
+	var codeCoverage = "none"
+	var trackAllocation = "none"
 	var inlineOption = false
 	var checkBoundsOption = false
 	var colorOption = false
@@ -38,17 +41,20 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 			field = if (value > 3) 3 else if (value < 0) 0 else value
 		}
 
-	override fun getConfigurationEditor() = JuliaRunConfigurationEditor(this)
+	override fun getConfigurationEditor() = JuliaRunConfigurationEditor(this, project)
 	override fun getState(executor: Executor, env: ExecutionEnvironment) = JuliaCommandLineState(this, env)
 	override fun writeExternal(element: Element) {
 		PathMacroManager.getInstance(project).expandPaths(element)
 		super.writeExternal(element)
 		JDOMExternalizer.write(element, "workingDir", workingDir)
 		JDOMExternalizer.write(element, "targetFile", targetFile)
-		JDOMExternalizer.write(element, "jitCompiler", jitCompiler)
-		JDOMExternalizer.write(element, "juliaExecutive", juliaExecutable)
 		JDOMExternalizer.write(element, "additionalOptions", additionalOptions)
 		JDOMExternalizer.write(element, "programArgs", programArgs)
+		JDOMExternalizer.write(element, "juliaExecutive", juliaExecutable)
+		JDOMExternalizer.write(element, "jitCompiler", jitCompiler)
+		JDOMExternalizer.write(element, "deprecationWarning", deprecationWarning)
+		JDOMExternalizer.write(element, "codeCoverage", codeCoverage)
+		JDOMExternalizer.write(element, "trackAllocation", trackAllocation)
 		JDOMExternalizer.write(element, "inlineOption", inlineOption)
 		JDOMExternalizer.write(element, "checkBoundsOption", checkBoundsOption)
 		JDOMExternalizer.write(element, "colorOption", colorOption)
@@ -63,10 +69,13 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		super.readExternal(element)
 		JDOMExternalizer.readString(element, "workingDir")?.let { workingDir = it }
 		JDOMExternalizer.readString(element, "targetFile")?.let { targetFile = it }
-		JDOMExternalizer.readString(element, "jitCompiler")?.let { jitCompiler = it }
-		JDOMExternalizer.readString(element, "juliaExecutive")?.let { juliaExecutable = it }
 		JDOMExternalizer.readString(element, "additionalOptions")?.let { additionalOptions = it }
 		JDOMExternalizer.readString(element, "programArgs")?.let { programArgs = it }
+		JDOMExternalizer.readString(element, "juliaExecutive")?.let { juliaExecutable = it }
+		JDOMExternalizer.readString(element, "jitCompiler")?.let { jitCompiler = it }
+		JDOMExternalizer.readString(element, "deprecationWarning")?.let { deprecationWarning = it }
+		JDOMExternalizer.readString(element, "codeCoverage")?.let { codeCoverage = it }
+		JDOMExternalizer.readString(element, "trackAllocation")?.let { trackAllocation = it }
 		JDOMExternalizer.readBoolean(element, "inlineOption").let { inlineOption = it }
 		JDOMExternalizer.readBoolean(element, "checkBoundsOption").let { checkBoundsOption = it }
 		JDOMExternalizer.readBoolean(element, "colorOption").let { colorOption = it }
