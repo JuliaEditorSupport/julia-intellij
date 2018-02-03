@@ -336,7 +336,7 @@ factoriseOp ::= expr FACTORISE_SYM endOfLine expr
 bitwiseAndOp ::= expr BITWISE_AND_SYM endOfLine expr
 miscMultiplyOp ::= expr MISC_MULTIPLY_SYM endOfLine expr
 specialMultiplyOp ::= simpleLiteral blockComment? AFTER_LIT_SYM
-private simpleLiteral ::= integer | floatLit | symbol | string | charLit
+private simpleLiteral ::= integer | floatLit | symbol | string
 
 // // .//
 // level 12
