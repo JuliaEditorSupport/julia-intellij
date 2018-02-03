@@ -16,7 +16,7 @@ install Julia plugin, and create a Julia project.
 ### Configuration
 
 If you're creating a new project, the plugin will automatically detect a julia executable.<br/>
-But the automatically detected executable might not be correct, so you can select one yourself as well.
+But that one might not be correct, so you can select one yourself as well.
 
 #### Configure an existing project
 

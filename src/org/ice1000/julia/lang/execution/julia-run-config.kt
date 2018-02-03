@@ -13,15 +13,13 @@ import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
-import org.ice1000.julia.lang.module.*
+import org.ice1000.julia.lang.module.juliaSettings
+import org.ice1000.julia.lang.module.validateJuliaExe
 import org.jdom.Element
 import com.google.common.io.Files as GoogleFiles
 
 class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
-	ModuleBasedConfiguration<RunConfigurationModule>(
-		JuliaBundle.message("julia.name"),
-		RunConfigurationModule(project),
-		factory) {
+	LocatableConfigurationBase(project, factory, JuliaBundle.message("julia.name")) {
 	var workingDir = ""
 	var targetFile = ""
 	var jitCompiler = "yes"
@@ -42,7 +40,6 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 
 	override fun getConfigurationEditor() = JuliaRunConfigurationEditor(this)
 	override fun getState(executor: Executor, env: ExecutionEnvironment) = JuliaCommandLineState(this, env)
-	override fun getValidModules() = allModules
 	override fun writeExternal(element: Element) {
 		PathMacroManager.getInstance(project).expandPaths(element)
 		super.writeExternal(element)
@@ -68,8 +65,8 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.readString(element, "targetFile")?.let { targetFile = it }
 		JDOMExternalizer.readString(element, "jitCompiler")?.let { jitCompiler = it }
 		JDOMExternalizer.readString(element, "juliaExecutive")?.let { juliaExecutable = it }
-		JDOMExternalizer.readString(element, "additionalOptions").let { additionalOptions = it ?: "" }
-		JDOMExternalizer.readString(element, "programArgs").let { programArgs = it ?: "" }
+		JDOMExternalizer.readString(element, "additionalOptions")?.let { additionalOptions = it }
+		JDOMExternalizer.readString(element, "programArgs")?.let { programArgs = it }
 		JDOMExternalizer.readBoolean(element, "inlineOption").let { inlineOption = it }
 		JDOMExternalizer.readBoolean(element, "checkBoundsOption").let { checkBoundsOption = it }
 		JDOMExternalizer.readBoolean(element, "colorOption").let { colorOption = it }

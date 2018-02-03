@@ -105,7 +105,7 @@ private statement ::=
  | globalStatement
  | expr
 
-moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
+private moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
 moduleName ::= SYM
 moduleDeclaration ::=
  moduleType moduleName endOfLine
