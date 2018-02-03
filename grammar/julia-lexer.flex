@@ -26,7 +26,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
     yybegin(stateStack.pop());
   }
 
-  private void init() {
+  private static void init() {
     leftBraceCount = 0;
     noEnd = false;
     stateStack.clear();
@@ -71,12 +71,12 @@ BLOCK_COMMENT_CONTENT=([^#=]|(=[^#])|(#[^=]))
 
 TRIPLE_QUOTE_SYM=\"\"\"
 
-SHORT_TEMPLATE=\${SYMBOL}
+SHORT_TEMPLATE=\${SIMPLE_SYMBOL}
 LONG_TEMPLATE_START=\$\(
 
 //SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])+
 //SYMBOL=[^\x00-\x20+\-*/\\$#\{\}()\[\]<>|&?~;\"\'\`@]+
-SYMBOL={VALID_CHAR}({VALID_CHAR}|[\d\!])*
+SIMPLE_SYMBOL={VALID_CHAR}({VALID_CHAR}|[\d\!])*
 VALID_CHAR=[a-zA-Z_\u0100-\uffff]
 
 DIGIT=[\d_]
@@ -246,8 +246,9 @@ OTHERWISE=[^]
   return JuliaTypes.FLOAT_CONSTANT;
 }
 
-<YYINITIAL, LONG_TEMPLATE> {SYMBOL} { return JuliaTypes.SYM; }
-<AFTER_SIMPLE_LIT> {SYMBOL} {
+<YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} \! /= { yypushback(1); return JuliaTypes.SYM; }
+<YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} { return JuliaTypes.SYM; }
+<AFTER_SIMPLE_LIT> {SIMPLE_SYMBOL} {
   popState();
   return JuliaTypes.AFTER_LIT_SYM;
 }
@@ -307,7 +308,7 @@ OTHERWISE=[^]
   return JuliaTypes.STRING_INTERPOLATE_START;
 }
 
-<SHORT_TEMPLATE> {SYMBOL} { popState(); return JuliaTypes.SYM; }
+<SHORT_TEMPLATE> {SIMPLE_SYMBOL} { popState(); return JuliaTypes.SYM; }
 
 <AFTER_SIMPLE_LIT> {OTHERWISE} { popState(); yypushback(1); }
 
