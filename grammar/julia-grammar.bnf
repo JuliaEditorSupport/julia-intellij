@@ -129,7 +129,6 @@ private typeParameters ::=
  RIGHT_B_BRACKET
 
 userType ::= expr typeParameters?
-typeModifiers ::= (IMMUTABLE_KEYWORD | MUTABLE_KEYWORD)?
 typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
 
 expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
@@ -405,7 +404,7 @@ whereClause ::= WHERE_KEYWORD assigns // TODO fix
 
 array ::= LEFT_M_BRACKET endOfLine expressionList? RIGHT_M_BRACKET { extends=expr }
 
-union ::= UNION_KEYWORD tuple { extends=expr }
+union ::= UNION_KEYWORD tuple { extends=expr pin=1 }
 
 tuple ::=
  LEFT_BRACKET endOfLine
@@ -430,26 +429,26 @@ function ::=
    variables typeAnnotation? endOfLine
     (whereClause endOfLine)?
   statements
- END_KEYWORD { extends=expr }
+ END_KEYWORD { extends=expr pin=1 }
 
 typeName ::= SYM
 abstractTypeName ::= SYM
 primitiveTypeName ::= SYM
 typeDeclaration ::=
- typeModifiers (TYPE_KEYWORD | STRUCT_KEYWORD) endOfLine
+ (IMMUTABLE_KEYWORD | MUTABLE_KEYWORD)? (TYPE_KEYWORD | STRUCT_KEYWORD) endOfLine
   typeName typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
-  expr*
+  statements
  END_KEYWORD { extends=expr }
 
 abstractTypeDeclaration ::=
  ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
   abstractTypeName (SUBTYPE_SYM endOfLine expr)? endOfLine
- END_KEYWORD { extends=expr }
+ END_KEYWORD { extends=expr pin=1 }
 
 primitiveTypeDeclaration ::=
  PRIMITIVE_KEYWORD TYPE_KEYWORD endOfLine
   primitiveTypeName (SUBTYPE_SYM endOfLine expr)? expr endOfLine
- END_KEYWORD { extends=expr }
+ END_KEYWORD { extends=expr pin=1 }
 
 macroName ::= SYM
 macro ::=
@@ -457,17 +456,15 @@ macro ::=
     macroName endOfLine
    untypedVariables endOfLine
   statements
- END_KEYWORD { extends=expr }
+ END_KEYWORD { extends=expr pin=1 }
 
-let ::= LET_KEYWORD blockInternal { extends=expr }
+let ::= LET_KEYWORD statements END_KEYWORD { extends=expr pin=1 }
 
-block ::= BEGIN_KEYWORD blockInternal { extends=expr }
+block ::= BEGIN_KEYWORD statements END_KEYWORD { extends=expr pin=1 }
 
 colonBlock ::= COLON_SYM LEFT_BRACKET statements RIGHT_BRACKET { extends=expr }
 
-doBlock ::= DO_KEYWORD blockInternal { extends=expr }
-
-private blockInternal ::= statements END_KEYWORD
+doBlock ::= DO_KEYWORD statements END_KEYWORD { extends=expr pin=1 }
 
 breakExpr ::= BREAK_KEYWORD
 
