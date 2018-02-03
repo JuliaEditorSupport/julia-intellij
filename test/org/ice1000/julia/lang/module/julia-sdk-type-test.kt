@@ -11,5 +11,6 @@ class JuliaSdkTypeTest {
 		println(executeCommand("ls", null, 100L).first)
 		println(executeCommand("whereis julia", null, 500L).first)
 		println(defaultExePath)
+		arrayOf("").contains("")
 	}
 }
