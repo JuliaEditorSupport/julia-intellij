@@ -18,6 +18,7 @@
 juliaFile ::= endOfLine statements
 
 symbol ::= SYM
+afterLitSymbol ::= AFTER_LIT_SYM
 macroSymbol ::= AT_SYM SYM
 
 unaryOpAsSymbol ::=
@@ -334,8 +335,10 @@ inverseDivideOp ::= expr INVERSE_DIV_SYM endOfLine expr
 factoriseOp ::= expr FACTORISE_SYM endOfLine expr
 bitwiseAndOp ::= expr BITWISE_AND_SYM endOfLine expr
 miscMultiplyOp ::= expr MISC_MULTIPLY_SYM endOfLine expr
-specialMultiplyOp ::= simpleLiteral blockComment? AFTER_LIT_SYM
-private simpleLiteral ::= integer | floatLit | symbol | string
+
+specialMultiplyOp ::= specialLhs blockComment? specialRhs
+private specialLhs ::= integer | floatLit | symbol | string
+private specialRhs ::= afterLitSymbol | string
 
 // // .//
 // level 12
