@@ -11,7 +11,7 @@ import javax.swing.Icon
 
 @JvmField val JULIA_BIG_ICON = IconLoader.getIcon("/icons/julia.png")
 @JvmField val JULIA_ICON = IconLoader.getIcon("/icons/julia_file.png")
-@JvmField val JULIA_MODULE_ICON: Icon = PlatformIcons.METHOD_ICON
+@JvmField val JULIA_MODULE_ICON: Icon = IconLoader.getIcon("/icons/module.png")
 
 class JuliaIconProvider : IconProvider() {
 	override fun getIcon(element: PsiElement, flags: Int): Icon? {
