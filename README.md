@@ -29,11 +29,11 @@ The plugin is compatible with any IntelliJ based IDE starting from 2016.1.
 If you don't have any yet, try [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/),
 it's free.
 
-## This plugin throws exception what should I do
+## Feedback
 
-You can report the error to us, this will make a GitHub issue created and we'll deal with it.<br/>
-This function comes from the Mathematica plugin and I just converted all the codes into Kotlin and merged into one file
-without changing any function signature, class/function names.
+You can report the error to us, this will create a GitHub issue labeled with `pending` and we'll deal with it.<br/>
+This function comes from the Mathematica plugin and I just did very little refactor without changing any classes' or
+functions' names.
 
 ## Which Julia Plugin should I choose
 
