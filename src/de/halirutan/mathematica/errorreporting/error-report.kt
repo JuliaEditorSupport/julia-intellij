@@ -57,7 +57,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 private object AnonymousFeedback {
-	private const val tokenFile = "de/halirutan/mathematica/errorreporting/Token.bin"
+	private const val tokenFile = "de/halirutan/mathematica/errorreporting/token.bin"
 	private const val gitRepoUser = "ice1000"
 	private const val gitRepo = "julia-intellij"
 	private const val issueLabel = "pending"
@@ -72,8 +72,6 @@ private object AnonymousFeedback {
 	 */
 	internal fun sendFeedback(environmentDetails: MutableMap<String, String>): SubmittedReportInfo {
 		val logger = Logger.getInstance(AnonymousFeedback::class.java.name)
-
-		val result: SubmittedReportInfo
 		try {
 			val resource = AnonymousFeedback::class.java.classLoader.getResource(tokenFile)
 			if (resource == null) {
@@ -93,22 +91,14 @@ private object AnonymousFeedback {
 				newGibHubIssue = duplicate
 				isNewIssue = false
 			} else newGibHubIssue = issueService.createIssue(repoID, newGibHubIssue)
-
-			val id = newGibHubIssue.number.toLong()
-			val htmlUrl = newGibHubIssue.htmlUrl
-			val message = ErrorReportBundle.message(if (isNewIssue) "git.issue.text" else "git.issue.duplicate.text",
-				htmlUrl,
-				id)
-			result = SubmittedReportInfo(htmlUrl,
-				message,
+			return SubmittedReportInfo(newGibHubIssue.htmlUrl, ErrorReportBundle.message(
+				if (isNewIssue) "git.issue.text" else "git.issue.duplicate.text", newGibHubIssue.htmlUrl, newGibHubIssue.number.toLong()),
 				if (isNewIssue) SubmissionStatus.NEW_ISSUE else SubmissionStatus.DUPLICATE)
-			return result
 		} catch (e: Exception) {
 			return SubmittedReportInfo(null,
 				ErrorReportBundle.message("report.error.connection.failure"),
 				SubmissionStatus.FAILED)
 		}
-
 	}
 
 	private fun findFirstDuplicate(uniqueTitle: String, service: IssueService, repo: RepositoryId): Issue? {
@@ -118,19 +108,15 @@ private object AnonymousFeedback {
 	}
 
 	private fun createNewGibHubIssue(details: MutableMap<String, String>) = Issue().apply {
-		details.remove("error.message")
-		details.remove("error.hash")
-		val errorMessage = details["error.message"]?.takeIf(String::isNotBlank) ?: "Unspecified error"
-		title = ErrorReportBundle.message("git.issue.title", details["error.hash"].orEmpty(), errorMessage)
+		val errorMessage = details.remove("error.message")?.takeIf(String::isNotBlank) ?: "Unspecified error"
+		title = ErrorReportBundle.message("git.issue.title", details.remove("error.hash").orEmpty(), errorMessage)
 		body = generateGitHubIssueBody(details, true)
 		labels = listOf(Label().apply { name = issueLabel })
 	}
 
 	private fun generateGitHubIssueBody(details: MutableMap<String, String>, includeStacktrace: Boolean): String {
-		details.remove("error.description")
-		details.remove("error.stacktrace")
-		val errorDescription = details["error.description"].orEmpty()
-		val stackTrace = details["error.stacktrace"]?.takeIf(String::isNotBlank) ?: "invalid stacktrace"
+		val errorDescription = details.remove("error.description").orEmpty()
+		val stackTrace = details.remove("error.stacktrace")?.takeIf(String::isNotBlank) ?: "invalid stacktrace"
 		val result = StringBuilder()
 		if (!errorDescription.isEmpty()) {
 			result.append(errorDescription)

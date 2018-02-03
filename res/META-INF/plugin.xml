@@ -122,6 +122,5 @@ Please don't downvote our plugin for not having one of the features above, becau
 			<keyboard-shortcut keymap="$default" first-keystroke="ctrl shift e"/>
 			<add-to-group group-id="EditorPopupMenu1" anchor="first"/>
 		</action>
-		<action class="de.halirutan.mathematica.errorreporting.TriggerExceptionAction" id="XNSUABXJHS" text="傻不拉姬的"/>
 	</actions>
 </idea-plugin>
