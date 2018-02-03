@@ -52,7 +52,7 @@ Please don't downvote our plugin for not having one of the features above, becau
 		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>
 		<colorSettingsPage implementation="org.ice1000.julia.lang.JuliaColorSettingsPage"/>
 		<codeStyleSettingsProvider implementation="org.ice1000.julia.lang.editing.JuliaCodeStyleSettingsProvider"/>
-		<langCodeStyleSettingsProvider implementation="org.ice1000.julia.lang.editing.JuliaLanguageCodeStyleSettingsProvider"/>
+		<langCodeStyleSettingsProvider implementation="org.ice1000.julia.lang.editing.JuliaStyleSettingsProvider"/>
 		<defaultLiveTemplatesProvider implementation="org.ice1000.julia.lang.JuliaLiveTemplateProvider"/>
 		<liveTemplateContext implementation="org.ice1000.julia.lang.JuliaContext"/>
 		<configurationType implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationType"/>
@@ -62,6 +62,7 @@ Please don't downvote our plugin for not having one of the features above, becau
 		<moduleConfigurationEditorProvider implementation="org.ice1000.julia.lang.module.JuliaModuleConfigEditor"/>
 		<directoryProjectGenerator implementation="org.ice1000.julia.lang.module.JuliaProjectGenerator"/>
 		<iconProvider implementation="org.ice1000.julia.lang.editing.JuliaIconProvider"/>
+		<errorHandler implementation="de.halirutan.mathematica.errorreporting.GitHubErrorReporter"/>
 		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
@@ -94,8 +95,7 @@ Please don't downvote our plugin for not having one of the features above, becau
 			implementationClass="org.ice1000.julia.lang.editing.JuliaCommenter"/>
 		<lang.formatter
 			language="Julia"
-			implementationClass="org.ice1000.julia.lang.editing.JuliaFormattingModelBuilder"
-			/>
+			implementationClass="org.ice1000.julia.lang.editing.JuliaFormattingModelBuilder"/>
 		<moduleType
 			id="JULIA_MODULE_TYPE"
 			implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>
