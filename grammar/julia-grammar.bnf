@@ -438,7 +438,7 @@ primitiveTypeName ::= SYM
 typeDeclaration ::=
  typeModifiers (TYPE_KEYWORD | STRUCT_KEYWORD) endOfLine
   typeName typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
-  (assignment endOfLine)*
+  expr*
  END_KEYWORD { extends=expr }
 
 abstractTypeDeclaration ::=
