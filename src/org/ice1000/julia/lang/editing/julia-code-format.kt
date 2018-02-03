@@ -6,8 +6,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.formatter.common.AbstractBlock
+import com.intellij.psi.tree.TokenSet
 import org.ice1000.julia.lang.JuliaLanguage
-import org.ice1000.julia.lang.JuliaTokenType
 import org.ice1000.julia.lang.psi.JuliaTypes
 import java.util.*
 
@@ -50,10 +50,12 @@ class JuliaFormattingModelBuilder : FormattingModelBuilder {
 //		val codeStyleSettings = settings.getCustomSettings(JuliaCodeStyleSettings::class.java)
 //		val commonSettings = settings.getCommonSettings(JsonLanguage.INSTANCE)
 //		val spacesAroundAssign = if (commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS) 1 else 0
-// TODO: FIX
 		return SpacingBuilder(settings, JuliaLanguage.INSTANCE)
-			.aroundInside(JuliaTokenType.ASSIGN_OPERATORS, JuliaTypes.EXPR).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
-			.afterInside(JuliaTypes.COMMA_SYM, JuliaTypes.APPLY_FUNCTION_OP).spaces(1)
+			.aroundInside(JuliaTypes.EQ_SYM, JuliaTypes.ASSIGN_OP).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+			// TODO: TokenSet.create(EQ,IS_NOT,...)
+			// != is undefined in flex token
+			.around(TokenSet.create(JuliaTypes.EQUALS_SYM)).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+			.afterInside(JuliaTypes.COMMA_SYM, JuliaTypes.EXPRESSION_LIST).spaces(1)
 	}
 
 	override fun getRangeAffectingIndent(file: PsiFile, offset: Int, elementAtOffset: ASTNode): TextRange? {
