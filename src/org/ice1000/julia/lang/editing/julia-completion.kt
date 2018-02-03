@@ -110,7 +110,8 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 	init {
 		extend(CompletionType.BASIC,
 			psiElement()
-				.inside(psiElement(JuliaTypes.STATEMENTS)),
+				.inside(psiElement(JuliaTypes.STATEMENTS)).andNot(
+				psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(statementBegin))
 		extend(CompletionType.BASIC,
 			psiElement()
