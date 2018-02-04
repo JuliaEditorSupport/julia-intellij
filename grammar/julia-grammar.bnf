@@ -138,25 +138,25 @@ expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 // lowest
 applyMacroOp ::= macroSymbol expr*
 
+// naming: level+number or type+level or type+levelOp
 expr ::=
    applyMacroOp
  | compactFunction
- | assigns
+ | assignLevelOp
  | arrowOp
  | ternaryOp
  | miscArrowsOp
  | orOp
  | andOp
  | lambda
- | comparisonLevel
- | invPipeOp
- | pipeOp
+ | comparisonLevelOp
+ | pipeLevelOp
  | level8
- | level9
- | level10
- | level11
+ | plusLevelOp
+ | bitwiseLevel
+ | multiplyLevel
  | fractionOp
- | level13
+ | exponentLevel
  | typeOp
  | unaryLevel
  | primaryExpr
@@ -177,42 +177,26 @@ compactFunction ::=
 }
 
 // level 0
-private assigns ::=
-   colonAssignOp
- | bitwiseAndAssignOp
- | bitwiseOrAssignOp
- | bitwiseXorAssignOp
- | inverseDivAssignOp
- | shlAssignOp
- | shrAssignOp
- | remainderAssignOp
- | ushrAssignOp
- | plusAssignOp
- | minusAssignOp
- | multiplyAssignOp
- | fractionAssignOp
- | divideAssignOp
- | factoriseAssignOp
- | exponentAssignOp
- | assignOp
-
-colonAssignOp ::= expr COLON_ASSIGN_SYM expr { rightAssociative=true }
-bitwiseAndAssignOp ::= expr BITWISE_AND_ASSIGN_SYM expr { rightAssociative=true }
-bitwiseOrAssignOp ::= expr BITWISE_OR_ASSIGN_SYM expr { rightAssociative=true }
-bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM expr { rightAssociative=true }
-inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM expr { rightAssociative=true }
-shlAssignOp ::= expr SHL_ASSIGN_SYM expr { rightAssociative=true }
-shrAssignOp ::= expr SHR_ASSIGN_SYM expr { rightAssociative=true }
-remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM expr { rightAssociative=true }
-ushrAssignOp ::= expr USHR_ASSIGN_SYM expr { rightAssociative=true }
-plusAssignOp ::= expr PLUS_ASSIGN_SYM expr { rightAssociative=true }
-minusAssignOp ::= expr MINUS_ASSIGN_SYM expr { rightAssociative=true }
-multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM expr { rightAssociative=true }
-fractionAssignOp ::= expr FRACTION_ASSIGN_SYM expr { rightAssociative=true }
-divideAssignOp ::= expr DIVIDE_ASSIGN_SYM expr { rightAssociative=true }
-factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM expr { rightAssociative=true }
-exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
-assignOp ::= expr (EQ_SYM | ASSIGN_SYM) expr { rightAssociative=true }
+assignLevelOp ::= expr assignLevelOperator endOfLine expr { rightAssociative=true }
+assignLevelOperator ::=
+   COLON_ASSIGN_SYM
+ | BITWISE_AND_ASSIGN_SYM
+ | BITWISE_OR_ASSIGN_SYM
+ | BITWISE_XOR_ASSIGN_SYM
+ | INVERSE_DIV_ASSIGN_SYM
+ | SHL_ASSIGN_SYM
+ | SHR_ASSIGN_SYM
+ | REMAINDER_ASSIGN_SYM
+ | USHR_ASSIGN_SYM
+ | PLUS_ASSIGN_SYM
+ | MINUS_ASSIGN_SYM
+ | MULTIPLY_ASSIGN_SYM
+ | FRACTION_ASSIGN_SYM
+ | DIVIDE_ASSIGN_SYM
+ | FACTORISE_ASSIGN_SYM
+ | EXPONENT_ASSIGN_SYM
+ | EQ_SYM
+ | ASSIGN_SYM
 
 // level 1.5
 arrowOp ::= expr ARROW_SYM endOfLine expr { rightAssociative=true }
@@ -268,33 +252,23 @@ lambda ::=
 }
 
 // level 6
-private comparisonLevel ::=
-   lessThanOrEqualOp
- | lessThanOp
- | greaterThanOp
- | greaterThanOrEqualOp
- | isntOp
- | isOp
- | equalsOp
- | unequalOp
- | subtypeOp
- | miscComparisonOp
-
-lessThanOp ::= expr LESS_THAN_SYM endOfLine expr
-lessThanOrEqualOp ::= expr LESS_THAN_OR_EQUAL_SYM endOfLine expr
-greaterThanOp ::= expr GREATER_THAN_SYM endOfLine expr
-greaterThanOrEqualOp ::= expr GREATER_THAN_OR_EQUAL_SYM endOfLine expr
-equalsOp ::= expr EQUALS_SYM endOfLine expr
-unequalOp ::= expr UNEQUAL_SYM endOfLine expr
-isOp ::= expr IS_SYM endOfLine expr
-isntOp ::= expr ISNT_SYM endOfLine expr
-subtypeOp ::= expr SUBTYPE_SYM endOfLine expr
-miscComparisonOp ::= expr MISC_COMPARISON_SYM endOfLine expr
+comparisonLevelOp ::= expr comparisonLevelOperator endOfLine expr
+comparisonLevelOperator ::=
+   LESS_THAN_SYM
+ | LESS_THAN_OR_EQUAL_SYM
+ | GREATER_THAN_SYM
+ | GREATER_THAN_OR_EQUAL_SYM
+ | EQUALS_SYM
+ | UNEQUAL_SYM
+ | IS_SYM
+ | ISNT_SYM
+ | SUBTYPE_SYM
+ | MISC_COMPARISON_SYM
 
 // |>
 // level 7
-pipeOp ::= expr PIPE_SYM endOfLine expr
-invPipeOp ::= expr INVERSE_PIPE_SYM endOfLine expr
+pipeLevelOperator ::= PIPE_SYM | INVERSE_PIPE_SYM
+pipeLevelOp ::= expr pipeLevelOperator endOfLine expr
 
 private level8 ::=
    spliceOp
@@ -302,65 +276,58 @@ private level8 ::=
  | compoundQuoteOp
 
 spliceOp ::= expr SLICE_SYM
-// TODO review if this should be a quoted expression!!! with interpolation
 quoteOp ::= COLON_SYM endOfLine expr
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
 
 // + - etc
-private level9 ::=
-   plusOp
- | minusOp
- | bitwiseXorOp
- | bitwiseOrOp
- | miscPlusOp
+plusLevelOp ::= expr plusLevelOperator endOfLine expr
+plusLevelOperator ::=
+   INTERPOLATE_SYM
+ | BITWISE_XOR_SYM
+ | BITWISE_OR_SYM
+ | PLUS_SYM
+ | MINUS_SYM
+ | MISC_PLUS_SYM
 
-bitwiseXorOp ::= expr (INTERPOLATE_SYM | BITWISE_XOR_SYM) endOfLine expr
-bitwiseOrOp ::= expr BITWISE_OR_SYM endOfLine expr
-plusOp ::= expr PLUS_SYM endOfLine expr
-minusOp ::= expr MINUS_SYM endOfLine expr
-miscPlusOp ::= expr MISC_PLUS_SYM endOfLine expr
-
-private level10 ::=
-   shlOp
- | shrOp
- | ushrOp
- | transposeOp
+private bitwiseLevel ::=
+   bitwiseLevelOp
  | rangeOp
+ | transposeOp
 
-shrOp ::= expr SHR_SYM endOfLine expr
-ushrOp ::= expr USHR_SYM endOfLine expr
-shlOp ::= expr SHL_SYM endOfLine expr
-transposeOp ::= expr TRANSPOSE_SYM
+bitwiseLevelOp ::= expr bitwiseLevelOperator endOfLine expr
 rangeOp ::= expr COLON_SYM endOfLine expr
+bitwiseLevelOperator ::=
+   SHR_SYM
+ | USHR_SYM
+ | SHL_SYM
+
+transposeOp ::= expr TRANSPOSE_SYM
 
 // * / % & ^
-private level11 ::=
-   multiplyOp
- | divideOp
- | remainderOp
- | bitwiseAndOp
- | inverseDivideOp
- | factoriseOp
- | miscMultiplyOp
+private multiplyLevel ::=
+   multiplyLevelOp
  | implicitMultiplyOp
 
-multiplyOp ::= expr MULTIPLY_SYM endOfLine expr
-divideOp ::= expr DIVIDE_SYM endOfLine expr
-remainderOp ::= expr REMAINDER_SYM endOfLine expr
-inverseDivideOp ::= expr INVERSE_DIV_SYM endOfLine expr
-factoriseOp ::= expr FACTORISE_SYM endOfLine expr
-bitwiseAndOp ::= expr BITWISE_AND_SYM endOfLine expr
-miscMultiplyOp ::= expr MISC_MULTIPLY_SYM endOfLine expr
+multiplyLevelOp ::= expr multiplyLevelOperator endOfLine expr
+multiplyLevelOperator ::=
+   MULTIPLY_SYM
+ | DIVIDE_SYM
+ | REMAINDER_SYM
+ | INVERSE_DIV_SYM
+ | FACTORISE_SYM
+ | BITWISE_AND_SYM
+ | MISC_MULTIPLY_SYM
+
 implicitMultiplyOp ::= specialLhs blockComment? IMPLICIT_MULTIPLY_SYM specialRhs
 private specialLhs ::= integer | floatLit | symbol | string
-private specialRhs ::= symbol | string | charLit
+private specialRhs ::= symbol | string | charLit | integer | floatLit
 
 // // .//
 // level 12
 fractionOp ::= expr FRACTION_SYM endOfLine expr
 
 // ^ .^
-private level13 ::=
+private exponentLevel ::=
    miscExponentOp
  | exponentOp
 
