@@ -17,7 +17,11 @@
 
 juliaFile ::= endOfLine statements
 
-symbol ::= SYM
+symbol ::= SYM {
+	pin=1
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaSymbol']
+}
+
 macroSymbol ::= AT_SYM SYM
 
 unaryOpAsSymbol ::=
@@ -86,7 +90,7 @@ private stringTemplateElement::=
 
 template ::= SHORT_INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
 stringContent ::= REGULAR_STRING_PART_LITERAL {
-	implements=['com.intellij.psi.PsiLanguageInjectionHost']
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaStringContent']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaStringContentMixin'
 }
 
@@ -106,9 +110,8 @@ private statement ::=
  | expr (COMMA_SYM expr)*
 
 private moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
-moduleName ::= SYM
 moduleDeclaration ::=
- moduleType moduleName endOfLine
+ moduleType symbol endOfLine
   statements
  END_KEYWORD
 
@@ -131,7 +134,7 @@ private typeParameters ::=
  RIGHT_B_BRACKET
 
 userType ::= expr typeParameters?
-typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
+typeAlias ::= TYPEALIAS_KEYWORD symbol typeParameters? userType { extends=expr }
 
 expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 
@@ -167,7 +170,7 @@ expr ::=
 memberAccessOp ::= expr DOT_SYM symbol
 
 compactFunction ::=
- functionName
+ symbol
   (typeParameters endOfLine)?
    functionSignature endOfLine
     (whereClause endOfLine)?
@@ -414,43 +417,43 @@ private untypedVariables ::=
   (symbol (endOfLine COMMA_SYM endOfLine symbol)*)? endOfLine
  RIGHT_BRACKET
 
-functionName ::= SYM
 function ::=
  FUNCTION_KEYWORD endOfLine
-    functionName
+    symbol
      (typeParameters endOfLine)?
    functionSignature endOfLine
     (whereClause endOfLine)?
   statements
  END_KEYWORD { extends=expr pin=1 }
 
-typeName ::= SYM
-abstractTypeName ::= SYM
-primitiveTypeName ::= SYM
 private typeModifiers ::= IMMUTABLE_KEYWORD | MUTABLE_KEYWORD
 typeDeclaration ::=
  (typeModifiers? (TYPE_KEYWORD | STRUCT_KEYWORD) | typeModifiers) endOfLine
-  typeName typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
+  symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
   statements
  END_KEYWORD { extends=expr }
 
 abstractTypeDeclaration ::=
  ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
-  abstractTypeName (SUBTYPE_SYM endOfLine expr)? endOfLine
+  symbol (SUBTYPE_SYM endOfLine expr)? endOfLine
  END_KEYWORD { extends=expr pin=1 }
 
 primitiveTypeDeclaration ::=
  PRIMITIVE_KEYWORD TYPE_KEYWORD endOfLine
-  primitiveTypeName (SUBTYPE_SYM endOfLine expr)? expr endOfLine
+  symbol (SUBTYPE_SYM endOfLine expr)? expr endOfLine
  END_KEYWORD { extends=expr pin=1 }
 
-macroName ::= SYM
 macro ::=
  MACRO_KEYWORD endOfLine
-    macroName endOfLine
+    symbol endOfLine
    untypedVariables endOfLine
   statements
- END_KEYWORD { extends=expr pin=1 }
+ END_KEYWORD {
+	extends=expr
+	pin=1
+	implements=['']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin'
+}
 
 let ::= LET_KEYWORD statements END_KEYWORD { extends=expr pin=1 }
 

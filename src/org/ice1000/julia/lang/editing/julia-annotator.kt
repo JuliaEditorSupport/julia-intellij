@@ -13,25 +13,16 @@ import org.ice1000.julia.lang.psi.*
 class JuliaAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		when (element) {
-			is JuliaFunctionName -> definition(element, holder, JuliaHighlighter.FUNCTION_NAME)
-			is JuliaMacroName -> definition(element, holder, JuliaHighlighter.MACRO_NAME)
-			is JuliaTypeName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.TYPE_NAME
-			is JuliaAbstractTypeName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
-			is JuliaPrimitiveTypeName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
 			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MACRO_REFERENCE
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
-			is JuliaSymbol -> if (element.text == "end") holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.KEYWORD
-			is JuliaModuleName -> holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.MODULE_NAME
+			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
-			is JuliaBitwiseXorOp -> {
-				// TODO replace with ⊻
+			is JuliaBitwiseLevelOp -> {
+				// TODO replace $ with ⊻
 			}
-			is JuliaBitwiseXorAssignOp -> {
-				// TODO replace with ⊻=
+			is JuliaAssignLevelOp -> {
+				// TODO replace $= with ⊻=
 			}
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
@@ -39,6 +30,23 @@ class JuliaAnnotator : Annotator {
 			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
 				// TODO provide conversions
 			}
+		}
+	}
+
+	private fun symbol(element: JuliaSymbol, holder: AnnotationHolder) {
+		when {
+			element.text == "end" -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.KEYWORD
+			element.isModuleName -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.MODULE_NAME
+			element.isMacroName -> definition(element, holder, JuliaHighlighter.MACRO_NAME)
+			element.isFunctionName -> definition(element, holder, JuliaHighlighter.FUNCTION_NAME)
+			element.isAbstractTypeName -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
+			element.isPrimitiveTypeName -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
+			element.isTypeName -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.TYPE_NAME
 		}
 	}
 
@@ -69,7 +77,7 @@ class JuliaAnnotator : Annotator {
 			highlightType = ProblemHighlightType.LIKE_DEPRECATED
 			registerFix(JuliaReplaceWithTextIntention(
 				element,
-				"const ${element.typeName.text} = ${element.userType.text}",
+				"const ${element.children[1].text} = ${element.userType.text}",
 				JuliaBundle.message("julia.lint.typealias-fix")))
 		}
 	}

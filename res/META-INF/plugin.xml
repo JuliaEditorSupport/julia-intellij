@@ -73,7 +73,7 @@ Please don't downvote our plugin for not having one of the features above, becau
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
 		<lang.elementManipulator
 			forClass="org.ice1000.julia.lang.psi.impl.JuliaStringContentMixin"
-			implementationClass="org.ice1000.julia.lang.psi.impl.JuliaStringManipulator"/>
+			implementationClass="org.ice1000.julia.lang.psi.JuliaStringManipulator"/>
 		<projectConfigurable
 			groupId="language"
 			instance="org.ice1000.julia.lang.module.JuliaProjectConfigurable"/>
