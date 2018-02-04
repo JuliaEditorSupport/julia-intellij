@@ -41,7 +41,6 @@ class JuliaCommandLineState(
 			params += "--code-coverage=$codeCoverage"
 			params += "--track-allocation=$trackAllocation"
 			if (launchReplOption) params += "-i"
-			if (quietReplOption) params += "--quiet"
 			params += configuration.additionalOptions.split(' ', '\n').filter(String::isNotBlank)
 			params += configuration.targetFile
 			params += configuration.programArgs.split(' ', '\n').filter(String::isNotBlank)

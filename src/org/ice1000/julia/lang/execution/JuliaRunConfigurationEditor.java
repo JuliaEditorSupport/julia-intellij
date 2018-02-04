@@ -37,7 +37,6 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JCheckBox handleSignalCheckBox;
 	private @NotNull JCheckBox startupFileCheckBox;
 	private @NotNull JCheckBox launchReplCheckBox;
-	private @NotNull JCheckBox quietReplCheckBox;
 	private @NotNull RawCommandLineEditor programArgumentsField;
 	private @NotNull RawCommandLineEditor additionalOptionsField;
 	private @NotNull JComboBox<String> optimizationLevelComboBox; // --optimize
@@ -59,7 +58,6 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 			JuliaBundle.message("julia.messages.run.select-julia-file.description"),
 			project,
 			FileChooserDescriptorFactory.createSingleFileDescriptor(JuliaFileType.INSTANCE));
-		launchReplCheckBox.addChangeListener(changeEvent -> quietReplCheckBox.setEnabled(launchReplCheckBox.isSelected()));
 		String def = "2 (" + JuliaBundle.message("julia.run-config.opt-level.default") + ")";
 		String rec = "3 (" + JuliaBundle.message("julia.run-config.opt-level.recommended") + ")";
 		Arrays.asList("0", "1", def, rec).forEach(optimizationLevelComboBox::addItem);
@@ -83,8 +81,6 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		unsafeFloatCheckBox.setSelected(configuration.getUnsafeFloatOption());
 		startupFileCheckBox.setSelected(configuration.getStartupFileOption());
 		launchReplCheckBox.setSelected(configuration.getLaunchReplOption());
-		quietReplCheckBox.setSelected(configuration.getQuietReplOption());
-		quietReplCheckBox.setEnabled(launchReplCheckBox.isSelected());
 		additionalOptionsField.setText(configuration.getAdditionalOptions());
 		programArgumentsField.setText(configuration.getProgramArgs());
 		optimizationLevelComboBox.setSelectedIndex(configuration.getOptimizationLevel());
@@ -112,7 +108,6 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		configuration.setUnsafeFloatOption(unsafeFloatCheckBox.isSelected());
 		configuration.setStartupFileOption(startupFileCheckBox.isSelected());
 		configuration.setLaunchReplOption(launchReplCheckBox.isSelected());
-		configuration.setQuietReplOption(quietReplCheckBox.isSelected());
 		configuration.setAdditionalOptions((additionalOptionsField.getText()));
 		configuration.setProgramArgs((programArgumentsField.getText()));
 		configuration.setOptimizationLevel(optimizationLevelComboBox.getSelectedIndex());
@@ -228,7 +223,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 				0,
 				false));
 		final JPanel panel1 = new JPanel();
-		panel1.setLayout(new GridLayoutManager(13, 2, new Insets(0, 0, 0, 0), -1, -1));
+		panel1.setLayout(new GridLayoutManager(12, 2, new Insets(0, 0, 0, 0), -1, -1));
 		jBScrollPane1.setViewportView(panel1);
 		panel1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(),
 			null,
@@ -237,7 +232,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 			this.$$$getFont$$$(null, -1, -1, panel1.getFont())));
 		final Spacer spacer1 = new Spacer();
 		panel1.add(spacer1,
-			new GridConstraints(12,
+			new GridConstraints(11,
 				0,
 				1,
 				2,
@@ -339,7 +334,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		this.$$$loadLabelText$$$(label3,
 			ResourceBundle.getBundle("org/ice1000/julia/lang/julia-bundle").getString("julia.run-config.opt-level"));
 		panel1.add(label3,
-			new GridConstraints(6,
+			new GridConstraints(5,
 				0,
 				1,
 				1,
@@ -354,7 +349,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 				false));
 		optimizationLevelComboBox = new JComboBox();
 		panel1.add(optimizationLevelComboBox,
-			new GridConstraints(6,
+			new GridConstraints(5,
 				1,
 				1,
 				1,
@@ -371,7 +366,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		this.$$$loadLabelText$$$(label4,
 			ResourceBundle.getBundle("org/ice1000/julia/lang/julia-bundle").getString("julia.run-config.jit-options"));
 		panel1.add(label4,
-			new GridConstraints(7,
+			new GridConstraints(6,
 				0,
 				1,
 				1,
@@ -386,7 +381,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 				false));
 		jitCompilerOptions = new JComboBox();
 		panel1.add(jitCompilerOptions,
-			new GridConstraints(7,
+			new GridConstraints(6,
 				1,
 				1,
 				1,
@@ -403,7 +398,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		this.$$$loadLabelText$$$(label5,
 			ResourceBundle.getBundle("org/ice1000/julia/lang/julia-bundle").getString("julia.run-config.more-options"));
 		panel1.add(label5,
-			new GridConstraints(8,
+			new GridConstraints(7,
 				0,
 				1,
 				1,
@@ -454,7 +449,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		this.$$$loadLabelText$$$(label6,
 			ResourceBundle.getBundle("org/ice1000/julia/lang/julia-bundle").getString("julia.run-config.dep-warn"));
 		panel1.add(label6,
-			new GridConstraints(9,
+			new GridConstraints(8,
 				0,
 				1,
 				1,
@@ -469,7 +464,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 				false));
 		depWarnOptions = new JComboBox();
 		panel1.add(depWarnOptions,
-			new GridConstraints(9,
+			new GridConstraints(8,
 				1,
 				1,
 				1,
@@ -486,7 +481,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		this.$$$loadLabelText$$$(label7,
 			ResourceBundle.getBundle("org/ice1000/julia/lang/julia-bundle").getString("julia.run-config.code-cov"));
 		panel1.add(label7,
-			new GridConstraints(10,
+			new GridConstraints(9,
 				0,
 				1,
 				1,
@@ -501,7 +496,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 				false));
 		codeCovOptions = new JComboBox();
 		panel1.add(codeCovOptions,
-			new GridConstraints(10,
+			new GridConstraints(9,
 				1,
 				1,
 				1,
@@ -518,7 +513,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		this.$$$loadLabelText$$$(label8,
 			ResourceBundle.getBundle("org/ice1000/julia/lang/julia-bundle").getString("julia.run-config.track-alloc"));
 		panel1.add(label8,
-			new GridConstraints(11,
+			new GridConstraints(10,
 				0,
 				1,
 				1,
@@ -533,7 +528,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 				false));
 		trackAllocOptions = new JComboBox();
 		panel1.add(trackAllocOptions,
-			new GridConstraints(11,
+			new GridConstraints(10,
 				1,
 				1,
 				1,
@@ -550,7 +545,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		this.$$$loadLabelText$$$(label9,
 			ResourceBundle.getBundle("org/ice1000/julia/lang/julia-bundle").getString("julia.run-config.exe"));
 		panel1.add(label9,
-			new GridConstraints(5,
+			new GridConstraints(4,
 				0,
 				1,
 				1,
@@ -565,7 +560,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 				false));
 		juliaExeField = new TextFieldWithBrowseButton();
 		panel1.add(juliaExeField,
-			new GridConstraints(5,
+			new GridConstraints(4,
 				1,
 				1,
 				1,
@@ -580,7 +575,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 				false));
 		additionalOptionsField = new RawCommandLineEditor();
 		panel1.add(additionalOptionsField,
-			new GridConstraints(8,
+			new GridConstraints(7,
 				1,
 				1,
 				1,
@@ -598,23 +593,6 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 			ResourceBundle.getBundle("org/ice1000/julia/lang/julia-bundle").getString("julia.run-config.launch-repl"));
 		panel1.add(launchReplCheckBox,
 			new GridConstraints(3,
-				1,
-				1,
-				1,
-				GridConstraints.ANCHOR_WEST,
-				GridConstraints.FILL_NONE,
-				GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-				GridConstraints.SIZEPOLICY_FIXED,
-				null,
-				null,
-				null,
-				0,
-				false));
-		quietReplCheckBox = new JCheckBox();
-		this.$$$loadButtonText$$$(quietReplCheckBox,
-			ResourceBundle.getBundle("org/ice1000/julia/lang/julia-bundle").getString("julia.run-config.quiet-repl"));
-		panel1.add(quietReplCheckBox,
-			new GridConstraints(4,
 				1,
 				1,
 				1,
