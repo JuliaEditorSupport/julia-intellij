@@ -117,7 +117,7 @@ moduleDeclaration ::=
 
 globalStatement ::=
  GLOBAL_KEYWORD endOfLine
- symbol (COMMA_SYM endOfLine symbol)*
+ expr (COMMA_SYM endOfLine expr)*
 
 typeAnnotation ::= DOUBLE_COLON endOfLine expr typeParameters?
 
@@ -233,7 +233,7 @@ applyFunctionOp ::=
 symbolLhs ::=
  ((LOCAL_KEYWORD | CONST_KEYWORD)
   endOfLine)?
- symbol
+ (symbol | LEFT_BRACKET symbol RIGHT_BRACKET)
   (COMMA_SYM endOfLine symbol)* { extends=expr }
 
 // All reserved but unassigned
@@ -349,12 +349,14 @@ private unaryLevel ::=
    unaryPlusOp
  | unaryMinusOp
  | unaryTypeOp
+ | unaryInterpolateOp
  | notOp
  | bitWiseNotOp
 
 bitWiseNotOp ::= BITWISE_NOT_SYM endOfLine expr
 unaryTypeOp ::= DOUBLE_COLON endOfLine expr
 unaryMinusOp ::= MINUS_SYM endOfLine expr
+unaryInterpolateOp ::= INTERPOLATE_SYM endOfLine expr
 notOp ::= NOT_SYM endOfLine expr
 unaryPlusOp ::= PLUS_SYM endOfLine expr
 
@@ -429,10 +431,10 @@ private untypedVariables ::=
 
 function ::=
  FUNCTION_KEYWORD endOfLine
-    symbol
-     (typeParameters endOfLine)?
-   functionSignature endOfLine
-    (whereClause endOfLine)?
+  symbol
+   (typeParameters endOfLine)?
+   (functionSignature endOfLine)?
+   (whereClause endOfLine)?
   statements
  END_KEYWORD { extends=expr }
 
@@ -487,7 +489,7 @@ importAllExpr ::=
 
 importExpr ::=
  IMPORT_KEYWORD endOfLine
-  memberAccessOp
+  access
   (COLON_SYM endOfLine
    memberAccessOp
    (
