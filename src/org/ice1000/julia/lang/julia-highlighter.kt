@@ -106,7 +106,8 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.LET_KEYWORD,
 		JuliaTypes.DO_KEYWORD,
 		JuliaTypes.BEGIN_KEYWORD,
-		JuliaTypes.UNION_KEYWORD
+		JuliaTypes.UNION_KEYWORD,
+		JuliaTypes.WHERE_KEYWORD
 	)
 
 	/** parentheses */

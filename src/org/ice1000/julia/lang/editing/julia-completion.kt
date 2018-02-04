@@ -6,8 +6,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
-import org.ice1000.julia.lang.psi.JuliaString
-import org.ice1000.julia.lang.psi.JuliaTypes
+import org.ice1000.julia.lang.psi.*
 
 class JuliaBasicCompletionContributor : CompletionContributor() {
 	class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
@@ -102,44 +101,52 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"println",
 			"print"
 		).map(LookupElementBuilder::create)
+
+		private val where = listOf(LookupElementBuilder.create("where"))
 	}
 
 	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =
 		position.parent !is JuliaString && typeChar in ".(["
 
 	init {
+		extend(CompletionType.BASIC, psiElement()
+			.inside(JuliaFunction::class.java)
+			.afterLeaf(")")
+			.andNot(psiElement()
+				.withParent(JuliaStatements::class.java)),
+			JuliaCompletionProvider(where))
 		extend(CompletionType.BASIC,
 			psiElement()
-				.inside(psiElement(JuliaTypes.STATEMENTS)).andNot(
+				.inside(JuliaStatements::class.java).andNot(
 				psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(statementBegin))
 		extend(CompletionType.BASIC,
 			psiElement()
-				.inside(psiElement(JuliaTypes.STATEMENTS))
+				.inside(JuliaStatements::class.java)
 				.andNot(psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(builtinFunction))
 		extend(CompletionType.BASIC,
 			psiElement()
-				.inside(psiElement(JuliaTypes.TRY_CATCH))
+				.inside(JuliaStatements::class.java)
 				.andNot(psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(tryInside))
 		extend(CompletionType.BASIC,
 			psiElement()
 				.andOr(
-					psiElement().inside(psiElement(JuliaTypes.WHILE_EXPR)),
-					psiElement().inside(psiElement(JuliaTypes.FOR_EXPR)))
+					psiElement().inside(JuliaWhileExpr::class.java),
+					psiElement().inside(JuliaForExpr::class.java))
 				.andNot(psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(loopInside))
 		extend(CompletionType.BASIC,
 			psiElement()
-				.inside(psiElement(JuliaTypes.IF_EXPR))
+				.inside(JuliaIfExpr::class.java)
 				.andNot(psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(ifInside))
 		extend(CompletionType.BASIC,
 			psiElement()
 				.andOr(
-					psiElement().inside(psiElement(JuliaTypes.FUNCTION)),
-					psiElement().inside(psiElement(JuliaTypes.MACRO)))
+					psiElement().inside(JuliaFunction::class.java),
+					psiElement().inside(JuliaMacro::class.java))
 				.andNot(psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(functionInside))
 	}
