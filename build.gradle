@@ -1,0 +1,78 @@
+import org.jetbrains.grammarkit.tasks.GenerateLexer
+import org.jetbrains.grammarkit.tasks.GenerateParser
+
+buildscript {
+		ext.kotlin_version = '1.2.21'
+		repositories {
+				mavenCentral()
+				maven { url "https://jitpack.io" }
+		}
+		dependencies {
+				classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+				classpath "com.github.hurricup:gradle-grammar-kit-plugin:2017.1.1"
+		}
+}
+
+plugins {
+		id 'org.jetbrains.intellij' version '0.2.18'
+}
+
+allprojects {
+		apply plugin: "kotlin"
+		apply plugin: "org.jetbrains.grammarkit"
+		apply plugin: 'org.jetbrains.intellij'
+		intellij {
+				version idea_version
+				type idea_type
+				updateSinceUntilBuild false
+		}
+		sourceSets {
+				plugin{
+						java.srcDirs 'src', 'gen'
+						kotlin.srcDirs 'src'
+						resources.srcDirs 'res'
+				}
+
+				test {
+						kotlin.srcDirs 'test'
+						resources.srcDirs 'testData'
+				}
+		}
+}
+
+
+
+group 'org.ice1000.julia.lang'
+version '0.0.3'
+
+repositories {
+		mavenCentral()
+}
+
+dependencies {
+		compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+		compile "org.eclipse.mylyn.github:org.eclipse.egit.github.core:2.1.5"
+		testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+compileKotlin {
+		kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+		kotlinOptions.jvmTarget = "1.8"
+}
+
+task genFlex(group: 'JuliaLang', description: 'Make Flex', type: GenerateLexer) {
+		source = "grammar/julia-lexer.flex"
+		targetDir = "gen/org/ice1000/julia/lang"
+		targetClass = "JuliaLexer"
+		purgeOldFiles = true
+}
+
+task genBNF(group: 'JuliaLang', description: 'Make BNF.', type: GenerateParser) {
+		source = "grammar/julia-grammar.bnf"
+		targetRoot = "gen"
+		pathToParser = "org/ice1000/julia/lang/JuliaLexer.java"
+		pathToPsiRoot = "org/ice1000/julia/lang/psi"
+		purgeOldFiles = true
+}
