@@ -342,7 +342,7 @@ private level11 ::=
  | inverseDivideOp
  | factoriseOp
  | miscMultiplyOp
- | specialMultiplyOp
+ | implicitMultiplyOp
 
 multiplyOp ::= expr MULTIPLY_SYM endOfLine expr
 divideOp ::= expr DIVIDE_SYM endOfLine expr
@@ -351,8 +351,7 @@ inverseDivideOp ::= expr INVERSE_DIV_SYM endOfLine expr
 factoriseOp ::= expr FACTORISE_SYM endOfLine expr
 bitwiseAndOp ::= expr BITWISE_AND_SYM endOfLine expr
 miscMultiplyOp ::= expr MISC_MULTIPLY_SYM endOfLine expr
-
-specialMultiplyOp ::= specialLhs blockComment? specialRhs
+implicitMultiplyOp ::= specialLhs blockComment? IMPLICIT_MULTIPLY_SYM specialRhs
 private specialLhs ::= integer | floatLit | symbol | string
 private specialRhs ::= symbol | string | charLit
 
