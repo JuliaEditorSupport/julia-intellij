@@ -26,21 +26,21 @@ allprojects {
 				type idea_type
 				updateSinceUntilBuild false
 		}
-		sourceSets {
-				plugin{
-						java.srcDirs 'src', 'gen'
-						kotlin.srcDirs 'src'
-						resources.srcDirs 'res'
-				}
 
-				test {
-						kotlin.srcDirs 'test'
-						resources.srcDirs 'testData'
-				}
-		}
 }
 
+sourceSets {
+		main {
+				java.srcDirs = ['src', 'gen']
+				kotlin.srcDirs 'src'
+				resources.srcDirs 'res'
+		}
 
+		test {
+				kotlin.srcDirs 'test'
+				resources.srcDirs 'testData'
+		}
+}
 
 group 'org.ice1000.julia.lang'
 version '0.0.3'
@@ -70,9 +70,10 @@ task genFlex(group: 'JuliaLang', description: 'Make Flex', type: GenerateLexer) 
 }
 
 task genBNF(group: 'JuliaLang', description: 'Make BNF.', type: GenerateParser) {
+		dependsOn 'genFlex'
 		source = "grammar/julia-grammar.bnf"
 		targetRoot = "gen"
-		pathToParser = "org/ice1000/julia/lang/JuliaLexer.java"
-		pathToPsiRoot = "org/ice1000/julia/lang/psi"
+		pathToParser = "/org/ice1000/julia/lang/JuliaLexer.java"
+		pathToPsiRoot = "/org/ice1000/julia/lang/psi"
 		purgeOldFiles = true
 }
