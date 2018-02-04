@@ -18,7 +18,6 @@
 juliaFile ::= endOfLine statements
 
 symbol ::= SYM
-afterLitSymbol ::= AFTER_LIT_SYM
 macroSymbol ::= AT_SYM SYM
 
 unaryOpAsSymbol ::=
@@ -355,7 +354,7 @@ miscMultiplyOp ::= expr MISC_MULTIPLY_SYM endOfLine expr
 
 specialMultiplyOp ::= specialLhs blockComment? specialRhs
 private specialLhs ::= integer | floatLit | symbol | string
-private specialRhs ::= afterLitSymbol | string
+private specialRhs ::= symbol | string | charLit
 
 // // .//
 // level 12
