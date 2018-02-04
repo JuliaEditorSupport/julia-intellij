@@ -104,7 +104,7 @@ statements ::= semi* (statement (semi+ statement)*)? semi*
 private statement ::=
    moduleDeclaration
  | globalStatement
- | expr
+ | expr (COMMA_SYM expr)*
 
 private moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
 moduleName ::= SYM
@@ -547,7 +547,8 @@ whileExpr ::=
    statements
  END_KEYWORD { extends=expr }
 
-returnExpr ::= RETURN_KEYWORD expr?
+returnExpr ::= RETURN_KEYWORD (expr (COMMA_SYM expr)*)?
+
 tryCatch ::=
  TRY_KEYWORD endOfLine
   statements
