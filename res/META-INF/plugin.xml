@@ -16,6 +16,7 @@ Functions provided:<br/>
   <li>Live templates</li>
   <li>Very basic completions</li>
   <li>Try Evaluate</li>
+  <li>Error reporter</li>
 </ul>
 
 What you'll see in the future:<br/>
@@ -36,6 +37,8 @@ Please don't downvote our plugin for not having one of the features above, becau
 	<change-notes><![CDATA[
 0.0.3<br/>
 <ul>
+  <li>Bug reporter (work when plugin throws uncaught exceptions)</li>
+  <li>New icon for modules</li>
   <li>Parser and run configuration improvements</li>
 </ul><br/>
 0.0.2<br/>

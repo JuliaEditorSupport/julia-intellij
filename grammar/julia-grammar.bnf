@@ -20,6 +20,7 @@ juliaFile ::= endOfLine statements
 symbol ::= SYM {
 	pin=1
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaSymbol']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin'
 }
 
 macroSymbol ::= AT_SYM SYM
