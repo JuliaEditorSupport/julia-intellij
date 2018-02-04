@@ -40,9 +40,9 @@ class JuliaCommandLineState(
 			params += "--depwarn=$deprecationWarning"
 			params += "--code-coverage=$codeCoverage"
 			params += "--track-allocation=$trackAllocation"
-			params += configuration.additionalOptions.split(' ').filter(String::isNotBlank)
+			params += configuration.additionalOptions.split(' ', '\n').filter(String::isNotBlank)
 			params += configuration.targetFile
-			params += configuration.programArgs.split(' ').filter(String::isNotBlank)
+			params += configuration.programArgs.split(' ', '\n').filter(String::isNotBlank)
 		}
 		val handler = OSProcessHandler(GeneralCommandLine(params).also {
 			it.withCharset(Charset.forName("UTF-8"))

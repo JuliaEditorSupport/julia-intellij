@@ -5,6 +5,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.RawCommandLineEditor;
 import org.ice1000.julia.lang.JuliaBundle;
 import org.ice1000.julia.lang.JuliaFileType;
 import org.jetbrains.annotations.Contract;
@@ -28,12 +29,10 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JCheckBox unsafeFloatCheckBox;
 	private @NotNull JCheckBox handleSignalCheckBox;
 	private @NotNull JCheckBox startupFileCheckBox;
-	// TODO replace with RawCommandLineEditor
-	private @NotNull JTextField programArgumentsField; // [args...]
+	private @NotNull RawCommandLineEditor programArgumentsField;
 	private @NotNull JComboBox<String> optimizationLevelComboBox; // --optimize
 	private @NotNull JComboBox<String> jitCompilerOptions; // --compile
-	// TODO replace with RawCommandLineEditor
-	private @NotNull JTextField additionalOptionsField;
+	private @NotNull RawCommandLineEditor additionalOptionsField;
 	private @NotNull JComboBox<String> depWarnOptions;
 	private @NotNull JComboBox<String> codeCovOptions;
 	private @NotNull JComboBox<String> trackAllocOptions;
