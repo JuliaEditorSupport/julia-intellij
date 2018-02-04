@@ -18,7 +18,6 @@
 juliaFile ::= endOfLine statements
 
 symbol ::= SYM {
-	pin=1
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaSymbol']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin'
 }
@@ -110,9 +109,8 @@ private statement ::=
  | globalStatement
  | expr (COMMA_SYM expr)*
 
-private moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
 moduleDeclaration ::=
- moduleType symbol endOfLine
+ (BAREMODULE_KEYWORD | MODULE_KEYWORD) symbol endOfLine
   statements
  END_KEYWORD
 

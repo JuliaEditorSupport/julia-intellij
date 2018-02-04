@@ -254,8 +254,12 @@ OTHERWISE=[^]
   return JuliaTypes.FLOAT_CONSTANT;
 }
 
-<YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} \! /= { yypushback(1); return JuliaTypes.SYM; }
-<YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} { yybegin(AFTER_SIMPLE_LIT); return JuliaTypes.SYM; }
+<YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} { hugify(AFTER_SIMPLE_LIT); return JuliaTypes.SYM; }
+<YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} \! /= {
+  yypushback(1);
+  hugify(AFTER_SIMPLE_LIT);
+  return JuliaTypes.SYM;
+}
 
 <YYINITIAL, LONG_TEMPLATE> {INTEGER} {
   hugify(AFTER_SIMPLE_LIT);
