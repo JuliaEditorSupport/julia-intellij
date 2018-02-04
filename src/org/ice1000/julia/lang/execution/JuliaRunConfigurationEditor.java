@@ -36,10 +36,12 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JCheckBox unsafeFloatCheckBox;
 	private @NotNull JCheckBox handleSignalCheckBox;
 	private @NotNull JCheckBox startupFileCheckBox;
+	private @NotNull JCheckBox launchReplCheckBox;
+	private @NotNull JCheckBox quietReplCheckBox;
 	private @NotNull RawCommandLineEditor programArgumentsField;
+	private @NotNull RawCommandLineEditor additionalOptionsField;
 	private @NotNull JComboBox<String> optimizationLevelComboBox; // --optimize
 	private @NotNull JComboBox<String> jitCompilerOptions; // --compile
-	private @NotNull RawCommandLineEditor additionalOptionsField;
 	private @NotNull JComboBox<String> depWarnOptions;
 	private @NotNull JComboBox<String> codeCovOptions;
 	private @NotNull JComboBox<String> trackAllocOptions;
@@ -57,6 +59,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 			JuliaBundle.message("julia.messages.run.select-julia-file.description"),
 			project,
 			FileChooserDescriptorFactory.createSingleFileDescriptor(JuliaFileType.INSTANCE));
+		launchReplCheckBox.addChangeListener(changeEvent -> quietReplCheckBox.setEnabled(launchReplCheckBox.isSelected()));
 		String def = "2 (" + JuliaBundle.message("julia.run-config.opt-level.default") + ")";
 		String rec = "3 (" + JuliaBundle.message("julia.run-config.opt-level.recommended") + ")";
 		Arrays.asList("0", "1", def, rec).forEach(optimizationLevelComboBox::addItem);
@@ -79,6 +82,8 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		handleSignalCheckBox.setSelected(configuration.getHandleSignalOption());
 		unsafeFloatCheckBox.setSelected(configuration.getUnsafeFloatOption());
 		startupFileCheckBox.setSelected(configuration.getStartupFileOption());
+		launchReplCheckBox.setSelected(configuration.getLaunchReplOption());
+		quietReplCheckBox.setSelected(configuration.getQuietReplOption());
 		additionalOptionsField.setText(configuration.getAdditionalOptions());
 		programArgumentsField.setText(configuration.getProgramArgs());
 		optimizationLevelComboBox.setSelectedIndex(configuration.getOptimizationLevel());
@@ -105,6 +110,8 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		configuration.setHandleSignalOption(handleSignalCheckBox.isSelected());
 		configuration.setUnsafeFloatOption(unsafeFloatCheckBox.isSelected());
 		configuration.setStartupFileOption(startupFileCheckBox.isSelected());
+		configuration.setLaunchReplOption(launchReplCheckBox.isSelected());
+		configuration.setQuietReplOption(quietReplCheckBox.isSelected());
 		configuration.setAdditionalOptions((additionalOptionsField.getText()));
 		configuration.setProgramArgs((programArgumentsField.getText()));
 		configuration.setOptimizationLevel(optimizationLevelComboBox.getSelectedIndex());
