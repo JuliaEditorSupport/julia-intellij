@@ -225,11 +225,14 @@ private suffixedExpr ::=
    applyIndexOp
  | applyFunctionOp
  | memberAccessOp
+ | applyWhereOp
  | type
 
 type ::= expr typeParameters { extends=expr }
 
 applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expressionList? endOfLine RIGHT_M_BRACKET
+
+applyWhereOp ::= expr whereClause
 
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
@@ -415,7 +418,7 @@ private primaryExpr ::=
 
 bracketedExpr ::= LEFT_BRACKET endOfLine statements endOfLine (COMMA_SYM endOfLine)? RIGHT_BRACKET { extends=expr }
 
-whereClause ::= WHERE_KEYWORD afterWhere
+whereClause ::= WHERE_KEYWORD afterWhere { pin=1 }
 
 private afterWhere ::=
    symbol (SUBTYPE_SYM endOfLine expr)?
@@ -456,8 +459,9 @@ function ::=
 typeName ::= SYM
 abstractTypeName ::= SYM
 primitiveTypeName ::= SYM
+private typeModifiers ::= IMMUTABLE_KEYWORD | MUTABLE_KEYWORD
 typeDeclaration ::=
- (IMMUTABLE_KEYWORD | MUTABLE_KEYWORD)? (TYPE_KEYWORD | STRUCT_KEYWORD) endOfLine
+ (typeModifiers? (TYPE_KEYWORD | STRUCT_KEYWORD) | typeModifiers) endOfLine
   typeName typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
   statements
  END_KEYWORD { extends=expr }
