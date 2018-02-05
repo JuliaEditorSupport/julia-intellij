@@ -115,6 +115,7 @@ class JuliaDocumentFormatAction : AnAction(
 	JuliaBundle.message("julia.actions.doc-format.name"),
 	JuliaBundle.message("julia.actions.doc-format.description"),
 	JuliaIcons.JULIA_BIG_ICON), DumbAware {
+	private var process: Process? = null
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.project ?: return
 		val settings = project.juliaSettings.settings
@@ -135,14 +136,19 @@ class JuliaDocumentFormatAction : AnAction(
 								else -> it.value
 							}
 						}
+					val process = process ?: Runtime.getRuntime().exec(settings.exePath).apply {
+						//language=Julia
+						outputStream.write("using DocumentFormat: format\n".toByteArray())
+					}
 					//language=Julia
-					val (_, stderr) = executeJulia(settings.exePath,
-						"""using DocumentFormat: format
-open("$path", "w") do f
+					process.outputStream.use {
+						it.write("""open("$path", "w") do f
   write(f, format($JULIA_DOC_SURROUNDING$content$JULIA_DOC_SURROUNDING))
-end""", 50000L)
+end
+""".toByteArray())
+					}
 					file.refresh(false, false)
-					stderrCache = stderr
+					stderrCache = process.errorStream.reader().readLines()
 				}
 
 				override fun onFinished() {
