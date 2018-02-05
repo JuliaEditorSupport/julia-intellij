@@ -29,6 +29,8 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 	var deprecationWarning = "yes"
 	var codeCoverage = "none"
 	var trackAllocation = "none"
+	var systemImage = ""
+	var systemImageOption = false
 	var inlineOption = false
 	var checkBoundsOption = false
 	var colorOption = false
@@ -56,6 +58,8 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.write(element, "deprecationWarning", deprecationWarning)
 		JDOMExternalizer.write(element, "codeCoverage", codeCoverage)
 		JDOMExternalizer.write(element, "trackAllocation", trackAllocation)
+		JDOMExternalizer.write(element, "systemImage", systemImage)
+		JDOMExternalizer.write(element, "systemImageOption", systemImageOption)
 		JDOMExternalizer.write(element, "inlineOption", inlineOption)
 		JDOMExternalizer.write(element, "checkBoundsOption", checkBoundsOption)
 		JDOMExternalizer.write(element, "colorOption", colorOption)
@@ -78,6 +82,8 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.readString(element, "deprecationWarning")?.let { deprecationWarning = it }
 		JDOMExternalizer.readString(element, "codeCoverage")?.let { codeCoverage = it }
 		JDOMExternalizer.readString(element, "trackAllocation")?.let { trackAllocation = it }
+		JDOMExternalizer.readString(element, "systemImage")?.let { systemImage = it }
+		JDOMExternalizer.readBoolean(element, "systemImageOption").let { systemImageOption = it }
 		JDOMExternalizer.readBoolean(element, "inlineOption").let { inlineOption = it }
 		JDOMExternalizer.readBoolean(element, "checkBoundsOption").let { checkBoundsOption = it }
 		JDOMExternalizer.readBoolean(element, "colorOption").let { colorOption = it }

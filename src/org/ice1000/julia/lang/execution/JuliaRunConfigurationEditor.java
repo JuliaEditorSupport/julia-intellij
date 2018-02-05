@@ -6,23 +6,16 @@ import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.RawCommandLineEditor;
-import com.intellij.ui.components.JBScrollPane;
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
 import org.ice1000.julia.lang.JuliaBundle;
 import org.ice1000.julia.lang.JuliaFileType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ResourceBundle;
 
 public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfiguration> {
 	private @NotNull JPanel mainPanel;
@@ -62,6 +55,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 			FileChooserDescriptorFactory.createSingleFileDescriptor(JuliaFileType.INSTANCE));
 		String def = "2 (" + JuliaBundle.message("julia.run-config.opt-level.default") + ")";
 		String rec = "3 (" + JuliaBundle.message("julia.run-config.opt-level.recommended") + ")";
+		systemImageCheckBox.addChangeListener(x -> systemImageField.setEnabled(systemImageCheckBox.isSelected()));
 		Arrays.asList("0", "1", def, rec).forEach(optimizationLevelComboBox::addItem);
 		Arrays.asList("yes", "no", "all", "min").forEach(jitCompilerOptions::addItem);
 		Arrays.asList("yes", "no", "error").forEach(depWarnOptions::addItem);
@@ -83,6 +77,9 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		unsafeFloatCheckBox.setSelected(configuration.getUnsafeFloatOption());
 		startupFileCheckBox.setSelected(configuration.getStartupFileOption());
 		launchReplCheckBox.setSelected(configuration.getLaunchReplOption());
+		systemImageCheckBox.setSelected(configuration.getSystemImageOption());
+		systemImageField.setEnabled(systemImageCheckBox.isSelected());
+		systemImageField.setText(configuration.getSystemImage());
 		additionalOptionsField.setText(configuration.getAdditionalOptions());
 		programArgumentsField.setText(configuration.getProgramArgs());
 		optimizationLevelComboBox.setSelectedIndex(configuration.getOptimizationLevel());
@@ -110,6 +107,8 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		configuration.setUnsafeFloatOption(unsafeFloatCheckBox.isSelected());
 		configuration.setStartupFileOption(startupFileCheckBox.isSelected());
 		configuration.setLaunchReplOption(launchReplCheckBox.isSelected());
+		configuration.setSystemImageOption(systemImageCheckBox.isSelected());
+		configuration.setSystemImage(systemImageField.getText());
 		configuration.setAdditionalOptions((additionalOptionsField.getText()));
 		configuration.setProgramArgs((programArgumentsField.getText()));
 		configuration.setOptimizationLevel(optimizationLevelComboBox.getSelectedIndex());
