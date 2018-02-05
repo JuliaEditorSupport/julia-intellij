@@ -19,7 +19,7 @@ val Project.juliaSettings: JuliaProjectSettingsService
 	name = "JuliaProjectSettings",
 	storages = [
 		Storage(file = "\$PROJECT_FILE\$"),
-		Storage(id = "dir", file = "\$PROJECT_CONFIG_DIR\$/juliaConfig.xml", scheme = StorageScheme.DIRECTORY_BASED)])
+		Storage(file = "\$PROJECT_CONFIG_DIR\$/juliaConfig.xml", scheme = StorageScheme.DIRECTORY_BASED)])
 class JuliaProjectSettingsServiceImpl :
 	JuliaProjectSettingsService, PersistentStateComponent<JuliaSettings> {
 	override var settings: JuliaSettings = JuliaSettings()
