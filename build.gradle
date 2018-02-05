@@ -57,24 +57,36 @@ dependencies {
 }
 
 compileKotlin {
-	kotlinOptions.jvmTarget = "1.8"
+	kotlinOptions.jvmTarget = '1.8'
 }
 compileTestKotlin {
-	kotlinOptions.jvmTarget = "1.8"
+	kotlinOptions.jvmTarget = '1.8'
 }
 
-task genFlex(group: 'JuliaLang', description: 'Make Flex', type: GenerateLexer) {
+patchPluginXml {
+	changeNotes = file('res/META-INF/change-notes.html').text
+	pluginDescription = file('res/META-INF/description.html').text
+}
+
+task genParser(type: GenerateParser) {
+	group = 'build setup'
+	description = 'Generate the Parser and PsiElement classes'
+	source = 'grammar/julia-grammar.bnf'
+	targetRoot = 'gen'
+	pathToParser = '/org/ice1000/julia/lang/JuliaParser.java'
+	pathToPsiRoot = '/org/ice1000/julia/lang/psi'
+	purgeOldFiles = true
+}
+
+task genLexer(type: GenerateLexer) {
+	dependsOn genParser
+	group = 'build setup'
+	description = 'Generate the Lexer'
 	source = "grammar/julia-lexer.flex"
 	targetDir = "gen/org/ice1000/julia/lang"
 	targetClass = "JuliaLexer"
 	purgeOldFiles = true
 }
 
-task genBNF(group: 'JuliaLang', description: 'Make BNF.', type: GenerateParser) {
-	dependsOn 'genFlex'
-	source = "grammar/julia-grammar.bnf"
-	targetRoot = "gen"
-	pathToParser = "/org/ice1000/julia/lang/JuliaLexer.java"
-	pathToPsiRoot = "/org/ice1000/julia/lang/psi"
-	purgeOldFiles = true
-}
+build.dependsOn genParser
+build.dependsOn genLexer
