@@ -98,9 +98,9 @@ class JuliaTryEvaluateAction :
 	AnAction(JuliaBundle.message("julia.actions.try-eval.name"),
 		JuliaBundle.message("julia.actions.try-eval.description"), JULIA_BIG_ICON), DumbAware {
 	private val core = TryEvaluate()
-	override fun actionPerformed(event: AnActionEvent) {
-		val editor = event.getData(CommonDataKeys.EDITOR) ?: return
-		core.tryEval(editor, editor.selectionModel.selectedText ?: return, event.getData(CommonDataKeys.PROJECT))
+	override fun actionPerformed(e: AnActionEvent) {
+		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
+		core.tryEval(editor, editor.selectionModel.selectedText ?: return, e.getData(CommonDataKeys.PROJECT))
 	}
 
 	override fun update(event: AnActionEvent) {
@@ -108,4 +108,7 @@ class JuliaTryEvaluateAction :
 	}
 }
 
-
+class JuliaExternalFormatAction : AnAction() {
+	override fun actionPerformed(e: AnActionEvent) {
+	}
+}

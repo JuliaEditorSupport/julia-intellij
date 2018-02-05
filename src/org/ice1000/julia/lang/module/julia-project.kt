@@ -10,7 +10,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModifiableModelsProvider
 import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.ui.*
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.*
@@ -28,7 +27,7 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 	CustomStepProjectGenerator<JuliaSettings> {
 	override fun createStep(
 		projectGenerator: DirectoryProjectGenerator<JuliaSettings>,
-		callback: AbstractNewProjectStep.AbstractCallback<JuliaSettings>?) = JuliaProjectSettingsStep(projectGenerator)
+		callback: AbstractNewProjectStep.AbstractCallback<JuliaSettings>) = ProjectSettingsStepBase(projectGenerator, AbstractNewProjectStep.AbstractCallback<JuliaSettings>())
 
 	override fun getLogo() = JULIA_BIG_ICON
 	override fun getName() = JuliaBundle.message("julia.name")
@@ -67,9 +66,6 @@ main.jl)""")
 		}
 	}
 }
-
-open class JuliaProjectSettingsStep(generator: DirectoryProjectGenerator<JuliaSettings>)
-	: ProjectSettingsStepBase<JuliaSettings>(generator, AbstractNewProjectStep.AbstractCallback<Any>())
 
 /**
  * for other platform
