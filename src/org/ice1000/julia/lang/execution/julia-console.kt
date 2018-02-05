@@ -79,5 +79,5 @@ class JuliaConsoleFolding : ConsoleFolding() {
 		return "julia ${lines[0].substring(fileNameIndex + 1)}"
 	}
 
-	override fun shouldFoldLine(output: String) = "julia " in output && ".jl" in output
+	override fun shouldFoldLine(output: String) = ("julia " in output || "julia.exe" in output) && ".jl" in output
 }
