@@ -26,6 +26,8 @@ allprojects {
 	intellij {
 		if (System.getProperty("user.name") == 'ice1000') {
 			localPath '/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/173.4548.28'
+		} else if (System.getenv("TRAVIS") != null) {
+			type 'RD'
 		}
 		updateSinceUntilBuild false
 		instrumentCode true
