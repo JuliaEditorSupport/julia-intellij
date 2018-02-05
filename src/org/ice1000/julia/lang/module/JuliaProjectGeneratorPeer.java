@@ -37,7 +37,7 @@ public class JuliaProjectGeneratorPeer extends JuliaProjectGeneratorPeerBase {
 		JuliaSettings settings = getSettings();
 		settings.setExePath(juliaExeField.getText());
 		settings.initWithExe();
-		return validateJulia(settings) ? null : new ValidationInfo(JuliaBundle.message("julia.projects.sdk.invalid"));
+		return validateJulia(settings) ? null : new ValidationInfo(JuliaBundle.message("julia.modules.invalid"));
 	}
 
 	@Override public @NotNull JPanel getComponent() {

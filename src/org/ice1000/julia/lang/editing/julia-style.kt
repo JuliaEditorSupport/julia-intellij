@@ -30,7 +30,7 @@ class JuliaCodeStyleSettingsProvider : CodeStyleSettingsProvider() {
 }
 
 class JuliaStyleSettingsProvider : LanguageCodeStyleSettingsProvider() {
-	override fun getLanguage() = JuliaLanguage.INSTANCE!!
+	override fun getLanguage() = JuliaLanguage.INSTANCE
 
 	override fun getDefaultCommonSettings(): CommonCodeStyleSettings =
 		CommonCodeStyleSettings(language).apply {
