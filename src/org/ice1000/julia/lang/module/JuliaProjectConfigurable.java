@@ -13,6 +13,7 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.labels.LinkLabel;
 import com.intellij.util.download.DownloadableFileService;
 import org.ice1000.julia.lang.JuliaBundle;
+import org.ice1000.julia.lang.JuliaFileType;
 import org.ice1000.julia.lang.action.JuliaAutoFormatAction;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +44,7 @@ public class JuliaProjectConfigurable implements Configurable {
 	private @NotNull JButton installAutoFormatButton;
 	private @NotNull JButton downloadAutoFormatButton;
 	private @NotNull JSpinner autoFormatTabWidth;
+	private @NotNull TextFieldWithBrowseButton autoFormatField;
 	private @NotNull JuliaSettings settings;
 
 	public JuliaProjectConfigurable(@NotNull Project project) {
@@ -62,6 +64,8 @@ public class JuliaProjectConfigurable implements Configurable {
 		basePathField.setText(settings.getBasePath());
 		basePathField.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(),
 			project));
+		autoFormatField.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileDescriptor(
+			JuliaFileType.INSTANCE)));
 		juliaExeField.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor(),
 			project));
 		juliaExeField.setText(settings.getExePath());
@@ -93,6 +97,7 @@ public class JuliaProjectConfigurable implements Configurable {
 
 	@Override public boolean isModified() {
 		return !settings.getImportPath().equals(importPathField.getText()) ||
+			!settings.getAutoFormatPath().equals(autoFormatField.getText()) ||
 			!settings.getBasePath().equals(basePathField.getText()) ||
 			!settings.getExePath().equals(juliaExeField.getText()) ||
 			settings.getTryEvaluateTextLimit() != (Long) textLimitField.getValue() ||
@@ -111,6 +116,7 @@ public class JuliaProjectConfigurable implements Configurable {
 		settings.setExePath(juliaExeField.getText());
 		settings.setVersion(version.getText());
 		settings.setBasePath(basePathField.getText());
+		settings.setAutoFormatPath(autoFormatField.getText());
 		settings.setImportPath(importPathField.getText());
 	}
 
