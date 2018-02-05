@@ -6,22 +6,30 @@ import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.RawCommandLineEditor;
+import com.intellij.ui.components.JBScrollPane;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import org.ice1000.julia.lang.JuliaBundle;
 import org.ice1000.julia.lang.JuliaFileType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 
 public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfiguration> {
 	private @NotNull JPanel mainPanel;
 	private @NotNull TextFieldWithBrowseButton targetFileField;
 	private @NotNull TextFieldWithBrowseButton juliaExeField;
 	private @NotNull TextFieldWithBrowseButton workingDirField;
+	private @NotNull TextFieldWithBrowseButton systemImageField;
 	private @NotNull JCheckBox inlineCheckBox;
 	private @NotNull JCheckBox checkBoundsCheckBox;
 	private @NotNull JCheckBox colorCheckBox;
@@ -29,10 +37,12 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	private @NotNull JCheckBox unsafeFloatCheckBox;
 	private @NotNull JCheckBox handleSignalCheckBox;
 	private @NotNull JCheckBox startupFileCheckBox;
+	private @NotNull JCheckBox launchReplCheckBox;
+	private @NotNull JCheckBox systemImageCheckBox;
 	private @NotNull RawCommandLineEditor programArgumentsField;
+	private @NotNull RawCommandLineEditor additionalOptionsField;
 	private @NotNull JComboBox<String> optimizationLevelComboBox; // --optimize
 	private @NotNull JComboBox<String> jitCompilerOptions; // --compile
-	private @NotNull RawCommandLineEditor additionalOptionsField;
 	private @NotNull JComboBox<String> depWarnOptions;
 	private @NotNull JComboBox<String> codeCovOptions;
 	private @NotNull JComboBox<String> trackAllocOptions;
@@ -72,6 +82,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		handleSignalCheckBox.setSelected(configuration.getHandleSignalOption());
 		unsafeFloatCheckBox.setSelected(configuration.getUnsafeFloatOption());
 		startupFileCheckBox.setSelected(configuration.getStartupFileOption());
+		launchReplCheckBox.setSelected(configuration.getLaunchReplOption());
 		additionalOptionsField.setText(configuration.getAdditionalOptions());
 		programArgumentsField.setText(configuration.getProgramArgs());
 		optimizationLevelComboBox.setSelectedIndex(configuration.getOptimizationLevel());
@@ -98,6 +109,7 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 		configuration.setHandleSignalOption(handleSignalCheckBox.isSelected());
 		configuration.setUnsafeFloatOption(unsafeFloatCheckBox.isSelected());
 		configuration.setStartupFileOption(startupFileCheckBox.isSelected());
+		configuration.setLaunchReplOption(launchReplCheckBox.isSelected());
 		configuration.setAdditionalOptions((additionalOptionsField.getText()));
 		configuration.setProgramArgs((programArgumentsField.getText()));
 		configuration.setOptimizationLevel(optimizationLevelComboBox.getSelectedIndex());
@@ -114,4 +126,5 @@ public class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRunConfigur
 	@Override protected @NotNull JPanel createEditor() {
 		return mainPanel;
 	}
+
 }

@@ -40,6 +40,7 @@ class JuliaCommandLineState(
 			params += "--depwarn=$deprecationWarning"
 			params += "--code-coverage=$codeCoverage"
 			params += "--track-allocation=$trackAllocation"
+			if (launchReplOption) params += "-i"
 			params += configuration.additionalOptions.split(' ', '\n').filter(String::isNotBlank)
 			params += configuration.targetFile
 			params += configuration.programArgs.split(' ', '\n').filter(String::isNotBlank)

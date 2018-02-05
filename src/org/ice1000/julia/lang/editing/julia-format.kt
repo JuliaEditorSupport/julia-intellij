@@ -51,7 +51,7 @@ class JuliaFormattingModelBuilder : FormattingModelBuilder {
 //		val commonSettings = settings.getCommonSettings(JsonLanguage.INSTANCE)
 //		val spacesAroundAssign = if (commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS) 1 else 0
 		return SpacingBuilder(settings, JuliaLanguage.INSTANCE)
-			.aroundInside(JuliaTypes.EQ_SYM, JuliaTypes.ASSIGN_OP).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+			.aroundInside(JuliaTypes.EQ_SYM, JuliaTypes.ASSIGN_LEVEL_OP).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
 			// TODO: TokenSet.create(EQ,IS_NOT,...)
 			// != is undefined in flex token
 			.around(TokenSet.create(JuliaTypes.EQUALS_SYM)).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
