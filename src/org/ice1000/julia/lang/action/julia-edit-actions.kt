@@ -1,11 +1,9 @@
 package org.ice1000.julia.lang.action
 
 import com.google.common.util.concurrent.UncheckedTimeoutException
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
@@ -18,7 +16,6 @@ import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Dimension
-import java.util.concurrent.TimeUnit
 import javax.swing.JLabel
 import javax.swing.JTextArea
 
@@ -108,50 +105,44 @@ class JuliaTryEvaluateAction : AnAction(
 		core.tryEval(editor, editor.selectionModel.selectedText ?: return, e.getData(CommonDataKeys.PROJECT))
 	}
 
-	override fun update(e: AnActionEvent) {
-		e.presentation.isEnabledAndVisible = e.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
+	override fun update(event: AnActionEvent) {
+		event.presentation.isEnabledAndVisible = event.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
 	}
 }
 
 class JuliaDocumentFormatAction : AnAction(
 	JuliaBundle.message("julia.actions.doc-format.name"),
 	JuliaBundle.message("julia.actions.doc-format.description"),
-	JuliaIcons.JULIA_BIG_ICON), DumbAware, Disposable {
-	private var process: Process? = null
-	override fun dispose() {
-		process?.let {
-			it.outputStream.close()
-			it.destroy()
-		}
-	}
-
-	override fun update(e: AnActionEvent) {
-		e.presentation.isEnabledAndVisible = e.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
-	}
-
+	JuliaIcons.JULIA_BIG_ICON), DumbAware {
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.project ?: return
 		val settings = project.juliaSettings.settings
 		val file = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
-		val path = file.path.trimEnd(' ', '!', '/')
-		FileDocumentManager.getInstance().let { it.getDocument(file)?.let(it::saveDocument) }
 		ProgressManager.getInstance().runProcessWithProgressSynchronously({
-			val process = process ?: Runtime.getRuntime().exec("${settings.exePath} -q").also {
-				//language=Julia
-				it.outputStream.let {
-					it.write("using DocumentFormat: format\n".toByteArray())
-					it.flush()
+			val content = file
+				.inputStream
+				.reader()
+				.readText()
+				.replace(Regex.fromLiteral("\"\\")) {
+					when (it.value) {
+						"\"" -> "\\\""
+						"\\" -> "\\\\"
+						else -> it.value
+					}
 				}
-				process = it
-			}
-			process.waitFor(5, TimeUnit.SECONDS)
 			//language=Julia
-			process.outputStream.let {
-				it.write("open(\"$path\", \"w\") do f; write(f, format(readstring(f))) end\n".toByteArray())
+			val (stdout, stderr) = executeJulia("${settings.exePath} -q",
+				"""using DocumentFormat: format
+println(format($JULIA_DOC_SURROUNDING$content$JULIA_DOC_SURROUNDING))
+exit()
+""".also(::println),
+				50000L)
+			stdout.joinToString("\n").let(::println)
+			file.getOutputStream(this).let {
+				it.write(stdout.joinToString("\n").toByteArray())
 				it.flush()
 			}
-			file.refresh(false, false)
-		}, JuliaBundle.message("julia.messages.doc-format.running"), false, project)
-		FileDocumentManager.getInstance().reloadFiles(file)
+			file.refresh(true, false)
+		}, JuliaBundle.message("julia.messages.doc-format.running"), true, project)
 	}
 }

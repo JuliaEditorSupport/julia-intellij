@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit
 class JuliaExecutionTest {
 	@Test
 	fun test() {
+		if (System.getProperty("user.name") != "ice1000") return
 		val process = Runtime.getRuntime().exec("/home/ice1000/SDK/julia-6.2/bin/julia -q").also {
 			//language=Julia
 			it.outputStream.let {
@@ -17,14 +18,24 @@ class JuliaExecutionTest {
 			}
 		}
 		println("0")
-		process.waitFor(5, TimeUnit.SECONDS)
 		//language=Julia
 		process.outputStream.let {
 			it.write("println(\"Bye, world!\")\n".toByteArray())
 			it.flush()
 		}
+		process.waitFor(5, TimeUnit.SECONDS)
 		println("1")
-		process.inputStream.bufferedReader().readLine().let(::println)
+		val reader = process.inputStream.bufferedReader()
+		reader.readLine().let(::println)
+		println("2")
+		//language=Julia
+		process.outputStream.let {
+			it.write("println(\"Bye, world again!\")\n".toByteArray())
+			it.flush()
+		}
+		process.waitFor(5, TimeUnit.SECONDS)
+		println("1")
+		reader.readText().let(::println)
 		println("2")
 	}
 }
