@@ -11,6 +11,7 @@ This is a **work in progress**, some features are implemented partially, there m
 CI | Status
 :---:|:---:
 Travis CI|[![Build Status](https://travis-ci.org/ice1000/julia-intellij.svg?branch=master)](https://travis-ci.org/ice1000/julia-intellij)
+AppVeyor|[![Build status](https://ci.appveyor.com/api/projects/status/jboqu7yt2vhqpmfr?svg=true)](https://ci.appveyor.com/project/ice1000/julia-intellij)
 
 ## Installation \& Usage
 
