@@ -25,7 +25,9 @@ import org.jetbrains.annotations.NonNls
 
 @NonNls const val MAC_APPLICATIONS = "/Applications"
 
-// ========= AutoFormat.jl ==========
+// ========= DocumentFormat.jl ==========
 
-@NonNls @Language("Julia") const val AUTO_FORMAT_INSTALL =
-	"Pkg.clone(\"git://github.com/yulijia/AutoFormat.jl.git\"); Pkg.build(\"AutoFormat\")"
+@NonNls @Language("Julia") const val DOCUMENT_FORMAT_INSTALL =
+	"""Pkg.add("CSTParser")
+Pkg.clone("git://github.com/ZacLN/DocumentFormat.jl.git")
+Pkg.build("DocumentFormat")"""

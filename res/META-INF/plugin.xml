@@ -85,8 +85,8 @@
 			icon="JuliaIcons.JULIA_BIG_ICON"
 			popup="true">
 			<action
-				id="Julia.Tools.AutoFormat"
-				class="org.ice1000.julia.lang.action.JuliaAutoFormatAction">
+				id="Julia.Tools.DocumentFormat"
+				class="org.ice1000.julia.lang.action.JuliaDocumentFormatAction">
 			</action>
 			<add-to-group group-id="ToolsMenu" anchor="last"/>
 		</group>

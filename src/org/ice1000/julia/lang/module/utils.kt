@@ -36,7 +36,6 @@ class JuliaSettings(
 	var exePath: String = "",
 	var basePath: String = "",
 	var version: String = "",
-	var autoFormatTabWidth: Int = 4,
 	var tryEvaluateTimeLimit: Long = 2500L,
 	var tryEvaluateTextLimit: Int = 320) {
 	fun initWithExe() {
@@ -75,17 +74,17 @@ fun installAutoFormat(
 	project: Project,
 	settings: JuliaSettings): ActionListener = ActionListener {
 	ProgressManager.getInstance()
-		.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.auto-format.installing"), true) {
+		.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.doc-format.installing"), true) {
 			override fun run(indicator: ProgressIndicator) {
 				// indicator.text = JuliaBundle.message("julia.messages.auto-format.installing")
-				executeJulia(settings.exePath, AUTO_FORMAT_INSTALL, 1000000L)
+				executeJulia(settings.exePath, DOCUMENT_FORMAT_INSTALL, 1000000L)
 			}
 
 			override fun onSuccess() {
 				Messages.showDialog(
 					project,
-					JuliaBundle.message("julia.messages.auto-format.installed"),
-					JuliaBundle.message("julia.messages.auto-format.installed.title"),
+					JuliaBundle.message("julia.messages.doc-format.installed"),
+					JuliaBundle.message("julia.messages.doc-format.installed.title"),
 					arrayOf(JuliaBundle.message("julia.yes")),
 					0,
 					JuliaIcons.JOJO_ICON)

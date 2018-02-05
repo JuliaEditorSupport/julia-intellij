@@ -33,7 +33,6 @@ public class JuliaProjectConfigurable implements Configurable {
 	private @NotNull JLabel version;
 	private @NotNull TextFieldWithBrowseButton basePathField;
 	private @NotNull JButton installAutoFormatButton;
-	private @NotNull JSpinner autoFormatTabWidth;
 	@NotNull JuliaSettings settings;
 
 	public JuliaProjectConfigurable(@NotNull Project project) {
@@ -66,7 +65,6 @@ public class JuliaProjectConfigurable implements Configurable {
 			}
 		});
 		installAutoFormatButton.addActionListener(installAutoFormat(project, settings));
-		autoFormatTabWidth.setModel(new SpinnerNumberModel(settings.getAutoFormatTabWidth(), 0, 50, 1));
 	}
 
 	@Override public @Nls @NotNull String getDisplayName() {
@@ -82,7 +80,6 @@ public class JuliaProjectConfigurable implements Configurable {
 			!settings.getBasePath().equals(basePathField.getText()) ||
 			!settings.getExePath().equals(juliaExeField.getText()) ||
 			settings.getTryEvaluateTextLimit() != (Long) textLimitField.getValue() ||
-			settings.getAutoFormatTabWidth() != (Integer) autoFormatTabWidth.getValue() ||
 			settings.getTryEvaluateTimeLimit() != (Long) timeLimitField.getValue();
 	}
 
@@ -98,7 +95,6 @@ public class JuliaProjectConfigurable implements Configurable {
 		settings.setExePath(juliaExeField.getText());
 		settings.setVersion(version.getText());
 		settings.setBasePath(basePathField.getText());
-		settings.setAutoFormatTabWidth((Integer) autoFormatTabWidth.getValue());
 		settings.setImportPath(importPathField.getText());
 	}
 

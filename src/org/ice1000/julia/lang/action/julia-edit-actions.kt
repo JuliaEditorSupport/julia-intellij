@@ -4,7 +4,6 @@ import com.google.common.util.concurrent.UncheckedTimeoutException
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.Balloon
@@ -110,25 +109,35 @@ class JuliaTryEvaluateAction : AnAction(
 	}
 }
 
-class JuliaAutoFormatAction : AnAction(
-	JuliaBundle.message("julia.actions.auto-format.name"),
-	JuliaBundle.message("julia.actions.auto-format.description"),
+class JuliaDocumentFormatAction : AnAction(
+	JuliaBundle.message("julia.actions.doc-format.name"),
+	JuliaBundle.message("julia.actions.doc-format.description"),
 	JuliaIcons.JULIA_BIG_ICON), DumbAware {
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.project ?: return
 		val settings = project.juliaSettings.settings
 		val file = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
-		val path = file.path.trimEnd('/', '!')
-		ProgressManager.getInstance()
-			.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.auto-format.running")) {
-				override fun run(indicator: ProgressIndicator) {
-					//language=Julia
-					val (stdout, stderr) = executeJulia(settings.exePath, """using AutoFormat
-				|format_demo("$path", "$path", ${settings.autoFormatTabWidth})""".trimMargin(),
-						50000L)
-					println(stdout)
-					println(stderr)
+		ApplicationManager.getApplication().runReadAction {
+			val content = file
+				.inputStream
+				.reader()
+				.readText()
+				.replace(Regex.fromLiteral("\"\\")) {
+					when (it.value) {
+						"\"" -> "\\\""
+						"\\" -> "\\\\"
+						else -> it.value
+					}
 				}
-			})
+			ApplicationManager.getApplication().runWriteAction {
+				//language=Julia
+				val (stdout, stderr) = executeJulia(settings.exePath,
+					"""using DocumentFormat: format
+format($JULIA_DOC_SURROUNDING$content$JULIA_DOC_SURROUNDING)""",
+					50000L)
+				println(stdout)
+				println(stderr)
+			}
+		}
 	}
 }
