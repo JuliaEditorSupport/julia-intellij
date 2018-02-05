@@ -66,7 +66,7 @@ class JuliaAnnotator : Annotator {
 	private fun definition(element: PsiElement, holder: AnnotationHolder, attributesKey: TextAttributesKey) {
 		holder.createInfoAnnotation(element, null).textAttributes = attributesKey
 		val space = element.nextSibling as? PsiWhiteSpace ?: return
-		holder.createErrorAnnotation(space, JuliaBundle.message("julia.lint.space-function-name"))
+		if (space.nextSibling?.text == "(") holder.createErrorAnnotation(space, JuliaBundle.message("julia.lint.space-function-name"))
 			.registerFix(JuliaRemoveElementIntention(space, JuliaBundle.message("julia.lint.space-function-name-fix")))
 	}
 

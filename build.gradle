@@ -40,6 +40,7 @@ sourceSets {
 	}
 
 	test {
+		java.srcDirs 'test'
 		kotlin.srcDirs 'test'
 		resources.srcDirs 'testData'
 	}
@@ -96,3 +97,6 @@ task genLexer(type: GenerateLexer) {
 
 buildPlugin.dependsOn genParser
 buildPlugin.dependsOn genLexer
+
+build.dependsOn genParser
+build.dependsOn genLexer

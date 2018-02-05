@@ -64,6 +64,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %state LONG_TEMPLATE
 %state CMD_STRING_TEMPLATE
 %state AFTER_SIMPLE_LIT
+%state AFTER_COLON
 
 COLON_BEGIN_SYM=:\(
 MISC_COMPARISON_SYM=[∉∋∌⊆⊈⊂⊄⊊∝∊∍∥∦∷∺∻∽∾≁≃≄≅≆≇≈≉≊≋≌≍≎≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≣≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊃⊅⊇⊉⊋⊏⊐⊑⊒⊜⊩⊬⊮⊰⊱⊲⊳⊴⊵⊶⊷⋍⋐⋑⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿⟈⟉⟒⦷⧀⧁⧡⧣⧤⧥⩦⩧⩪⩫⩬⩭⩮⩯⩰⩱⩲⩳⩴⩵⩶⩷⩸⩹⩺⩻⩼⩽⩾⩿⪀⪁⪂⪃⪄⪅⪆⪇⪈⪉⪊⪋⪌⪍⪎⪏⪐⪑⪒⪓⪔⪕⪖⪗⪘⪙⪚⪛⪜⪝⪞⪟⪠⪡⪢⪣⪤⪥⪦⪧⪨⪩⪪⪫⪬⪭⪮⪯⪰⪱⪲⪳⪴⪵⪶⪷⪸⪹⪺⪻⪼⪽⪾⪿⫀⫁⫂⫃⫄⫅⫆⫇⫈⫉⫊⫋⫌⫍⫎⫏⫐⫑⫒⫓⫔⫕⫖⫗⫘⫙⫷⫸⫹⫺⊢⊣⟂]
@@ -183,7 +184,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> let { noEnd = false; return JuliaTypes.LET_KEYWORD; }
 
 <YYINITIAL, LONG_TEMPLATE> :: { return JuliaTypes.DOUBLE_COLON; }
-<YYINITIAL, LONG_TEMPLATE> : { return JuliaTypes.COLON_SYM; }
+<YYINITIAL, LONG_TEMPLATE> : { hugify(AFTER_COLON); return JuliaTypes.COLON_SYM; }
 <YYINITIAL, LONG_TEMPLATE> := { return JuliaTypes.COLON_ASSIGN_SYM; }
 <YYINITIAL, LONG_TEMPLATE> ; { return JuliaTypes.SEMICOLON_SYM; }
 <YYINITIAL, LONG_TEMPLATE> , { return JuliaTypes.COMMA_SYM; }
@@ -255,6 +256,8 @@ OTHERWISE=[^]
   return JuliaTypes.FLOAT_CONSTANT;
 }
 
+<AFTER_COLON> {SIMPLE_SYMBOL} { dehugify(); return JuliaTypes.SYM; }
+
 <YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} { hugify(AFTER_SIMPLE_LIT); return JuliaTypes.SYM; }
 <YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} \! /= {
   yypushback(1);
@@ -283,7 +286,7 @@ OTHERWISE=[^]
   return JuliaTypes.IMPLICIT_MULTIPLY_SYM;
 }
 
-<AFTER_SIMPLE_LIT> {OTHERWISE} { dehugify(); yypushback(1); }
+<AFTER_SIMPLE_LIT, AFTER_COLON> {OTHERWISE} { dehugify(); yypushback(1); }
 
 <YYINITIAL, LONG_TEMPLATE> \" { hugify(STRING_TEMPLATE); return JuliaTypes.QUOTE_START; }
 <YYINITIAL, LONG_TEMPLATE> ` { hugify(CMD_STRING_TEMPLATE); return JuliaTypes.CMD_QUOTE_START; }
