@@ -10,7 +10,7 @@ This is a **work in progress**, some features are implemented partially, there m
 
 CI | Status
 :---:|:---:
-Travis CI (with Rider)|[![Build Status](https://travis-ci.org/ice1000/julia-intellij.svg?branch=master)](https://travis-ci.org/ice1000/julia-intellij)
+Travis CI (with IdeaC)|[![Build Status](https://travis-ci.org/ice1000/julia-intellij.svg)](https://travis-ci.org/ice1000/julia-intellij)
 AppVeyor (on Windows)|[![Build status](https://ci.appveyor.com/api/projects/status/jboqu7yt2vhqpmfr?svg=true)](https://ci.appveyor.com/project/ice1000/julia-intellij)
 CircleCI (with IdeaC)|[![CircleCI](https://circleci.com/gh/ice1000/julia-intellij.svg?style=svg)](https://circleci.com/gh/ice1000/julia-intellij)
 CodeShip (branch master)|[![](https://app.codeship.com/projects/4c89a940-ec81-0135-9688-6eaa099eb415/status?branch=master)](https://app.codeship.com/projects/270342)

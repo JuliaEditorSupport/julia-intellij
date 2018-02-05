@@ -1,6 +1,18 @@
 # How to build
 
-## Prerequirements
+## Use gradle
+
+```bash
+$ chmod a+x gradlew
+$ ./gradlew buildPlugin
+```
+
+It's not recommended to use gradle because it will
+include unnecessary dependencies and it's slow.
+
+## Use Idea build
+
+### Prerequirements
 
 First install required plugins in your IntelliJ IDEA:
 
@@ -12,7 +24,7 @@ First install required plugins in your IntelliJ IDEA:
 I've compiled a Grammar-Kit which supports completing Java codes in the jflex code fragment which can be found
 [here](https://github.com/ice1000/julia-intellij/releases/download/0.0.2/grammar-kit-2017.1.1.zip).
 
-## Build
+### Build
 
 Clone this repo:
 
