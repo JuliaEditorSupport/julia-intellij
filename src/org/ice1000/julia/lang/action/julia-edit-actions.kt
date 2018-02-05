@@ -135,12 +135,14 @@ class JuliaDocumentFormatAction : AnAction(
 				"""using DocumentFormat: format
 println(format($JULIA_DOC_SURROUNDING$content$JULIA_DOC_SURROUNDING))
 exit()
-""".also(::println),
+""",
 				50000L)
-			stdout.joinToString("\n").let(::println)
-			file.getOutputStream(this).let {
-				it.write(stdout.joinToString("\n").toByteArray())
-				it.flush()
+			// FIXME no write access
+			file.getOutputStream(this).use {
+				it.bufferedWriter().use {
+					it.append(stdout.joinToString("\n"))
+					it.flush()
+				}
 			}
 			file.refresh(true, false)
 		}, JuliaBundle.message("julia.messages.doc-format.running"), true, project)
