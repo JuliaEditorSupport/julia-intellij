@@ -18,7 +18,7 @@ class JuliaIconProvider : IconProvider() {
 		if (statements.children.size != 1) return JuliaIcons.JULIA_ICON
 		return when (statements.firstChild) {
 			is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
-			is JuliaType -> JuliaIcons.JULIA_TYPE_ICON
+			is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
 			else -> JuliaIcons.JULIA_ICON
 		}
 	}

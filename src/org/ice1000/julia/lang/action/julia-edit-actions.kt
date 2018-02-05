@@ -123,9 +123,11 @@ class JuliaAutoFormatAction : AnAction(
 			.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.auto-format.running")) {
 				override fun run(indicator: ProgressIndicator) {
 					//language=Julia
-					executeJulia(settings.exePath, """using AutoFormat
-				|format("$path", "$path", ${settings.autoFormatTabWidth})""".trimMargin(),
+					val (stdout, stderr) = executeJulia(settings.exePath, """using AutoFormat
+				|format_demo("$path", "$path", ${settings.autoFormatTabWidth})""".trimMargin(),
 						50000L)
+					println(stdout)
+					println(stderr)
 				}
 			})
 	}
