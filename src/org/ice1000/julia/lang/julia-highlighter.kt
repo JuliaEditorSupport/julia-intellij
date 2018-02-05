@@ -60,7 +60,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 
 	private val UNICODE_OPERATOR_LIST = listOf(
 		JuliaTypes.MISC_ARROW_SYM,
-		JuliaTypes.MISC_COMPARISON_OP,
+		JuliaTypes.MISC_COMPARISON_SYM,
 		JuliaTypes.MISC_PLUS_SYM,
 		JuliaTypes.MISC_MULTIPLY_SYM,
 		JuliaTypes.MISC_EXPONENT_SYM
@@ -77,6 +77,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.CONTINUE_KEYWORD,
 		JuliaTypes.EXPORT_KEYWORD,
 		JuliaTypes.IMPORT_KEYWORD,
+		JuliaTypes.IMPORTALL_KEYWORD,
 		JuliaTypes.USING_KEYWORD,
 		JuliaTypes.IF_KEYWORD,
 		JuliaTypes.ELSEIF_KEYWORD,

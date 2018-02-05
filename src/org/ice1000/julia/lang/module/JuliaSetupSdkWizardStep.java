@@ -8,11 +8,17 @@ import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.labels.LinkLabel;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import org.ice1000.julia.lang.JuliaBundle;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
+
+import java.awt.*;
+import java.util.ResourceBundle;
 
 import static org.ice1000.julia.lang.module.UtilsKt.*;
 
@@ -58,4 +64,5 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 		settings.initWithExe();
 		builder.settings = settings;
 	}
+
 }

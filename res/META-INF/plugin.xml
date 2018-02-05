@@ -3,50 +3,6 @@
 	<name>Julia</name>
 	<version>0.0.2</version>
 	<vendor email="ice1000kotlin@foxmail.com" url="http://ice1000.org">ice1000</vendor>
-
-	<description><![CDATA[
-Julia language support.<br/>
-
-Functions provided:<br/>
-<ul>
-  <li>SDK and module management</li>
-  <li>Syntax highlight</li>
-  <li>Language injection</li>
-  <li>Run configuration and code execution</li>
-  <li>Live templates</li>
-  <li>Very basic completions</li>
-  <li>Try Evaluate</li>
-</ul>
-
-What you'll see in the future:<br/>
-<ul>
-  <li>Formatter</li>
-  <li>Integrating existing Julia tools</li>
-  <li>Reference resolving</li>
-  <li>Completion based on context</li>
-  <li>Displaying numeral output as images</li>
-  <li>More handy run configuration</li>
-  <li>Minor features like folding, bread crumbs, etc.</li>
-</ul>
-
-Please don't downvote our plugin for not having one of the features above, because we're just working on it.
-
-]]></description>
-
-	<change-notes><![CDATA[
-0.0.3<br/>
-<ul>
-  <li>Parser and run configuration improvements</li>
-</ul><br/>
-0.0.2<br/>
-<ul>
-  <li>Language injection in strings</li>
-  <li>File icon will change when the it's just a module</li>
-  <li>Completely new project configuration</li>
-  <li>Countless parser bug fix</li>
-</ul>
-]]></change-notes>
-
 	<idea-version since-build="145.0"/>
 
 	<depends>com.intellij.modules.lang</depends>
@@ -73,7 +29,7 @@ Please don't downvote our plugin for not having one of the features above, becau
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
 		<lang.elementManipulator
 			forClass="org.ice1000.julia.lang.psi.impl.JuliaStringContentMixin"
-			implementationClass="org.ice1000.julia.lang.psi.impl.JuliaStringManipulator"/>
+			implementationClass="org.ice1000.julia.lang.psi.JuliaStringManipulator"/>
 		<projectConfigurable
 			groupId="language"
 			instance="org.ice1000.julia.lang.module.JuliaProjectConfigurable"/>

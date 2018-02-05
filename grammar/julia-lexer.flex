@@ -14,16 +14,24 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
   private static int leftBraceCount = 0;
   private static boolean noEnd = false;
 
-  private void pushState(int state) {
+  /** 虎哥化 */
+  private void hugify(int state) {
     stateStack.push(yystate());
     leftBracketStack.push(leftBraceCount);
     leftBraceCount = 0;
     yybegin(state);
   }
 
-  private void popState() {
+  /** 去虎哥化 */
+  private void dehugify() {
     leftBraceCount = leftBracketStack.pop();
     yybegin(stateStack.pop());
+  }
+
+  /** 重新虎哥化 */
+  private void rehugify(int state) {
+    dehugify();
+    hugify(state);
   }
 
   private static void init() {
@@ -60,7 +68,8 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 COLON_BEGIN_SYM=:\(
 MISC_COMPARISON_SYM=[∉∋∌⊆⊈⊂⊄⊊∝∊∍∥∦∷∺∻∽∾≁≃≄≅≆≇≈≉≊≋≌≍≎≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≣≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊃⊅⊇⊉⊋⊏⊐⊑⊒⊜⊩⊬⊮⊰⊱⊲⊳⊴⊵⊶⊷⋍⋐⋑⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿⟈⟉⟒⦷⧀⧁⧡⧣⧤⧥⩦⩧⩪⩫⩬⩭⩮⩯⩰⩱⩲⩳⩴⩵⩶⩷⩸⩹⩺⩻⩼⩽⩾⩿⪀⪁⪂⪃⪄⪅⪆⪇⪈⪉⪊⪋⪌⪍⪎⪏⪐⪑⪒⪓⪔⪕⪖⪗⪘⪙⪚⪛⪜⪝⪞⪟⪠⪡⪢⪣⪤⪥⪦⪧⪨⪩⪪⪫⪬⪭⪮⪯⪰⪱⪲⪳⪴⪵⪶⪷⪸⪹⪺⪻⪼⪽⪾⪿⫀⫁⫂⫃⫄⫅⫆⫇⫈⫉⫊⫋⫌⫍⫎⫏⫐⫑⫒⫓⫔⫕⫖⫗⫘⫙⫷⫸⫹⫺⊢⊣⟂]
 MISC_PLUS_SYM=[⊕⊖⊞⊟++∪∨⊔±∓∔∸≂≏⊎⊽⋎⋓⧺⧻⨈⨢⨣⨤⨥⨦⨧⨨⨩⨪⨫⨬⨭⨮⨹⨺⩁⩂⩅⩊⩌⩏⩐⩒⩔⩖⩗⩛⩝⩡⩢⩣]
-MISC_MULTIPLY_SYM=[⋅∘×∩∧⊗⊘⊙⊚⊛⊠⊡⊓∗∙∤⅋≀⊼⋄⋆⋇⋉⋊⋋⋌⋏⋒⟑⦸⦼⦾⦿⧶⧷⨇⨰⨱⨲⨳⨴⨵⨶⨷⨸⨻⨼⨽⩀⩃⩄⩋⩍⩎⩑⩓⩕⩘⩚⩜⩞⩟⩠⫛⊍▷⨝⟕⟖⟗]
+// temporarily removed ⋅ and ×
+MISC_MULTIPLY_SYM=[∘∩∧⊗⊘⊙⊚⊛⊠⊡⊓∗∙∤⅋≀⊼⋄⋆⋇⋉⋊⋋⋌⋏⋒⟑⦸⦼⦾⦿⧶⧷⨇⨰⨱⨲⨳⨴⨵⨶⨷⨸⨻⨼⨽⩀⩃⩄⩋⩍⩎⩑⩓⩕⩘⩚⩜⩞⩟⩠⫛⊍▷⨝⟕⟖⟗]
 MISC_EXPONENT_SYM=[↑↓⇵⟰⟱⤈⤉⤊⤋⤒⤓⥉⥌⥍⥏⥑⥔⥕⥘⥙⥜⥝⥠⥡⥣⥥⥮⥯￪￬]
 MISC_ARROW_SYM=[←→↔↚↛↞↠↢↣↦↤↮⇎⇍⇏⇐⇒⇔⇴⇶⇷⇸⇹⇺⇻⇼⇽⇾⇿⟵⟶⟷⟹⟺⟻⟼⟽⟾⟿⤀⤁⤂⤃⤄⤅⤆⤇⤌⤍⤎⤏⤐⤑⤔⤕⤖⤗⤘⤝⤞⤟⤠⥄⥅⥆⥇⥈⥊⥋⥎⥐⥒⥓⥖⥗⥚⥛⥞⥟⥢⥤⥦⥧⥨⥩⥪⥫⥬⥭⥰⧴⬱⬰⬲⬳⬴⬵⬶⬷⬸⬹⬺⬻⬼⬽⬾⬿⭀⭁⭂⭃⭄⭇⭈⭉⭊⭋⭌￩￫⇜⇝↜↝↩↪↫↬↼↽⇀⇁⇄⇆⇇⇉⇋⇌⇚⇛⇠⇢]
 
@@ -111,7 +120,7 @@ OTHERWISE=[^]
 <LONG_TEMPLATE> \( { leftBraceCount++; return JuliaTypes.LEFT_BRACKET; }
 <LONG_TEMPLATE> \) {
   if (leftBraceCount == 0) {
-    popState();
+    dehugify();
     return JuliaTypes.STRING_INTERPOLATE_END;
   }
   leftBraceCount--;
@@ -123,13 +132,13 @@ OTHERWISE=[^]
 
 <YYINITIAL, LONG_TEMPLATE> {LINE_COMMENT} { return JuliaTypes.LINE_COMMENT; }
 <YYINITIAL, LONG_TEMPLATE, AFTER_SIMPLE_LIT, NESTED_COMMENT> #= {
-  pushState(NESTED_COMMENT);
+  hugify(NESTED_COMMENT);
   return JuliaTypes.BLOCK_COMMENT_START;
 }
 
 <NESTED_COMMENT> {BLOCK_COMMENT_CONTENT}+ { return JuliaTypes.BLOCK_COMMENT_BODY; }
 <NESTED_COMMENT> =# {
-  popState();
+  dehugify();
   return JuliaTypes.BLOCK_COMMENT_END;
 }
 
@@ -242,48 +251,56 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> \. { return JuliaTypes.DOT_SYM; }
 
 <YYINITIAL, LONG_TEMPLATE> Inf16|Inf32|Inf|-Inf16|-Inf32|-Inf|NaN16|NaN32|NaN {
-  // pushState(AFTER_SIMPLE_LIT);
+  // hugify(AFTER_SIMPLE_LIT);
   return JuliaTypes.FLOAT_CONSTANT;
 }
 
-<YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} \! /= { yypushback(1); return JuliaTypes.SYM; }
-<YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} { return JuliaTypes.SYM; }
-<AFTER_SIMPLE_LIT> {SIMPLE_SYMBOL} { popState(); return JuliaTypes.SYM; }
+<YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} { hugify(AFTER_SIMPLE_LIT); return JuliaTypes.SYM; }
+<YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} \! /= {
+  yypushback(1);
+  hugify(AFTER_SIMPLE_LIT);
+  return JuliaTypes.SYM;
+}
 
 <YYINITIAL, LONG_TEMPLATE> {INTEGER} {
-  pushState(AFTER_SIMPLE_LIT);
+  hugify(AFTER_SIMPLE_LIT);
   return JuliaTypes.INT_LITERAL;
 }
 
 <YYINITIAL, LONG_TEMPLATE> {FLOAT} {
-  pushState(AFTER_SIMPLE_LIT);
+  hugify(AFTER_SIMPLE_LIT);
   return JuliaTypes.FLOAT_LITERAL;
 }
 
 <YYINITIAL, LONG_TEMPLATE> {CHAR_LITERAL} {
-  // pushState(AFTER_SIMPLE_LIT);
+  // hugify(AFTER_SIMPLE_LIT);
   return JuliaTypes.CHAR_LITERAL;
 }
 
-<YYINITIAL, LONG_TEMPLATE, AFTER_SIMPLE_LIT> \" { pushState(STRING_TEMPLATE); return JuliaTypes.QUOTE_START; }
-<YYINITIAL, LONG_TEMPLATE> ` { pushState(CMD_STRING_TEMPLATE); return JuliaTypes.CMD_QUOTE_START; }
-<YYINITIAL, LONG_TEMPLATE> {TRIPLE_QUOTE_SYM} { pushState(RAW_STRING_TEMPLATE); return JuliaTypes.TRIPLE_QUOTE_START; }
+<AFTER_SIMPLE_LIT> {VALID_CHAR}|[\'\"] {
+  dehugify();
+  yypushback(1);
+  return JuliaTypes.IMPLICIT_MULTIPLY_SYM;
+}
+
+<AFTER_SIMPLE_LIT> {OTHERWISE} { dehugify(); yypushback(1); }
+
+<YYINITIAL, LONG_TEMPLATE> \" { hugify(STRING_TEMPLATE); return JuliaTypes.QUOTE_START; }
+<YYINITIAL, LONG_TEMPLATE> ` { hugify(CMD_STRING_TEMPLATE); return JuliaTypes.CMD_QUOTE_START; }
+<YYINITIAL, LONG_TEMPLATE> {TRIPLE_QUOTE_SYM} { hugify(RAW_STRING_TEMPLATE); return JuliaTypes.TRIPLE_QUOTE_START; }
 
 <STRING_TEMPLATE> \" {
-  popState();
-  pushState(AFTER_SIMPLE_LIT);
+  rehugify(AFTER_SIMPLE_LIT);
   return JuliaTypes.QUOTE_END;
 }
 
 <CMD_STRING_TEMPLATE> ` {
-  popState();
-  pushState(AFTER_SIMPLE_LIT);
+  rehugify(AFTER_SIMPLE_LIT);
   return JuliaTypes.CMD_QUOTE_END;
 }
 
 <RAW_STRING_TEMPLATE> {TRIPLE_QUOTE_SYM} {
-  popState();
-  pushState(AFTER_SIMPLE_LIT);
+  rehugify(AFTER_SIMPLE_LIT);
   return JuliaTypes.TRIPLE_QUOTE_END;
 }
 
@@ -295,18 +312,16 @@ OTHERWISE=[^]
 <STRING_TEMPLATE, CMD_STRING_TEMPLATE, RAW_STRING_TEMPLATE> {STRING_ESCAPE} { return JuliaTypes.STRING_ESCAPE; }
 <STRING_TEMPLATE, CMD_STRING_TEMPLATE, RAW_STRING_TEMPLATE> \$ { return JuliaTypes.SHORT_INTERPOLATE_SYM; }
 <STRING_TEMPLATE, CMD_STRING_TEMPLATE, RAW_STRING_TEMPLATE> {SHORT_TEMPLATE} {
-  pushState(SHORT_TEMPLATE);
+  hugify(SHORT_TEMPLATE);
   yypushback(yylength() - 1);
   return JuliaTypes.SHORT_INTERPOLATE_SYM;
 }
 
 <STRING_TEMPLATE, CMD_STRING_TEMPLATE, RAW_STRING_TEMPLATE> {LONG_TEMPLATE_START} {
-  pushState(LONG_TEMPLATE);
+  hugify(LONG_TEMPLATE);
   return JuliaTypes.STRING_INTERPOLATE_START;
 }
 
-<SHORT_TEMPLATE> {SIMPLE_SYMBOL} { popState(); return JuliaTypes.SYM; }
-
-<AFTER_SIMPLE_LIT> {OTHERWISE} { popState(); yypushback(1); }
+<SHORT_TEMPLATE> {SIMPLE_SYMBOL} { dehugify(); return JuliaTypes.SYM; }
 
 {OTHERWISE} { return TokenType.BAD_CHARACTER; }

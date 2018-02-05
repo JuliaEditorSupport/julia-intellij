@@ -2,25 +2,36 @@ package org.ice1000.julia.lang.psi.impl
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.util.TextRange
-import com.intellij.psi.AbstractElementManipulator
+import com.intellij.psi.PsiLanguageInjectionHost
 import com.intellij.psi.impl.source.tree.injected.StringLiteralEscaper
 import org.ice1000.julia.lang.JuliaTokenType
-import org.ice1000.julia.lang.psi.JuliaStringContent
+import org.ice1000.julia.lang.psi.*
+
+interface IJuliaStringContent : PsiLanguageInjectionHost {
+	override fun createLiteralTextEscaper(): StringLiteralEscaper<out JuliaStringContent>
+	override fun updateText(s: String): JuliaStringContent
+}
 
 abstract class JuliaStringContentMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaStringContent {
 	override fun isValidHost() = true
 	override fun createLiteralTextEscaper() = StringLiteralEscaper(this)
-	override fun updateText(s: String) = replace(JuliaTokenType.fromText(s, project)) as JuliaStringContentMixin
+	override fun updateText(s: String) = replace(JuliaTokenType.fromText(s, project)) as JuliaStringContent
 }
 
-class JuliaStringManipulator : AbstractElementManipulator<JuliaStringContentMixin>() {
-	override fun getRangeInElement(element: JuliaStringContentMixin) = TextRange(0, element.textLength)
-	override fun handleContentChange(
-		psi: JuliaStringContentMixin,
-		range: TextRange,
-		new: String): JuliaStringContentMixin {
-		val oldText = psi.text
-		return psi.updateText("${oldText.substring(0, range.startOffset)}$new${oldText.substring(range.endOffset)}")
-	}
+interface IJuliaSymbol {
+	val isFunctionName: Boolean
+	val isMacroName: Boolean
+	val isModuleName: Boolean
+	val isTypeName: Boolean
+	val isAbstractTypeName: Boolean
+	val isPrimitiveTypeName: Boolean
+}
+
+abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaSymbol {
+	override val isFunctionName = parent is JuliaFunction || parent is JuliaCompactFunction
+	override val isMacroName = parent is JuliaMacro
+	override val isModuleName = parent is JuliaModuleDeclaration
+	override val isTypeName = parent is JuliaTypeDeclaration || parent is JuliaTypeAlias
+	override val isAbstractTypeName = parent is JuliaAbstractTypeDeclaration
+	override val isPrimitiveTypeName = parent is JuliaPrimitiveTypeDeclaration
 }

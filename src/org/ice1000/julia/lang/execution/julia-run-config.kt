@@ -36,6 +36,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 	var handleSignalOption = false
 	var startupFileOption = false
 	var historyOption = false
+	var launchReplOption = false
 	var optimizationLevel = 3
 		set(value) {
 			field = if (value > 3) 3 else if (value < 0) 0 else value
@@ -62,6 +63,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.write(element, "handleSignalOption", handleSignalOption)
 		JDOMExternalizer.write(element, "startupFileOption", startupFileOption)
 		JDOMExternalizer.write(element, "historyOption", historyOption)
+		JDOMExternalizer.write(element, "launchReplOption", launchReplOption)
 		JDOMExternalizer.write(element, "optimizationLevel", optimizationLevel)
 	}
 
@@ -83,6 +85,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.readBoolean(element, "handleSignalOption").let { handleSignalOption = it }
 		JDOMExternalizer.readBoolean(element, "startupFileOption").let { startupFileOption = it }
 		JDOMExternalizer.readBoolean(element, "historyOption").let { historyOption = it }
+		JDOMExternalizer.readBoolean(element, "launchReplOption").let { launchReplOption = it }
 		JDOMExternalizer.readInteger(element, "optimizationLevel", 3).let { optimizationLevel = it }
 		PathMacroManager.getInstance(project).collapsePathsRecursively(element)
 	}

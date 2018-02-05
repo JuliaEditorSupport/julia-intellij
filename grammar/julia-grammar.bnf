@@ -7,7 +7,7 @@
   psiPackage='org.ice1000.julia.lang.psi'
   psiImplPackage='org.ice1000.julia.lang.psi.impl'
 
-  extends('.*Op|.*Expr|.*Lit|.*ymbol')=expr
+  extends('.*Op|.*Expr|.*Lit|.*ymbol|.*lock')=expr
 
   tokenTypeClass='org.ice1000.julia.lang.JuliaTokenType'
   elementTypeHolderClass='org.ice1000.julia.lang.psi.JuliaTypes'
@@ -17,7 +17,11 @@
 
 juliaFile ::= endOfLine statements
 
-symbol ::= SYM
+symbol ::= SYM {
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaSymbol']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin'
+}
+
 macroSymbol ::= AT_SYM SYM
 
 unaryOpAsSymbol ::=
@@ -25,8 +29,9 @@ unaryOpAsSymbol ::=
  | DOT_SYM
  | PLUS_SYM
  | NOT_SYM
+ | INTERPOLATE_SYM
 
-nonUnaryOpAsSymbol ::=
+opAsSymbol ::=
    SEMICOLON_SYM
  | COMMA_SYM
  | QUESTION_SYM
@@ -86,7 +91,7 @@ private stringTemplateElement::=
 
 template ::= SHORT_INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
 stringContent ::= REGULAR_STRING_PART_LITERAL {
-	implements=['com.intellij.psi.PsiLanguageInjectionHost']
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaStringContent']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaStringContentMixin'
 }
 
@@ -105,16 +110,14 @@ private statement ::=
  | globalStatement
  | expr (COMMA_SYM expr)*
 
-private moduleType ::= BAREMODULE_KEYWORD | MODULE_KEYWORD
-moduleName ::= SYM
 moduleDeclaration ::=
- moduleType moduleName endOfLine
+ (BAREMODULE_KEYWORD | MODULE_KEYWORD) symbol endOfLine
   statements
  END_KEYWORD
 
 globalStatement ::=
  GLOBAL_KEYWORD endOfLine
- symbol (COMMA_SYM endOfLine symbol)*
+ expr (COMMA_SYM endOfLine expr)*
 
 typeAnnotation ::= DOUBLE_COLON endOfLine expr typeParameters?
 
@@ -131,43 +134,44 @@ private typeParameters ::=
  RIGHT_B_BRACKET
 
 userType ::= expr typeParameters?
-typeAlias ::= TYPEALIAS_KEYWORD typeName typeParameters? userType { extends=expr }
+typeAlias ::= TYPEALIAS_KEYWORD symbol typeParameters? userType { extends=expr }
 
 expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 
 // lowest
 applyMacroOp ::= macroSymbol expr*
 
+// naming: level+number or type+level or type+levelOp
 expr ::=
    applyMacroOp
  | compactFunction
- | assigns
+ | assignLevelOp
  | arrowOp
  | ternaryOp
  | miscArrowsOp
  | orOp
  | andOp
  | lambda
- | comparisonLevel
- | invPipeOp
- | pipeOp
+ | comparisonLevelOp
+ | pipeLevelOp
  | level8
- | level9
- | level10
- | level11
+ | plusLevelOp
+ | bitwiseLevel
+ | multiplyLevel
  | fractionOp
- | level13
+ | exponentLevel
  | typeOp
  | unaryLevel
+ | suffixedExpr
  | primaryExpr
- | nonUnaryOpAsSymbol
- | unaryOpAsSymbol
  | bracketedExpr
 
-memberAccessOp ::= expr DOT_SYM symbol
+memberAccessOp ::= expr DOT_SYM (symbol | macroSymbol)
+accessAllOp ::= DOT_SYM (symbol | macroSymbol) { pin=1 }
+private access ::= accessAllOp | memberAccessOp
 
 compactFunction ::=
- functionName
+ symbol
   (typeParameters endOfLine)?
    functionSignature endOfLine
     (whereClause endOfLine)?
@@ -177,42 +181,26 @@ compactFunction ::=
 }
 
 // level 0
-private assigns ::=
-   colonAssignOp
- | bitwiseAndAssignOp
- | bitwiseOrAssignOp
- | bitwiseXorAssignOp
- | inverseDivAssignOp
- | shlAssignOp
- | shrAssignOp
- | remainderAssignOp
- | ushrAssignOp
- | plusAssignOp
- | minusAssignOp
- | multiplyAssignOp
- | fractionAssignOp
- | divideAssignOp
- | factoriseAssignOp
- | exponentAssignOp
- | assignOp
-
-colonAssignOp ::= expr COLON_ASSIGN_SYM expr { rightAssociative=true }
-bitwiseAndAssignOp ::= expr BITWISE_AND_ASSIGN_SYM expr { rightAssociative=true }
-bitwiseOrAssignOp ::= expr BITWISE_OR_ASSIGN_SYM expr { rightAssociative=true }
-bitwiseXorAssignOp ::= expr BITWISE_XOR_ASSIGN_SYM expr { rightAssociative=true }
-inverseDivAssignOp ::= expr INVERSE_DIV_ASSIGN_SYM expr { rightAssociative=true }
-shlAssignOp ::= expr SHL_ASSIGN_SYM expr { rightAssociative=true }
-shrAssignOp ::= expr SHR_ASSIGN_SYM expr { rightAssociative=true }
-remainderAssignOp ::= expr REMAINDER_ASSIGN_SYM expr { rightAssociative=true }
-ushrAssignOp ::= expr USHR_ASSIGN_SYM expr { rightAssociative=true }
-plusAssignOp ::= expr PLUS_ASSIGN_SYM expr { rightAssociative=true }
-minusAssignOp ::= expr MINUS_ASSIGN_SYM expr { rightAssociative=true }
-multiplyAssignOp ::= expr MULTIPLY_ASSIGN_SYM expr { rightAssociative=true }
-fractionAssignOp ::= expr FRACTION_ASSIGN_SYM expr { rightAssociative=true }
-divideAssignOp ::= expr DIVIDE_ASSIGN_SYM expr { rightAssociative=true }
-factoriseAssignOp ::= expr FACTORISE_ASSIGN_SYM expr { rightAssociative=true }
-exponentAssignOp ::= expr EXPONENT_ASSIGN_SYM expr { rightAssociative=true }
-assignOp ::= expr (EQ_SYM | ASSIGN_SYM) expr { rightAssociative=true }
+assignLevelOp ::= expr assignLevelOperator endOfLine expr { rightAssociative=true pin=2 }
+assignLevelOperator ::=
+   COLON_ASSIGN_SYM
+ | BITWISE_AND_ASSIGN_SYM
+ | BITWISE_OR_ASSIGN_SYM
+ | BITWISE_XOR_ASSIGN_SYM
+ | INVERSE_DIV_ASSIGN_SYM
+ | SHL_ASSIGN_SYM
+ | SHR_ASSIGN_SYM
+ | REMAINDER_ASSIGN_SYM
+ | USHR_ASSIGN_SYM
+ | PLUS_ASSIGN_SYM
+ | MINUS_ASSIGN_SYM
+ | MULTIPLY_ASSIGN_SYM
+ | FRACTION_ASSIGN_SYM
+ | DIVIDE_ASSIGN_SYM
+ | FACTORISE_ASSIGN_SYM
+ | EXPONENT_ASSIGN_SYM
+ | EQ_SYM
+ | ASSIGN_SYM
 
 // level 1.5
 arrowOp ::= expr ARROW_SYM endOfLine expr { rightAssociative=true }
@@ -243,7 +231,7 @@ applyFunctionOp ::=
 symbolLhs ::=
  ((LOCAL_KEYWORD | CONST_KEYWORD)
   endOfLine)?
- symbol
+ (symbol | LEFT_BRACKET symbol RIGHT_BRACKET)
   (COMMA_SYM endOfLine symbol)* { extends=expr }
 
 // All reserved but unassigned
@@ -268,33 +256,23 @@ lambda ::=
 }
 
 // level 6
-private comparisonLevel ::=
-   lessThanOrEqualOp
- | lessThanOp
- | greaterThanOp
- | greaterThanOrEqualOp
- | isntOp
- | isOp
- | equalsOp
- | unequalOp
- | subtypeOp
- | miscComparisonOp
-
-lessThanOp ::= expr LESS_THAN_SYM endOfLine expr
-lessThanOrEqualOp ::= expr LESS_THAN_OR_EQUAL_SYM endOfLine expr
-greaterThanOp ::= expr GREATER_THAN_SYM endOfLine expr
-greaterThanOrEqualOp ::= expr GREATER_THAN_OR_EQUAL_SYM endOfLine expr
-equalsOp ::= expr EQUALS_SYM endOfLine expr
-unequalOp ::= expr UNEQUAL_SYM endOfLine expr
-isOp ::= expr IS_SYM endOfLine expr
-isntOp ::= expr ISNT_SYM endOfLine expr
-subtypeOp ::= expr SUBTYPE_SYM endOfLine expr
-miscComparisonOp ::= expr MISC_COMPARISON_SYM endOfLine expr
+comparisonLevelOp ::= expr comparisonLevelOperator endOfLine expr
+comparisonLevelOperator ::=
+   LESS_THAN_SYM
+ | LESS_THAN_OR_EQUAL_SYM
+ | GREATER_THAN_SYM
+ | GREATER_THAN_OR_EQUAL_SYM
+ | EQUALS_SYM
+ | UNEQUAL_SYM
+ | IS_SYM
+ | ISNT_SYM
+ | SUBTYPE_SYM
+ | MISC_COMPARISON_SYM
 
 // |>
 // level 7
-pipeOp ::= expr PIPE_SYM endOfLine expr
-invPipeOp ::= expr INVERSE_PIPE_SYM endOfLine expr
+pipeLevelOperator ::= PIPE_SYM | INVERSE_PIPE_SYM
+pipeLevelOp ::= expr pipeLevelOperator endOfLine expr
 
 private level8 ::=
    spliceOp
@@ -302,66 +280,63 @@ private level8 ::=
  | compoundQuoteOp
 
 spliceOp ::= expr SLICE_SYM
-// TODO review if this should be a quoted expression!!! with interpolation
-quoteOp ::= COLON_SYM endOfLine expr
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
+quoteOp ::= COLON_SYM endOfLine quotable
+private quotable ::=
+   unaryOpAsSymbol
+ | opAsSymbol
+ | symbol
+ | QUOTE_KEYWORD
 
 // + - etc
-private level9 ::=
-   plusOp
- | minusOp
- | bitwiseXorOp
- | bitwiseOrOp
- | miscPlusOp
+plusLevelOp ::= expr plusLevelOperator endOfLine expr
+plusLevelOperator ::=
+   INTERPOLATE_SYM
+ | BITWISE_XOR_SYM
+ | BITWISE_OR_SYM
+ | PLUS_SYM
+ | MINUS_SYM
+ | MISC_PLUS_SYM
 
-bitwiseXorOp ::= expr (INTERPOLATE_SYM | BITWISE_XOR_SYM) endOfLine expr
-bitwiseOrOp ::= expr BITWISE_OR_SYM endOfLine expr
-plusOp ::= expr PLUS_SYM endOfLine expr
-minusOp ::= expr MINUS_SYM endOfLine expr
-miscPlusOp ::= expr MISC_PLUS_SYM endOfLine expr
-
-private level10 ::=
-   shlOp
- | shrOp
- | ushrOp
- | transposeOp
+private bitwiseLevel ::=
+   bitwiseLevelOp
  | rangeOp
+ | transposeOp
 
-shrOp ::= expr SHR_SYM endOfLine expr
-ushrOp ::= expr USHR_SYM endOfLine expr
-shlOp ::= expr SHL_SYM endOfLine expr
-transposeOp ::= expr TRANSPOSE_SYM
+bitwiseLevelOp ::= expr bitwiseLevelOperator endOfLine expr
 rangeOp ::= expr COLON_SYM endOfLine expr
+bitwiseLevelOperator ::=
+   SHR_SYM
+ | USHR_SYM
+ | SHL_SYM
+
+transposeOp ::= expr TRANSPOSE_SYM
 
 // * / % & ^
-private level11 ::=
-   multiplyOp
- | divideOp
- | remainderOp
- | bitwiseAndOp
- | inverseDivideOp
- | factoriseOp
- | miscMultiplyOp
- | specialMultiplyOp
+private multiplyLevel ::=
+   multiplyLevelOp
+ | implicitMultiplyOp
 
-multiplyOp ::= expr MULTIPLY_SYM endOfLine expr
-divideOp ::= expr DIVIDE_SYM endOfLine expr
-remainderOp ::= expr REMAINDER_SYM endOfLine expr
-inverseDivideOp ::= expr INVERSE_DIV_SYM endOfLine expr
-factoriseOp ::= expr FACTORISE_SYM endOfLine expr
-bitwiseAndOp ::= expr BITWISE_AND_SYM endOfLine expr
-miscMultiplyOp ::= expr MISC_MULTIPLY_SYM endOfLine expr
+multiplyLevelOp ::= expr multiplyLevelOperator endOfLine expr
+multiplyLevelOperator ::=
+   MULTIPLY_SYM
+ | DIVIDE_SYM
+ | REMAINDER_SYM
+ | INVERSE_DIV_SYM
+ | FACTORISE_SYM
+ | BITWISE_AND_SYM
+ | MISC_MULTIPLY_SYM
 
-specialMultiplyOp ::= specialLhs blockComment? specialRhs
+implicitMultiplyOp ::= specialLhs blockComment? IMPLICIT_MULTIPLY_SYM specialRhs
 private specialLhs ::= integer | floatLit | symbol | string
-private specialRhs ::= symbol | string | charLit
+private specialRhs ::= symbol | string | charLit | integer | floatLit
 
 // // .//
 // level 12
 fractionOp ::= expr FRACTION_SYM endOfLine expr
 
 // ^ .^
-private level13 ::=
+private exponentLevel ::=
    miscExponentOp
  | exponentOp
 
@@ -377,12 +352,14 @@ private unaryLevel ::=
    unaryPlusOp
  | unaryMinusOp
  | unaryTypeOp
+ | unaryInterpolateOp
  | notOp
  | bitWiseNotOp
 
 bitWiseNotOp ::= BITWISE_NOT_SYM endOfLine expr
 unaryTypeOp ::= DOUBLE_COLON endOfLine expr
 unaryMinusOp ::= MINUS_SYM endOfLine expr
+unaryInterpolateOp ::= INTERPOLATE_SYM endOfLine expr
 notOp ::= NOT_SYM endOfLine expr
 unaryPlusOp ::= PLUS_SYM endOfLine expr
 
@@ -394,6 +371,7 @@ private primaryExpr ::=
  | booleanLit
  | ifExpr
  | forExpr
+ | forComprehension
  | whileExpr
  | function
  | returnExpr
@@ -409,28 +387,35 @@ private primaryExpr ::=
  | colonBlock
  | export
  | importExpr
+ | importAllExpr
  | using
  | abstractTypeDeclaration
  | primitiveTypeDeclaration
  | typeDeclaration
  | typeAlias
- | suffixedExpr
  | symbolLhs
+ | macroSymbol
 
 bracketedExpr ::= LEFT_BRACKET endOfLine statements endOfLine (COMMA_SYM endOfLine)? RIGHT_BRACKET { extends=expr }
 
-whereClause ::= WHERE_KEYWORD afterWhere { pin=1 }
+whereClause ::= WHERE_KEYWORD afterWhere
 
 private afterWhere ::=
-   symbol (SUBTYPE_SYM endOfLine expr)?
+   symbol ((SUBTYPE_SYM | EQ_SYM) endOfLine expr)?
  | LEFT_B_BRACKET
     (afterWhere (endOfLine COMMA_SYM endOfLine afterWhere)*)?
      COMMA_SYM? endOfLine
    RIGHT_B_BRACKET
 
-array ::= LEFT_M_BRACKET endOfLine expressionList? RIGHT_M_BRACKET { extends=expr }
+array ::=
+ LEFT_M_BRACKET endOfLine
+  (
+   (expr endOfLine)*
+   (SEMICOLON_SYM endOfLine (expr endOfLine)*)
+  )?
+  RIGHT_M_BRACKET { extends=expr }
 
-union ::= UNION_KEYWORD tuple { extends=expr pin=1 }
+union ::= UNION_KEYWORD tuple { extends=expr }
 
 tuple ::=
  LEFT_BRACKET endOfLine
@@ -448,51 +433,50 @@ private untypedVariables ::=
   (symbol (endOfLine COMMA_SYM endOfLine symbol)*)? endOfLine
  RIGHT_BRACKET
 
-functionName ::= SYM
 function ::=
  FUNCTION_KEYWORD endOfLine
-    functionName
-     (typeParameters endOfLine)?
-   functionSignature endOfLine
-    (whereClause endOfLine)?
+  symbol
+   (typeParameters endOfLine)?
+   (functionSignature endOfLine)?
+   (whereClause endOfLine)?
   statements
- END_KEYWORD { extends=expr pin=1 }
+ END_KEYWORD { extends=expr }
 
-typeName ::= SYM
-abstractTypeName ::= SYM
-primitiveTypeName ::= SYM
 private typeModifiers ::= IMMUTABLE_KEYWORD | MUTABLE_KEYWORD
 typeDeclaration ::=
  (typeModifiers? (TYPE_KEYWORD | STRUCT_KEYWORD) | typeModifiers) endOfLine
-  typeName typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
+  symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
   statements
  END_KEYWORD { extends=expr }
 
 abstractTypeDeclaration ::=
  ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
-  abstractTypeName (SUBTYPE_SYM endOfLine expr)? endOfLine
- END_KEYWORD { extends=expr pin=1 }
+  symbol (SUBTYPE_SYM endOfLine expr)? endOfLine
+ END_KEYWORD { extends=expr }
 
 primitiveTypeDeclaration ::=
  PRIMITIVE_KEYWORD TYPE_KEYWORD endOfLine
-  primitiveTypeName (SUBTYPE_SYM endOfLine expr)? expr endOfLine
- END_KEYWORD { extends=expr pin=1 }
+  symbol (SUBTYPE_SYM endOfLine expr)? expr endOfLine
+ END_KEYWORD { extends=expr }
 
-macroName ::= SYM
 macro ::=
  MACRO_KEYWORD endOfLine
-    macroName endOfLine
+    symbol endOfLine
    untypedVariables endOfLine
   statements
- END_KEYWORD { extends=expr pin=1 }
+ END_KEYWORD {
+	extends=expr
+	implements=['']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin'
+}
 
-let ::= LET_KEYWORD statements END_KEYWORD { extends=expr pin=1 }
+let ::= LET_KEYWORD statements END_KEYWORD { extends=expr }
 
-block ::= BEGIN_KEYWORD statements END_KEYWORD { extends=expr pin=1 }
+block ::= BEGIN_KEYWORD statements END_KEYWORD
 
-colonBlock ::= COLON_SYM LEFT_BRACKET statements RIGHT_BRACKET { extends=expr }
+colonBlock ::= COLON_SYM LEFT_BRACKET statements RIGHT_BRACKET
 
-doBlock ::= DO_KEYWORD statements END_KEYWORD { extends=expr pin=1 }
+doBlock ::= DO_KEYWORD statements END_KEYWORD
 
 breakExpr ::= BREAK_KEYWORD
 
@@ -504,9 +488,12 @@ export ::=
   (endOfLine COMMA_SYM endOfLine
    memberAccessOp)* { extends=expr }
 
+importAllExpr ::=
+ IMPORTALL_KEYWORD access
+
 importExpr ::=
- (IMPORT_KEYWORD | IMPORTALL_KEYWORD) endOfLine
-  memberAccessOp
+ IMPORT_KEYWORD endOfLine
+  access
   (COLON_SYM endOfLine
    memberAccessOp
    (
@@ -518,18 +505,20 @@ importExpr ::=
 
 using ::=
  USING_KEYWORD endOfLine
-  memberAccessOp? (endOfLine COMMA_SYM endOfLine memberAccessOp)* { extends=expr }
+  access? (endOfLine COMMA_SYM endOfLine access)* { extends=expr }
 
 ifExpr ::=
- IF_KEYWORD statements
+ IF_KEYWORD expr endOfLine
+  statements
   elseIfClause*
   elseClause?
- END_KEYWORD { extends=expr }
+ END_KEYWORD
 
 elseIfClause ::= ELSEIF_KEYWORD statements
 elseClause ::= ELSE_KEYWORD statements
 
-forExpr ::= indexer statements END_KEYWORD { extends=expr }
+forComprehension ::= LEFT_M_BRACKET expr indexer (IF_KEYWORD expr)? RIGHT_M_BRACKET { extends=expr }
+forExpr ::= indexer statements END_KEYWORD
 private indexer ::= FOR_KEYWORD endOfLine (multiIndexer | singleIndexer)
 private infixIndexer ::= IN_KEYWORD | IN_SYM | EQ_SYM
 singleIndexer ::= symbol infixIndexer endOfLine expr
