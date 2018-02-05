@@ -1,0 +1,98 @@
+import org.jetbrains.grammarkit.tasks.GenerateLexer
+import org.jetbrains.grammarkit.tasks.GenerateParser
+
+buildscript {
+	ext.kotlin_version = '1.2.21'
+	ext.grammar_kit_version = '2017.1.1'
+	repositories {
+		mavenCentral()
+		maven { url "https://jitpack.io" }
+	}
+	dependencies {
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+		classpath "com.github.hurricup:gradle-grammar-kit-plugin:$grammar_kit_version"
+	}
+}
+
+plugins {
+	id 'org.jetbrains.intellij' version '0.2.18'
+}
+
+allprojects {
+	apply plugin: 'kotlin'
+	apply plugin: 'java'
+	apply plugin: 'org.jetbrains.grammarkit'
+	apply plugin: 'org.jetbrains.intellij'
+	intellij {
+		localPath local_path
+		version idea_version
+		type idea_type
+		updateSinceUntilBuild false
+		instrumentCode true
+	}
+}
+
+sourceSets {
+	main {
+		java.srcDirs = ['src', 'gen']
+		kotlin.srcDirs 'src'
+		resources.srcDirs 'res'
+	}
+
+	test {
+		kotlin.srcDirs 'test'
+		resources.srcDirs 'testData'
+	}
+}
+
+def pluginVersion = '0.0.3'
+
+group 'org.ice1000.julia.lang'
+version pluginVersion
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+	compile "org.eclipse.mylyn.github:org.eclipse.egit.github.core:2.1.5"
+	testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+compileKotlin {
+	kotlinOptions.jvmTarget = '1.8'
+}
+compileTestKotlin {
+	kotlinOptions.jvmTarget = '1.8'
+}
+
+patchPluginXml {
+	changeNotes = file('res/META-INF/change-notes.html').text
+	pluginDescription = file('res/META-INF/description.html').text
+	version = pluginVersion
+	pluginId = group
+}
+
+task genParser(type: GenerateParser) {
+	group = 'build setup'
+	description = 'Generate the Parser and PsiElement classes'
+	source = 'grammar/julia-grammar.bnf'
+	targetRoot = 'gen'
+	pathToParser = '/org/ice1000/julia/lang/JuliaParser.java'
+	pathToPsiRoot = '/org/ice1000/julia/lang/psi'
+	purgeOldFiles = true
+}
+
+task genLexer(type: GenerateLexer) {
+	dependsOn genParser
+	group = 'build setup'
+	description = 'Generate the Lexer'
+	source = "grammar/julia-lexer.flex"
+	targetDir = "gen/org/ice1000/julia/lang"
+	targetClass = "JuliaLexer"
+	purgeOldFiles = true
+}
+
+buildPlugin.dependsOn genParser
+buildPlugin.dependsOn genLexer

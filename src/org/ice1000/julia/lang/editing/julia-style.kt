@@ -10,13 +10,10 @@ class JuliaCodeStyleSettings(settings: CodeStyleSettings)
 	: CustomCodeStyleSettings(JuliaBundle.message("julia.codestyle.settings.tag-name"), settings)
 
 class JuliaCodeStyleSettingsProvider : CodeStyleSettingsProvider() {
-	override fun getConfigurableDisplayName() = JULIA_LANGUAGE_NAME
-	override fun createCustomSettings(settings: CodeStyleSettings): CustomCodeStyleSettings {
-		return JuliaCodeStyleSettings(settings)
-	}
-
+	override fun getConfigurableDisplayName() = JuliaBundle.message("julia.name")
+	override fun createCustomSettings(settings: CodeStyleSettings) = JuliaCodeStyleSettings(settings)
 	override fun createSettingsPage(settings: CodeStyleSettings, originalSettings: CodeStyleSettings): Configurable {
-		return object : CodeStyleAbstractConfigurable(settings, originalSettings, JULIA_LANGUAGE_NAME) {
+		return object : CodeStyleAbstractConfigurable(settings, originalSettings, JuliaBundle.message("julia.name")) {
 			override fun createPanel(settings: CodeStyleSettings) = SimpleCodeStyleMainPanel(currentSettings, settings)
 		}
 	}

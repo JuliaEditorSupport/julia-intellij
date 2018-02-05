@@ -508,7 +508,7 @@ using ::=
   access? (endOfLine COMMA_SYM endOfLine access)* { extends=expr }
 
 ifExpr ::=
- IF_KEYWORD expr endOfLine
+ IF_KEYWORD
   statements
   elseIfClause*
   elseClause?
@@ -517,7 +517,13 @@ ifExpr ::=
 elseIfClause ::= ELSEIF_KEYWORD statements
 elseClause ::= ELSE_KEYWORD statements
 
-forComprehension ::= LEFT_M_BRACKET expr indexer (IF_KEYWORD expr)? RIGHT_M_BRACKET { extends=expr }
+forComprehension ::=
+ LEFT_M_BRACKET endOfLine
+  expr endOfLine
+  indexer
+  (IF_KEYWORD expr)?
+ RIGHT_M_BRACKET { extends=expr }
+
 forExpr ::= indexer statements END_KEYWORD
 private indexer ::= FOR_KEYWORD endOfLine (multiIndexer | singleIndexer)
 private infixIndexer ::= IN_KEYWORD | IN_SYM | EQ_SYM

@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.module
 
+import com.intellij.openapi.util.SystemInfo
 import org.ice1000.julia.lang.executeJulia
 import org.junit.Test
 import java.nio.file.Files
@@ -18,7 +19,7 @@ import java.nio.file.Paths
 class JuliaSdkFindTest {
 	@Test
 	fun testFindPathMac() {
-		println(findPathMac())
+		if (SystemInfo.isMac) println(findPathMac())
 	}
 
 	@Test
