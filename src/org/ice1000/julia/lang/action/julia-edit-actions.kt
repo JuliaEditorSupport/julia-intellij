@@ -1,6 +1,7 @@
 package org.ice1000.julia.lang.action
 
 import com.google.common.util.concurrent.UncheckedTimeoutException
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
@@ -106,16 +107,24 @@ class JuliaTryEvaluateAction : AnAction(
 		core.tryEval(editor, editor.selectionModel.selectedText ?: return, e.getData(CommonDataKeys.PROJECT))
 	}
 
-	override fun update(event: AnActionEvent) {
-		event.presentation.isEnabledAndVisible = event.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
+	override fun update(e: AnActionEvent) {
+		e.presentation.isEnabledAndVisible = e.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
 	}
 }
 
 class JuliaDocumentFormatAction : AnAction(
 	JuliaBundle.message("julia.actions.doc-format.name"),
 	JuliaBundle.message("julia.actions.doc-format.description"),
-	JuliaIcons.JULIA_BIG_ICON), DumbAware {
+	JuliaIcons.JULIA_BIG_ICON), DumbAware, Disposable {
 	private var process: Process? = null
+	override fun dispose() {
+		process?.destroy()
+	}
+
+	override fun update(e: AnActionEvent) {
+		e.presentation.isEnabledAndVisible = e.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
+	}
+
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.project ?: return
 		val settings = project.juliaSettings.settings
@@ -125,17 +134,13 @@ class JuliaDocumentFormatAction : AnAction(
 			.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.doc-format.running"), true) {
 				private var stderrCache: List<String>? = null
 				override fun run(indicator: ProgressIndicator) {
-					val content = file
-						.inputStream
-						.reader()
-						.readText()
-						.replace(Regex.fromLiteral("\"\\")) {
-							when (it.value) {
-								"\"" -> "\\\""
-								"\\" -> "\\\\"
-								else -> it.value
-							}
+					val content = file.inputStream.reader().readText().replace(Regex.fromLiteral("\"\\")) {
+						when (it.value) {
+							"\"" -> "\\\""
+							"\\" -> "\\\\"
+							else -> it.value
 						}
+					}
 					val process = process ?: Runtime.getRuntime().exec(settings.exePath).apply {
 						//language=Julia
 						outputStream.write("using DocumentFormat: format\n".toByteArray())
