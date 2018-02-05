@@ -1,7 +1,12 @@
 package org.ice1000.julia.lang.module
 
+import com.intellij.openapi.progress.*
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.SystemInfo
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.editing.JOJO_ICON
+import java.awt.event.ActionListener
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.stream.Collectors
@@ -31,7 +36,7 @@ class JuliaSettings(
 	var exePath: String = "",
 	var basePath: String = "",
 	var version: String = "",
-	var autoFormatPath: String = "",
+	var autoFormatTabWidth: Int = 4,
 	var tryEvaluateTimeLimit: Long = 2500L,
 	var tryEvaluateTextLimit: Int = 320) {
 	fun initWithExe() {
@@ -65,3 +70,26 @@ fun importPathOf(exePath: String, timeLimit: Long = 800L) =
 
 fun validateJuliaExe(exePath: String) = versionOf(exePath) != JuliaBundle.message("julia.modules.sdk.unknown-version")
 fun validateJulia(settings: JuliaSettings) = settings.version != JuliaBundle.message("julia.modules.sdk.unknown-version")
+
+fun installAutoFormat(
+	project: Project,
+	settings: JuliaSettings): ActionListener = ActionListener {
+	ProgressManager.getInstance()
+		.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.auto-format.installing"), true) {
+			override fun run(indicator: ProgressIndicator) {
+				// indicator.text = JuliaBundle.message("julia.messages.auto-format.installing")
+				executeJulia(settings.exePath, AUTO_FORMAT_INSTALL, 1000000L)
+			}
+
+			override fun onSuccess() {
+				Messages.showDialog(
+					project,
+					JuliaBundle.message("julia.messages.auto-format.installed"),
+					JuliaBundle.message("julia.messages.auto-format.installed.title"),
+					arrayOf(JuliaBundle.message("julia.yes")),
+					0,
+					JOJO_ICON)
+			}
+		})
+}
+

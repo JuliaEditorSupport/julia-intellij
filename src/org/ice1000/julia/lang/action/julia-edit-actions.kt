@@ -110,12 +110,8 @@ class JuliaTryEvaluateAction :
 }
 
 class JuliaAutoFormatAction : AnAction() {
-	companion object {
-		@JvmField val downloadDescription = DownloadableFileDescriptionImpl(AUTO_FORMAT_DOWNLOAD, AUTO_FORMAT_FILE, JULIA_EXTENSION)
-	}
-
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.project ?: return
-		project.juliaSettings
+		val file = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
 	}
 }

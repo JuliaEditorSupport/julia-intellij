@@ -29,6 +29,3 @@ import org.jetbrains.annotations.NonNls
 
 @NonNls @Language("Julia") const val AUTO_FORMAT_INSTALL =
 	"Pkg.clone(\"git://github.com/yulijia/AutoFormat.jl.git\"); Pkg.build(\"AutoFormat\")"
-@NonNls const val AUTO_FORMAT_DOWNLOAD =
-	"https://raw.githubusercontent.com/yulijia/AutoFormat.jl/master/src/AutoFormat.jl"
-@NonNls const val AUTO_FORMAT_FILE = "AutoFormat.jl"
