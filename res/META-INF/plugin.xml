@@ -79,5 +79,16 @@
 			<keyboard-shortcut keymap="$default" first-keystroke="ctrl shift e"/>
 			<add-to-group group-id="EditorPopupMenu1" anchor="first"/>
 		</action>
+		<group
+			id="JuliaToolsMenu"
+			text="Julia Tools"
+			icon="JuliaIcons.JULIA_BIG_ICON"
+			popup="true">
+			<action
+				id="Julia.Tools.AutoFormat"
+				class="org.ice1000.julia.lang.action.JuliaAutoFormatAction">
+			</action>
+			<add-to-group group-id="ToolsMenu" anchor="last"/>
+		</group>
 	</actions>
 </idea-plugin>

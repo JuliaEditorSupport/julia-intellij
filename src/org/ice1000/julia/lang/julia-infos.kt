@@ -7,7 +7,7 @@ import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.*
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
-import org.ice1000.julia.lang.editing.JULIA_ICON
+import icons.JuliaIcons
 import org.ice1000.julia.lang.psi.impl.processDeclTrivial
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
@@ -17,7 +17,7 @@ import java.util.*
 object JuliaFileType : LanguageFileType(JuliaLanguage.INSTANCE) {
 	override fun getDefaultExtension() = JULIA_EXTENSION
 	override fun getName() = JuliaBundle.message("julia.name")
-	override fun getIcon() = JULIA_ICON
+	override fun getIcon() = JuliaIcons.JULIA_ICON
 	override fun getDescription() = JuliaBundle.message("julia.name.description")
 }
 

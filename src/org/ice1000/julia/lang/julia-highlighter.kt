@@ -8,7 +8,7 @@ import com.intellij.openapi.options.colors.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.tree.IElementType
-import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
+import icons.JuliaIcons
 import org.ice1000.julia.lang.psi.JuliaTypes
 import org.intellij.lang.annotations.Language
 
@@ -202,7 +202,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 
 	override fun getHighlighter(): SyntaxHighlighter = JuliaHighlighter
 	override fun getAdditionalHighlightingTagToDescriptorMap() = ADDITIONAL_DESCRIPTORS
-	override fun getIcon() = JULIA_BIG_ICON
+	override fun getIcon() = JuliaIcons.JULIA_BIG_ICON
 	override fun getAttributeDescriptors() = DESCRIPTORS
 	override fun getColorDescriptors(): Array<ColorDescriptor> = ColorDescriptor.EMPTY_ARRAY
 	override fun getDisplayName() = JuliaFileType.name

@@ -4,8 +4,8 @@ import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.SystemInfo
+import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.editing.JOJO_ICON
 import java.awt.event.ActionListener
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -88,7 +88,7 @@ fun installAutoFormat(
 					JuliaBundle.message("julia.messages.auto-format.installed.title"),
 					arrayOf(JuliaBundle.message("julia.yes")),
 					0,
-					JOJO_ICON)
+					JuliaIcons.JOJO_ICON)
 			}
 		})
 }

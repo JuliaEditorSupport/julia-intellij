@@ -15,8 +15,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.*
 import com.intellij.psi.PsiFileFactory
 import com.intellij.util.PlatformUtils
+import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
 import java.time.LocalDate
 
 /**
@@ -29,7 +29,7 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 		projectGenerator: DirectoryProjectGenerator<JuliaSettings>,
 		callback: AbstractNewProjectStep.AbstractCallback<JuliaSettings>) = ProjectSettingsStepBase(projectGenerator, AbstractNewProjectStep.AbstractCallback<JuliaSettings>())
 
-	override fun getLogo() = JULIA_BIG_ICON
+	override fun getLogo() = JuliaIcons.JULIA_BIG_ICON
 	override fun getName() = JuliaBundle.message("julia.name")
 	override fun createPeer() = JuliaProjectGeneratorPeer(JuliaSettings())
 

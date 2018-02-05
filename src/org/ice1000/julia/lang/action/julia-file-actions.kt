@@ -1,13 +1,12 @@
 package org.ice1000.julia.lang.action
 
-import com.intellij.CommonBundle
 import com.intellij.ide.actions.CreateFileAction
 import com.intellij.ide.util.projectWizard.AbstractNewProjectStep
 import com.intellij.ide.util.projectWizard.ProjectSettingsStepBase
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.*
+import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.editing.JULIA_ICON
 import org.ice1000.julia.lang.module.JuliaProjectGenerator
 import org.ice1000.julia.lang.module.JuliaSettings
 import java.time.LocalDate
@@ -15,7 +14,7 @@ import java.time.LocalDate
 class NewJuliaFile : CreateFileAction(
 	JuliaBundle.message("julia.actions.new-file.title"),
 	JuliaBundle.message("julia.actions.new-file.description"),
-	JULIA_ICON) {
+	JuliaIcons.JULIA_ICON) {
 	override fun getActionName(directory: PsiDirectory?, s: String?) =
 		JuliaBundle.message("julia.actions.new-file.title")
 

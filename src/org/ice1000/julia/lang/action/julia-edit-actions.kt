@@ -4,16 +4,16 @@ import com.google.common.util.concurrent.UncheckedTimeoutException
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.JBColor
 import com.intellij.ui.ScrollPaneFactory
-import com.intellij.util.download.impl.DownloadableFileDescriptionImpl
 import com.intellij.util.ui.JBUI
+import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
 import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Dimension
 import javax.swing.JLabel
@@ -64,7 +64,7 @@ class TryEvaluate {
 		if (result.length < textLimit)
 			ApplicationManager.getApplication().invokeLater {
 				JBPopupFactory.getInstance()
-					.createHtmlTextBalloonBuilder(result, JULIA_BIG_ICON, JBColor(color, colorDark), null)
+					.createHtmlTextBalloonBuilder(result, JuliaIcons.JULIA_BIG_ICON, JBColor(color, colorDark), null)
 					.setFadeoutTime(8000)
 					.setHideOnAction(true)
 					.createBalloon()
@@ -74,7 +74,7 @@ class TryEvaluate {
 			ApplicationManager.getApplication().invokeLater {
 				JBPopupFactory.getInstance()
 					.createComponentPopupBuilder(JBUI.Panels.simplePanel()
-						.addToTop(JLabel(JULIA_BIG_ICON))
+						.addToTop(JLabel(JuliaIcons.JULIA_BIG_ICON))
 						.addToCenter(ScrollPaneFactory.createScrollPane(JTextArea(result).apply {
 							toolTipText = JuliaBundle.message("julia.messages.try-eval.overflowed-text", textLimit)
 							lineWrap = true
@@ -95,9 +95,10 @@ class TryEvaluate {
 	}
 }
 
-class JuliaTryEvaluateAction :
-	AnAction(JuliaBundle.message("julia.actions.try-eval.name"),
-		JuliaBundle.message("julia.actions.try-eval.description"), JULIA_BIG_ICON), DumbAware {
+class JuliaTryEvaluateAction : AnAction(
+	JuliaBundle.message("julia.actions.try-eval.name"),
+	JuliaBundle.message("julia.actions.try-eval.description"),
+	JuliaIcons.JULIA_BIG_ICON), DumbAware {
 	private val core = TryEvaluate()
 	override fun actionPerformed(e: AnActionEvent) {
 		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
@@ -109,9 +110,23 @@ class JuliaTryEvaluateAction :
 	}
 }
 
-class JuliaAutoFormatAction : AnAction() {
+class JuliaAutoFormatAction : AnAction(
+	JuliaBundle.message("julia.actions.auto-format.name"),
+	JuliaBundle.message("julia.actions.auto-format.description"),
+	JuliaIcons.JULIA_BIG_ICON), DumbAware {
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.project ?: return
+		val settings = project.juliaSettings.settings
 		val file = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
+		val path = file.path.trimEnd('/', '!')
+		ProgressManager.getInstance()
+			.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.auto-format.running")) {
+				override fun run(indicator: ProgressIndicator) {
+					//language=Julia
+					executeJulia(settings.exePath, """using AutoFormat
+				|format("$path", "$path", ${settings.autoFormatTabWidth})""".trimMargin(),
+						50000L)
+				}
+			})
 	}
 }

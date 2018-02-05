@@ -11,8 +11,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiElement
+import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.module.validateJuliaExe
 import org.jdom.Element
@@ -102,7 +102,7 @@ class JuliaRunConfigurationFactory(type: JuliaRunConfigurationType) : Configurat
 }
 
 object JuliaRunConfigurationType : ConfigurationType {
-	override fun getIcon() = JULIA_BIG_ICON
+	override fun getIcon() = JuliaIcons.JULIA_BIG_ICON
 	override fun getConfigurationTypeDescription() = JuliaBundle.message("julia.run-config.description")
 	override fun getId() = JULIA_RUN_CONFIG_ID
 	override fun getDisplayName() = JuliaBundle.message("julia.name")
