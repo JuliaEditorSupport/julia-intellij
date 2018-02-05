@@ -7,7 +7,7 @@
   psiPackage='org.ice1000.julia.lang.psi'
   psiImplPackage='org.ice1000.julia.lang.psi.impl'
 
-  extends('.*Op|.*Expr|.*Lit|.*ymbol')=expr
+  extends('.*Op|.*Expr|.*Lit|.*ymbol|.*lock')=expr
 
   tokenTypeClass='org.ice1000.julia.lang.JuliaTokenType'
   elementTypeHolderClass='org.ice1000.julia.lang.psi.JuliaTypes'
@@ -31,7 +31,7 @@ unaryOpAsSymbol ::=
  | NOT_SYM
  | INTERPOLATE_SYM
 
-nonUnaryOpAsSymbol ::=
+opAsSymbol ::=
    SEMICOLON_SYM
  | COMMA_SYM
  | QUESTION_SYM
@@ -164,8 +164,6 @@ expr ::=
  | unaryLevel
  | suffixedExpr
  | primaryExpr
- | nonUnaryOpAsSymbol
- | unaryOpAsSymbol
  | bracketedExpr
 
 memberAccessOp ::= expr DOT_SYM (symbol | macroSymbol)
@@ -282,8 +280,13 @@ private level8 ::=
  | compoundQuoteOp
 
 spliceOp ::= expr SLICE_SYM
-quoteOp ::= COLON_SYM endOfLine expr
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
+quoteOp ::= COLON_SYM endOfLine quotable
+private quotable ::=
+   unaryOpAsSymbol
+ | opAsSymbol
+ | symbol
+ | QUOTE_KEYWORD
 
 // + - etc
 plusLevelOp ::= expr plusLevelOperator endOfLine expr
@@ -368,6 +371,7 @@ private primaryExpr ::=
  | booleanLit
  | ifExpr
  | forExpr
+ | forComprehension
  | whileExpr
  | function
  | returnExpr
@@ -468,11 +472,11 @@ macro ::=
 
 let ::= LET_KEYWORD statements END_KEYWORD { extends=expr }
 
-block ::= BEGIN_KEYWORD statements END_KEYWORD { extends=expr }
+block ::= BEGIN_KEYWORD statements END_KEYWORD
 
-colonBlock ::= COLON_SYM LEFT_BRACKET statements RIGHT_BRACKET { extends=expr }
+colonBlock ::= COLON_SYM LEFT_BRACKET statements RIGHT_BRACKET
 
-doBlock ::= DO_KEYWORD statements END_KEYWORD { extends=expr }
+doBlock ::= DO_KEYWORD statements END_KEYWORD
 
 breakExpr ::= BREAK_KEYWORD
 
@@ -504,15 +508,17 @@ using ::=
   access? (endOfLine COMMA_SYM endOfLine access)* { extends=expr }
 
 ifExpr ::=
- IF_KEYWORD statements
+ IF_KEYWORD expr endOfLine
+  statements
   elseIfClause*
   elseClause?
- END_KEYWORD { extends=expr }
+ END_KEYWORD
 
 elseIfClause ::= ELSEIF_KEYWORD statements
 elseClause ::= ELSE_KEYWORD statements
 
-forExpr ::= indexer statements END_KEYWORD { extends=expr }
+forComprehension ::= LEFT_M_BRACKET expr indexer (IF_KEYWORD expr)? RIGHT_M_BRACKET { extends=expr }
+forExpr ::= indexer statements END_KEYWORD
 private indexer ::= FOR_KEYWORD endOfLine (multiIndexer | singleIndexer)
 private infixIndexer ::= IN_KEYWORD | IN_SYM | EQ_SYM
 singleIndexer ::= symbol infixIndexer endOfLine expr
