@@ -4,8 +4,10 @@ import com.google.common.util.concurrent.UncheckedTimeoutException
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.JBColor
@@ -117,27 +119,43 @@ class JuliaDocumentFormatAction : AnAction(
 		val project = e.project ?: return
 		val settings = project.juliaSettings.settings
 		val file = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
-		ApplicationManager.getApplication().runReadAction {
-			val content = file
-				.inputStream
-				.reader()
-				.readText()
-				.replace(Regex.fromLiteral("\"\\")) {
-					when (it.value) {
-						"\"" -> "\\\""
-						"\\" -> "\\\\"
-						else -> it.value
+		val path = file.path.trimEnd(' ', '!', '/')
+		ProgressManager.getInstance()
+			.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.doc-format.running"), true) {
+				private var stderrCache: List<String>? = null
+				override fun run(indicator: ProgressIndicator) {
+					val content = file
+						.inputStream
+						.reader()
+						.readText()
+						.replace(Regex.fromLiteral("\"\\")) {
+							when (it.value) {
+								"\"" -> "\\\""
+								"\\" -> "\\\\"
+								else -> it.value
+							}
+						}
+					//language=Julia
+					val (_, stderr) = executeJulia(settings.exePath,
+						"""using DocumentFormat: format
+open("$path", "w") do f
+  write(f, format($JULIA_DOC_SURROUNDING$content$JULIA_DOC_SURROUNDING))
+end""", 50000L)
+					file.refresh(false, false)
+					stderrCache = stderr
+				}
+
+				override fun onFinished() {
+					stderrCache?.let { stderr ->
+						if (stderr.isNotEmpty()) Messages.showDialog(
+							project,
+							stderr.joinToString(separator = "\n"),
+							JuliaBundle.message("julia.messages.doc-format.error.title"),
+							arrayOf(JuliaBundle.message("julia.yes")),
+							0,
+							JuliaIcons.JOJO_ICON)
 					}
 				}
-			ApplicationManager.getApplication().runWriteAction {
-				//language=Julia
-				val (stdout, stderr) = executeJulia(settings.exePath,
-					"""using DocumentFormat: format
-format($JULIA_DOC_SURROUNDING$content$JULIA_DOC_SURROUNDING)""",
-					50000L)
-				println(stdout)
-				println(stderr)
-			}
-		}
+			})
 	}
 }
