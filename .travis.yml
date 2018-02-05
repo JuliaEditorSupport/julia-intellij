@@ -1,0 +1,7 @@
+sudo: required
+language: java
+language: kotlin
+jdk:
+- oraclejdk8
+script:
+- ./gradlew buildPlugin

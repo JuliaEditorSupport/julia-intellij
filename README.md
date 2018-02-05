@@ -1,12 +1,16 @@
 # Julia plugin for the IntelliJ Platform
 
+## Status
+
+This is a **work in progress**, some features are implemented partially, there may be performance and stability problems.
+
 [![](https://tinyurl.com/y9e4n2zh)](https://github.com/ice1000/julia-intellij)
 [![JetBrains plugins](https://img.shields.io/jetbrains/plugin/v/10413-julia.svg)](https://plugins.jetbrains.com/plugin/10413-julia)
 [![JetBrains plugins](https://img.shields.io/jetbrains/plugin/d/10413-julia.svg)](https://plugins.jetbrains.com/plugin/10413-julia)
 
-## Status
-
-This is a **work in progress**, some features are implemented partially, there may be performance and stability problems.
+CI | Status
+:---:|:---:
+Travis CI|[![Build Status](https://travis-ci.org/ice1000/julia-intellij.svg?branch=master)](https://travis-ci.org/ice1000/julia-intellij)
 
 ## Installation \& Usage
 
