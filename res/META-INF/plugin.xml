@@ -63,9 +63,7 @@
 	<actions>
 		<action
 			id="Julia.NewJuliaFile"
-			class="org.ice1000.julia.lang.action.NewJuliaFile"
-			text="Julia File"
-			description="Create a new Julia file">
+			class="org.ice1000.julia.lang.action.NewJuliaFile">
 			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
 		</action>
 		<action

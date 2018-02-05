@@ -19,7 +19,6 @@ class NewJuliaFile : CreateFileAction(
 	override fun getActionName(directory: PsiDirectory?, s: String?) =
 		JuliaBundle.message("julia.actions.new-file.title")
 
-	override fun getErrorTitle(): String = CommonBundle.getErrorTitle()
 	override fun getDefaultExtension() = JULIA_EXTENSION
 	override fun create(name: String, directory: PsiDirectory): Array<PsiElement> {
 		val fixedExtension = when (FileUtilRt.getExtension(name)) {

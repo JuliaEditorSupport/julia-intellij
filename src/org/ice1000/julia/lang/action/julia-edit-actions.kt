@@ -110,5 +110,7 @@ class JuliaTryEvaluateAction :
 
 class JuliaExternalFormatAction : AnAction() {
 	override fun actionPerformed(e: AnActionEvent) {
+		val project = e.project ?: return
+		project.juliaSettings
 	}
 }

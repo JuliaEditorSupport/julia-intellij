@@ -37,6 +37,8 @@ public class JuliaProjectConfigurable implements Configurable {
 	private @NotNull LinkLabel<Object> juliaWebsite;
 	private @NotNull JLabel version;
 	private @NotNull TextFieldWithBrowseButton basePathField;
+	private JButton installAutoFormatButton;
+	private JButton downloadAutoFormatButton;
 	private @NotNull JuliaSettings settings;
 
 	public JuliaProjectConfigurable(@NotNull Project project) {

@@ -26,11 +26,12 @@ fun findPathMac(): String {
 fun findPathWindows() = executeCommandToFindPath("where julia")
 private fun findPathLinux() = executeCommandToFindPath("whereis julia")
 
-open class JuliaSettings(
+class JuliaSettings(
 	var importPath: String = "",
 	var exePath: String = "",
 	var basePath: String = "",
 	var version: String = "",
+	var autoFormatPath: String = "",
 	var tryEvaluateTimeLimit: Long = 2500L,
 	var tryEvaluateTextLimit: Int = 320) {
 	fun initWithExe() {
