@@ -10,6 +10,7 @@ import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.JBColor
 import com.intellij.ui.ScrollPaneFactory
+import com.intellij.util.download.impl.DownloadableFileDescriptionImpl
 import com.intellij.util.ui.JBUI
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JULIA_BIG_ICON
@@ -108,7 +109,11 @@ class JuliaTryEvaluateAction :
 	}
 }
 
-class JuliaExternalFormatAction : AnAction() {
+class JuliaAutoFormatAction : AnAction() {
+	companion object {
+		@JvmField val downloadDescription = DownloadableFileDescriptionImpl(AUTO_FORMAT_DOWNLOAD, AUTO_FORMAT_FILE, JULIA_EXTENSION)
+	}
+
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.project ?: return
 		project.juliaSettings

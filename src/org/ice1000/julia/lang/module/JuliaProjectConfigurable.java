@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.module;
 
+import com.intellij.history.core.Paths;
 import com.intellij.ide.browsers.BrowserLauncher;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.options.Configurable;
@@ -7,12 +8,12 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.labels.LinkLabel;
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.download.DownloadableFileService;
 import org.ice1000.julia.lang.JuliaBundle;
+import org.ice1000.julia.lang.action.JuliaAutoFormatAction;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,10 +22,12 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
-import java.awt.*;
 import java.text.NumberFormat;
-import java.util.ResourceBundle;
+import java.util.Collections;
 
+import static org.ice1000.julia.lang.Julia_constantsKt.AUTO_FORMAT_FILE;
+import static org.ice1000.julia.lang.Julia_constantsKt.AUTO_FORMAT_INSTALL;
+import static org.ice1000.julia.lang.UtilsKt.executeJulia;
 import static org.ice1000.julia.lang.module.Julia_project_serviceKt.getJuliaSettings;
 import static org.ice1000.julia.lang.module.UtilsKt.*;
 
@@ -37,8 +40,9 @@ public class JuliaProjectConfigurable implements Configurable {
 	private @NotNull LinkLabel<Object> juliaWebsite;
 	private @NotNull JLabel version;
 	private @NotNull TextFieldWithBrowseButton basePathField;
-	private JButton installAutoFormatButton;
-	private JButton downloadAutoFormatButton;
+	private @NotNull JButton installAutoFormatButton;
+	private @NotNull JButton downloadAutoFormatButton;
+	private @NotNull JSpinner autoFormatTabWidth;
 	private @NotNull JuliaSettings settings;
 
 	public JuliaProjectConfigurable(@NotNull Project project) {
@@ -70,9 +74,16 @@ public class JuliaProjectConfigurable implements Configurable {
 				if (base != null) basePathField.setText(base);
 			}
 		});
+		installAutoFormatButton.addActionListener(actionEvent -> executeJulia(settings.getExePath(),
+			AUTO_FORMAT_INSTALL,
+			1000000L));
+		downloadAutoFormatButton.addActionListener(actionEvent -> DownloadableFileService.getInstance()
+			.createDownloader(Collections.singletonList(JuliaAutoFormatAction.downloadDescription), AUTO_FORMAT_FILE)
+			.downloadFilesWithProgress(Paths.appended(StringUtil.notNullize(project.getBasePath(), settings.getImportPath()),
+				"lib"), project, mainPanel));
 	}
 
-	@Override public @Nls String getDisplayName() {
+	@Override public @Nls @NotNull String getDisplayName() {
 		return JuliaBundle.message("julia.name");
 	}
 

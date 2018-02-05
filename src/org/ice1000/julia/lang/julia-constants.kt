@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NonNls
 @NonNls const val JULIA_EXTENSION = "jl"
 @NonNls const val JULIA_DOC_SURROUNDING = "\"\"\""
 @NonNls const val JULIA_BLOCK_COMMENT_BEGIN = "#="
-@NonNls const val JULIA_BLOCK_COMMENT_END= "=#"
+@NonNls const val JULIA_BLOCK_COMMENT_END = "=#"
 @NonNls const val JULIA_STRING_DOLLAR = '\$'
 @NonNls const val JULIA_SDK_HOME_PATH_ID = "JULIA_SDK_HOME_PATH_ID"
 @NonNls const val JULIA_MODULE_ID = "JULIA_MODULE_TYPE"
@@ -24,3 +24,9 @@ import org.jetbrains.annotations.NonNls
 @NonNls const val JULIA_WEBSITE = "https://julialang.org/downloads/"
 
 @NonNls const val MAC_APPLICATIONS = "/Applications"
+
+// ========= AutoFormat.jl ==========
+
+@NonNls @Language("Julia") const val AUTO_FORMAT_INSTALL = "Pkg.clone(\"git://github.com/yulijia/AutoFormat.jl.git\")"
+@NonNls const val AUTO_FORMAT_DOWNLOAD = "https://raw.githubusercontent.com/yulijia/AutoFormat.jl/master/src/AutoFormat.jl"
+@NonNls const val AUTO_FORMAT_FILE = "AutoFormat.jl"
