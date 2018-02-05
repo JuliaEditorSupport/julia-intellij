@@ -58,7 +58,7 @@ fun versionOf(exePath: String, timeLimit: Long = 800L) =
 fun importPathOf(exePath: String, timeLimit: Long = 800L) =
 	executeJulia(exePath, null, timeLimit, "--print", "Pkg.dir()")
 		.first
-		.firstOrNull()
+		.lastOrNull()
 		.orEmpty()
 		.trim('"')
 
