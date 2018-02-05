@@ -77,7 +77,7 @@
 		</action>
 		<action
 			id="Julia.TryEvaluate"
-			class="org.ice1000.julia.lang.action.TryEvaluateJuliaExpressionAction">
+			class="org.ice1000.julia.lang.action.JuliaTryEvaluateAction">
 			<keyboard-shortcut keymap="$default" first-keystroke="ctrl shift e"/>
 			<add-to-group group-id="EditorPopupMenu1" anchor="first"/>
 		</action>

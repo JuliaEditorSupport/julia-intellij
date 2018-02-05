@@ -94,7 +94,7 @@ class TryEvaluate {
 	}
 }
 
-class TryEvaluateJuliaExpressionAction :
+class JuliaTryEvaluateAction :
 	AnAction(JuliaBundle.message("julia.actions.try-eval.name"),
 		JuliaBundle.message("julia.actions.try-eval.description"), JULIA_BIG_ICON), DumbAware {
 	private val core = TryEvaluate()
@@ -107,4 +107,5 @@ class TryEvaluateJuliaExpressionAction :
 		event.presentation.isEnabledAndVisible = event.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
 	}
 }
+
 

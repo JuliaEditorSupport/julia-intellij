@@ -28,7 +28,6 @@ public class JuliaProjectGeneratorPeer extends JuliaProjectGeneratorPeerBase {
 
 	public JuliaProjectGeneratorPeer(@NotNull JuliaSettings settings) {
 		super(settings);
-		this.usefulText.setVisible(false);
 		juliaWebsite.setListener((label, o) -> BrowserLauncher.getInstance().open(juliaWebsite.getText()), null);
 		juliaExeField.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor()));
 		juliaExeField.setText(getDefaultExePath());
@@ -38,9 +37,7 @@ public class JuliaProjectGeneratorPeer extends JuliaProjectGeneratorPeerBase {
 		JuliaSettings settings = getSettings();
 		settings.setExePath(juliaExeField.getText());
 		settings.initWithExe();
-		if (validateJulia(settings)) {
-			return null;
-		} else return new ValidationInfo(JuliaBundle.message("julia.projects.sdk.invalid"));
+		return validateJulia(settings) ? null : new ValidationInfo(JuliaBundle.message("julia.projects.sdk.invalid"));
 	}
 
 	@Override public @NotNull JPanel getComponent() {
