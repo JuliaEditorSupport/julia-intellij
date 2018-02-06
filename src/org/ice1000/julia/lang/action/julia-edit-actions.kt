@@ -161,7 +161,7 @@ exit()
 			JuliaBundle.message("julia.messages.doc-format.error"),
 			arrayOf(JuliaBundle.message("julia.yes")),
 			0, JuliaIcons.JOJO_ICON)
-		file.getOutputStream(this).bufferedWriter().use {
+		else file.getOutputStream(this).bufferedWriter().use {
 			it.append(stdout.joinToString("\n"))
 			it.flush()
 		}
