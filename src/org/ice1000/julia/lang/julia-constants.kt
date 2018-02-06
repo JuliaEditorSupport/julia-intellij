@@ -27,7 +27,10 @@ import org.jetbrains.annotations.NonNls
 
 // ========= DocumentFormat.jl ==========
 
-@NonNls @Language("Julia") const val DOCUMENT_FORMAT_INSTALL =
+@NonNls @Language("Julia") const val DOCFMT_INSTALL =
 	"""Pkg.add("CSTParser")
 Pkg.clone("git://github.com/ZacLN/DocumentFormat.jl.git")
 Pkg.build("DocumentFormat")"""
+
+@NonNls const val DOCFMT_EXTENSION = "julia-config"
+@NonNls const val DOCFMT_LANGUAGE_NAME = "DocumentFormat"

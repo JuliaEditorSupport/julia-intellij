@@ -49,6 +49,9 @@
 		<lang.parserDefinition
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.JuliaParserDefinition"/>
+		<lang.parserDefinition
+			language="DocumentFormat"
+			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtParserDefinition"/>
 		<lang.commenter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaCommenter"/>
