@@ -4,8 +4,12 @@ import com.intellij.ide.actions.CreateFileAction
 import com.intellij.ide.actions.CreateFileFromTemplateAction
 import com.intellij.ide.actions.CreateFileFromTemplateDialog
 import com.intellij.ide.fileTemplates.FileTemplate
+import com.intellij.ide.fileTemplates.FileTemplateManager
+import com.intellij.ide.fileTemplates.FileTemplateUtil
 import com.intellij.ide.util.projectWizard.AbstractNewProjectStep
 import com.intellij.ide.util.projectWizard.ProjectSettingsStepBase
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.*
@@ -64,12 +68,30 @@ class NewJuliaFileFromTemplate : CreateFileFromTemplateAction(
 	JuliaIcons.JULIA_ICON
 ) {
 
+	private lateinit var project : Project
+
 	override fun getActionName(p0: PsiDirectory?, p1: String?, p2: String?): String = JuliaBundle.message("julia.actions.new-file.title")
 	override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {
+		this.project = project
+
 		builder
 			.addKind("File", JuliaIcons.JULIA_ICON, "Julia File")
 			.addKind("Module", JuliaIcons.JULIA_MODULE_ICON, "Julia Module")
 			.addKind("Type", JuliaIcons.JULIA_TYPE_ICON, "Julia Type")
+	}
+
+	override fun createFile(name: String, templateName: String, dir: PsiDirectory): PsiFile? {
+		//val fileName = FileUtilRt.getNameWithoutExtension(name)
+		val templateManager = FileTemplateManager.getInstance(project)
+
+		val defaultConfig = templateManager.defaultProperties
+		val template : FileTemplate = templateManager.getInternalTemplate(templateName)
+			try {
+				return FileTemplateUtil.createFromTemplate(template, name, defaultConfig, dir) as? PsiFile
+			} catch (e: Exception) {
+				LOG.error(e)
+				return null
+			}
 	}
 }
 

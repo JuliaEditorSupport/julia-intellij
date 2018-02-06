@@ -103,7 +103,8 @@ hs_err_pid*
 
 ## ice1000's ignored files
 
-julia-intellij.iml
+*.iml
 .idea
 gen
 idea-flex.skeleton
+resources
