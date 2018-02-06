@@ -40,6 +40,10 @@ class JuliaExecutionTest {
 	}
 }
 
+/**
+ * Linux Deepin
+ * @author zxj5470
+ */
 class JuliaConfig {
 	@Test
 	fun testFile() {
@@ -49,8 +53,9 @@ class JuliaConfig {
 }
 
 /**
- * @author: zxj5470
- * @date: 2018/1/31
+ * Mac OS X
+ * @author zxj5470
+ * @date 2018/1/31
  */
 class JuliaConsoleTest {
 	@Test
