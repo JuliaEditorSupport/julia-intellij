@@ -12,11 +12,11 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.PsiDirectory
-import com.intellij.psi.PsiFile
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.editing.JuliaNameValidator
 import org.ice1000.julia.lang.module.*
+import java.util.*
 
 /**
  * Create a Julia file from template
@@ -27,15 +27,14 @@ class NewJuliaFile : CreateFileFromTemplateAction(
 	JuliaBundle.message("julia.actions.new-file.title"),
 	JuliaBundle.message("julia.actions.new-file.description"),
 	JuliaIcons.JULIA_ICON), DumbAware {
-	private fun createFromTemplate(dir: PsiDirectory, className: String, template: FileTemplate): PsiFile {
-		val project = dir.project
-		val properties = FileTemplateManager.getInstance(project).defaultProperties
-		val settings = project.juliaSettings.settings
-		properties += "JULIA_VERSION" to settings.version
-		properties += "NAME" to className
-		return CreateFromTemplateDialog(project, dir, template, AttributesDefaults(className).withFixedName(true), properties)
-			.create()
-			.containingFile
+	companion object {
+		fun createProperties(project: Project, className: String): Properties {
+			val settings = project.juliaSettings.settings
+			val properties = FileTemplateManager.getInstance(project).defaultProperties
+			properties += "JULIA_VERSION" to settings.version
+			properties += "NAME" to className
+			return properties
+		}
 	}
 
 	override fun getActionName(directory: PsiDirectory?, s: String?, s2: String?) =
@@ -51,7 +50,12 @@ class NewJuliaFile : CreateFileFromTemplateAction(
 	}
 
 	override fun createFileFromTemplate(name: String, template: FileTemplate, dir: PsiDirectory) = try {
-		createFromTemplate(dir, FileUtilRt.getNameWithoutExtension(name), template)
+		val className = FileUtilRt.getNameWithoutExtension(name)
+		val project = dir.project
+		val properties = createProperties(project, className)
+		CreateFromTemplateDialog(project, dir, template, AttributesDefaults(className).withFixedName(true), properties)
+			.create()
+			.containingFile
 	} catch (e: Exception) {
 		LOG.error("Error while creating new file", e)
 		null

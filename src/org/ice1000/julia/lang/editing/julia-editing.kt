@@ -130,7 +130,7 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 }
 
 object JuliaNameValidator : InputValidatorEx {
-	override fun canClose(inputString: String?) = true
+	override fun canClose(inputString: String?) = checkInput(inputString)
 	override fun getErrorText(inputString: String?) = JuliaBundle.message("julia.actions.new-file.invalid", inputString.orEmpty())
 	override fun checkInput(inputString: String?): Boolean {
 		if (inputString == null) return false
