@@ -5,14 +5,16 @@ import com.intellij.psi.*
 import com.intellij.psi.tree.IElementType
 import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy
 import com.intellij.spellchecker.tokenizer.Tokenizer
-import org.ice1000.julia.lang.JULIA_BLOCK_COMMENT_BEGIN
-import org.ice1000.julia.lang.JULIA_BLOCK_COMMENT_END
+import com.intellij.ui.breadcrumbs.BreadcrumbsProvider
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
+import org.ice1000.julia.lang.psi.JuliaBlock
 
 class JuliaBraceMatcher : PairedBraceMatcher {
 	private companion object Pairs {
 		private val PAIRS = arrayOf(
 			BracePair(JuliaTypes.LEFT_BRACKET, JuliaTypes.RIGHT_BRACKET, false),
+			BracePair(JuliaTypes.COLON_BEGIN_SYM, JuliaTypes.RIGHT_BRACKET, false),
 			BracePair(JuliaTypes.STRING_INTERPOLATE_START, JuliaTypes.STRING_INTERPOLATE_END, false),
 			BracePair(JuliaTypes.BLOCK_COMMENT_START, JuliaTypes.BLOCK_COMMENT_END, false),
 			BracePair(JuliaTypes.QUOTE_START, JuliaTypes.QUOTE_END, false),
@@ -56,4 +58,82 @@ class JuliaSpellCheckingStrategy : SpellcheckingStrategy() {
 		is JuliaString -> super.getTokenizer(element).takeIf { it != EMPTY_TOKENIZER } ?: TEXT_TOKENIZER
 		else -> EMPTY_TOKENIZER
 	}
+}
+
+const val TEXT_MAX = 16
+const val LONG_TEXT_MAX = 24
+fun cutText(it: String, textMax: Int) = if (it.length <= textMax) it else "${it.take(textMax)}…"
+
+class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
+	private fun PsiElement.acceptable() = this is JuliaTypeDeclaration ||
+		this is JuliaModuleDeclaration ||
+		this is JuliaFunction ||
+		this is JuliaCompactFunction ||
+		this is JuliaAbstractTypeDeclaration ||
+		this is JuliaPrimitiveTypeDeclaration ||
+		this is JuliaMacro ||
+		this is JuliaIfExpr ||
+		this is JuliaTryCatch ||
+		this is JuliaFinallyClause ||
+		this is JuliaApplyFunctionOp ||
+		this is JuliaApplyMacroOp ||
+		this is JuliaApplyIndexOp ||
+		this is JuliaApplyWhereOp ||
+		this is JuliaBlock ||
+		this is JuliaElseClause ||
+		this is JuliaElseIfClause ||
+		this is JuliaUnion ||
+		this is JuliaBreakExpr ||
+		this is JuliaContinueExpr ||
+		this is JuliaReturnExpr ||
+		this is JuliaLet ||
+		this is JuliaLambda ||
+		this is JuliaImportExpr ||
+		this is JuliaImportAllExpr ||
+		this is JuliaUsing ||
+		this is JuliaCompoundQuoteOp ||
+		this is JuliaColonBlock ||
+		this is JuliaSymbol ||
+		this is JuliaForExpr ||
+		this is JuliaForComprehension ||
+		this is JuliaWhileExpr
+
+	override fun getLanguages() = arrayOf(JuliaLanguage.INSTANCE)
+	override fun getElementInfo(element: PsiElement) = cutText(when (element) {
+		is JuliaTypeDeclaration -> "type ${element.exprList.firstOrNull()}"
+		is JuliaModuleDeclaration -> ""
+		is JuliaFunction -> ""
+		is JuliaCompactFunction -> ""
+		is JuliaAbstractTypeDeclaration -> ""
+		is JuliaPrimitiveTypeDeclaration -> ""
+		is JuliaMacro -> ""
+		is JuliaIfExpr -> ""
+		is JuliaTryCatch -> ""
+		is JuliaFinallyClause -> ""
+		is JuliaApplyFunctionOp -> ""
+		is JuliaApplyMacroOp -> ""
+		is JuliaApplyIndexOp -> ""
+		is JuliaApplyWhereOp -> ""
+		is JuliaBlock -> ""
+		is JuliaElseClause -> ""
+		is JuliaElseIfClause -> ""
+		is JuliaUnion -> ""
+		is JuliaBreakExpr -> ""
+		is JuliaContinueExpr -> ""
+		is JuliaReturnExpr -> ""
+		is JuliaLet -> ""
+		is JuliaLambda -> ""
+		is JuliaImportExpr -> ""
+		is JuliaImportAllExpr -> ""
+		is JuliaUsing -> ""
+		is JuliaCompoundQuoteOp -> ""
+		is JuliaColonBlock -> ""
+		is JuliaSymbol -> ""
+		is JuliaForExpr -> ""
+		is JuliaForComprehension -> ""
+		is JuliaWhileExpr -> ""
+		else -> ""
+	}, TEXT_MAX)
+
+	override fun acceptElement(element: PsiElement) = element.acceptable()
 }

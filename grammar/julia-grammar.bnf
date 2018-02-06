@@ -484,7 +484,7 @@ let ::= LET_KEYWORD statements END_KEYWORD { extends=expr }
 
 block ::= BEGIN_KEYWORD statements END_KEYWORD
 
-colonBlock ::= COLON_SYM LEFT_BRACKET statements RIGHT_BRACKET
+colonBlock ::= COLON_BEGIN_SYM statements RIGHT_BRACKET
 
 doBlock ::= DO_KEYWORD statements END_KEYWORD
 
