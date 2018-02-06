@@ -11,11 +11,13 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.util.ui.JBUI
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.module.JuliaSettings
 import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Dimension
 import javax.swing.JLabel
@@ -121,41 +123,47 @@ class JuliaDocumentFormatAction : AnAction(
 		val settings = project.juliaSettings.settings
 		val file = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
 		ProgressManager.getInstance().runProcessWithProgressSynchronously({
-			val content = file
-				.inputStream
-				.reader()
-				.readText()
-				.replace(Regex.fromLiteral("\"\\")) {
-					when (it.value) {
-						"\"" -> "\\\""
-						"\\" -> "\\\\"
-						else -> it.value
-					}
+			ApplicationManager.getApplication().run { invokeAndWait { runReadAction { read(file, settings, project) } } }
+		}, JuliaBundle.message("julia.messages.doc-format.running"), false, project)
+	}
+
+	private fun read(file: VirtualFile, settings: JuliaSettings, project: Project) {
+		val content = file
+			.inputStream
+			.reader()
+			.readText()
+			.replace(Regex.fromLiteral("\"\\")) {
+				when (it.value) {
+					"\"" -> "\\\""
+					"\\" -> "\\\\"
+					else -> it.value
 				}
-			//language=Julia
-			val (stdout, stderr) = executeJulia("${settings.exePath} -q",
-				"""using DocumentFormat: format
+			}
+		//language=Julia
+		val (stdout, stderr) = executeJulia("${settings.exePath} -q",
+			"""using DocumentFormat: format
 println(format($JULIA_DOC_SURROUNDING$content$JULIA_DOC_SURROUNDING))
 exit()
 """,
-				50000L)
-			ApplicationManager.getApplication().let {
-				it.invokeAndWait {
-					it.runWriteAction {
-						if (stderr.isNotEmpty()) Messages.showDialog(
-							project,
-							stderr.joinToString("\n"),
-							JuliaBundle.message("julia.messages.doc-format.error"),
-							arrayOf(JuliaBundle.message("julia.yes")),
-							0, JuliaIcons.JOJO_ICON)
-						file.getOutputStream(this).bufferedWriter().use {
-							it.append(stdout.joinToString("\n"))
-							it.flush()
-						}
-					}
-					LocalFileSystem.getInstance().refreshFiles(listOf(file))
-				}
+			50000L)
+		ApplicationManager.getApplication().let {
+			it.invokeAndWait {
+				it.runWriteAction { write(stderr, project, file, stdout) }
+				LocalFileSystem.getInstance().refreshFiles(listOf(file))
 			}
-		}, JuliaBundle.message("julia.messages.doc-format.running"), false, project)
+		}
+	}
+
+	private fun write(stderr: List<String>, project: Project, file: VirtualFile, stdout: List<String>) {
+		if (stderr.isNotEmpty()) Messages.showDialog(
+			project,
+			stderr.joinToString("\n"),
+			JuliaBundle.message("julia.messages.doc-format.error"),
+			arrayOf(JuliaBundle.message("julia.yes")),
+			0, JuliaIcons.JOJO_ICON)
+		file.getOutputStream(this).bufferedWriter().use {
+			it.append(stdout.joinToString("\n"))
+			it.flush()
+		}
 	}
 }
