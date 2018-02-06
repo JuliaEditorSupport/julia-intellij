@@ -101,8 +101,28 @@ task genLexer(type: GenerateLexer) {
 	purgeOldFiles = true
 }
 
+task genDocfmtParser(type: GenerateParser) {
+	group = 'build setup'
+	description = 'Generate the Parser for DocumentFormat.jl'
+	source = 'grammar/docfmt-grammar.bnf'
+	targetRoot = 'gen'
+	pathToParser = 'org/ice1000/julia/lang/docfmt/DocfmtParser.java'
+	pathToPsiRoot = 'org/ice1000/julia/lang/docfmt/psi'
+	purgeOldFiles = true
+}
+
+task genDocfmtLexer(type: GenerateLexer) {
+	dependsOn genDocfmtParser
+	group = 'build setup'
+	description = 'Generate the Lexer for DocumentFormat.jl'
+	source = "grammar/docfmt-lexer.flex"
+	targetDir = 'org/ice1000/julia/lang/docfmt/psi'
+	targetClass = "DocfmtLexer"
+	purgeOldFiles = true
+}
+
 buildPlugin.dependsOn genParser
 buildPlugin.dependsOn genLexer
 
-build.dependsOn genParser
-build.dependsOn genLexer
+buildPlugin.dependsOn genDocfmtParser
+buildPlugin.dependsOn genDocfmtLexer

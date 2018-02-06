@@ -8,6 +8,7 @@ import com.intellij.openapi.fileTypes.*
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
 import icons.JuliaIcons
+import org.ice1000.julia.lang.docfmt.DocfmtFileType
 import org.ice1000.julia.lang.psi.impl.processDeclTrivial
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
@@ -31,7 +32,10 @@ class JuliaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, Juli
 }
 
 class JuliaFileTypeFactory : FileTypeFactory() {
-	override fun createFileTypes(consumer: FileTypeConsumer) = consumer.consume(JuliaFileType, JULIA_EXTENSION)
+	override fun createFileTypes(consumer: FileTypeConsumer) {
+		consumer.consume(JuliaFileType, JULIA_EXTENSION)
+		consumer.consume(DocfmtFileType, DocfmtFileType.fileMatcher)
+	}
 }
 
 class JuliaContext : TemplateContextType(JULIA_CONTEXT_ID, JULIA_LANGUAGE_NAME) {

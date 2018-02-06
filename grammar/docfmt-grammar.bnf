@@ -1,0 +1,16 @@
+{
+  parserClass='org.ice1000.julia.lang.docfmt.DocfmtParser'
+  extends='com.intellij.extapi.psi.ASTWrapperPsiElement'
+  psiClassPrefix='Docfmt'
+  psiImplClassSuffix='Impl'
+  psiPackage='org.ice1000.julia.lang.docfmt.psi'
+  psiImplPackage='org.ice1000.julia.lang.docfmt.psi.impl'
+
+  tokenTypeClass='org.ice1000.julia.lang.docfmt.DocfmtTokenType'
+  elementTypeHolderClass='org.ice1000.julia.lang.docfmt.psi.DocfmtTypes'
+  elementTypeClass='org.ice1000.julia.lang.docfmt.DocfmtElementType'
+}
+
+configFile ::= (config | comment)*
+config ::= SYM EQ_SYM SYM
+private comment ::= LINE_COMMENT

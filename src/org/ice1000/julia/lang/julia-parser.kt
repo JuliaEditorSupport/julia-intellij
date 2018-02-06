@@ -27,7 +27,7 @@ class JuliaParserDefinition : ParserDefinition {
 }
 
 class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE) {
-	companion object {
+	companion object TokenHolder {
 		@JvmField val COMMENTS = TokenSet.create(
 			JuliaTypes.BLOCK_COMMENT_BODY,
 			JuliaTypes.BLOCK_COMMENT_START,
