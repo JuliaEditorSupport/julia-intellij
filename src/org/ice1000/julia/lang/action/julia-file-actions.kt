@@ -8,15 +8,14 @@ import com.intellij.ide.fileTemplates.ui.CreateFromTemplateDialog
 import com.intellij.ide.util.projectWizard.AbstractNewProjectStep
 import com.intellij.ide.util.projectWizard.ProjectSettingsStepBase
 import com.intellij.openapi.application.runWriteAction
-import com.intellij.openapi.project.*
+import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.*
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.module.JuliaProjectGenerator
-import org.ice1000.julia.lang.module.JuliaSettings
+import org.ice1000.julia.lang.module.*
 import java.time.LocalDate
-import java.util.*
 
 
 inline fun createFile(name: String, directory: PsiDirectory, template: () -> String = { "" }): Array<PsiElement> {
@@ -65,44 +64,31 @@ class NewJuliaFileFromTemplate : CreateFileFromTemplateAction(
 	JuliaBundle.message("julia.actions.new-file-template.description"),
 	JuliaIcons.JULIA_ICON), DumbAware {
 	companion object {
-		private fun findOrCreateTarget(dir: PsiDirectory, name: String, separators: CharArray): Pair<String, PsiDirectory> {
+		private fun findOrCreateTarget(dir: PsiDirectory, name: String, separators: CharArray): PsiDirectory {
 			var className = name.removeSuffix(".jl")
 			var targetDir = dir
 			separators.firstOrNull { it in className }?.let {
 				val names = className.trim().split(it).dropLast(1)
 				for (dirName in names) targetDir = targetDir.findSubdirectory(dirName) ?: runWriteAction { targetDir.createSubdirectory(dirName) }
-				className = names.last()
 			}
-			return className to targetDir
+			return targetDir
 		}
 
-		private fun createFromTemplate(dir: PsiDirectory, className: String, template: FileTemplate): PsiFile? {
+		private fun createFromTemplate(dir: PsiDirectory, className: String, template: FileTemplate): PsiFile {
 			val project = dir.project
-			val defaultProperties = FileTemplateManager.getInstance(project).defaultProperties
+			val properties = FileTemplateManager.getInstance(project).defaultProperties
+			val settings = project.juliaSettings.settings
+			properties += "JULIA_VERSION" to settings.version
+			properties += "NAME" to className
 			return CreateFromTemplateDialog(project, dir, template,
 				AttributesDefaults(className).withFixedName(true),
-				Properties(defaultProperties))
+				properties)
 				.create().containingFile
-		}
-
-		fun createFileFromTemplate(name: String, template: FileTemplate, dir: PsiDirectory): PsiFile? {
-			val directorySeparators = if (template.name == "Julia File") charArrayOf('/', '\\') else charArrayOf('/', '\\', '.')
-			val (className, targetDir) = findOrCreateTarget(dir, name, directorySeparators)
-
-			val service = DumbService.getInstance(dir.project)
-			service.isAlternativeResolveEnabled = true
-			try {
-				return createFromTemplate(targetDir, className, template)
-			} finally {
-				service.isAlternativeResolveEnabled = false
-			}
 		}
 	}
 
-	override fun getActionName(
-		directory: PsiDirectory?,
-		s: String?,
-		s2: String?): String = JuliaBundle.message("julia.actions.new-file.title")
+	override fun getActionName(directory: PsiDirectory?, s: String?, s2: String?) =
+		JuliaBundle.message("julia.actions.new-file.title")
 
 	override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {
 		builder
@@ -111,8 +97,16 @@ class NewJuliaFileFromTemplate : CreateFileFromTemplateAction(
 			.addKind("Type", JuliaIcons.JULIA_TYPE_ICON, "Julia Type")
 	}
 
-	override fun createFileFromTemplate(name: String, template: FileTemplate, dir: PsiDirectory): PsiFile? =
-		Companion.createFileFromTemplate(name, template, dir)
+	override fun createFileFromTemplate(name: String, template: FileTemplate, dir: PsiDirectory): PsiFile? {
+		val directorySeparators = if (template.name == "Julia File") charArrayOf('/', '\\') else charArrayOf('/', '\\', '.')
+		val targetDir = findOrCreateTarget(dir, name, directorySeparators)
+		return try {
+			createFromTemplate(targetDir, FileUtilRt.getNameWithoutExtension(name), template)
+		} catch (e: Exception) {
+			LOG.error("Error while creating new file", e)
+			null
+		}
+	}
 }
 
 /**
