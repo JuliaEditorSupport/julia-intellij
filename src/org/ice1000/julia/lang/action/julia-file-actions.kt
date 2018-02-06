@@ -1,8 +1,12 @@
 package org.ice1000.julia.lang.action
 
 import com.intellij.ide.actions.CreateFileAction
+import com.intellij.ide.actions.CreateFileFromTemplateAction
+import com.intellij.ide.actions.CreateFileFromTemplateDialog
+import com.intellij.ide.fileTemplates.FileTemplate
 import com.intellij.ide.util.projectWizard.AbstractNewProjectStep
 import com.intellij.ide.util.projectWizard.ProjectSettingsStepBase
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.*
 import icons.JuliaIcons
@@ -10,6 +14,7 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.JuliaProjectGenerator
 import org.ice1000.julia.lang.module.JuliaSettings
 import java.time.LocalDate
+
 
 inline fun createFile( name : String , directory : PsiDirectory , template : () -> String = {""} ) : Array<PsiElement> {
 	val fixedExtension = when (FileUtilRt.getExtension(name)) {
@@ -35,6 +40,7 @@ inline fun createFile( name : String , directory : PsiDirectory , template : () 
 	)
 }
 
+
 class NewJuliaFile : CreateFileAction(
 	JuliaBundle.message("julia.actions.new-file.title"),
 	JuliaBundle.message("julia.actions.new-file.description"),
@@ -46,38 +52,25 @@ class NewJuliaFile : CreateFileAction(
 		createFile(name, directory)
 }
 
-class NewJuliaModule : CreateFileAction (
-	JuliaBundle.message("julia.actions.new-module.title"),
-	JuliaBundle.message("julia.actions.new-module.description"),
-	JuliaIcons.JULIA_MODULE_ICON
-) {
-	override fun getActionName(directory : PsiDirectory?, newName : String?) : String = JuliaBundle.message("julia.actions.new-file.title")
-	override fun getDefaultExtension() : String? = JULIA_EXTENSION
-	override fun create(newName : String, directory : PsiDirectory) : Array<PsiElement> =
-		createFile(newName, directory) {
-			"""
-				|module ${FileUtilRt.getNameWithoutExtension(newName)}
-				| # TODO
-				|end
-			""".trimMargin()
-		}
-}
 
-class NewJuliaType : CreateFileAction (
-	JuliaBundle.message("julia.actions.new-type.title"),
-	JuliaBundle.message("julia.actions.new-type.description"),
-	JuliaIcons.JULIA_TYPE_ICON
+/**
+ * Create a Julia file from template
+ * Test Function
+ * @author LimbolRain
+ */
+class NewJuliaFileFromTemplate : CreateFileFromTemplateAction(
+	JuliaBundle.message("julia.actions.new-file-template.title"),
+	JuliaBundle.message("julia.actions.new-file-template.description"),
+	JuliaIcons.JULIA_ICON
 ) {
-	override fun getActionName(directory : PsiDirectory?, newName : String?) : String = JuliaBundle.message("julia.actions.new-file.title")
-	override fun getDefaultExtension() : String? = JULIA_EXTENSION
-	override fun create(newName : String, directory : PsiDirectory) : Array<PsiElement> =
-		createFile(newName, directory) {
-			"""
-				|type ${FileUtilRt.getNameWithoutExtension(newName)}
-				| # TODO
-				|end
-			""".trimMargin()
-		}
+
+	override fun getActionName(p0: PsiDirectory?, p1: String?, p2: String?): String = JuliaBundle.message("julia.actions.new-file.title")
+	override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {
+		builder
+			.addKind("File", JuliaIcons.JULIA_ICON, "Julia File")
+			.addKind("Module", JuliaIcons.JULIA_MODULE_ICON, "Julia Module")
+			.addKind("Type", JuliaIcons.JULIA_TYPE_ICON, "Julia Type")
+	}
 }
 
 /**
