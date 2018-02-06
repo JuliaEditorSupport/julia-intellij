@@ -1,7 +1,8 @@
 package org.ice1000.julia.lang.action
 
 import com.google.common.util.concurrent.UncheckedTimeoutException
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressManager
@@ -65,41 +66,37 @@ class TryEvaluate {
 
 	private fun showPopupWindow(result: String, editor: Editor, color: Int, colorDark: Int) {
 		val relativePoint = JBPopupFactory.getInstance().guessBestPopupLocation(editor)
-		if (result.length < textLimit)
-			ApplicationManager.getApplication().invokeLater {
-				JBPopupFactory.getInstance()
-					.createHtmlTextBalloonBuilder(result, JuliaIcons.JULIA_BIG_ICON, JBColor(color, colorDark), null)
-					.setFadeoutTime(8000)
-					.setHideOnAction(true)
-					.createBalloon()
-					.show(relativePoint, Balloon.Position.below)
-			}
-		else
-			ApplicationManager.getApplication().invokeLater {
-				JBPopupFactory.getInstance()
-					.createComponentPopupBuilder(JBUI.Panels.simplePanel()
-						.addToTop(JLabel(JuliaIcons.JULIA_BIG_ICON))
-						.addToCenter(ScrollPaneFactory.createScrollPane(JTextArea(result).apply {
-							toolTipText = JuliaBundle.message("julia.messages.try-eval.overflowed-text", textLimit)
-							lineWrap = true
-							wrapStyleWord = true
-							isEditable = false
-						}))
-						.apply {
-							preferredSize = Dimension(500, 500)
-							border = JBUI.Borders.empty(10, 5, 5, 5)
-						}, null)
-					.setRequestFocus(true)
-					.setResizable(true)
-					.setMovable(true)
-					.setCancelOnClickOutside(true)
-					.createPopup()
-					.show(relativePoint)
-			}
+		ApplicationManager.getApplication().invokeLater {
+			if (result.length < textLimit) JBPopupFactory.getInstance()
+				.createHtmlTextBalloonBuilder(result, JuliaIcons.JULIA_BIG_ICON, JBColor(color, colorDark), null)
+				.setFadeoutTime(8000)
+				.setHideOnAction(true)
+				.createBalloon()
+				.show(relativePoint, Balloon.Position.below)
+			else JBPopupFactory.getInstance()
+				.createComponentPopupBuilder(JBUI.Panels.simplePanel()
+					.addToTop(JLabel(JuliaIcons.JULIA_BIG_ICON))
+					.addToCenter(ScrollPaneFactory.createScrollPane(JTextArea(result).apply {
+						toolTipText = JuliaBundle.message("julia.messages.try-eval.overflowed-text", textLimit)
+						lineWrap = true
+						wrapStyleWord = true
+						isEditable = false
+					}))
+					.apply {
+						preferredSize = Dimension(500, 500)
+						border = JBUI.Borders.empty(10, 5, 5, 5)
+					}, null)
+				.setRequestFocus(true)
+				.setResizable(true)
+				.setMovable(true)
+				.setCancelOnClickOutside(true)
+				.createPopup()
+				.show(relativePoint)
+		}
 	}
 }
 
-class JuliaTryEvaluateAction : AnAction(
+class JuliaTryEvaluateAction : JuliaAction(
 	JuliaBundle.message("julia.actions.try-eval.name"),
 	JuliaBundle.message("julia.actions.try-eval.description"),
 	JuliaIcons.JULIA_BIG_ICON), DumbAware {
@@ -108,13 +105,9 @@ class JuliaTryEvaluateAction : AnAction(
 		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
 		core.tryEval(editor, editor.selectionModel.selectedText ?: return, e.getData(CommonDataKeys.PROJECT))
 	}
-
-	override fun update(event: AnActionEvent) {
-		event.presentation.isEnabledAndVisible = event.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
-	}
 }
 
-class JuliaDocumentFormatAction : AnAction(
+class JuliaDocumentFormatAction : JuliaAction(
 	JuliaBundle.message("julia.actions.doc-format.name"),
 	JuliaBundle.message("julia.actions.doc-format.description"),
 	JuliaIcons.JULIA_BIG_ICON), DumbAware {
@@ -128,17 +121,13 @@ class JuliaDocumentFormatAction : AnAction(
 	}
 
 	private fun read(file: VirtualFile, settings: JuliaSettings, project: Project) {
-		val content = file
-			.inputStream
-			.reader()
-			.readText()
-			.replace(Regex.fromLiteral("\"\\")) {
-				when (it.value) {
-					"\"" -> "\\\""
-					"\\" -> "\\\\"
-					else -> it.value
-				}
+		val content = file.inputStream.reader().readText().replace(Regex.fromLiteral("\"\\")) {
+			when (it.value) {
+				"\"" -> "\\\""
+				"\\" -> "\\\\"
+				else -> it.value
 			}
+		}
 		//language=Julia
 		val (stdout, stderr) = executeJulia("${settings.exePath} -q",
 			"""using DocumentFormat: format
