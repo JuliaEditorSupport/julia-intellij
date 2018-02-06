@@ -10,27 +10,6 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.JuliaProjectGenerator
 import org.ice1000.julia.lang.module.JuliaSettings
 import java.time.LocalDate
-import java.util.regex.Pattern
-import kotlin.reflect.KProperty
-
-object ActionProperties {
-	operator fun getValue(_this : Any?, properties : KProperty<*>) : String{
-		val matcher = Pattern.compile("new([A-Z][a-z]+)(Title|Description)").matcher(properties.name)
-
-		return if( matcher.matches() ) {
-			JuliaBundle.message("julia.actions.new-${matcher.group(1).toLowerCase()}.${matcher.group(2).toLowerCase()}")
-		} else ""
-	}
-}
-
-val newFileTitle : String by ActionProperties
-val newFileDescription : String by ActionProperties
-
-val newModuleTitle : String by ActionProperties
-val newModuleDescription : String by ActionProperties
-
-val newTypeTitle : String by ActionProperties
-val newTypeDescription : String by ActionProperties
 
 inline fun createFile( name : String , directory : PsiDirectory , template : () -> String = {""} ) : Array<PsiElement> {
 	val fixedExtension = when (FileUtilRt.getExtension(name)) {
@@ -57,22 +36,22 @@ inline fun createFile( name : String , directory : PsiDirectory , template : () 
 }
 
 class NewJuliaFile : CreateFileAction(
-	newFileTitle,
-	newFileDescription,
+	JuliaBundle.message("julia.actions.new-file.title"),
+	JuliaBundle.message("julia.actions.new-file.description"),
 	JuliaIcons.JULIA_ICON) {
 
-	override fun getActionName(directory : PsiDirectory?, s : String?) = newFileTitle
+	override fun getActionName(directory : PsiDirectory?, s : String?) = JuliaBundle.message("julia.actions.new-file.title")
 	override fun getDefaultExtension() = JULIA_EXTENSION
 	override fun create(name : String, directory : PsiDirectory) : Array<PsiElement> =
 		createFile(name, directory)
 }
 
 class NewJuliaModule : CreateFileAction (
-	newModuleTitle,
-	newModuleDescription,
+	JuliaBundle.message("julia.actions.new-module.title"),
+	JuliaBundle.message("julia.actions.new-module.description"),
 	JuliaIcons.JULIA_MODULE_ICON
 ) {
-	override fun getActionName(directory : PsiDirectory?, newName : String?) : String = newModuleTitle
+	override fun getActionName(directory : PsiDirectory?, newName : String?) : String = JuliaBundle.message("julia.actions.new-file.title")
 	override fun getDefaultExtension() : String? = JULIA_EXTENSION
 	override fun create(newName : String, directory : PsiDirectory) : Array<PsiElement> =
 		createFile(newName, directory) {
@@ -85,11 +64,11 @@ class NewJuliaModule : CreateFileAction (
 }
 
 class NewJuliaType : CreateFileAction (
-	newTypeTitle,
-	newTypeDescription,
+	JuliaBundle.message("julia.actions.new-type.title"),
+	JuliaBundle.message("julia.actions.new-type.description"),
 	JuliaIcons.JULIA_TYPE_ICON
 ) {
-	override fun getActionName(directory : PsiDirectory?, newName : String?) : String = newTypeTitle
+	override fun getActionName(directory : PsiDirectory?, newName : String?) : String = JuliaBundle.message("julia.actions.new-file.title")
 	override fun getDefaultExtension() : String? = JULIA_EXTENSION
 	override fun create(newName : String, directory : PsiDirectory) : Array<PsiElement> =
 		createFile(newName, directory) {
