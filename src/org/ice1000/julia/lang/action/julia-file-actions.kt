@@ -5,7 +5,6 @@ import com.intellij.ide.actions.CreateFileFromTemplateAction
 import com.intellij.ide.actions.CreateFileFromTemplateDialog
 import com.intellij.ide.fileTemplates.FileTemplate
 import com.intellij.ide.fileTemplates.FileTemplateManager
-import com.intellij.ide.fileTemplates.FileTemplateUtil
 import com.intellij.ide.fileTemplates.actions.AttributesDefaults
 import com.intellij.ide.fileTemplates.ui.CreateFromTemplateDialog
 import com.intellij.ide.util.projectWizard.AbstractNewProjectStep
@@ -69,8 +68,7 @@ class NewJuliaFile : CreateFileAction(
 class NewJuliaFileFromTemplate : CreateFileFromTemplateAction(
 	JuliaBundle.message("julia.actions.new-file-template.title"),
 	JuliaBundle.message("julia.actions.new-file-template.description"),
-	JuliaIcons.JULIA_ICON
-), DumbAware {
+	JuliaIcons.JULIA_ICON), DumbAware {
 	companion object {
 		private fun findOrCreateTarget(dir: PsiDirectory, name: String, directorySeparators: Array<Char>): Pair<String, PsiDirectory> {
 			var className = name.removeSuffix(".jl")
@@ -97,12 +95,10 @@ class NewJuliaFileFromTemplate : CreateFileFromTemplateAction(
 			val project = dir.project
 			val defaultProperties = FileTemplateManager.getInstance(project).defaultProperties
 
-			val properties = Properties(defaultProperties)
-
 			val element = try {
 				CreateFromTemplateDialog(project, dir, template,
 					AttributesDefaults(className).withFixedName(true),
-					properties).create()
+					Properties(defaultProperties)).create()
 			}
 			catch (e: IncorrectOperationException) {
 				throw e
@@ -140,10 +136,6 @@ class NewJuliaFileFromTemplate : CreateFileFromTemplateAction(
 
 	override fun createFileFromTemplate(name: String, template: FileTemplate, dir: PsiDirectory): PsiFile? =
 		Companion.createFileFromTemplate(name, template, dir)
-
-
-	override fun hashCode(): Int = 0
-	override fun equals(other: Any?): Boolean = other is NewJuliaFileFromTemplate
 }
 
 /**
