@@ -67,13 +67,8 @@ class NewJuliaFileFromTemplate : CreateFileFromTemplateAction(
 	JuliaBundle.message("julia.actions.new-file-template.description"),
 	JuliaIcons.JULIA_ICON
 ) {
-
-	private lateinit var project : Project
-
-	override fun getActionName(p0: PsiDirectory?, p1: String?, p2: String?): String = JuliaBundle.message("julia.actions.new-file.title")
+	override fun getActionName(directory: PsiDirectory?, s: String?, s2: String?): String = JuliaBundle.message("julia.actions.new-file.title")
 	override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {
-		this.project = project
-
 		builder
 			.addKind("File", JuliaIcons.JULIA_ICON, "Julia File")
 			.addKind("Module", JuliaIcons.JULIA_MODULE_ICON, "Julia Module")
@@ -82,16 +77,17 @@ class NewJuliaFileFromTemplate : CreateFileFromTemplateAction(
 
 	override fun createFile(name: String, templateName: String, dir: PsiDirectory): PsiFile? {
 		//val fileName = FileUtilRt.getNameWithoutExtension(name)
-		val templateManager = FileTemplateManager.getInstance(project)
+		val templateManager = FileTemplateManager.getInstance(dir.project)
 
 		val defaultConfig = templateManager.defaultProperties
 		val template : FileTemplate = templateManager.getInternalTemplate(templateName)
-			try {
-				return FileTemplateUtil.createFromTemplate(template, name, defaultConfig, dir) as? PsiFile
-			} catch (e: Exception) {
-				LOG.error(e)
-				return null
-			}
+		return try {
+			// 这里不应该抛出异常吧
+			FileTemplateUtil.createFromTemplate(template, name, defaultConfig, dir) as? PsiFile
+		} catch (e: Exception) {
+			LOG.error(e)
+			null
+		}
 	}
 }
 
