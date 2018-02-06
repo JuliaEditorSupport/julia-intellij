@@ -74,24 +74,19 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 		this is JuliaMacro ||
 		this is JuliaIfExpr ||
 		this is JuliaTryCatch ||
+		this is JuliaCatchClause ||
 		this is JuliaFinallyClause ||
-		this is JuliaApplyFunctionOp ||
-		this is JuliaApplyMacroOp ||
-		this is JuliaApplyIndexOp ||
-		this is JuliaApplyWhereOp ||
 		this is JuliaBlock ||
 		this is JuliaElseClause ||
 		this is JuliaElseIfClause ||
 		this is JuliaUnion ||
-		this is JuliaBreakExpr ||
-		this is JuliaContinueExpr ||
-		this is JuliaReturnExpr ||
 		this is JuliaLet ||
 		this is JuliaLambda ||
 		this is JuliaImportExpr ||
 		this is JuliaImportAllExpr ||
 		this is JuliaUsing ||
 		this is JuliaCompoundQuoteOp ||
+		this is JuliaQuoteOp ||
 		this is JuliaColonBlock ||
 		this is JuliaSymbol ||
 		this is JuliaForExpr ||
@@ -100,39 +95,34 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 
 	override fun getLanguages() = arrayOf(JuliaLanguage.INSTANCE)
 	override fun getElementInfo(element: PsiElement) = cutText(when (element) {
-		is JuliaTypeDeclaration -> "type ${element.exprList.firstOrNull()}"
-		is JuliaModuleDeclaration -> ""
-		is JuliaFunction -> ""
-		is JuliaCompactFunction -> ""
-		is JuliaAbstractTypeDeclaration -> ""
-		is JuliaPrimitiveTypeDeclaration -> ""
-		is JuliaMacro -> ""
-		is JuliaIfExpr -> ""
-		is JuliaTryCatch -> ""
-		is JuliaFinallyClause -> ""
-		is JuliaApplyFunctionOp -> ""
-		is JuliaApplyMacroOp -> ""
-		is JuliaApplyIndexOp -> ""
-		is JuliaApplyWhereOp -> ""
-		is JuliaBlock -> ""
-		is JuliaElseClause -> ""
-		is JuliaElseIfClause -> ""
-		is JuliaUnion -> ""
-		is JuliaBreakExpr -> ""
-		is JuliaContinueExpr -> ""
-		is JuliaReturnExpr -> ""
-		is JuliaLet -> ""
-		is JuliaLambda -> ""
-		is JuliaImportExpr -> ""
-		is JuliaImportAllExpr -> ""
-		is JuliaUsing -> ""
-		is JuliaCompoundQuoteOp -> ""
-		is JuliaColonBlock -> ""
-		is JuliaSymbol -> ""
-		is JuliaForExpr -> ""
-		is JuliaForComprehension -> ""
-		is JuliaWhileExpr -> ""
-		else -> ""
+		is JuliaTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
+		is JuliaModuleDeclaration -> element.symbol.text
+		is JuliaFunction -> "${element.exprList.firstOrNull()?.text}()"
+		is JuliaCompactFunction -> "${element.exprList.firstOrNull()?.text}()"
+		is JuliaAbstractTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
+		is JuliaPrimitiveTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
+		is JuliaMacro -> "@${element.symbolList.firstOrNull()?.text}()"
+		is JuliaIfExpr -> "if ${element.statements.exprList.firstOrNull()?.text}"
+		is JuliaTryCatch -> "try"
+		is JuliaFinallyClause -> "finally"
+		is JuliaCatchClause -> "catch ${element.symbol}"
+		is JuliaBlock,
+		is JuliaColonBlock -> "block"
+		is JuliaElseClause -> "else"
+		is JuliaElseIfClause -> "elseif"
+		is JuliaUnion -> "union"
+		is JuliaLet -> "let"
+		is JuliaLambda -> "λ"
+		is JuliaImportExpr -> "import ${element.exprList.firstOrNull()?.text}"
+		is JuliaImportAllExpr -> "importall ${element.expr.text}"
+		is JuliaUsing -> "using ${element.exprList.firstOrNull()?.text}"
+		is JuliaCompoundQuoteOp -> "quote"
+		is JuliaQuoteOp -> "quote"
+		is JuliaSymbol -> element.text
+		is JuliaForExpr -> "for ${(element.multiIndexer ?: element.singleIndexer)?.text}"
+		is JuliaForComprehension -> "[ ${element.exprList.firstOrNull()?.text} for |"
+		is JuliaWhileExpr -> "while ${element.expr}"
+		else -> "??"
 	}, TEXT_MAX)
 
 	override fun acceptElement(element: PsiElement) = element.acceptable()
