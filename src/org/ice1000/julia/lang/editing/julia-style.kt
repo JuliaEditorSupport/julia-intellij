@@ -63,61 +63,61 @@ class JuliaStyleSettingsProvider : LanguageCodeStyleSettingsProvider() {
 		when (settingsType) {
 			SettingsType.INDENT_SETTINGS ->
 				"""
-					|type a
-					|	s::Int
-					|	function a(a,b)
-					| 	new(1)
-					| end
-					|end
-				""".trimMargin()
+					type a
+						s::Int
+						function a(a,b)
+					 	new(1)
+					 end
+					end
+				""".trimIndent()
 			SettingsType.BLANK_LINES_SETTINGS ->
 				"""
-					|Blank=1
-					|
-					|
-					|Blank=2
-					|
-					|
-				""".trimMargin()
+					Blank=1
+
+
+					Blank=2
+
+
+				""".trimIndent()
 			else ->
-				"""|#=
-		   |   BLOCK COMMENT
-		   |=#
-		   |module <moduleName>ice1000</moduleName>
-		   |NaN32 # NaN32 (Float32)
-		   |(1 + 3.2)::Float64
-		   |IntOrString = Union{Int, AbstractString}
-		   |div(5, 2) # => 2 # for a truncated result, use div
-		   |<macroRef>@printf</macroRef> "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
-		   |assertTrue("1 + 2 = 3" == "1 + 2 = $(1 + 2)")
-		   |[1, 2, 3][2] # => 2, index start from 1
-		   |try
-		   |    println("Hello<stringEscape>\n</stringEscape>World <stringEscapeInvalid>'\xjb'</stringEscapeInvalid>" +
-		   |      '<charEscapeInvalid>\x</charEscapeInvalid>' + '<charEscape>\a<charEscape>')
-		   |    some_other_var # => Unresolved reference: some_other_var
-		   |catch exception
-		   |    println(exception)
-		   |end
-		   |abstract type <abstractTypeName>Cat</abstractTypeName> <: Animals end
-		   |primitive type <primitiveTypeName>Bool</primitiveTypeName> <: Integer 8 end
-		   |type <typeName>Dog</typeName> <: Animals
-		   |    age::Int64
-		   |end
-		   |macro <macroName>assert</macroName>(condition)
-		   |    return :( ${JULIA_STRING_DOLLAR}ex ? nothing : throw(AssertionError(${JULIA_STRING_DOLLAR}{'$'}(string(ex)))) )
-		   |end
-		   |function <functionName>fib</functionName>(n)
-		   |    return n ≤ 2 ? 1 : fib(n - 1) + fib(n - 2)
-		   |end
-		   |for (k, v) in Dict("dog"=>"mammal", "cat"=>"mammal", "mouse"=>"mammal")
-		   |    println("${JULIA_STRING_DOLLAR}k is a ${JULIA_STRING_DOLLAR}v")
-		   |end
-		   |x = 0
-		   |while x ≤ 4
-		   |    println(x)
-		   |    x += 1
-		   |end
-		   |end""".trimMargin()
+				"""#=
+		      BLOCK COMMENT
+		   =#
+		   module <moduleName>ice1000</moduleName>
+		   NaN32 # NaN32 (Float32)
+		   (1 + 3.2)::Float64
+		   IntOrString = Union{Int, AbstractString}
+		   div(5, 2) # => 2 # for a truncated result, use div
+		   <macroRef>@printf</macroRef> "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
+		   assertTrue("1 + 2 = 3" == "1 + 2 = $(1 + 2)")
+		   [1, 2, 3][2] # => 2, index start from 1
+		   try
+		       println("Hello<stringEscape>\n</stringEscape>World <stringEscapeInvalid>'\xjb'</stringEscapeInvalid>" +
+		         '<charEscapeInvalid>\x</charEscapeInvalid>' + '<charEscape>\a<charEscape>')
+		       some_other_var # => Unresolved reference: some_other_var
+		   catch exception
+		       println(exception)
+		   end
+		   abstract type <abstractTypeName>Cat</abstractTypeName> <: Animals end
+		   primitive type <primitiveTypeName>Bool</primitiveTypeName> <: Integer 8 end
+		   type <typeName>Dog</typeName> <: Animals
+		       age::Int64
+		   end
+		   macro <macroName>assert</macroName>(condition)
+		       return :( ${JULIA_STRING_DOLLAR}ex ? nothing : throw(AssertionError(${JULIA_STRING_DOLLAR}{'$'}(string(ex)))) )
+		   end
+		   function <functionName>fib</functionName>(n)
+		       return n ≤ 2 ? 1 : fib(n - 1) + fib(n - 2)
+		   end
+		   for (k, v) in Dict("dog"=>"mammal", "cat"=>"mammal", "mouse"=>"mammal")
+		       println("${JULIA_STRING_DOLLAR}k is a ${JULIA_STRING_DOLLAR}v")
+		   end
+		   x = 0
+		   while x ≤ 4
+		       println(x)
+		       x += 1
+		   end
+		   end""".trimIndent()
 		}
 
 }

@@ -61,6 +61,7 @@ you'll find 4 related repositories:
   code execution,
   JetBrains style icons,
   SDK management,
+  External Julia tools integration,
   support all three platforms,
   try-evaluate)
 
@@ -87,4 +88,5 @@ Check out [CONTRIBUTING.md](./CONTRIBUTING.md) to learn how to setup the project
 
 + [@ice1000](https://github.com/ice1000)
 + [@zxj5470](https://github.com/zxj5470)
++ [@LimbolRain](https://github.com/LimbolRain)
 + [@Hexadecimal](https://github.com/Hexadecimaaal)
