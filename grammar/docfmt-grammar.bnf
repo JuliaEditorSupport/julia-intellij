@@ -12,5 +12,5 @@
 }
 
 configFile ::= (config | comment)*
-config ::= SYM EQ_SYM SYM
+config ::= SYM EQ_SYM SYM EOL+
 private comment ::= LINE_COMMENT

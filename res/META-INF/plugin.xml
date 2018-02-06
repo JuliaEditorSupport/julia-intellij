@@ -34,6 +34,9 @@
 		<completion.contributor
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor"/>
+		<completion.contributor
+			language="DocumentFormat"
+			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtCompletionContributor"/>
 		<spellchecker.support
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaSpellCheckingStrategy"/>

@@ -28,6 +28,7 @@ SYMBOL=[\da-zA-Z]+
 
 %%
 
+\n { return DocfmtTypes.EOL; }
 {SYMBOL} { return DocfmtTypes.SYM; }
 {LINE_COMMENT} { return DocfmtTypes.LINE_COMMENT; }
 {WHITE_SPACE_CHAR} { return TokenType.WHITE_SPACE; }

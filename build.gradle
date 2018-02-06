@@ -120,7 +120,7 @@ task genDocfmtLexer(type: GenerateLexer) {
 	group = 'build setup'
 	description = 'Generate the Lexer for DocumentFormat.jl'
 	source = "grammar/docfmt-lexer.flex"
-	targetDir = 'org/ice1000/julia/lang/docfmt'
+	targetDir = 'gen/org/ice1000/julia/lang/docfmt'
 	targetClass = "DocfmtLexer"
 	purgeOldFiles = true
 }
