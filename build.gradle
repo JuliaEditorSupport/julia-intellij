@@ -81,6 +81,10 @@ patchPluginXml {
 	pluginId = group
 }
 
+task copyConfig() {
+
+}
+
 task genParser(type: GenerateParser) {
 	group = 'build setup'
 	description = 'Generate the Parser and PsiElement classes'
