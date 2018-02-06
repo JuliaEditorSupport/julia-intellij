@@ -7,8 +7,10 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.JBColor
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.util.ui.JBUI
@@ -137,14 +139,23 @@ println(format($JULIA_DOC_SURROUNDING$content$JULIA_DOC_SURROUNDING))
 exit()
 """,
 				50000L)
-			// FIXME no write access
-			file.getOutputStream(this).use {
-				it.bufferedWriter().use {
-					it.append(stdout.joinToString("\n"))
-					it.flush()
+			ApplicationManager.getApplication().let {
+				it.invokeAndWait {
+					it.runWriteAction {
+						if (stderr.isNotEmpty()) Messages.showDialog(
+							project,
+							stderr.joinToString("\n"),
+							JuliaBundle.message("julia.messages.doc-format.error"),
+							arrayOf(JuliaBundle.message("julia.yes")),
+							0, JuliaIcons.JOJO_ICON)
+						file.getOutputStream(this).bufferedWriter().use {
+							it.append(stdout.joinToString("\n"))
+							it.flush()
+						}
+					}
+					LocalFileSystem.getInstance().refreshFiles(listOf(file))
 				}
 			}
-			file.refresh(true, false)
-		}, JuliaBundle.message("julia.messages.doc-format.running"), true, project)
+		}, JuliaBundle.message("julia.messages.doc-format.running"), false, project)
 	}
 }

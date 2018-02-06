@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.module
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
@@ -80,7 +81,7 @@ fun installAutoFormat(
 				executeJulia(settings.exePath, DOCUMENT_FORMAT_INSTALL, 1000000L)
 			}
 
-			override fun onSuccess() {
+			override fun onSuccess() = ApplicationManager.getApplication().invokeLater {
 				Messages.showDialog(
 					project,
 					JuliaBundle.message("julia.messages.doc-format.installed"),
