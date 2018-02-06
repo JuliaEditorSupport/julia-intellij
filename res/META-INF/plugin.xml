@@ -55,6 +55,9 @@
 		<lang.commenter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaCommenter"/>
+		<lang.commenter
+			language="DocumentFormat"
+			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtCommenter"/>
 		<lang.formatter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFormattingModelBuilder"/>

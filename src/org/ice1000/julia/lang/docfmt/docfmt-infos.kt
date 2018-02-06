@@ -10,7 +10,7 @@ import org.ice1000.julia.lang.*
 object DocfmtFileType : LanguageFileType(DocfmtLanguage.INSTANCE) {
 	override fun getDefaultExtension() = DOCFMT_EXTENSION
 	override fun getName() = JuliaBundle.message("docfmt.name")
-	override fun getIcon() = JuliaIcons.JULIA_ICON
+	override fun getIcon() = JuliaIcons.DOCFMT_ICON
 	override fun getDescription() = JuliaBundle.message("docfmt.name.description")
 	@JvmField val fileMatcher = object : FileNameMatcher {
 		override fun getPresentableString() = JuliaBundle.message("docfmt.name")
