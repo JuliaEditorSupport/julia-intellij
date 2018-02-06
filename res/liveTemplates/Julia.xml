@@ -18,14 +18,14 @@
 			<option name="JULIA_CONTEXT" value="true"/>
 		</context>
 	</template>
-	<template name="module" value="module $NAME$&#10;    $END$&#10;end" description="Create a module" toReformat="truef"
+	<template name="module" value="module $NAME$&#10;    $END$&#10;end" description="Create a module" toReformat="true"
 	          toShortenFQNames="true">
 		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
 		<context>
 			<option name="JULIA_CONTEXT" value="true"/>
 		</context>
 	</template>
-	<template name="function" value="function $NAME$()&#10;&#9;$END$&#10;end" description="Function" toReformat="true"
+	<template name="function" value="function $NAME$()&#10;&#9;$END$&#10;end" description="Create a function" toReformat="true"
 	          toShortenFQNames="true">
 		<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
 		<context>
