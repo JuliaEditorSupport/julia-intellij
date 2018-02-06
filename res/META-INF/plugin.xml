@@ -23,6 +23,7 @@
 		<directoryProjectGenerator implementation="org.ice1000.julia.lang.module.JuliaProjectGenerator"/>
 		<iconProvider implementation="org.ice1000.julia.lang.editing.JuliaIconProvider"/>
 		<errorHandler implementation="de.halirutan.mathematica.errorreporting.GitHubErrorReporter"/>
+		<breadcrumbsInfoProvider implementation="org.ice1000.julia.lang.editing.JuliaBreadCrumbsProvider"/>
 		<completion.contributor
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor"/>
@@ -76,10 +77,6 @@
 			class="org.ice1000.julia.lang.action.NewJuliaFile">
 			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
 		</action>
-		<action class="org.ice1000.julia.lang.action.NewJuliaFileFromTemplate" id="Julia.NewJuliaFileFromTemplate">
-			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
-		</action>
-
 		<action
 			id="Julia.NewJuliaProject"
 			class="org.ice1000.julia.lang.action.NewJuliaProject"

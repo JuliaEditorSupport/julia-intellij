@@ -1,6 +1,7 @@
 package org.ice1000.julia.lang.editing
 
 import com.intellij.lang.*
+import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.psi.*
 import com.intellij.psi.tree.IElementType
 import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy
@@ -126,4 +127,13 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 	}, TEXT_MAX)
 
 	override fun acceptElement(element: PsiElement) = element.acceptable()
+}
+
+object JuliaNameValidator : InputValidatorEx {
+	override fun canClose(inputString: String?) = true
+	override fun getErrorText(inputString: String?) = JuliaBundle.message("julia.actions.new-file.invalid", inputString.orEmpty())
+	override fun checkInput(inputString: String?): Boolean {
+		if (inputString == null) return false
+		return inputString.all { it.isLetterOrDigit() || it in '\u0100'..'\u9999' }
+	}
 }
