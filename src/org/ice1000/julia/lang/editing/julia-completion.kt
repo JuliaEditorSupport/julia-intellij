@@ -8,14 +8,14 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import org.ice1000.julia.lang.psi.*
 
-class JuliaBasicCompletionContributor : CompletionContributor() {
-	class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
-		override fun addCompletions(
-			parameters: CompletionParameters,
-			context: ProcessingContext,
-			result: CompletionResultSet) = list.forEach(result::addElement)
-	}
+class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
+	override fun addCompletions(
+		parameters: CompletionParameters,
+		context: ProcessingContext,
+		result: CompletionResultSet) = list.forEach(result::addElement)
+}
 
+class JuliaBasicCompletionContributor : CompletionContributor() {
 	private companion object CompletionHolder {
 		private val statementBegin = listOf(
 			"type ",

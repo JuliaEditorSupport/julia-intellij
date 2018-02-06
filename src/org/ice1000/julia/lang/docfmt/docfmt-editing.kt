@@ -6,7 +6,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.lang.Commenter
 import com.intellij.patterns.PlatformPatterns.psiElement
 import org.ice1000.julia.lang.docfmt.psi.DocfmtTypes
-import org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor
+import org.ice1000.julia.lang.editing.JuliaCompletionProvider
 
 class DocfmtCommenter : Commenter {
 	override fun getCommentedBlockCommentPrefix() = blockCommentPrefix
@@ -37,12 +37,12 @@ class DocfmtCompletionContributor : CompletionContributor() {
 			psiElement()
 				.afterLeaf("\n")
 				.beforeLeaf(psiElement(DocfmtTypes.EQ_SYM)),
-			JuliaBasicCompletionContributor.JuliaCompletionProvider(KEYS))
+			JuliaCompletionProvider(KEYS))
 		extend(
 			CompletionType.BASIC,
 			psiElement()
 				.afterLeaf("=")
 				.beforeLeaf(psiElement(DocfmtTypes.EOL)),
-			JuliaBasicCompletionContributor.JuliaCompletionProvider(VALUES))
+			JuliaCompletionProvider(VALUES))
 	}
 }

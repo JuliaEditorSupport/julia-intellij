@@ -6,6 +6,7 @@
 	<depends>com.intellij.modules.lang</depends>
 	<depends optional="true" config-file="plugin-clion.xml">com.intellij.modules.clion</depends>
 	<extensions defaultExtensionNs="com.intellij">
+		<internalFileTemplate name="Julia Module"/>
 		<additionalTextAttributes scheme="Darcula" file="/colorSchemes/Julia.xml"/>
 		<additionalTextAttributes scheme="Default" file="/colorSchemes/Julia.xml"/>
 		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>
