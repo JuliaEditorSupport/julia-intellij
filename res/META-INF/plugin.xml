@@ -37,6 +37,9 @@
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaBraceMatcher"/>
 		<annotator
+			language="DocumentFormat"
+			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtAnnotator"/>
+		<annotator
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaAnnotator"/>
 		<lang.syntaxHighlighterFactory

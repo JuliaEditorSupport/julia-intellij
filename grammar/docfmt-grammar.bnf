@@ -12,5 +12,5 @@
 }
 
 configFile ::= EOL* ((config | LINE_COMMENT) (EOL+ (config | LINE_COMMENT))*)? EOL*
-config ::= value EQ_SYM value
+config ::= SYM EQ_SYM value
 value ::= SYM | INT
