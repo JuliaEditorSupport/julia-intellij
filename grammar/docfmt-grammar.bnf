@@ -11,6 +11,5 @@
   elementTypeClass='org.ice1000.julia.lang.docfmt.DocfmtElementType'
 }
 
-configFile ::= (config | comment)*
-config ::= SYM EQ_SYM SYM EOL+
-private comment ::= LINE_COMMENT
+configFile ::= EOL* ((config | LINE_COMMENT) (EOL+ (config | LINE_COMMENT))*)? EOL*
+config ::= SYM EQ_SYM SYM

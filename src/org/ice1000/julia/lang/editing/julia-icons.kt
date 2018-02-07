@@ -15,8 +15,15 @@ class JuliaIconProvider : IconProvider() {
 		val statements = file.children
 			.firstOrNull { it is JuliaStatements }
 			?.let { it as? JuliaStatements } ?: return JuliaIcons.JULIA_ICON
-		if (statements.children.size != 1) return JuliaIcons.JULIA_ICON
-		return when (statements.firstChild) {
+		val validChildren = statements.children.filterNot {
+			it is JuliaString ||
+				it is JuliaInteger ||
+				it is JuliaUsing ||
+				it is JuliaImportAllExpr ||
+				it is JuliaImportExpr
+		}
+		if (validChildren.size != 1) return JuliaIcons.JULIA_ICON
+		return when (validChildren.first()) {
 			is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
 			is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
 			else -> JuliaIcons.JULIA_ICON

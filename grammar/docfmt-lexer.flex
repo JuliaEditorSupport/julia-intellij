@@ -22,7 +22,7 @@ import org.ice1000.julia.lang.docfmt.psi.DocfmtTypes;
 %eof{
 %eof}
 
-LINE_COMMENT="#"[^\r\n]*
+LINE_COMMENT=#[^\r\n]*
 WHITE_SPACE_CHAR=[\ \n\r\t\f]
 SYMBOL=[\da-zA-Z]+
 
@@ -30,6 +30,7 @@ SYMBOL=[\da-zA-Z]+
 
 \n { return DocfmtTypes.EOL; }
 {SYMBOL} { return DocfmtTypes.SYM; }
+= { return DocfmtTypes.EQ_SYM; }
 {LINE_COMMENT} { return DocfmtTypes.LINE_COMMENT; }
 {WHITE_SPACE_CHAR} { return TokenType.WHITE_SPACE; }
 [^] { return TokenType.BAD_CHARACTER; }

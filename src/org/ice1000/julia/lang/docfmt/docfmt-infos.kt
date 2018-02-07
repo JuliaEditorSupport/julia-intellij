@@ -12,12 +12,8 @@ object DocfmtFileType : LanguageFileType(DocfmtLanguage.INSTANCE) {
 	override fun getName() = JuliaBundle.message("docfmt.name")
 	override fun getIcon() = JuliaIcons.DOCFMT_ICON
 	override fun getDescription() = JuliaBundle.message("docfmt.name.description")
-	@JvmField val fileMatcher = object : FileNameMatcher {
-		override fun getPresentableString() = JuliaBundle.message("docfmt.name")
-		override fun accept(fileName: String) = fileName == ".$DOCFMT_EXTENSION"
-	}
 }
 
 class DocfmtFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, DocfmtLanguage.INSTANCE) {
-	override fun getFileType() = JuliaFileType
+	override fun getFileType() = DocfmtFileType
 }

@@ -34,7 +34,7 @@ class JuliaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, Juli
 class JuliaFileTypeFactory : FileTypeFactory() {
 	override fun createFileTypes(consumer: FileTypeConsumer) {
 		consumer.consume(JuliaFileType, JULIA_EXTENSION)
-		consumer.consume(DocfmtFileType, DocfmtFileType.fileMatcher)
+		consumer.consume(DocfmtFileType, ExactFileNameMatcher(".$DOCFMT_EXTENSION"))
 	}
 }
 
