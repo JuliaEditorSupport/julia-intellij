@@ -23,9 +23,7 @@ class DocfmtAnnotator : Annotator {
 			"CSTParser.Struct", "CSTParser.Let", "CSTParser.Try", "CSTParser.If", "CSTParser.Mutable"
 		)
 
-		val noWsOpGroup = listOf(
-			"8", "13", "14", "16"
-		)
+		val noWsOpGroup = listOf("8", "13", "14", "16")
 	}
 
 	/**
@@ -38,7 +36,6 @@ class DocfmtAnnotator : Annotator {
 	 * //TabWidth : 4
 	 * //UseTab : false
 	 */
-
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		if (element is DocfmtConfig) {
 			fun unused() {
@@ -49,8 +46,8 @@ class DocfmtAnnotator : Annotator {
 			}
 
 			fun invalidValue() = holder.createErrorAnnotation(element, JuliaBundle.message("docfmt.lint.invalid-val", element.text)).run {
-					highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL
-				}
+				highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL
+			}
 
 			fun number() {
 				val value = element.value
@@ -59,13 +56,13 @@ class DocfmtAnnotator : Annotator {
 			}
 
 			fun checkBoolean(default: Boolean = false) {
-			when (element.value.text) {
-				default.toString() -> unused()
-				(!default).toString() -> Unit
+				when (element.value.text) {
+					default.toString() -> unused()
+					(!default).toString() -> Unit
 
-				else -> invalidValue()
+					else -> invalidValue()
+				}
 			}
-		}
 
 			val key = element.firstChild
 			val value = element.value
@@ -78,56 +75,17 @@ class DocfmtAnnotator : Annotator {
 					"AlwaysBreak", "DontAlign" -> Unit // OK
 					else -> invalidValue()
 				}
-				"IndentEXPR" ->
-					if( Companion.indentArgs.contains(value.text) ) Unit
-					else invalidValue()
+				"IndentEXPR" -> if (value.text !in indentArgs) invalidValue()
 				"KW_WS" -> checkBoolean(true)
 				"NewLineEOF" -> checkBoolean()
 				"StripLineEnds" -> checkBoolean()
-				"No_WS_OP_group" ->
-					if( Companion.noWsOpGroup.contains(value.text) ) Unit
-					else invalidValue()
+				"No_WS_OP_group" -> if (value.text !in noWsOpGroup) invalidValue()
 				else -> holder.createErrorAnnotation(key, JuliaBundle.message("docfmt.lint.invalid", key.text)).run {
 					highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL
 				}
 			}
 		} else return
 	}
-
-	/* move to annotate function
-	private fun checkBoolean(element: DocfmtConfig, holder: AnnotationHolder, default: Boolean = false) =
-		when( element.value.text ) {
-			default.toString() -> unused(element, holder)
-			(! default).toString() -> Unit
-
-			else -> invalidValue(element, holder)
-		}
-
-	private fun number(element: DocfmtConfig, holder: AnnotationHolder) {
-		val value = element.value
-		if (value.firstChild.node.elementType != DocfmtTypes.INT) invalidValue(value, holder)
-		else if (value.text == "4") unused(element, holder)
-	}
-
-	/**
-	 * for settings that matches the default value
-	 */
-	private fun unused(element: PsiElement, holder: AnnotationHolder) {
-		holder.createWeakWarningAnnotation(element, JuliaBundle.message("docfmt.lint.default")).run {
-			highlightType = ProblemHighlightType.LIKE_UNUSED_SYMBOL
-			registerFix(JuliaRemoveElementIntention(element, JuliaBundle.message("docfmt.lint.remove")))
-		}
-	}
-
-	/**
-	 * for settings that doesn't match any valid value
-	 */
-	private fun invalidValue(value: PsiElement, holder: AnnotationHolder) =
-		holder.createErrorAnnotation(value, JuliaBundle.message("docfmt.lint.invalid-val", value.text)).run {
-			highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL
-		}
-
-		*/
 }
 
 class DocfmtCompletionContributor : CompletionContributor() {
