@@ -74,7 +74,9 @@ class DocfmtAnnotator : Annotator {
 				"StripLineEnds" -> boolean()
 				"No_WS_OP_group" -> if (value.text !in noWsOpGroup) invalidValue(value)
 				"No_WS_OP_indv" -> if (value.firstChild.node.elementType == DocfmtTypes.INT) invalidValue(value)
-				else -> invalidValue(key)
+				else -> holder.createErrorAnnotation(key, JuliaBundle.message("docfmt.lint.invalid", key.text)).run {
+					highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL
+				}
 			}
 		} else return
 	}
