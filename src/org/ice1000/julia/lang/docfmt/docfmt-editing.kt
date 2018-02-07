@@ -14,7 +14,7 @@ import org.ice1000.julia.lang.editing.JuliaCompletionProvider
 import org.ice1000.julia.lang.editing.JuliaRemoveElementIntention
 
 class DocfmtAnnotator : Annotator {
-	companion object  {
+	private companion object {
 		internal val noWsOpGroup = listOf("8", "13", "14", "16")
 		private val indentArgs = listOf(
 			"CSTParser.Begin", "CSTParser.Quote",
@@ -73,7 +73,7 @@ class DocfmtAnnotator : Annotator {
 				"NewLineEOF" -> boolean()
 				"StripLineEnds" -> boolean()
 				"No_WS_OP_group" -> if (value.text !in noWsOpGroup) invalidValue(value)
-				"No_WS_OP_indv" -> Unit // TODO
+				"No_WS_OP_indv" -> if (value.firstChild.node.elementType == DocfmtTypes.INT) invalidValue(value)
 				else -> invalidValue(key)
 			}
 		} else return
@@ -88,10 +88,16 @@ class DocfmtCompletionContributor : CompletionContributor() {
 			when (key.text) {
 				"KW_WS", "NewLineEOF", "StripLineEnds", "UseTab" -> BOOLEAN.forEach(result::addElement)
 				"AlignAfterOpenBracket" -> ALIGN.forEach(result::addElement)
+				"No_WS_OP_indv" -> OPERATORS.forEach(result::addElement)
 			}
 		}
 
 		private val BOOLEAN = listOf("true", "false").map(LookupElementBuilder::create)
+		private val S_OPERATORS = "+-*/!$%^&().~:?|\\[]{}<>"
+			.toCharArray().map(LookupElementBuilder::create)
+		private val D_OPERATORS = listOf("<=", ">=", "==", "===", "!==", "|>", "<|")
+			.map(LookupElementBuilder::create)
+		private val OPERATORS = S_OPERATORS + D_OPERATORS
 		private val ALIGN = listOf("Align", "AlwaysBreak", "DontAlign").map(LookupElementBuilder::create)
 		private val VALID_KEY = listOf(
 			"TabWidth",
