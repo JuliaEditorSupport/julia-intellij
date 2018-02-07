@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.module
 
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
@@ -13,7 +14,9 @@ import java.nio.file.Paths
 import java.util.stream.Collectors
 
 val defaultExePath by lazy {
+	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
 	when {
+		validateJuliaExe(existPath) -> existPath
 		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
 		SystemInfo.isMac -> findPathMac()
 		else -> findPathLinux() ?: "/usr/bin/julia"

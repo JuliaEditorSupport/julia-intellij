@@ -1,6 +1,7 @@
 package org.ice1000.julia.lang.module;
 
 import com.intellij.ide.browsers.BrowserLauncher;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -20,6 +21,7 @@ import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import java.text.NumberFormat;
 
+import static org.ice1000.julia.lang.Julia_constantsKt.JULIA_SDK_HOME_PATH_ID;
 import static org.ice1000.julia.lang.module.Julia_project_serviceKt.getJuliaSettings;
 import static org.ice1000.julia.lang.module.UtilsKt.*;
 
@@ -92,6 +94,7 @@ public class JuliaProjectConfigurable implements Configurable {
 		settings.setTryEvaluateTimeLimit(((Number) timeLimitFieldValue).longValue());
 		if (!validateJuliaExe(juliaExeField.getText()))
 			throw new ConfigurationException(JuliaBundle.message("julia.modules.invalid"));
+		PropertiesComponent.getInstance().setValue(JULIA_SDK_HOME_PATH_ID,juliaExeField.getText());
 		settings.setExePath(juliaExeField.getText());
 		settings.setVersion(version.getText());
 		settings.setBasePath(basePathField.getText());

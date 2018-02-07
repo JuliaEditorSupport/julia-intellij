@@ -1,6 +1,7 @@
 package org.ice1000.julia.lang.module;
 
 import com.intellij.ide.browsers.BrowserLauncher;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.options.ConfigurationException;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 
+import static org.ice1000.julia.lang.Julia_constantsKt.JULIA_SDK_HOME_PATH_ID;
 import static org.ice1000.julia.lang.module.UtilsKt.*;
 
 public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
@@ -49,6 +51,7 @@ public class JuliaSetupSdkWizardStep extends ModuleWizardStep {
 			throw new ConfigurationException(JuliaBundle.message("julia.modules.invalid"));
 		}
 		usefulText.setVisible(false);
+		PropertiesComponent.getInstance().setValue(JULIA_SDK_HOME_PATH_ID, juliaExeField.getText());
 		return super.validate();
 	}
 
