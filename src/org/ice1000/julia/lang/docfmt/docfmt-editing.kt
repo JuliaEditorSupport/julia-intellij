@@ -34,15 +34,11 @@ class DocfmtCompletionContributor : CompletionContributor() {
 	init {
 		extend(
 			CompletionType.BASIC,
-			psiElement()
-				.afterLeaf("\n")
-				.beforeLeaf(psiElement(DocfmtTypes.EQ_SYM)),
+			psiElement().afterLeaf(psiElement(DocfmtTypes.EOL)),
 			JuliaCompletionProvider(KEYS))
 		extend(
 			CompletionType.BASIC,
-			psiElement()
-				.afterLeaf("=")
-				.beforeLeaf(psiElement(DocfmtTypes.EOL)),
+			psiElement().afterLeaf(psiElement(DocfmtTypes.EQ_SYM)),
 			JuliaCompletionProvider(VALUES))
 	}
 }

@@ -42,6 +42,9 @@
 		<lang.syntaxHighlighterFactory
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.JuliaHighlighterFactory"/>
+		<lang.syntaxHighlighterFactory
+			language="DocumentFormat"
+			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtHighlighterFactory"/>
 		<lang.parserDefinition
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.JuliaParserDefinition"/>
