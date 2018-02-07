@@ -52,7 +52,7 @@ sourceSets {
 	}
 }
 
-def pluginVersion = '0.0.3'
+def pluginVersion = '0.0.4'
 def packageName = 'org.ice1000.julia'
 
 group packageName
