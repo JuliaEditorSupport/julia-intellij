@@ -32,6 +32,7 @@ class DocfmtAnnotator : Annotator {
 					"AlwaysBreak", "DontAlign" -> Unit // OK
 					else -> invalidValue(value, holder)
 				}
+				"IndentEXPR" -> Unit // TODO
 				else -> holder.createErrorAnnotation(key, JuliaBundle.message("docfmt.lint.invalid", key.text)).run {
 					highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL
 				}

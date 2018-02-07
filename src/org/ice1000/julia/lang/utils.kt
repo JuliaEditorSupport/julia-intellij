@@ -80,10 +80,9 @@ fun TextRange.subRangeBeginOffsetAndLength(
 fun String.trimQuotePair() = trim('\'', '\"')
 
 /**
- * TODO
  * its effect needs to profit.
  * it is stupid to map each char and compare indices whether in ListSet
- * @param someStr String:
+ * @param someStr String
  */
 fun String.indicesOf(someStr: String) = indices
 	.map { indexOf(someStr, it) }
