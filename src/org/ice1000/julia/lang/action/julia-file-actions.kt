@@ -8,15 +8,19 @@ import com.intellij.ide.fileTemplates.actions.AttributesDefaults
 import com.intellij.ide.fileTemplates.ui.CreateFromTemplateDialog
 import com.intellij.ide.util.projectWizard.AbstractNewProjectStep
 import com.intellij.ide.util.projectWizard.ProjectSettingsStepBase
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.PsiDirectory
+import com.intellij.util.ui.JBUI
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.editing.JuliaNameValidator
 import org.ice1000.julia.lang.module.*
 import java.util.*
+import javax.swing.*
 
 /**
  * Create a Julia file from template
@@ -70,3 +74,18 @@ class NewJuliaFile : CreateFileFromTemplateAction(
 class NewJuliaProject : ProjectSettingsStepBase<JuliaSettings>(
 	JuliaProjectGenerator(),
 	AbstractNewProjectStep.AbstractCallback<JuliaSettings>())
+{
+	override fun actionPerformed(p0: AnActionEvent) {
+		val panel = createPanel()
+		panel.preferredSize = JBUI.size(600, 300)
+		JuliaNewProjectDialog(panel).show()
+	}
+	private class JuliaNewProjectDialog(private val centerPanel: JPanel) : DialogWrapper(true) {
+		init {
+			title = JuliaBundle.message("julia.actions.new-proj.dialog.title")
+			init()
+		}
+		override fun createCenterPanel(): JComponent? = centerPanel
+		override fun createSouthPanel(): JComponent? = null
+	}
+}

@@ -34,4 +34,8 @@ class JuliaSdkFindTest {
 		println(stdout.first())
 		println(Files.exists(Paths.get(stdout.first())))
 	}
+	@Test
+	fun testDefault(){
+		println(defaultExePath)
+	}
 }
