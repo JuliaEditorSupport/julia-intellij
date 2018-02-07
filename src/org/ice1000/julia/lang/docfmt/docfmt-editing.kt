@@ -23,16 +23,6 @@ class DocfmtAnnotator : Annotator {
 		)
 	}
 
-	/**
-	 * //IndentWidth : 4
-	 * //KW_WS : true
-	 * //NewLineEOF : false
-	 * //No_WS_OP_group : [8, 13, 14, 16]
-	 * No_WS_OP_indv : Any[]
-	 * //StripLineEnds : false
-	 * //TabWidth : 4
-	 * //UseTab : false
-	 */
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		if (element is DocfmtConfig) {
 			val key = element.firstChild

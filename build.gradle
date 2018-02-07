@@ -30,8 +30,6 @@ allprojects {
 		def username = System.getProperty("user.name")
 		if (username == 'ice1000') {
 			localPath '/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/173.4548.28'
-		} else if (username == 'Administrator' && Files.isDirectory(Paths.get('E:/IDEs/IntelliJIDEAUltimate'))) {
-			localPath 'E:/IDEs/IntelliJIDEAUltimate'
 		}
 		updateSinceUntilBuild false
 		instrumentCode true
