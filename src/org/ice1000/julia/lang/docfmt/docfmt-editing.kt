@@ -17,13 +17,13 @@ import org.ice1000.julia.lang.editing.JuliaRemoveElementIntention
 class DocfmtAnnotator : Annotator {
 	companion object {
 
-		val indentArgs = arrayOf(
+		val indentArgs = listOf(
 			"CSTParser.Begin", "CSTParser.Quote",
 			"CSTParser.For", "CSTParser.While", "CSTParser.FunctionDef", "CSTParser.Macro",
 			"CSTParser.Struct", "CSTParser.Let", "CSTParser.Try", "CSTParser.If", "CSTParser.Mutable"
 		)
 
-		val noWsOpGroup = arrayOf(
+		val noWsOpGroup = listOf(
 			"8", "13", "14", "16"
 		)
 	}
