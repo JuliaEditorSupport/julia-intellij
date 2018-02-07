@@ -28,9 +28,9 @@ class JuliaModuleBuilder : ModuleBuilder() {
 	}
 
 	override fun setupRootModel(model: ModifiableRootModel) {
-		model.project.juliaSettings.settings = settings
+		if (::settings.isInitialized) model.project.juliaSettings.settings = settings
 		model.inheritSdk()
-		val srcPath = Paths.get(contentEntryPath, "src")
+		val srcPath = Paths.get(contentEntryPath, "src").toAbsolutePath()
 		Files.createDirectories(srcPath)
 		//Idea Only
 		if (PlatformUtils.isIntelliJ()) {
@@ -38,9 +38,8 @@ class JuliaModuleBuilder : ModuleBuilder() {
 				.getInstance()
 				.refreshAndFindFileByPath(FileUtil.toSystemIndependentName(srcPath.toString()))
 				?: return
-			doAddContentEntry(model)?.addSourceFolder(sourceRoot, false, "")
-		}
-		else {
+			doAddContentEntry(model)?.addSourceFolder(sourceRoot, false)
+		} else {
 			//other Platform just doAddContentEntry
 			doAddContentEntry(model)
 		}
