@@ -52,9 +52,10 @@ sourceSets {
 	}
 }
 
-def pluginVersion = '0.0.3'
+def pluginVersion = '0.0.4'
+def packageName = 'org.ice1000.julia'
 
-group 'org.ice1000.julia.lang'
+group packageName
 version pluginVersion
 
 repositories {
@@ -78,7 +79,7 @@ patchPluginXml {
 	changeNotes = file('res/META-INF/change-notes.html').text
 	pluginDescription = file('res/META-INF/description.html').text
 	version = pluginVersion
-	pluginId = group
+	pluginId = packageName
 }
 
 task copyConfig() {
