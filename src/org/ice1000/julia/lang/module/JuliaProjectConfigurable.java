@@ -35,7 +35,7 @@ public class JuliaProjectConfigurable implements Configurable {
 	private @NotNull JLabel version;
 	private @NotNull TextFieldWithBrowseButton basePathField;
 	private @NotNull JButton installAutoFormatButton;
-	@NotNull JuliaSettings settings;
+	private @NotNull JuliaSettings settings;
 
 	public JuliaProjectConfigurable(@NotNull Project project) {
 		settings = getJuliaSettings(project).getSettings();
