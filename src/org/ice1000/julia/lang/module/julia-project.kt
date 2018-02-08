@@ -4,11 +4,13 @@ package org.ice1000.julia.lang.module
 
 import com.intellij.ide.fileTemplates.FileTemplateManager
 import com.intellij.ide.fileTemplates.FileTemplateUtil
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.ide.util.projectWizard.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModifiableModelsProvider
 import com.intellij.openapi.roots.ModifiableRootModel
@@ -33,7 +35,7 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 
 	override fun getLogo() = JuliaIcons.JULIA_BIG_ICON
 	override fun getName() = JuliaBundle.message("julia.name")
-	override fun createPeer() = JuliaProjectGeneratorPeer(JuliaSettings())
+	override fun createPeer() = JuliaProjectGeneratorPeerKt(JuliaSettings())
 
 	override fun generateProject(project: Project, baseDir: VirtualFile, settings: JuliaSettings, module: Module) {
 		ApplicationManager.getApplication().runWriteAction {
@@ -64,12 +66,12 @@ main.jl)""")
 	}
 }
 
-/**
- * for other platform
- * FIXME replace soon
- */
-abstract class JuliaProjectGeneratorPeerBase(private val settings: JuliaSettings) :
-	ProjectGeneratorPeer<JuliaSettings>, Disposable {
+
+class JuliaProjectGeneratorPeerKt(private val settings : JuliaSettings) : JuliaProjectGeneratorPeer() {
+	init {
+		setListeners()
+	}
+
 	override fun getSettings() = settings
 	override fun dispose() = Unit
 
@@ -80,4 +82,16 @@ abstract class JuliaProjectGeneratorPeerBase(private val settings: JuliaSettings
 	/** Deprecated in 2017.3 But We must override it. */
 	@Deprecated("", ReplaceWith("addSettingsListener"))
 	override fun addSettingsStateListener(listener: WebProjectGenerator.SettingsStateListener) = Unit
+
+	private fun setListeners() {
+		this.useLocalJuliaDistributionRadioButton.addActionListener {
+			this.juliaExeField.isEnabled = false
+			this.juliaExeField.text = juliaPath
+		}
+
+		this.selectJuliaExecutableRadioButton.addActionListener {
+			this.juliaExeField.isEnabled = true
+			this.juliaExeField.text = settings.exePath
+		}
+	}
 }

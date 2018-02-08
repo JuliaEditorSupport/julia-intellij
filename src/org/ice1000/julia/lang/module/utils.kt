@@ -15,8 +15,11 @@ import java.util.stream.Collectors
 
 val defaultExePath by lazy {
 	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
+	if (Files.isExecutable(Paths.get(existPath))) existPath else juliaPath
+}
+
+val juliaPath by lazy {
 	when {
-		validateJuliaExe(existPath) -> existPath
 		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
 		SystemInfo.isMac -> findPathMac()
 		else -> findPathLinux() ?: "/usr/bin/julia"

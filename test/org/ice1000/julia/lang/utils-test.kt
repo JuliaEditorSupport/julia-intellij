@@ -1,6 +1,6 @@
 package org.ice1000.julia.lang
 
-import org.ice1000.julia.lang.module.defaultExePath
+import org.ice1000.julia.lang.module.juliaPath
 import org.ice1000.julia.lang.module.versionOf
 import org.junit.Test
 import java.nio.file.Files
@@ -9,7 +9,8 @@ import java.nio.file.Paths
 class UtilsKtTest {
 	@Test
 	fun executeJuliaTest() {
-		val (stdout, stderr) = executeJulia(defaultExePath, null, 1000L, "--print",
+		println(juliaPath)
+		val (stdout, stderr) = executeJulia(juliaPath, null, 1000L, "--print",
 			"""1+1
 				|2+2
 			""".trimMargin())
@@ -21,13 +22,13 @@ class UtilsKtTest {
 
 	@Test
 	fun versionTest() {
-		println(versionOf(defaultExePath))
+		println(versionOf(juliaPath))
 	}
 
 	@Test
 	fun juliaTest() = Runtime
 		.getRuntime()
-		.exec("$defaultExePath --version")
+		.exec("$juliaPath --version")
 		.inputStream
 		.bufferedReader()
 		.readLine()

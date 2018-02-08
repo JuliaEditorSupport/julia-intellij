@@ -26,8 +26,18 @@ allprojects {
 	apply plugin: 'org.jetbrains.intellij'
 	intellij {
 		def username = System.getProperty("user.name")
+		def useIde = 'CL'
 		if (username == 'ice1000') {
 			localPath '/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/173.4548.28'
+		} else if (username == 'hoshino') {
+			switch(useIde) {
+				case 'CL' :
+					alternativeIdePath clionPath
+					break
+				case 'IJ' :
+					alternativeIdePath intellijPath
+					break
+			}
 		}
 		updateSinceUntilBuild false
 		instrumentCode true
