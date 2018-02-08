@@ -5,3 +5,5 @@ insert_final_newline=false
 indent_style=tab
 tab_width=2
 
+[gradle.properties]
+indent_size=0
