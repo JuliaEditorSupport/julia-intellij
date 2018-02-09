@@ -120,14 +120,11 @@ globalStatement ::=
  GLOBAL_KEYWORD endOfLine
  expr (COMMA_SYM endOfLine expr)*
 
-typeAnnotation ::= DOUBLE_COLON endOfLine expr typeParameters?
+typeAnnotation ::= DOUBLE_COLON endOfLine primaryExpr typeParameters?
 
-typedVariable ::=
- symbol? typeAnnotation?
- (EQ_SYM expr)?
-
+typedVariable ::= symbol? typeAnnotation?
 typedNamedVariable ::=
- symbol? typeAnnotation? EQ_SYM expr
+ typedVariable EQ_SYM expr
 
 private typeParameters ::=
  LEFT_B_BRACKET endOfLine
@@ -165,7 +162,6 @@ expr ::=
  | unaryLevel
  | suffixedExpr
  | primaryExpr
- | bracketedExpr
 
 memberAccessOp ::= expr DOT_SYM (symbol | macroSymbol)
 accessAllOp ::= DOT_SYM (symbol | macroSymbol) { pin=1 }
@@ -402,6 +398,7 @@ private primaryExpr ::=
  | typeAlias
  | symbolLhs
  | macroSymbol
+ | bracketedExpr
 
 bracketedExpr ::=
  LEFT_BRACKET endOfLine
@@ -425,8 +422,9 @@ private afterWhere ::=
 array ::=
  LEFT_M_BRACKET endOfLine
   (
-   (expr endOfLine)
-   (SEMICOLON_SYM endOfLine (expr endOfLine)*)*
+   (expr (commaSep expr)*)
+   (SEMICOLON_SYM endOfLine
+    (expr (commaSep expr))*)*
   )?
   RIGHT_M_BRACKET { extends=expr }
 
@@ -437,11 +435,13 @@ tuple ::=
   expr (endOfLine COMMA_SYM endOfLine expr)+ endOfLine COMMA_SYM? endOfLine
  RIGHT_BRACKET { extends=expr }
 
+private commaSep ::= endOfLine COMMA_SYM endOfLine
 private functionSignature ::=
  LEFT_BRACKET endOfLine
-  (typedVariable (endOfLine COMMA_SYM endOfLine typedVariable)*)? endOfLine
-  (COLON_SYM typedNamedVariable (endOfLine COMMA_SYM endOfLine typedNamedVariable)*)?
- RIGHT_BRACKET typeAnnotation?
+  (typedVariable (commaSep typedVariable)* endOfLine)?
+  (SEMICOLON_SYM
+   typedNamedVariable (commaSep typedNamedVariable)* endOfLine)?
+ RIGHT_BRACKET typeAnnotation? { pin=1 }
 
 private untypedVariables ::=
  LEFT_BRACKET endOfLine
