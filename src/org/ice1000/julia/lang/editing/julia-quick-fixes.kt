@@ -2,6 +2,7 @@ package org.ice1000.julia.lang.editing
 
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -21,16 +22,7 @@ class JuliaRemoveElementIntention(
 	@Nls private val intentionText: String) : JuliaIntentionAction() {
 	override fun getText() = intentionText
 	override operator fun invoke(project: Project, editor: Editor?, psiFile: PsiFile?) {
-		element.delete()
-	}
-}
-
-class JuliaRemoveElementsIntention(
-	private val elements: List<PsiElement>,
-	@Nls private val intentionText: String) : JuliaIntentionAction() {
-	override fun getText() = intentionText
-	override operator fun invoke(project: Project, editor: Editor?, psiFile: PsiFile?) {
-		elements.forEach(PsiElement::delete)
+		ApplicationManager.getApplication().runWriteAction(element::delete)
 	}
 }
 
@@ -40,7 +32,7 @@ class JuliaRemoveElementChildIntention(
 	@Nls private val intentionText: String) : JuliaIntentionAction() {
 	override fun getText() = intentionText
 	override operator fun invoke(project: Project, editor: Editor?, psiFile: PsiFile?) {
-		element.node.removeChild(child)
+		ApplicationManager.getApplication().runWriteAction { element.node.removeChild(child) }
 	}
 }
 
@@ -50,7 +42,9 @@ class JuliaReplaceWithTextIntention(
 	@Nls private val info: String) : JuliaIntentionAction() {
 	override fun getText() = info
 	override operator fun invoke(project: Project, editor: Editor?, psiFile: PsiFile?) {
-		JuliaTokenType.fromText(new, project).let(element::replace)
+		ApplicationManager.getApplication().runWriteAction {
+			JuliaTokenType.fromText(new, project).let(element::replace)
+		}
 	}
 }
 
@@ -60,6 +54,8 @@ class JuliaReplaceNodeWithTextIntention(
 	@Nls private val info: String) : JuliaIntentionAction() {
 	override fun getText() = info
 	override operator fun invoke(project: Project, editor: Editor?, psiFile: PsiFile?) {
-		JuliaTokenType.fromText(new, project).let { element.treeParent.replaceChild(element, it.node) }
+		ApplicationManager.getApplication().runWriteAction {
+			JuliaTokenType.fromText(new, project).let { element.treeParent.replaceChild(element, it.node) }
+		}
 	}
 }
