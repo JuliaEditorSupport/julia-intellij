@@ -9,7 +9,6 @@ import com.intellij.psi.PsiWhiteSpace
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 
-
 class JuliaAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		when (element) {
@@ -77,7 +76,7 @@ class JuliaAnnotator : Annotator {
 			highlightType = ProblemHighlightType.LIKE_DEPRECATED
 			registerFix(JuliaReplaceWithTextIntention(
 				element,
-				"const ${element.children[1].text} = ${element.userType.text}",
+				"const ${element.children[0].text} = ${element.userType.text}",
 				JuliaBundle.message("julia.lint.typealias-fix")))
 		}
 	}
