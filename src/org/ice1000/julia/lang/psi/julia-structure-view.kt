@@ -1,104 +1,130 @@
 package org.ice1000.julia.lang.psi
 
 import com.intellij.ide.structureView.*
+import com.intellij.ide.structureView.impl.StructureViewComposite
+import com.intellij.ide.structureView.impl.TemplateLanguageStructureViewBuilder
+import com.intellij.ide.structureView.impl.common.PsiTreeElementBase
 import com.intellij.ide.util.treeView.smartTree.SortableTreeElement
-import com.intellij.ide.util.treeView.smartTree.Sorter
-import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.lang.PsiStructureViewFactory
-import com.intellij.navigation.ItemPresentation
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.pom.Navigatable
 import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.util.ReflectionUtil
+import icons.JuliaIcons
+import org.ice1000.julia.lang.JuliaFile
+import org.ice1000.julia.lang.JuliaLanguage
+import org.ice1000.julia.lang.editing.cutText
 import org.ice1000.julia.lang.psi.impl.JuliaFunctionImpl
-import java.util.*
 
 
 class JuliaStructureViewFactory : PsiStructureViewFactory {
 	override fun getStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder? {
-		return object : TreeBasedStructureViewBuilder() {
-			override fun createStructureViewModel(editor: Editor?): StructureViewModel {
-				return JuliaStructureViewModel(psiFile)
+		return object : TemplateLanguageStructureViewBuilder(psiFile) {
+			override fun createMainView(fileEditor: FileEditor?, mainFile: PsiFile?): StructureViewComposite.StructureViewDescriptor? {
+				if (!psiFile.isValid) {
+					return null
+				}
+				val builder = object : TreeBasedStructureViewBuilder() {
+					override fun createStructureViewModel(editor: Editor?) = JuliaStructureViewModel(psiFile)
+				}
+				val view = builder.createStructureView(fileEditor, psiFile.project)
+				return StructureViewComposite.StructureViewDescriptor(JuliaLanguage.INSTANCE.displayName, view, JuliaIcons.JULIA_ICON)
 			}
 		}
 	}
-}
-
-class JuliaStructureViewModel(psiFile: PsiFile) : StructureViewModelBase(psiFile, JuliaStructureViewElement(psiFile)), StructureViewModel.ElementInfoProvider {
-
-	override fun getSorters(): Array<Sorter> {
-		return arrayOf(Sorter.ALPHA_SORTER)
-	}
 
 
-	override fun isAlwaysShowsPlus(element: StructureViewTreeElement) = true
-
-	override fun isAlwaysLeaf(element: StructureViewTreeElement): Boolean {
-		return when (element) {
+	class JuliaStructureViewModel(psiFile: PsiFile) : StructureViewModelBase(psiFile, JuliaStructureViewElement(psiFile)), StructureViewModel.ElementInfoProvider {
+		override fun getSuitableClasses() = ourSuitableClasses
+		override fun shouldEnterElement(o: Any?) = true
+		override fun isAlwaysShowsPlus(element: StructureViewTreeElement) = false
+		override fun isAlwaysLeaf(element: StructureViewTreeElement) = when (element) {
 			is JuliaFunctionImpl -> true
 			else -> false
 		}
-	}
-}
 
-class JuliaStructureViewElement(private val element: PsiElement) :
-	StructureViewTreeElement, SortableTreeElement, Navigatable by (element as NavigatablePsiElement) {
-
-	val array = ArrayList<PsiElement>()
-
-	override fun getValue(): Any {
-		return element
-	}
-
-	override fun navigate(requestFocus: Boolean) {
-		if (element is NavigationItem) {
-			(element as NavigationItem).navigate(requestFocus)
+		companion object {
+			val ourSuitableClasses = arrayOf<Class<*>>(
+				JuliaFile::class.java,
+				JuliaAssignLevelOp::class.java,
+				JuliaFunction::class.java,
+				JuliaModuleDeclaration::class.java,
+				JuliaTypeDeclaration::class.java
+			)
 		}
 	}
 
-	override fun canNavigate(): Boolean {
-		return element is NavigationItem && (element as NavigationItem).canNavigate()
-	}
+	class JuliaStructureViewElement(private val psiElement: PsiElement) :
+		PsiTreeElementBase<PsiElement>(psiElement)
+		, SortableTreeElement, Navigatable by (psiElement as NavigatablePsiElement) {
 
-	override fun canNavigateToSource(): Boolean {
-		return element is NavigationItem && (element as NavigationItem).canNavigateToSource()
-	}
+		override fun getChildrenBase() = getGrandsonOfYourMother()
 
-	override fun getAlphaSortKey(): String {
-		return (element as? PsiNamedElement)?.name.orEmpty()
-	}
-
-	override fun getPresentation(): ItemPresentation {
-		return (element as NavigationItem).presentation!!
-	}
-
-	/**
-	 * FIXME
-	 * now can find psi but cannot show on panel
-	 */
-	override fun getChildren(): Array<out TreeElement> {
-		val treeElements = ArrayList<TreeElement>()
-		array.clear()
-		findNode(element)
-		println(array.size)
-		val nodes = array
-		nodes.forEach {
-			treeElements.add(JuliaStructureViewElement(it))
+		private fun getGrandsonOfYourMother(): List<StructureViewTreeElement> {
+			val children = ArrayList<StructureViewTreeElement>()
+			psiElement.children
+				.filter { it !is LeafPsiElement }//filter EOL
+				.forEach { element ->
+					println(element.toString() + "${element.isBlock}")
+					if (element.isBlock) {
+						children.add(JuliaStructureViewElement(element))
+					}
+					JuliaStructureViewModel.ourSuitableClasses
+						.filter { suitableClass -> ReflectionUtil.isAssignable(suitableClass, element.javaClass) && (JuliaStructureViewElement(element) !in children) }
+						.mapTo(children) { JuliaStructureViewElement(element) }
+				}
+			return children.toList()
 		}
-		return treeElements.toTypedArray()
-	}
 
-	private fun findNode(psi: PsiElement?) {
-		psi?.children?.forEach {
-//			println(it)
-			when (it) {
-				is JuliaFunctionImpl -> array.add(it)
+		override fun getLocationString() = ""
+		override fun getIcon(open: Boolean) =
+			when (psiElement) {
+			//FIXME: JuliaFile needs current ICON
+				is JuliaFile -> JuliaIcons.JULIA_ICON
+				is JuliaFunction -> JuliaIcons.JULIA_BIG_ICON
+				is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
+				is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
+				else -> JuliaIcons.JULIA_ICON
 			}
-			findNode(it)
+
+		override fun getPresentableText() = cutText(psiElement.let {
+			when (it) {
+				is JuliaFile -> it.originalFile.name
+				is JuliaFunction -> "fun: ${it.exprList.first().text}"
+				is JuliaAssignLevelOp -> it.exprList.first().text
+				is JuliaTypeDeclaration -> "type: ${it.exprList.first().text}"
+				is JuliaModuleDeclaration -> "module: ${it.symbol.text}"
+				else -> "..."
+			}
+		}, 50)
+
+		override fun navigate(requestFocus: Boolean) {
+			if (psiElement is NavigationItem) {
+				(psiElement as NavigationItem).navigate(requestFocus)
+			}
 		}
-//		println("------psi out------")
+
+		override fun getValue() = psiElement
+		override fun canNavigate() = psiElement is NavigationItem && (psiElement as NavigationItem).canNavigate()
+		override fun canNavigateToSource() = psiElement is NavigationItem && (psiElement as NavigationItem).canNavigateToSource()
+		override fun getAlphaSortKey() = (psiElement as? PsiNamedElement)?.name.orEmpty()
 	}
 }
+
+val PsiElement.isBlock
+	get() = when (this) {
+		is JuliaFile,
+		is JuliaStatements,
+		is JuliaModuleDeclaration,
+		is JuliaFunction,
+		is JuliaTypeDeclaration
+//		is JuliaIfExpr
+		-> true
+		else -> false
+	}
