@@ -33,21 +33,10 @@ class JuliaAnnotator : Annotator {
 	private fun plusLevelOp(element: JuliaPlusLevelOp, holder: AnnotationHolder) {
 		holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint")).run {
 			highlightType = ProblemHighlightType.LIKE_DEPRECATED
-			registerFix(
-				JuliaReplaceWithTextIntention(
-					element,
-					"xor(${element.firstChild.text}, ${element.lastChild.text})",
-					JuliaBundle.message("julia.lint.xor-replace-xor")
-				)
-			)
-
-			registerFix(
-				JuliaReplaceWithTextIntention(
-					element,
-					"${element.firstChild.text} \u22bb ${element.lastChild.text}",
-					JuliaBundle.message("julia.lint.xor-replace-22bb")
-				)
-			)
+			registerFix(JuliaReplaceWithTextIntention(element, "xor(${element.firstChild.text}, ${element.lastChild.text})",
+				JuliaBundle.message("julia.lint.xor-replace-xor")))
+			registerFix(JuliaReplaceWithTextIntention(element.plusLevelOperator, "\u22bb",
+				JuliaBundle.message("julia.lint.xor-replace-22bb")))
 		}
 	}
 
