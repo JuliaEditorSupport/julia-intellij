@@ -227,7 +227,12 @@ applyWhereOp ::= expr whereClause
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
   (expressionList endOfLine)?
-  (SEMICOLON_SYM endOfLine (endOfLine COMMA_SYM assignLevelOp endOfLine)*)?
+  (SEMICOLON_SYM endOfLine
+    (
+     COMMA_SYM expr endOfLine
+     EQ_SYM endOfLine expr endOfLine
+    )*
+  )?
  RIGHT_BRACKET doBlock?
 
 symbolLhs ::=
@@ -420,8 +425,8 @@ private afterWhere ::=
 array ::=
  LEFT_M_BRACKET endOfLine
   (
-   (expr endOfLine)*
-   (SEMICOLON_SYM endOfLine (expr endOfLine)*)
+   (expr endOfLine)
+   (SEMICOLON_SYM endOfLine (expr endOfLine)*)*
   )?
   RIGHT_M_BRACKET { extends=expr }
 
