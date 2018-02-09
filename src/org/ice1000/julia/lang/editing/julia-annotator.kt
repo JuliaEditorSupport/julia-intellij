@@ -29,7 +29,7 @@ class JuliaAnnotator : Annotator {
 	}
 
 	private fun plusLevelOp(element: JuliaPlusLevelOp, holder: AnnotationHolder) {
-		when( element.plusLevelOperator.text[0] ) {
+		when (element.plusLevelOperator.text[0]) {
 			'$' ->
 				holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
 					highlightType = ProblemHighlightType.LIKE_DEPRECATED
@@ -42,29 +42,17 @@ class JuliaAnnotator : Annotator {
 	}
 
 	private fun assignLevelOp(element: JuliaAssignLevelOp, holder: AnnotationHolder) {
-		when( element.assignLevelOperator.text[0] ) {
+		when (element.assignLevelOperator.text[0]) {
 			'$' ->
-				holder.createWarningAnnotation(
-					element,
-					JuliaBundle.message("julia.lint.xor-hint", element.text)
-				).run {
+				holder.createWarningAnnotation(element,
+					JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
 					highlightType = ProblemHighlightType.LIKE_DEPRECATED
-
-					registerFix(
-						JuliaReplaceWithTextIntention(
-							element,
-							"${element.firstChild.text} = xor(${element.firstChild.text}, ${element.lastChild.text})",
-							JuliaBundle.message("julia.lint.xor-is-replace-xor", element.firstChild.text, element.lastChild.text)
-						)
-					)
-
-					registerFix(
-						JuliaReplaceWithTextIntention(
-							element,
-							"${element.firstChild.text} \u22bb= ${element.lastChild.text}",
-							JuliaBundle.message("julia.lint.xor-is-replace-22bb", element.firstChild.text, element.lastChild.text)
-						)
-					)
+					val left = element.firstChild.text
+					val right = element.lastChild.text
+					registerFix(JuliaReplaceWithTextIntention(element, "$left = xor($left, $right)",
+						JuliaBundle.message("julia.lint.xor-is-replace-xor", left, right)))
+					registerFix(JuliaReplaceWithTextIntention(element, "$left \u22bb= $right",
+						JuliaBundle.message("julia.lint.xor-is-replace-22bb", left, right)))
 				}
 		}
 	}

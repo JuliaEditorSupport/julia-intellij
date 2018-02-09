@@ -7,6 +7,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.util.ProcessingContext
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.docfmt.psi.*
@@ -24,52 +25,96 @@ class DocfmtAnnotator : Annotator {
 	}
 
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-		if (element is DocfmtConfig) {
-			val key = element.firstChild
-			val value = element.value
-			fun unused() = holder.createWeakWarningAnnotation(element, JuliaBundle.message("docfmt.lint.default")).run {
-				highlightType = ProblemHighlightType.LIKE_UNUSED_SYMBOL
-				registerFix(JuliaRemoveElementIntention(element, JuliaBundle.message("docfmt.lint.remove")))
+		when (element) {
+			is PsiFile -> {
+				val existing = BooleanArray(10)
+				element
+					.children
+					.mapNotNull { (it as? DocfmtConfig)?.takeIf { it.type != -1 } }
+					.forEach {
+						if (existing[it.type]) {
+							// TODO duplicate
+						} else existing[it.type] = true
+					}
 			}
-
-			fun invalidValue(element: PsiElement) = holder.createErrorAnnotation(element, JuliaBundle.message("docfmt.lint.invalid-val", element.text)).run {
-				highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL
-			}
-
-			fun number() {
-				if (value.firstChild.node.elementType != DocfmtTypes.INT) invalidValue(value)
-				else if (value.text == "4") unused()
-			}
-
-			fun boolean(default: Boolean = false) {
-				when (element.value.text) {
-					"$default" -> unused()
-					"${!default}" -> Unit
-					else -> invalidValue(value)
+			is DocfmtConfig -> {
+				val key = element.firstChild
+				val value = element.value
+				fun unused() = holder.createWeakWarningAnnotation(element, JuliaBundle.message("docfmt.lint.default")).run {
+					highlightType = ProblemHighlightType.LIKE_UNUSED_SYMBOL
+					registerFix(JuliaRemoveElementIntention(element, JuliaBundle.message("docfmt.lint.remove")))
 				}
-			}
 
-			when (key.text) {
-				"TabWidth" -> number()
-				"IndentWidth" -> number()
-				"UseTab" -> boolean()
-				"AlignAfterOpenBracket" -> when (value.text) {
-					"Align" -> unused()
-					"AlwaysBreak", "DontAlign" -> Unit // OK
-					else -> invalidValue(value)
-				}
-				// TODO ask about usage
-				"IndentEXPR" -> Unit // if (value.text !in indentArgs) invalidValue(value)
-				"KW_WS" -> boolean(true)
-				"NewLineEOF" -> boolean()
-				"StripLineEnds" -> boolean()
-				"No_WS_OP_group" -> if (value.text !in noWsOpGroup) invalidValue(value)
-				"No_WS_OP_indv" -> if (value.firstChild.node.elementType == DocfmtTypes.INT) invalidValue(value)
-				else -> holder.createErrorAnnotation(key, JuliaBundle.message("docfmt.lint.invalid", key.text)).run {
+				fun invalidValue(element: PsiElement) = holder.createErrorAnnotation(element, JuliaBundle.message("docfmt.lint.invalid-val", element.text)).run {
 					highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL
 				}
+
+				fun number() {
+					if (value.firstChild.node.elementType != DocfmtTypes.INT) invalidValue(value)
+					else if (value.text == "4") unused()
+				}
+
+				fun boolean(default: Boolean = false) {
+					when (element.value.text) {
+						"$default" -> unused()
+						"${!default}" -> Unit
+						else -> invalidValue(value)
+					}
+				}
+
+				when (key.text) {
+					"TabWidth" -> {
+						element.type = 0
+						number()
+					}
+					"IndentWidth" -> {
+						element.type = 1
+						number()
+					}
+					"UseTab" -> {
+						element.type = 2
+						boolean()
+					}
+					"AlignAfterOpenBracket" -> {
+						element.type = 3
+						when (value.text) {
+							"Align" -> unused()
+							"AlwaysBreak", "DontAlign" -> Unit // OK
+							else -> invalidValue(value)
+						}
+					}
+				// TODO ask about usage
+					"IndentEXPR" -> {
+						// if (value.text !in indentArgs) invalidValue(value)
+						element.type = 4
+					}
+					"KW_WS" -> {
+						element.type = 5
+						boolean(true)
+					}
+					"NewLineEOF" -> {
+						element.type = 6
+						boolean()
+					}
+					"StripLineEnds" -> {
+						element.type = 7
+						boolean()
+					}
+					"No_WS_OP_group" -> {
+						element.type = 8
+						if (value.text !in noWsOpGroup) invalidValue(value)
+					}
+					"No_WS_OP_indv" -> {
+						element.type = 9
+						if (value.firstChild.node.elementType == DocfmtTypes.INT) invalidValue(value)
+					}
+					else -> holder.createErrorAnnotation(key, JuliaBundle.message("docfmt.lint.invalid", key.text)).run {
+						highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL
+					}
+				}
 			}
-		} else return
+			else -> return
+		}
 	}
 }
 
