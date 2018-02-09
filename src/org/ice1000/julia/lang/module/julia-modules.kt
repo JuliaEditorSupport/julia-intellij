@@ -24,7 +24,7 @@ class JuliaModuleBuilder : ModuleBuilder() {
 		parentDisposable.dispose()
 		context.projectName = JULIA_DEFAULT_MODULE_NAME
 		context.defaultModuleName = JULIA_DEFAULT_MODULE_NAME
-		return JuliaSetupSdkWizardStep(this)
+		return JuliaSetupSdkWizardStepImpl(this)
 	}
 
 	override fun setupRootModel(model: ModifiableRootModel) {

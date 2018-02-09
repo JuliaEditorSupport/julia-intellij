@@ -19,6 +19,7 @@ abstract class JuliaStringContentMixin(astNode: ASTNode) : ASTWrapperPsiElement(
 }
 
 interface IJuliaSymbol {
+	// check if they are declarations
 	val isFunctionName: Boolean
 	val isMacroName: Boolean
 	val isModuleName: Boolean
@@ -28,10 +29,10 @@ interface IJuliaSymbol {
 }
 
 abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaSymbol {
-	override val isFunctionName = parent is JuliaFunction || parent is JuliaCompactFunction
-	override val isMacroName = parent is JuliaMacro
-	override val isModuleName = parent is JuliaModuleDeclaration
-	override val isTypeName = parent is JuliaTypeDeclaration || parent is JuliaTypeAlias
-	override val isAbstractTypeName = parent is JuliaAbstractTypeDeclaration
-	override val isPrimitiveTypeName = parent is JuliaPrimitiveTypeDeclaration
+	override val isFunctionName get() = parent is JuliaFunction || parent is JuliaCompactFunction
+	override val isMacroName get() = parent is JuliaMacro
+	override val isModuleName get() = parent is JuliaModuleDeclaration
+	override val isTypeName get() = parent is JuliaTypeDeclaration || parent is JuliaTypeAlias
+	override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
+	override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
 }
