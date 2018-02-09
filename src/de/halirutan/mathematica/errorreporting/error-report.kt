@@ -45,6 +45,7 @@ import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service.IssueService
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
+import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Component
 import java.io.IOException
 import java.io.ObjectInputStream
@@ -189,10 +190,12 @@ class GitHubErrorReporter : ErrorReportSubmitter() {
 		}
 
 		(event.data as? LogMessageEx)?.let { bean.attachments = it.includedAttachments }
-		val reportValues = getKeyValuePairs(bean,
-			ApplicationInfo.getInstance() as ApplicationInfoEx,
-			ApplicationNamesInfo.getInstance())
 		val project = CommonDataKeys.PROJECT.getData(dataContext)
+		val reportValues = getKeyValuePairs(
+				project,
+				bean,
+				ApplicationInfo.getInstance() as ApplicationInfoEx,
+				ApplicationNamesInfo.getInstance())
 		val notifyingCallback = CallbackWithNotification(callback, project)
 		val task = AnonymousFeedbackTask(project, ErrorReportBundle.message(
 			"report.error.progress.dialog.text"), true, reportValues, notifyingCallback)
@@ -248,11 +251,13 @@ private class AnonymousFeedbackTask(
  * Collects information about the running IDEA and the error
  */
 private fun getKeyValuePairs(
+	project: Project?,
 	error: GitHubErrorBean,
 	appInfo: ApplicationInfoEx,
 	namesInfo: ApplicationNamesInfo): MutableMap<String, String> {
 	val params = mutableMapOf(
 		"error.description" to error.description,
+		"Julia Version" to (project?.run { juliaSettings.settings.version } ?: "Unknown"),
 		"Plugin Name" to error.pluginName,
 		"Plugin Version" to error.pluginVersion,
 		"OS Name" to SystemProperties.getOsName(),
