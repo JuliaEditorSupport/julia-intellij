@@ -73,7 +73,10 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 				.forEach { element ->
 					println(element.toString() + "${element.isBlock}")
 					if (element.isBlock) {
-						children.add(JuliaStructureViewElement(element))
+						if (element is JuliaStatements) {
+							children.addAll(JuliaStructureViewElement(element).children)
+						} else
+							children.add(JuliaStructureViewElement(element))
 					}
 					JuliaStructureViewModel.ourSuitableClasses
 						.filter { suitableClass -> ReflectionUtil.isAssignable(suitableClass, element.javaClass) && (JuliaStructureViewElement(element) !in children) }
