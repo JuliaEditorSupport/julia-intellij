@@ -17,9 +17,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
 			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
-			is JuliaBitwiseLevelOp -> {
-				// TODO replace $ with ⊻
-			}
+			is JuliaBitwiseLevelOp -> bitWiseLevelOp(element, holder)
 			is JuliaAssignLevelOp -> {
 				// TODO replace $= with ⊻=
 			}
@@ -29,6 +27,30 @@ class JuliaAnnotator : Annotator {
 			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
 				// TODO provide conversions
 			}
+		}
+	}
+
+	private fun bitWiseLevelOp(element: JuliaBitwiseLevelOp, holder: AnnotationHolder) {
+		holder.createWarningAnnotation(
+			element,
+			"过时的语法" //TODO replace Chinese to English
+		).run {
+			highlightType = ProblemHighlightType.LIKE_DEPRECATED
+			registerFix(
+				JuliaReplaceWithTextIntention(
+					element,
+					"xor(${element.firstChild.text}, ${element.lastChild.text})",
+					"使用xor函数" //TODO replace
+				)
+			)
+
+			registerFix(
+				JuliaReplaceWithTextIntention(
+					element,
+					"${element.firstChild.text}\u22bb${element.lastChild.text}",
+					"使用\u22bb运算符"		//为什么用Unicode呢? 因为用Unicode显得高端啊(逃
+				)
+			)
 		}
 	}
 
