@@ -44,7 +44,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 			field = if (value > 3) 3 else if (value < 0) 0 else value
 		}
 
-	override fun getConfigurationEditor() = JuliaRunConfigurationEditor(this, project)
+	override fun getConfigurationEditor() = JuliaRunConfigurationEditorImpl(this, project)
 	override fun getState(executor: Executor, env: ExecutionEnvironment) = JuliaCommandLineState(this, env)
 	override fun writeExternal(element: Element) {
 		PathMacroManager.getInstance(project).expandPaths(element)
