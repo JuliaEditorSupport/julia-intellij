@@ -17,7 +17,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
 			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
-			is JuliaBitwiseLevelOp -> bitWiseLevelOp(element, holder)
+			is JuliaPlusLevelOp -> plusLevelOp(element, holder)
 			is JuliaAssignLevelOp -> {
 				// TODO replace $= with ⊻=
 			}
@@ -30,25 +30,22 @@ class JuliaAnnotator : Annotator {
 		}
 	}
 
-	private fun bitWiseLevelOp(element: JuliaBitwiseLevelOp, holder: AnnotationHolder) {
-		holder.createWarningAnnotation(
-			element,
-			"过时的语法" //TODO replace Chinese to English
-		).run {
+	private fun plusLevelOp(element: JuliaPlusLevelOp, holder: AnnotationHolder) {
+		holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint")).run {
 			highlightType = ProblemHighlightType.LIKE_DEPRECATED
 			registerFix(
 				JuliaReplaceWithTextIntention(
 					element,
 					"xor(${element.firstChild.text}, ${element.lastChild.text})",
-					"使用xor函数" //TODO replace
+					JuliaBundle.message("julia.lint.xor-replace-xor")
 				)
 			)
 
 			registerFix(
 				JuliaReplaceWithTextIntention(
 					element,
-					"${element.firstChild.text}\u22bb${element.lastChild.text}",
-					"使用\u22bb运算符"		//为什么用Unicode呢? 因为用Unicode显得高端啊(逃
+					"${element.firstChild.text} \u22bb ${element.lastChild.text}",
+					JuliaBundle.message("julia.lint.xor-replace-22bb")
 				)
 			)
 		}

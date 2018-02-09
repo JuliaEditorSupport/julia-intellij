@@ -58,7 +58,8 @@ class DocfmtAnnotator : Annotator {
 					"AlwaysBreak", "DontAlign" -> Unit // OK
 					else -> invalidValue(value)
 				}
-				"IndentEXPR" -> if (value.text !in indentArgs) invalidValue(value)
+				// TODO ask about usage
+				"IndentEXPR" -> Unit // if (value.text !in indentArgs) invalidValue(value)
 				"KW_WS" -> boolean(true)
 				"NewLineEOF" -> boolean()
 				"StripLineEnds" -> boolean()
