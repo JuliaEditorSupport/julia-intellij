@@ -18,9 +18,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
 			is JuliaPlusLevelOp -> plusLevelOp(element, holder)
-			is JuliaAssignLevelOp -> {
-				// TODO replace $= with ⊻=
-			}
+			is JuliaAssignLevelOp -> assignLevelOp(element, holder)
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
@@ -31,12 +29,43 @@ class JuliaAnnotator : Annotator {
 	}
 
 	private fun plusLevelOp(element: JuliaPlusLevelOp, holder: AnnotationHolder) {
-		holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint")).run {
-			highlightType = ProblemHighlightType.LIKE_DEPRECATED
-			registerFix(JuliaReplaceWithTextIntention(element, "xor(${element.firstChild.text}, ${element.lastChild.text})",
-				JuliaBundle.message("julia.lint.xor-replace-xor")))
-			registerFix(JuliaReplaceWithTextIntention(element.plusLevelOperator, "\u22bb",
-				JuliaBundle.message("julia.lint.xor-replace-22bb")))
+		when( element.plusLevelOperator.text[0] ) {
+			'$' ->
+				holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
+					highlightType = ProblemHighlightType.LIKE_DEPRECATED
+					registerFix(JuliaReplaceWithTextIntention(element, "xor(${element.firstChild.text}, ${element.lastChild.text})",
+						JuliaBundle.message("julia.lint.xor-replace-xor", element.firstChild.text, element.lastChild.text)))
+					registerFix(JuliaReplaceWithTextIntention(element, "${element.firstChild.text} \u22bb ${element.lastChild.text}",
+						JuliaBundle.message("julia.lint.xor-replace-22bb", element.firstChild.text, element.lastChild.text)))
+				}
+		}
+	}
+
+	private fun assignLevelOp(element: JuliaAssignLevelOp, holder: AnnotationHolder) {
+		when( element.assignLevelOperator.text[0] ) {
+			'$' ->
+				holder.createWarningAnnotation(
+					element,
+					JuliaBundle.message("julia.lint.xor-hint", element.text)
+				).run {
+					highlightType = ProblemHighlightType.LIKE_DEPRECATED
+
+					registerFix(
+						JuliaReplaceWithTextIntention(
+							element,
+							"${element.firstChild.text} = xor(${element.firstChild.text}, ${element.lastChild.text})",
+							JuliaBundle.message("julia.lint.xor-is-replace-xor", element.firstChild.text, element.lastChild.text)
+						)
+					)
+
+					registerFix(
+						JuliaReplaceWithTextIntention(
+							element,
+							"${element.firstChild.text} \u22bb= ${element.lastChild.text}",
+							JuliaBundle.message("julia.lint.xor-is-replace-22bb", element.firstChild.text, element.lastChild.text)
+						)
+					)
+				}
 		}
 	}
 
