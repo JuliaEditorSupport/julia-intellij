@@ -8,11 +8,11 @@ import com.intellij.lang.PsiStructureViewFactory
 import com.intellij.navigation.ItemPresentation
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.editor.Editor
+import com.intellij.pom.Navigatable
+import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiNamedElement
-import com.intellij.psi.util.PsiTreeUtil
-import org.ice1000.julia.lang.JuliaLanguage
 import org.ice1000.julia.lang.psi.impl.JuliaFunctionImpl
 import java.util.*
 
@@ -34,17 +34,20 @@ class JuliaStructureViewModel(psiFile: PsiFile) : StructureViewModelBase(psiFile
 	}
 
 
-	override fun isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean {
-		return false
-	}
+	override fun isAlwaysShowsPlus(element: StructureViewTreeElement) = true
 
 	override fun isAlwaysLeaf(element: StructureViewTreeElement): Boolean {
-		println(element.value)
-		return true
+		return when (element) {
+			is JuliaFunctionImpl -> true
+			else -> false
+		}
 	}
 }
 
-class JuliaStructureViewElement(private val element: PsiElement) : StructureViewTreeElement, SortableTreeElement {
+class JuliaStructureViewElement(private val element: PsiElement) :
+	StructureViewTreeElement, SortableTreeElement, Navigatable by (element as NavigatablePsiElement) {
+
+	val array = ArrayList<PsiElement>()
 
 	override fun getValue(): Any {
 		return element
@@ -74,19 +77,28 @@ class JuliaStructureViewElement(private val element: PsiElement) : StructureView
 
 	/**
 	 * FIXME
+	 * now can find psi but cannot show on panel
 	 */
 	override fun getChildren(): Array<out TreeElement> {
-		val ret: Array<out TreeElement>
-		if (element.language == JuliaLanguage.INSTANCE) {
-			val properties = PsiTreeUtil.getChildrenOfType(element, JuliaFunctionImpl::class.java)
-			val treeElements = ArrayList<TreeElement>(properties!!.size)
-			properties.mapTo(treeElements) { JuliaStructureViewElement(it) }
-			ret = treeElements.toTypedArray()
-		} else {
-			ret = StructureViewTreeElement.EMPTY_ARRAY
+		val treeElements = ArrayList<TreeElement>()
+		array.clear()
+		findNode(element)
+		println(array.size)
+		val nodes = array
+		nodes.forEach {
+			treeElements.add(JuliaStructureViewElement(it))
 		}
-//		print result: `FILE` ?
-//		println(ret)
-		return ret
+		return treeElements.toTypedArray()
+	}
+
+	private fun findNode(psi: PsiElement?) {
+		psi?.children?.forEach {
+//			println(it)
+			when (it) {
+				is JuliaFunctionImpl -> array.add(it)
+			}
+			findNode(it)
+		}
+//		println("------psi out------")
 	}
 }
