@@ -9,6 +9,7 @@ import com.intellij.lang.PsiStructureViewFactory
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditor
+import com.intellij.openapi.util.Iconable.ICON_FLAG_VISIBILITY
 import com.intellij.pom.Navigatable
 import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
@@ -19,8 +20,8 @@ import com.intellij.util.ReflectionUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.JuliaLanguage
+import org.ice1000.julia.lang.editing.JuliaIconProvider
 import org.ice1000.julia.lang.editing.cutText
-import org.ice1000.julia.lang.psi.impl.JuliaFunctionImpl
 
 
 class JuliaStructureViewFactory : PsiStructureViewFactory {
@@ -45,7 +46,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun shouldEnterElement(o: Any?) = true
 		override fun isAlwaysShowsPlus(element: StructureViewTreeElement) = false
 		override fun isAlwaysLeaf(element: StructureViewTreeElement) = when (element) {
-			is JuliaFunctionImpl -> true
+			is JuliaFunction -> true
 			else -> false
 		}
 
@@ -71,7 +72,6 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 			psiElement.children
 				.filter { it !is LeafPsiElement }//filter EOL
 				.forEach { element ->
-					println(element.toString() + "${element.isBlock}")
 					if (element.isBlock) {
 						if (element is JuliaStatements) {
 							children.addAll(JuliaStructureViewElement(element).children)
@@ -88,8 +88,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun getLocationString() = ""
 		override fun getIcon(open: Boolean) =
 			when (psiElement) {
-			//FIXME: JuliaFile needs current ICON
-				is JuliaFile -> JuliaIcons.JULIA_ICON
+				is JuliaFile -> JuliaIconProvider().getIcon(element!!, ICON_FLAG_VISIBILITY)
 				is JuliaFunction -> JuliaIcons.JULIA_BIG_ICON
 				is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
 				is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
@@ -99,10 +98,10 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun getPresentableText() = cutText(psiElement.let {
 			when (it) {
 				is JuliaFile -> it.originalFile.name
-				is JuliaFunction -> "fun: ${it.exprList.first().text}"
+				is JuliaFunction -> it.exprList.first().text
 				is JuliaAssignLevelOp -> it.exprList.first().text
-				is JuliaTypeDeclaration -> "type: ${it.exprList.first().text}"
-				is JuliaModuleDeclaration -> "module: ${it.symbol.text}"
+				is JuliaTypeDeclaration -> it.exprList.first().text
+				is JuliaModuleDeclaration -> it.symbol.text
 				else -> "..."
 			}
 		}, 50)
