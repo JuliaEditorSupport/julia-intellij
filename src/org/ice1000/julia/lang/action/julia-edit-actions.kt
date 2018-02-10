@@ -6,6 +6,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
@@ -19,6 +20,7 @@ import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.JuliaSettings
 import org.ice1000.julia.lang.module.juliaSettings
+import java.awt.event.KeyEvent
 
 class JuliaTryEvaluateAction : JuliaAction(
 	JuliaBundle.message("julia.actions.try-eval.name"),
@@ -41,7 +43,7 @@ class JuliaUnicodeInputAction : JuliaAction("TODO", "TODO") { // TODO
 				.withIcon(JuliaIcons.JULIA_BIG_ICON)
 		}
 
-		object UnicodeCompletionProvider : TextCompletionProvider {
+		private object UnicodeCompletionProvider : TextCompletionProvider {
 			override fun getAdvertisement() = "LaTeX unicode"
 			override fun getPrefix(text: String, offset: Int) = text.take(offset)
 			override fun acceptChar(c: Char) = CharFilter.Result.ADD_TO_PREFIX
@@ -62,17 +64,25 @@ class JuliaUnicodeInputAction : JuliaAction("TODO", "TODO") { // TODO
 		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
 		val project = e.project ?: return
 		val field = TextFieldWithCompletion(project, UnicodeCompletionProvider, "", true, true, true)
-		val popup = JBPopupFactory.getInstance()
+		var popup: JBPopup? = null
+		popup = JBPopupFactory.getInstance()
 			.createComponentPopupBuilder(field, null)
 			.setMovable(true)
 			.setAlpha(0.2F)
+			.setKeyEventHandler {
+				if (it.keyCode == KeyEvent.VK_ENTER) popup?.cancel()
+				false
+			}
 			.setAdText("LaTeX style unicode input") // TODO l18n
 			.createPopup()
-		popup.addListener(object : JBPopupListener {
-			override fun beforeShown(event: LightweightWindowEvent?) = Unit
+		popup.addListener(object : JBPopupListener.Adapter() {
 			override fun onClosed(event: LightweightWindowEvent?) {
-				editor.document.insertString(0, field.text)
-				popup.dispose()
+				CommandProcessor.getInstance().executeCommand(project, {
+					ApplicationManager.getApplication().runWriteAction {
+						editor.document.insertString(editor.caretModel.offset, field.text)
+						editor.caretModel.moveCaretRelatively(1, 0, false, false, true)
+					}
+				}, null, null)
 			}
 		})
 		popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor))
