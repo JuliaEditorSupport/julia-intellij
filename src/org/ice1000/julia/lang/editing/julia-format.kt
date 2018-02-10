@@ -6,7 +6,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.formatter.common.AbstractBlock
-import com.intellij.psi.tree.TokenSet
 import org.ice1000.julia.lang.JuliaLanguage
 import org.ice1000.julia.lang.psi.JuliaTypes
 import java.util.*
@@ -53,6 +52,8 @@ class JuliaFormattingModelBuilder : FormattingModelBuilder {
 		return SpacingBuilder(settings, JuliaLanguage.INSTANCE)
 			.around(JuliaTypes.ASSIGN_LEVEL_OPERATOR).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
 			.around(JuliaTypes.COMPARISON_LEVEL_OPERATOR).spaces(1)
+			.around(JuliaTypes.ARROW_SYM).spaces(1)
+			.around(JuliaTypes.EQ_SYM).spaces(1)
 			.afterInside(JuliaTypes.COMMA_SYM, JuliaTypes.EXPRESSION_LIST).spaces(1)
 	}
 
