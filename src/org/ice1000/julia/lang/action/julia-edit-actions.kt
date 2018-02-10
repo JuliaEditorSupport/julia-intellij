@@ -1,5 +1,8 @@
 package org.ice1000.julia.lang.action
 
+import com.intellij.codeInsight.completion.*
+import com.intellij.codeInsight.lookup.CharFilter
+import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
@@ -10,10 +13,10 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.popup.*
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.textCompletion.TextCompletionProvider
 import com.intellij.util.textCompletion.TextFieldWithCompletion
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.editing.unicode.JuliaUnicodeCompletionProvider
 import org.ice1000.julia.lang.module.JuliaSettings
 import org.ice1000.julia.lang.module.juliaSettings
 
@@ -28,10 +31,37 @@ class JuliaTryEvaluateAction : JuliaAction(
 }
 
 class JuliaUnicodeInputAction : JuliaAction("TODO", "TODO") { // TODO
+	private companion object CompletionHolder {
+		private val unicodeList = listOf(
+			"alpha" to "α", "beta" to "β", "gamma" to "γ", "delta" to "δ", "epsilon" to "ϵ"
+		).map { (a, b) ->
+			LookupElementBuilder.create(b)
+				.withLookupString(a)
+				.withPresentableText(a)
+				.withIcon(JuliaIcons.JULIA_BIG_ICON)
+		}
+
+		object UnicodeCompletionProvider : TextCompletionProvider {
+			override fun getAdvertisement() = "LaTeX unicode"
+			override fun getPrefix(text: String, offset: Int) = text.take(offset)
+			override fun acceptChar(c: Char) = CharFilter.Result.ADD_TO_PREFIX
+			override fun applyPrefixMatcher(result: CompletionResultSet, prefix: String) =
+				result.withPrefixMatcher(PlainPrefixMatcher(prefix))
+
+			override fun fillCompletionVariants(
+				parameters: CompletionParameters,
+				prefix: String,
+				result: CompletionResultSet) {
+				unicodeList.forEach(result::addElement)
+				result.stopHere()
+			}
+		}
+	}
+
 	override fun actionPerformed(e: AnActionEvent) {
 		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
 		val project = e.project ?: return
-		val field = TextFieldWithCompletion(project, JuliaUnicodeCompletionProvider, "", true, true, true)
+		val field = TextFieldWithCompletion(project, UnicodeCompletionProvider, "", true, true, true)
 		val popup = JBPopupFactory.getInstance()
 			.createComponentPopupBuilder(field, null)
 			.setMovable(true)
