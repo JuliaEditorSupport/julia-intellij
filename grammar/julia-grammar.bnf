@@ -428,7 +428,7 @@ array ::=
   (
    (expr (commaSep? expr)*)
    (SEMICOLON_SYM endOfLine
-    (expr (commaSep? expr))*)*
+    expr (commaSep? expr)* COMMA_SYM?)*
   )?
   RIGHT_M_BRACKET { extends=expr }
 
