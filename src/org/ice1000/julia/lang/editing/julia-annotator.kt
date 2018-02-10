@@ -4,6 +4,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
 import org.ice1000.julia.lang.*
@@ -11,6 +12,20 @@ import org.ice1000.julia.lang.psi.*
 import java.math.BigInteger
 
 class JuliaAnnotator : Annotator {
+	companion object {
+		class Type( val name : String ) {
+			val bit : Int = name.replace(Regex("[a-zA-Z]+"), "").toInt()
+			val max : BigInteger = BigInteger("2").pow(bit - 1).minus(BigInteger("1"))
+			val min : BigInteger = BigInteger("-2").pow(bit - 1)
+		}
+
+		val Int8 = Type("Int8")
+		val Int16 = Type("Int16")
+		val Int32 = Type("Int32")
+		val Int64 = Type("Int64")
+		val Int128 = Type("Int128")
+	}
+
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		when (element) {
 			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
@@ -151,11 +166,24 @@ class JuliaAnnotator : Annotator {
 	private fun integer(
 		element: JuliaInteger,
 		holder: AnnotationHolder) {
+
+		fun checkType( value : BigInteger ) : String =
+			when(value) {
+				in Int32.min..Int32.max ->
+					if( SystemInfo.is32Bit ) Int32.name else Int64.name
+
+				in Int64.min..Int64.max -> Int64.name
+				in Int128.min..Int128.max -> Int128.name
+
+				else -> "BigInt"
+			}
+
 		val code = element.text
+		var value = BigInteger("0")
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int")).run {
 			when {
 				code.startsWith("0x") -> {
-					val value = BigInteger(code.substring(2), 16)
+					value = BigInteger(code.substring(2), 16)
 					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
 						JuliaBundle.message("julia.lint.int-replace-dec")))
 					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
@@ -164,7 +192,7 @@ class JuliaAnnotator : Annotator {
 						JuliaBundle.message("julia.lint.int-replace-oct")))
 				}
 				code.startsWith("0b") -> {
-					val value = BigInteger(code.substring(2), 2)
+					value = BigInteger(code.substring(2), 2)
 					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
 						JuliaBundle.message("julia.lint.int-replace-dec")))
 					registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
@@ -173,7 +201,7 @@ class JuliaAnnotator : Annotator {
 						JuliaBundle.message("julia.lint.int-replace-oct")))
 				}
 				code.startsWith("0o") -> {
-					val value = BigInteger(code.substring(2), 8)
+					value = BigInteger(code.substring(2), 8)
 					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
 						JuliaBundle.message("julia.lint.int-replace-dec")))
 					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
@@ -182,7 +210,7 @@ class JuliaAnnotator : Annotator {
 						JuliaBundle.message("julia.lint.int-replace-hex")))
 				}
 				else -> {
-					val value = BigInteger(code.substring(2))
+					value = BigInteger(code)
 					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
 						JuliaBundle.message("julia.lint.int-replace-bin")))
 					registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
@@ -192,6 +220,10 @@ class JuliaAnnotator : Annotator {
 				}
 			}
 		}
+
+		element.type = checkType(value)
+
+		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int-type", element.type!!))
 	}
 
 }
