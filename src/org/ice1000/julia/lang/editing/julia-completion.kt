@@ -118,7 +118,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		position.parent !is JuliaString && typeChar in ".(["
 
 	init {
-		extend(CompletionType.BASIC, psiElement().andOr(psiComment()), JuliaCompletionProvider(unicodeList))
+		extend(CompletionType.BASIC, psiElement(), JuliaCompletionProvider(unicodeList))
 		extend(CompletionType.BASIC, psiElement()
 			.inside(JuliaFunction::class.java)
 			.afterLeaf(")")
