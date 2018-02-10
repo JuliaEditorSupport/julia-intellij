@@ -31,6 +31,9 @@
 		<completion.contributor
 			language="DocumentFormat"
 			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtCompletionContributor"/>
+		<completion.contributor
+			language="Julia LaTeX unicode"
+			implementationClass="org.ice1000.julia.lang.editing.unicode.JuliaUnicodeCompletionContributor"/>
 		<spellchecker.support
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaSpellCheckingStrategy"/>

@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -17,6 +18,8 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.unicode.JuliaUnicodeFileType
 import org.ice1000.julia.lang.module.JuliaSettings
 import org.ice1000.julia.lang.module.juliaSettings
+import java.awt.event.KeyEvent
+import java.awt.event.KeyListener
 
 class JuliaTryEvaluateAction : JuliaAction(
 	JuliaBundle.message("julia.actions.try-eval.name"),
@@ -29,25 +32,29 @@ class JuliaTryEvaluateAction : JuliaAction(
 }
 
 class JuliaUnicodeInputAction : JuliaAction("TODO", "TODO") { // TODO
-	private companion object {
-		private val unicodeList = listOf(
-			"alpha" to "α", "beta" to "β", "gamma" to "γ", "delta" to "δ", "epsilon" to "ϵ"
-		)
-	}
-
 	override fun actionPerformed(e: AnActionEvent) {
 		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
-		JBPopupFactory.getInstance()
+		var popup: JBPopup? = null
+		popup = JBPopupFactory.getInstance()
 			.createComponentPopupBuilder(JBUI.Panels.simplePanel()
 				.addToCenter(EditorTextField("", editor.project, JuliaUnicodeFileType).apply {
 					setOneLineMode(true)
+					addKeyListener(object : KeyListener {
+						override fun keyPressed(keyEvent: KeyEvent?) = Unit
+						override fun keyReleased(keyEvent: KeyEvent?) = Unit
+						override fun keyTyped(keyEvent: KeyEvent) {
+							if (keyEvent.keyCode != KeyEvent.VK_ENTER) return
+							editor.document.insertString(0, text)
+							popup?.dispose()
+						}
+					})
 				}), null)
 			.setMovable(true)
 			.setAlpha(0.8F)
 			.setAdText("LaTeX style unicode input") // TODO l18n
 			.setRequestFocus(true)
 			.createPopup()
-			.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor))
+		popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor))
 	}
 }
 
