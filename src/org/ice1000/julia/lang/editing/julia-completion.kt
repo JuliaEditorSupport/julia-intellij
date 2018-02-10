@@ -3,6 +3,7 @@ package org.ice1000.julia.lang.editing
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.patterns.PlatformPatterns.psiComment
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
@@ -103,12 +104,21 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		).map(LookupElementBuilder::create)
 
 		private val where = listOf(LookupElementBuilder.create("where"))
+
+		private val unicodeList = listOf(
+			"alpha" to "α",
+			"beta" to "β",
+			"gamma" to "γ",
+			"delta" to "δ",
+			"epsilon" to "ϵ"
+		).map { (a, b) -> LookupElementBuilder.create("\\$a", b) }
 	}
 
 	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =
 		position.parent !is JuliaString && typeChar in ".(["
 
 	init {
+		extend(CompletionType.BASIC, psiElement().andOr(psiComment()), JuliaCompletionProvider(unicodeList))
 		extend(CompletionType.BASIC, psiElement()
 			.inside(JuliaFunction::class.java)
 			.afterLeaf(")")
