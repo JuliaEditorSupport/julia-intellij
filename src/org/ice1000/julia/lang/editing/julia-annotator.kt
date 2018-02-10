@@ -22,10 +22,10 @@ enum class NumeralType(bit: Int) {
 	val range: ClosedRange<BigInteger>
 
 	init {
-		if( bit != 0 ) {
+		range = if (bit != 0) {
 			val tempVal = BigInteger.valueOf(2L).pow(bit - 1)
-			range = -tempVal..tempVal - BigInteger.ONE
-		} else range = BigInteger.ZERO..BigInteger.ZERO
+			-tempVal..tempVal - BigInteger.ONE
+		} else BigInteger.ZERO..BigInteger.ZERO
 	}
 }
 
@@ -174,50 +174,36 @@ class JuliaAnnotator : Annotator {
 
 	private fun integer(element: JuliaInteger, holder: AnnotationHolder) {
 		val code = element.text
-		var value: BigInteger
-		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int")).run {
-			when {
-				code.startsWith("0x") -> {
-					value = BigInteger(code.substring(2), 16)
-					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
-						JuliaBundle.message("julia.lint.int-replace-dec")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
-						JuliaBundle.message("julia.lint.int-replace-bin")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
-						JuliaBundle.message("julia.lint.int-replace-oct")))
-				}
-				code.startsWith("0b") -> {
-					value = BigInteger(code.substring(2), 2)
-					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
-						JuliaBundle.message("julia.lint.int-replace-dec")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
-						JuliaBundle.message("julia.lint.int-replace-hex")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
-						JuliaBundle.message("julia.lint.int-replace-oct")))
-				}
-				code.startsWith("0o") -> {
-					value = BigInteger(code.substring(2), 8)
-					registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
-						JuliaBundle.message("julia.lint.int-replace-dec")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
-						JuliaBundle.message("julia.lint.int-replace-bin")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
-						JuliaBundle.message("julia.lint.int-replace-hex")))
-				}
-				else -> {
-					value = BigInteger(code)
-					registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
-						JuliaBundle.message("julia.lint.int-replace-bin")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
-						JuliaBundle.message("julia.lint.int-replace-oct")))
-					registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
-						JuliaBundle.message("julia.lint.int-replace-hex")))
-				}
+		val value: BigInteger
+		val base: Int
+		when {
+			code.startsWith("0x") -> {
+				base = 16
+				value = BigInteger(code.substring(2), 16)
 			}
-			val type = checkType(value)
-			element.type = type
-			holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int-type", type))
+			code.startsWith("0b") -> {
+				value = BigInteger(code.substring(2), 2)
+				base = 2
+			}
+			code.startsWith("0o") -> {
+				value = BigInteger(code.substring(2), 8)
+				base = 8
+			}
+			else -> {
+				value = BigInteger(code)
+				base = 10
+			}
 		}
+		val type = checkType(value)
+		element.type = type
+		val annotation = holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int-type", type))
+		if (base != 2) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
+			JuliaBundle.message("julia.lint.int-replace-bin")))
+		if (base != 8) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
+			JuliaBundle.message("julia.lint.int-replace-oct")))
+		if (base != 10) annotation.registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
+			JuliaBundle.message("julia.lint.int-replace-dec")))
+		if (base != 16) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
+			JuliaBundle.message("julia.lint.int-replace-hex")))
 	}
-
 }

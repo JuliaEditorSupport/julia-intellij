@@ -111,11 +111,11 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"gamma" to "γ",
 			"delta" to "δ",
 			"epsilon" to "ϵ"
-		).map { (a, b) -> LookupElementBuilder.create("\\$a", b) }
+		).map { (a, b) -> LookupElementBuilder.create(b, "\\$a") }
 	}
 
 	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =
-		position.parent !is JuliaString && typeChar in ".(["
+		position.parent !is JuliaString && typeChar in ".([\\"
 
 	init {
 		extend(CompletionType.BASIC, psiElement(), JuliaCompletionProvider(unicodeList))
