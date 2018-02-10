@@ -13,6 +13,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
   private static final IntStack leftBracketStack = new IntStack();
   private static int leftBraceCount = 0;
   private static boolean noEnd = false;
+  private static boolean noIn = true;
 
   /** 虎哥化 */
   private void hugify(int state) {
@@ -37,6 +38,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
   private static void init() {
     leftBraceCount = 0;
     noEnd = false;
+    noIn = true;
     stateStack.clear();
     leftBracketStack.clear();
   }
@@ -153,13 +155,25 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> baremodule { noEnd = false; return JuliaTypes.BAREMODULE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> export { return JuliaTypes.EXPORT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> if { noEnd = false; return JuliaTypes.IF_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> in { return JuliaTypes.IN_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> in {
+	if (noIn) return JuliaTypes.SYM;
+	else {
+		noIn = true;
+		return JuliaTypes.IN_KEYWORD;
+	}
+}
+
 <YYINITIAL, LONG_TEMPLATE> importall { return JuliaTypes.IMPORTALL_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> import { return JuliaTypes.IMPORT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> using { return JuliaTypes.USING_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> elseif { return JuliaTypes.ELSEIF_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> else { return JuliaTypes.ELSE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> for { noEnd = false; return JuliaTypes.FOR_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> for {
+	noEnd = false;
+	noIn = false;
+	return JuliaTypes.FOR_KEYWORD;
+}
+
 <YYINITIAL, LONG_TEMPLATE> while { noEnd = false; return JuliaTypes.WHILE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> return { return JuliaTypes.RETURN_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> try { noEnd = false; return JuliaTypes.TRY_KEYWORD; }
@@ -189,7 +203,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> ; { return JuliaTypes.SEMICOLON_SYM; }
 <YYINITIAL, LONG_TEMPLATE> , { return JuliaTypes.COMMA_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \? { return JuliaTypes.QUESTION_SYM; }
-<YYINITIAL, LONG_TEMPLATE> = { return JuliaTypes.EQ_SYM; }
+<YYINITIAL, LONG_TEMPLATE> = { noIn = true; return JuliaTypes.EQ_SYM; }
 <YYINITIAL, LONG_TEMPLATE> @ { return JuliaTypes.AT_SYM; }
 <YYINITIAL, LONG_TEMPLATE> <: { return JuliaTypes.SUBTYPE_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \$ { return JuliaTypes.INTERPOLATE_SYM; }
@@ -243,7 +257,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> \.? \| { return JuliaTypes.BITWISE_OR_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \.? (\$=|⊻=) { return JuliaTypes.BITWISE_XOR_ASSIGN_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \.? (\$|⊻) { return JuliaTypes.BITWISE_XOR_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? ∈ { return JuliaTypes.IN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \.? ∈ { noIn = true; return JuliaTypes.IN_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \.? {MISC_ARROW_SYM} { return JuliaTypes.MISC_ARROW_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \.? {MISC_COMPARISON_SYM} { return JuliaTypes.MISC_COMPARISON_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \.? {MISC_PLUS_SYM} { return JuliaTypes.MISC_PLUS_SYM; }
