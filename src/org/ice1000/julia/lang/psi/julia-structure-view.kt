@@ -55,6 +55,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 				JuliaFile::class.java,
 				JuliaAssignLevelOp::class.java,
 				JuliaFunction::class.java,
+				JuliaCompactFunction::class.java,
 				JuliaModuleDeclaration::class.java,
 				JuliaTypeDeclaration::class.java
 			)
@@ -89,21 +90,23 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun getIcon(open: Boolean) =
 			when (psiElement) {
 				is JuliaFile -> JuliaIconProvider().getIcon(element!!, ICON_FLAG_VISIBILITY)
-				is JuliaFunction -> JuliaIcons.JULIA_FUNCTION_ICON
+				is JuliaFunction,
+				is JuliaCompactFunction -> JuliaIcons.JULIA_FUNCTION_ICON
 				is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
 				is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
-				is JuliaAssignLevelOp -> JuliaIcons.JULIA_VARIABLE_ICON
-				else -> JuliaIcons.JULIA_ICON
+				is JuliaAssignLevelOp -> psiElement.chooseVarOrConst
+				else -> JuliaIcons.JULIA_BIG_ICON
 			}
 
 		override fun getPresentableText() = cutText(psiElement.let {
 			when (it) {
 				is JuliaFile -> it.originalFile.name
 				is JuliaFunction -> it.exprList.first().text
-				is JuliaAssignLevelOp -> it.exprList.first().text
+				is JuliaCompactFunction -> it.exprList.first().text
+				is JuliaAssignLevelOp -> it.text.substringAfter("const ").substringBefore(" ")
 				is JuliaTypeDeclaration -> it.exprList.first().text
 				is JuliaModuleDeclaration -> it.symbol.text
-				else -> "..."
+				else -> it.text
 			}
 		}, 50)
 
@@ -131,3 +134,9 @@ val PsiElement.isBlock
 		-> true
 		else -> false
 	}
+
+val PsiElement.chooseVarOrConst
+	get() = if (this.text.startsWith("const "))
+		JuliaIcons.JULIA_CONST_ICON
+	else
+		JuliaIcons.JULIA_VARIABLE_ICON
