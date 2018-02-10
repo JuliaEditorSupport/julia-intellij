@@ -1,12 +1,12 @@
 package org.ice1000.julia.lang.editing.unicode
 
-import com.intellij.codeInsight.completion.CompletionContributor
-import com.intellij.codeInsight.completion.CompletionType
+import com.intellij.codeInsight.completion.CompletionParameters
+import com.intellij.codeInsight.completion.CompletionResultSet
+import com.intellij.codeInsight.lookup.CharFilter
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.fileTypes.LanguageFileType
-import com.intellij.patterns.PlatformPatterns
+import com.intellij.util.textCompletion.TextCompletionProvider
 import icons.JuliaIcons
-import org.ice1000.julia.lang.editing.JuliaCompletionProvider
 
 object JuliaUnicodeFileType : LanguageFileType(JuliaUnicodeLanguage.INSTANCE) {
 	override fun getIcon() = JuliaIcons.JULIA_BIG_ICON
@@ -15,19 +15,33 @@ object JuliaUnicodeFileType : LanguageFileType(JuliaUnicodeLanguage.INSTANCE) {
 	override fun getDescription() = ""
 }
 
-class JuliaUnicodeCompletionContributor : CompletionContributor() {
-	private companion object {
-		private val unicodeList = listOf(
-			"alpha" to "α", "beta" to "β", "gamma" to "γ", "delta" to "δ", "epsilon" to "ϵ"
-		).map { (a, b) ->
-			LookupElementBuilder.create(b)
-				.withLookupString(a)
-				.withPresentableText(a)
-				.withIcon(JuliaIcons.JULIA_BIG_ICON)
-		}
+object JuliaUnicodeCompletionProvider : TextCompletionProvider {
+	private val unicodeList = listOf(
+		"alpha" to "α", "beta" to "β", "gamma" to "γ", "delta" to "δ", "epsilon" to "ϵ"
+	).map { (a, b) ->
+		LookupElementBuilder.create(b)
+			.withLookupString(a)
+			.withPresentableText(a)
+			.withIcon(JuliaIcons.JULIA_BIG_ICON)
 	}
 
-	init {
-		extend(CompletionType.BASIC, PlatformPatterns.psiElement(), JuliaCompletionProvider(unicodeList))
+	override fun applyPrefixMatcher(result: CompletionResultSet, prefix: String): CompletionResultSet {
+		return result
+	}
+
+	override fun getAdvertisement(): String? {
+		return null
+	}
+
+	override fun getPrefix(text: String, offset: Int): String? {
+		return null
+	}
+
+	override fun fillCompletionVariants(parameters: CompletionParameters, prefix: String, result: CompletionResultSet) {
+		if (prefix == "\\") unicodeList.forEach(result::addElement)
+	}
+
+	override fun acceptChar(c: Char): CharFilter.Result? {
+		return null
 	}
 }

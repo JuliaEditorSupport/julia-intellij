@@ -31,9 +31,6 @@
 		<completion.contributor
 			language="DocumentFormat"
 			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtCompletionContributor"/>
-		<completion.contributor
-			language="Julia LaTeX unicode"
-			implementationClass="org.ice1000.julia.lang.editing.unicode.JuliaUnicodeCompletionContributor"/>
 		<spellchecker.support
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaSpellCheckingStrategy"/>
@@ -61,6 +58,9 @@
 		<lang.parserDefinition
 			language="DocumentFormat"
 			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtParserDefinition"/>
+		<lang.parserDefinition
+			language="Julia LaTeX unicode"
+			implementationClass="com.intellij.openapi.fileTypes.PlainTextParserDefinition"/>
 		<lang.commenter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaCommenter"/>
@@ -88,7 +88,7 @@
 		<action
 			id="Julia.UnicodeInput"
 			class="org.ice1000.julia.lang.action.JuliaUnicodeInputAction">
-			<keyboard-shortcut first-keystroke="\" keymap="$default"/>
+			<keyboard-shortcut first-keystroke="back_slash" keymap="$default"/>
 		</action>
 		<action
 			id="Julia.NewJuliaFile"

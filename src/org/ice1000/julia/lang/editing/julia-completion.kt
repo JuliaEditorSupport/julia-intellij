@@ -9,7 +9,7 @@ import com.intellij.util.ProcessingContext
 import icons.JuliaIcons
 import org.ice1000.julia.lang.psi.*
 
-class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
+open class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
 	override fun addCompletions(
 		parameters: CompletionParameters,
 		context: ProcessingContext,

@@ -7,19 +7,15 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.ui.popup.JBPopup
-import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.*
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.ui.EditorTextField
-import com.intellij.util.ui.JBUI
+import com.intellij.util.textCompletion.TextFieldWithCompletion
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.editing.unicode.JuliaUnicodeFileType
+import org.ice1000.julia.lang.editing.unicode.JuliaUnicodeCompletionProvider
 import org.ice1000.julia.lang.module.JuliaSettings
 import org.ice1000.julia.lang.module.juliaSettings
-import java.awt.event.KeyEvent
-import java.awt.event.KeyListener
 
 class JuliaTryEvaluateAction : JuliaAction(
 	JuliaBundle.message("julia.actions.try-eval.name"),
@@ -34,27 +30,23 @@ class JuliaTryEvaluateAction : JuliaAction(
 class JuliaUnicodeInputAction : JuliaAction("TODO", "TODO") { // TODO
 	override fun actionPerformed(e: AnActionEvent) {
 		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
-		var popup: JBPopup? = null
-		popup = JBPopupFactory.getInstance()
-			.createComponentPopupBuilder(JBUI.Panels.simplePanel()
-				.addToCenter(EditorTextField("", editor.project, JuliaUnicodeFileType).apply {
-					setOneLineMode(true)
-					addKeyListener(object : KeyListener {
-						override fun keyPressed(keyEvent: KeyEvent?) = Unit
-						override fun keyReleased(keyEvent: KeyEvent?) = Unit
-						override fun keyTyped(keyEvent: KeyEvent) {
-							if (keyEvent.keyCode != KeyEvent.VK_ENTER) return
-							editor.document.insertString(0, text)
-							popup?.dispose()
-						}
-					})
-				}), null)
+		val project = e.project ?: return
+		val field = TextFieldWithCompletion(project, JuliaUnicodeCompletionProvider, "", true, true, true)
+		val popup = JBPopupFactory.getInstance()
+			.createComponentPopupBuilder(field, null)
 			.setMovable(true)
-			.setAlpha(0.8F)
+			.setAlpha(0.2F)
 			.setAdText("LaTeX style unicode input") // TODO l18n
-			.setRequestFocus(true)
 			.createPopup()
+		popup.addListener(object : JBPopupListener {
+			override fun beforeShown(event: LightweightWindowEvent?) = Unit
+			override fun onClosed(event: LightweightWindowEvent?) {
+				editor.document.insertString(0, field.text)
+				popup.dispose()
+			}
+		})
 		popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor))
+		field.requestFocus()
 	}
 }
 
