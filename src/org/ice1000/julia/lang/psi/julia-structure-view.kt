@@ -9,15 +9,14 @@ import com.intellij.lang.PsiStructureViewFactory
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditor
-import com.intellij.openapi.util.Iconable.ICON_FLAG_VISIBILITY
 import com.intellij.pom.Navigatable
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.util.PsiIconUtil
 import com.intellij.util.ReflectionUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.JuliaLanguage
-import org.ice1000.julia.lang.editing.JuliaIconProvider
 import org.ice1000.julia.lang.editing.cutText
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
@@ -79,7 +78,8 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 							children.add(JuliaStructureViewElement(element))
 					}
 					JuliaStructureViewModel.ourSuitableClasses
-						.filter { suitableClass -> ReflectionUtil.isAssignable(suitableClass, element.javaClass) && (JuliaStructureViewElement(element) !in children) }
+						// FIXME why not replace with `element.isBlock` here?
+						.filter { suitableClass -> ReflectionUtil.isAssignable(suitableClass, element.javaClass) && JuliaStructureViewElement(element) !in children }
 						.mapTo(children) { JuliaStructureViewElement(element) }
 				}
 			return children.toList()
@@ -88,7 +88,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun getLocationString() = ""
 		override fun getIcon(open: Boolean) =
 			when (psiElement) {
-				is JuliaFile -> JuliaIconProvider().getIcon(psiElement, ICON_FLAG_VISIBILITY)
+				is JuliaFile -> PsiIconUtil.getProvidersIcon(psiElement, 0)
 				is IJuliaFunctionDeclaration -> JuliaIcons.JULIA_FUNCTION_ICON
 				is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
 				is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
@@ -119,19 +119,15 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 }
 
 val PsiElement.isBlock
-	get() = when (this) {
-		is JuliaFile,
-		is JuliaStatements,
-		is JuliaModuleDeclaration,
-		is JuliaFunction,
-		is JuliaTypeDeclaration
-//		is JuliaIfExpr
-		-> true
-		else -> false
-	}
+	get() = this is JuliaFile ||
+		this is JuliaStatements ||
+		this is JuliaModuleDeclaration ||
+		this is IJuliaFunctionDeclaration ||
+		this is JuliaTypeDeclaration
+		// || this is JuliaIfExpr
 
-val PsiElement.chooseVarOrConst
-	get() = if (this.text.startsWith("const "))
+val JuliaAssignLevelOp.chooseVarOrConst
+	get() = if (exprList.firstOrNull()?.let { it.firstChild.node.elementType == JuliaTypes.CONST_KEYWORD } == true)
 		JuliaIcons.JULIA_CONST_ICON
 	else
 		JuliaIcons.JULIA_VARIABLE_ICON
