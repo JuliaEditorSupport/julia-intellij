@@ -54,8 +54,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 			val ourSuitableClasses: Array<Class<out PsiElement>> = arrayOf(
 				JuliaFile::class.java,
 				JuliaAssignLevelOp::class.java,
-				JuliaFunction::class.java,
-				JuliaCompactFunction::class.java,
+				IJuliaFunctionDeclaration::class.java,
 				JuliaModuleDeclaration::class.java,
 				JuliaTypeDeclaration::class.java
 			)
@@ -90,8 +89,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun getIcon(open: Boolean) =
 			when (psiElement) {
 				is JuliaFile -> JuliaIconProvider().getIcon(psiElement, ICON_FLAG_VISIBILITY)
-				is JuliaFunction,
-				is JuliaCompactFunction -> JuliaIcons.JULIA_FUNCTION_ICON
+				is IJuliaFunctionDeclaration -> JuliaIcons.JULIA_FUNCTION_ICON
 				is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
 				is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
 				is JuliaAssignLevelOp -> psiElement.chooseVarOrConst
