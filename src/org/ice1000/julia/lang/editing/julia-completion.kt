@@ -3,10 +3,10 @@ package org.ice1000.julia.lang.editing
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.patterns.PlatformPatterns.psiComment
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
+import icons.JuliaIcons
 import org.ice1000.julia.lang.psi.*
 
 class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
@@ -43,19 +43,19 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"macro ",
 			"function ",
 			"end"
-		).map(LookupElementBuilder::create)
+		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
 		private val tryInside = listOf(
 			"catch ",
 			"finally"
-		).map(LookupElementBuilder::create)
+		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
 		private val loopInside = listOf(
 			"break",
 			"continue"
-		).map(LookupElementBuilder::create)
+		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
 		private val ifInside = listOf(
 			"elseif ",
 			"else"
-		).map(LookupElementBuilder::create)
+		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
 		private val functionInside = listOf(LookupElementBuilder.create("return"))
 
 		// FIXME temp workaround. Should be replaced by reference resolving.
@@ -101,9 +101,9 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"throw",
 			"println",
 			"print"
-		).map(LookupElementBuilder::create)
+		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_FUNCTION_ICON) }
 
-		private val where = listOf(LookupElementBuilder.create("where"))
+		private val where = listOf(LookupElementBuilder.create("where").withIcon(JuliaIcons.JULIA_BIG_ICON))
 
 		private val unicodeList = listOf(
 			"alpha" to "α",
@@ -111,7 +111,12 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"gamma" to "γ",
 			"delta" to "δ",
 			"epsilon" to "ϵ"
-		).map { (a, b) -> LookupElementBuilder.create(b, "\\$a") }
+		).map { (a, b) ->
+			LookupElementBuilder.create(b)
+				.withLookupString("\\$a")
+				.withPresentableText("\\$a")
+				.withIcon(JuliaIcons.JULIA_BIG_ICON)
+		}
 	}
 
 	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =

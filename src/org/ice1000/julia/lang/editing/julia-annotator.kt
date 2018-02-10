@@ -174,26 +174,13 @@ class JuliaAnnotator : Annotator {
 
 	private fun integer(element: JuliaInteger, holder: AnnotationHolder) {
 		val code = element.text
-		val value: BigInteger
-		val base: Int
-		when {
-			code.startsWith("0x") -> {
-				base = 16
-				value = BigInteger(code.substring(2), 16)
-			}
-			code.startsWith("0b") -> {
-				value = BigInteger(code.substring(2), 2)
-				base = 2
-			}
-			code.startsWith("0o") -> {
-				value = BigInteger(code.substring(2), 8)
-				base = 8
-			}
-			else -> {
-				value = BigInteger(code)
-				base = 10
-			}
+		val (base, intText) = when {
+			code.startsWith("0x") -> 16 to code.drop(2)
+			code.startsWith("0b") -> 2 to code.drop(2)
+			code.startsWith("0o") -> 8 to code.drop(2)
+			else -> 10 to code
 		}
+		val value = BigInteger(intText, base)
 		val type = checkType(value)
 		element.type = type
 		val annotation = holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int-type", type))
