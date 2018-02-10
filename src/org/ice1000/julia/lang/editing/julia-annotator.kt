@@ -22,8 +22,10 @@ enum class NumeralType(bit: Int) {
 	val range: ClosedRange<BigInteger>
 
 	init {
-		val tempVal = BigInteger.valueOf(2L).pow(bit - 1)
-		range = -tempVal..tempVal - BigInteger.ONE
+		if( bit != 0 ) {
+			val tempVal = BigInteger.valueOf(2L).pow(bit - 1)
+			range = -tempVal..tempVal - BigInteger.ONE
+		} else range = BigInteger.ZERO..BigInteger.ZERO
 	}
 }
 
