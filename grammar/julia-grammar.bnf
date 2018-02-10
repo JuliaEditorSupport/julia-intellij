@@ -161,7 +161,10 @@ expr ::=
  | typeOp
  | unaryLevel
  | suffixedExpr
- | primaryExpr
+ | primaryExpr {
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaExpr']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaExprMixin'
+}
 
 memberAccessOp ::= expr DOT_SYM (symbol | macroSymbol)
 accessAllOp ::= DOT_SYM (symbol | macroSymbol) { pin=1 }
