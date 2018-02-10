@@ -9,6 +9,7 @@ import com.intellij.openapi.util.SystemInfo
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import java.awt.event.ActionListener
+import java.math.BigInteger
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.stream.Collectors
