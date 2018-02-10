@@ -43,9 +43,9 @@ import org.apache.commons.codec.binary.Base64
 import org.eclipse.egit.github.core.*
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service.IssueService
+import org.ice1000.julia.lang.module.juliaSettings
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
-import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Component
 import java.io.IOException
 import java.io.ObjectInputStream
@@ -72,9 +72,9 @@ private object AnonymousFeedback {
 	 * of the created issue.
 	 */
 	internal fun sendFeedback(environmentDetails: MutableMap<String, String>): SubmittedReportInfo {
-		val logger = Logger.getInstance(AnonymousFeedback::class.java.name)
+		val logger = Logger.getInstance(javaClass.name)
 		try {
-			val resource = AnonymousFeedback::class.java.classLoader.getResource(tokenFile)
+			val resource: URL? = javaClass.classLoader.getResource(tokenFile)
 			if (resource == null) {
 				logger.info("Could not find token file")
 				throw IOException("Could not decrypt access token")
@@ -192,10 +192,10 @@ class GitHubErrorReporter : ErrorReportSubmitter() {
 		(event.data as? LogMessageEx)?.let { bean.attachments = it.includedAttachments }
 		val project = CommonDataKeys.PROJECT.getData(dataContext)
 		val reportValues = getKeyValuePairs(
-				project,
-				bean,
-				ApplicationInfo.getInstance() as ApplicationInfoEx,
-				ApplicationNamesInfo.getInstance())
+			project,
+			bean,
+			ApplicationInfo.getInstance() as ApplicationInfoEx,
+			ApplicationNamesInfo.getInstance())
 		val notifyingCallback = CallbackWithNotification(callback, project)
 		val task = AnonymousFeedbackTask(project, ErrorReportBundle.message(
 			"report.error.progress.dialog.text"), true, reportValues, notifyingCallback)

@@ -1,0 +1,14 @@
+textexclamdown ¡
+sterling £
+yen ¥
+textbrokenbar ¦
+S §
+textasciidieresis ¨
+copyright ©
+:copyright: ©
+textordfeminine ª
+neg ¬
+circleR ®
+:registered: ®
+textasciimacron ¯
+degree °

@@ -34,13 +34,18 @@ class JuliaTryEvaluateAction : JuliaAction(
 
 class JuliaUnicodeInputAction : JuliaAction("TODO", "TODO") { // TODO
 	private companion object CompletionHolder {
-		private val unicodeList = listOf(
-			"alpha" to "α", "beta" to "β", "gamma" to "γ", "delta" to "δ", "epsilon" to "ϵ"
-		).map { (a, b) ->
-			LookupElementBuilder.create(b)
-				.withLookupString(a)
-				.withPresentableText(a)
-				.withIcon(JuliaIcons.JULIA_BIG_ICON)
+		private const val unicodeFile = "org/ice1000/julia/lang/unicode-list.txt"
+		private val unicodeList by lazy {
+			JuliaUnicodeInputAction::class.java.classLoader.getResource(unicodeFile)
+				.readText()
+				.split('\n')
+				.map { str ->
+					val (a, b) = str.split(' ')
+					LookupElementBuilder.create(b)
+						.withLookupString(a)
+						.withPresentableText(a)
+						.withIcon(JuliaIcons.JULIA_BIG_ICON)
+				}
 		}
 
 		private object UnicodeCompletionProvider : TextCompletionProvider {
