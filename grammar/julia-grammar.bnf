@@ -124,7 +124,7 @@ typeAnnotation ::= DOUBLE_COLON endOfLine primaryExpr typeParameters?
 
 typedVariable ::= symbol? typeAnnotation?
 typedNamedVariable ::=
- typedVariable EQ_SYM expr
+ typedVariable EQ_SYM expr { pin=2 }
 
 private typeParameters ::=
  LEFT_B_BRACKET endOfLine
@@ -152,7 +152,7 @@ expr ::=
  | andOp
  | comparisonLevelOp
  | pipeLevelOp
- | level8
+ | quoteLevel
  | plusLevelOp
  | bitwiseLevel
  | multiplyLevel
@@ -281,12 +281,10 @@ comparisonLevelOperator ::=
 pipeLevelOperator ::= PIPE_SYM | INVERSE_PIPE_SYM
 pipeLevelOp ::= expr pipeLevelOperator endOfLine expr
 
-private level8 ::=
-   spliceOp
- | quoteOp
+private quoteLevel ::=
+   quoteOp
  | compoundQuoteOp
 
-spliceOp ::= expr SLICE_SYM
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
 quoteOp ::= COLON_SYM endOfLine quotable
 private quotable ::=
@@ -445,6 +443,7 @@ private functionSignature ::=
   (typedVariable (commaSep typedVariable)* commaSep?)?
   (SEMICOLON_SYM
    typedNamedVariable (commaSep typedNamedVariable)* commaSep?)?
+  SLICE_SYM?
  RIGHT_BRACKET typeAnnotation? { pin=1 }
 
 private untypedVariables ::=
