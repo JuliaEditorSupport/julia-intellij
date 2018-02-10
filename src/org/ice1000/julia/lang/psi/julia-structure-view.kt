@@ -89,9 +89,10 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun getIcon(open: Boolean) =
 			when (psiElement) {
 				is JuliaFile -> JuliaIconProvider().getIcon(element!!, ICON_FLAG_VISIBILITY)
-				is JuliaFunction -> JuliaIcons.JULIA_BIG_ICON
+				is JuliaFunction -> JuliaIcons.JULIA_FUNCTION_ICON
 				is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
 				is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
+				is JuliaAssignLevelOp -> JuliaIcons.JULIA_VARIABLE_ICON
 				else -> JuliaIcons.JULIA_ICON
 			}
 
