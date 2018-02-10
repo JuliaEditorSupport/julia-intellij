@@ -9,6 +9,7 @@ import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.JuliaHighlighter
 import org.ice1000.julia.lang.docfmt.psi.*
 import org.ice1000.julia.lang.editing.JuliaCompletionProvider
 import org.ice1000.julia.lang.editing.JuliaRemoveElementIntention
@@ -26,14 +27,16 @@ class DocfmtAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		when (element) {
 			is DocfmtFile -> {
+				val existing = BooleanArray(10) { false }
 				element
 					.children
 					.mapNotNull { (it as? DocfmtConfig)?.takeIf { it.type != -1 } }
 					.forEach {
-						if (element.existing[it.type]) holder
-							.createWeakWarningAnnotation(element, "Duplicate configuration")
-							.registerFix(JuliaRemoveElementIntention(it, "Remove duplicate configuration"))
-						else element.existing[it.type] = true
+						if (existing[it.type]) holder.createWeakWarningAnnotation(it, "Duplicate configuration").run {
+							registerFix(JuliaRemoveElementIntention(it, "Remove duplicate configuration"))
+							highlightType = ProblemHighlightType.LIKE_UNUSED_SYMBOL
+						}
+						else existing[it.type] = true
 					}
 			}
 			is DocfmtConfig -> {
@@ -58,7 +61,7 @@ class DocfmtAnnotator : Annotator {
 					element.type = type
 					when (element.value.text) {
 						"$default" -> unused()
-						"${!default}" -> Unit
+						"${!default}" -> holder.createInfoAnnotation(value, null).textAttributes = JuliaHighlighter.KEYWORD
 						else -> invalidValue(value)
 					}
 				}
@@ -104,7 +107,8 @@ class DocfmtAnnotator : Annotator {
 class DocfmtCompletionContributor : CompletionContributor() {
 	internal companion object ValueCompleter : CompletionProvider<CompletionParameters>() {
 		override fun addCompletions(p: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-			val value = p.originalPosition?.parent as? DocfmtValue ?: return
+			val value = p.originalPosition
+				?.run { parent as? DocfmtValue ?: prevSibling.parent as? DocfmtValue } ?: return
 			val key = (value.parent as? DocfmtConfig)?.firstChild ?: return
 			when (key.text) {
 				"KW_WS", "NewLineEOF", "StripLineEnds", "UseTab" -> BOOLEAN.forEach(result::addElement)
@@ -135,9 +139,8 @@ class DocfmtCompletionContributor : CompletionContributor() {
 		private val KEYS = VALID_KEY.map(LookupElementBuilder::create)
 	}
 
-	override fun invokeAutoPopup(position: PsiElement, typeChar: Char): Boolean {
-		return typeChar in "= \n\t" || super.invokeAutoPopup(position, typeChar)
-	}
+	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =
+		typeChar in "= \n\t" || super.invokeAutoPopup(position, typeChar)
 
 	init {
 		extend(

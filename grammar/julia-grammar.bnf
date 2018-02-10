@@ -426,9 +426,9 @@ private afterWhere ::=
 array ::=
  LEFT_M_BRACKET endOfLine
   (
-   (expr (commaSep expr)*)
+   (expr (commaSep? expr)*)
    (SEMICOLON_SYM endOfLine
-    (expr (commaSep expr))*)*
+    (expr (commaSep? expr))*)*
   )?
   RIGHT_M_BRACKET { extends=expr }
 

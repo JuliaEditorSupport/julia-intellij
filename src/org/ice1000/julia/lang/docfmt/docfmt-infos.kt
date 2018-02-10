@@ -19,12 +19,7 @@ object DocfmtFileType : LanguageFileType(DocfmtLanguage.INSTANCE) {
 }
 
 class DocfmtFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, DocfmtLanguage.INSTANCE) {
-	val existing = BooleanArray(10)
 	override fun getFileType() = DocfmtFileType
-	override fun subtreeChanged() {
-		for (i in existing.indices) existing[i] = false
-		super.subtreeChanged()
-	}
 }
 
 object DocfmtHighlighter : SyntaxHighlighter {
