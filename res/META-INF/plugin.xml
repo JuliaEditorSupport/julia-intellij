@@ -83,6 +83,11 @@
 
 	<actions>
 		<action
+			id="Julia.UnicodeInput"
+			class="org.ice1000.julia.lang.action.JuliaUnicodeInputAction">
+			<keyboard-shortcut first-keystroke="\" keymap="$default"/>
+		</action>
+		<action
 			id="Julia.NewJuliaFile"
 			class="org.ice1000.julia.lang.action.NewJuliaFile">
 			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>

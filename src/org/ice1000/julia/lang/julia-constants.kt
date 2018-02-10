@@ -34,3 +34,8 @@ Pkg.build("DocumentFormat")"""
 
 @NonNls const val DOCFMT_EXTENSION = "julia-config"
 @NonNls const val DOCFMT_LANGUAGE_NAME = "DocumentFormat"
+
+// ========= Unicode support ==========
+
+@NonNls const val JULIA_UNICODE_LANGUAGE_NAME = "Julia LaTeX unicode"
+

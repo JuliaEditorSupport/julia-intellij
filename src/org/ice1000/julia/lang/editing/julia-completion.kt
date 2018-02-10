@@ -105,25 +105,12 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 
 		private val where = listOf(LookupElementBuilder.create("where").withIcon(JuliaIcons.JULIA_BIG_ICON))
 
-		private val unicodeList = listOf(
-			"alpha" to "α",
-			"beta" to "β",
-			"gamma" to "γ",
-			"delta" to "δ",
-			"epsilon" to "ϵ"
-		).map { (a, b) ->
-			LookupElementBuilder.create(b)
-				.withLookupString("\\$a")
-				.withPresentableText("\\$a")
-				.withIcon(JuliaIcons.JULIA_BIG_ICON)
-		}
 	}
 
 	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =
 		position.parent !is JuliaString && typeChar in ".([\\"
 
 	init {
-		extend(CompletionType.BASIC, psiElement(), JuliaCompletionProvider(unicodeList))
 		extend(CompletionType.BASIC, psiElement()
 			.inside(JuliaFunction::class.java)
 			.afterLeaf(")")
