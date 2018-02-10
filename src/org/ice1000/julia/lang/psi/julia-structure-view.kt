@@ -11,10 +11,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.util.Iconable.ICON_FLAG_VISIBILITY
 import com.intellij.pom.Navigatable
-import com.intellij.psi.NavigatablePsiElement
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.util.ReflectionUtil
 import icons.JuliaIcons
@@ -22,12 +19,15 @@ import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.JuliaLanguage
 import org.ice1000.julia.lang.editing.JuliaIconProvider
 import org.ice1000.julia.lang.editing.cutText
+import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
 
 class JuliaStructureViewFactory : PsiStructureViewFactory {
 	override fun getStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder? {
 		return object : TemplateLanguageStructureViewBuilder(psiFile) {
-			override fun createMainView(fileEditor: FileEditor?, mainFile: PsiFile?): StructureViewComposite.StructureViewDescriptor? {
+			override fun createMainView(
+				fileEditor: FileEditor?,
+				mainFile: PsiFile?): StructureViewComposite.StructureViewDescriptor? {
 				if (!psiFile.isValid) {
 					return null
 				}
@@ -40,8 +40,8 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		}
 	}
 
-
-	class JuliaStructureViewModel(psiFile: PsiFile) : StructureViewModelBase(psiFile, JuliaStructureViewElement(psiFile)), StructureViewModel.ElementInfoProvider {
+	class JuliaStructureViewModel(psiFile: PsiFile) : StructureViewModelBase(psiFile, JuliaStructureViewElement(psiFile)),
+		StructureViewModel.ElementInfoProvider {
 		override fun getSuitableClasses() = ourSuitableClasses
 		override fun shouldEnterElement(o: Any?) = true
 		override fun isAlwaysShowsPlus(element: StructureViewTreeElement) = false
@@ -51,7 +51,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		}
 
 		companion object {
-			val ourSuitableClasses = arrayOf<Class<*>>(
+			val ourSuitableClasses: Array<Class<out PsiElement>> = arrayOf(
 				JuliaFile::class.java,
 				JuliaAssignLevelOp::class.java,
 				JuliaFunction::class.java,
@@ -63,8 +63,8 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 	}
 
 	class JuliaStructureViewElement(private val psiElement: PsiElement) :
-		PsiTreeElementBase<PsiElement>(psiElement)
-		, SortableTreeElement, Navigatable by (psiElement as NavigatablePsiElement) {
+		PsiTreeElementBase<PsiElement>(psiElement),
+		SortableTreeElement, Navigatable by (psiElement as NavigatablePsiElement) {
 
 		override fun getChildrenBase() = getGrandsonOfYourMother()
 
@@ -89,7 +89,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun getLocationString() = ""
 		override fun getIcon(open: Boolean) =
 			when (psiElement) {
-				is JuliaFile -> JuliaIconProvider().getIcon(element!!, ICON_FLAG_VISIBILITY)
+				is JuliaFile -> JuliaIconProvider().getIcon(psiElement, ICON_FLAG_VISIBILITY)
 				is JuliaFunction,
 				is JuliaCompactFunction -> JuliaIcons.JULIA_FUNCTION_ICON
 				is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
@@ -101,8 +101,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun getPresentableText() = cutText(psiElement.let {
 			when (it) {
 				is JuliaFile -> it.originalFile.name
-				is JuliaFunction -> it.exprList.first().text
-				is JuliaCompactFunction -> it.exprList.first().text
+				is IJuliaFunctionDeclaration -> it.exprList.first().text
 				is JuliaAssignLevelOp -> it.text.substringAfter("const ").substringBefore(" ")
 				is JuliaTypeDeclaration -> it.exprList.first().text
 				is JuliaModuleDeclaration -> it.symbol.text
@@ -111,9 +110,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		}, 50)
 
 		override fun navigate(requestFocus: Boolean) {
-			if (psiElement is NavigationItem) {
-				(psiElement as NavigationItem).navigate(requestFocus)
-			}
+			(psiElement as? NavigationItem)?.navigate(requestFocus)
 		}
 
 		override fun getValue() = psiElement

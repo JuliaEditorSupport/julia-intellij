@@ -8,6 +8,10 @@ import com.intellij.psi.impl.source.tree.injected.StringLiteralEscaper
 import org.ice1000.julia.lang.JuliaTokenType
 import org.ice1000.julia.lang.psi.*
 
+interface IJuliaFunctionDeclaration : PsiElement {
+	val exprList: List<JuliaExpr>
+}
+
 interface IJuliaStringContent : PsiLanguageInjectionHost {
 	override fun createLiteralTextEscaper(): StringLiteralEscaper<out JuliaStringContent>
 	override fun updateText(s: String): JuliaStringContent

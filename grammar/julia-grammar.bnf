@@ -178,6 +178,7 @@ compactFunction ::=
  EQ_SYM endOfLine expr {
 	pin=6
 	extends=expr
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration']
 }
 
 // level 0
@@ -460,7 +461,10 @@ function ::=
    (functionSignature endOfLine)?
    (whereClause endOfLine)?
   statements
- END_KEYWORD { extends=expr }
+ END_KEYWORD {
+	extends=expr
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration']
+}
 
 private typeModifiers ::= IMMUTABLE_KEYWORD | MUTABLE_KEYWORD
 typeDeclaration ::=
