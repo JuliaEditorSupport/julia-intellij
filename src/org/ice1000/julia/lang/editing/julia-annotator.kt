@@ -11,21 +11,23 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 import java.math.BigInteger
 
-class JuliaAnnotator : Annotator {
-	companion object {
-		class Type( val name : String ) {
-			val bit : Int = name.replace(Regex("[a-zA-Z]+"), "").toInt()
-			val max : BigInteger = BigInteger("2").pow(bit - 1).minus(BigInteger("1"))
-			val min : BigInteger = BigInteger("-2").pow(bit - 1)
-		}
+enum class NumeralType(bit: Int) {
+	Int8(8),
+	Int16(16),
+	Int32(32),
+	Int64(64),
+	Int128(128),
+	BigInt(0);
 
-		val Int8 = Type("Int8")
-		val Int16 = Type("Int16")
-		val Int32 = Type("Int32")
-		val Int64 = Type("Int64")
-		val Int128 = Type("Int128")
+	val range: ClosedRange<BigInteger>
+
+	init {
+		val tempVal = BigInteger.valueOf(2L).pow(bit - 1)
+		range = -tempVal..tempVal - BigInteger.ONE
 	}
+}
 
+class JuliaAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		when (element) {
 			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
@@ -46,31 +48,28 @@ class JuliaAnnotator : Annotator {
 
 	private fun plusLevelOp(element: JuliaPlusLevelOp, holder: AnnotationHolder) {
 		when (element.plusLevelOperator.text[0]) {
-			'$' -> {
-				holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
-					highlightType = ProblemHighlightType.LIKE_DEPRECATED
-					registerFix(JuliaReplaceWithTextIntention(element, "xor(${element.firstChild.text}, ${element.lastChild.text})",
-						JuliaBundle.message("julia.lint.xor-replace-xor", element.firstChild.text, element.lastChild.text)))
-					registerFix(JuliaReplaceWithTextIntention(element, "${element.firstChild.text} \u22bb ${element.lastChild.text}",
-						JuliaBundle.message("julia.lint.xor-replace-22bb", element.firstChild.text, element.lastChild.text)))
-				}
+			'$' -> holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
+				highlightType = ProblemHighlightType.LIKE_DEPRECATED
+				registerFix(JuliaReplaceWithTextIntention(element, "xor(${element.firstChild.text}, ${element.lastChild.text})",
+					JuliaBundle.message("julia.lint.xor-replace-xor", element.firstChild.text, element.lastChild.text)))
+				registerFix(JuliaReplaceWithTextIntention(element, "${element.firstChild.text} \u22bb ${element.lastChild.text}",
+					JuliaBundle.message("julia.lint.xor-replace-22bb", element.firstChild.text, element.lastChild.text)))
 			}
 		}
 	}
 
 	private fun assignLevelOp(element: JuliaAssignLevelOp, holder: AnnotationHolder) {
 		when (element.assignLevelOperator.text[0]) {
-			'$' ->
-				holder.createWarningAnnotation(element,
-					JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
-					highlightType = ProblemHighlightType.LIKE_DEPRECATED
-					val left = element.firstChild.text
-					val right = element.lastChild.text
-					registerFix(JuliaReplaceWithTextIntention(element, "$left = xor($left, $right)",
-						JuliaBundle.message("julia.lint.xor-is-replace-xor", left, right)))
-					registerFix(JuliaReplaceWithTextIntention(element, "$left \u22bb= $right",
-						JuliaBundle.message("julia.lint.xor-is-replace-22bb", left, right)))
-				}
+			'$' -> holder.createWarningAnnotation(element,
+				JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
+				highlightType = ProblemHighlightType.LIKE_DEPRECATED
+				val left = element.firstChild.text
+				val right = element.lastChild.text
+				registerFix(JuliaReplaceWithTextIntention(element, "$left = xor($left, $right)",
+					JuliaBundle.message("julia.lint.xor-is-replace-xor", left, right)))
+				registerFix(JuliaReplaceWithTextIntention(element, "$left \u22bb= $right",
+					JuliaBundle.message("julia.lint.xor-is-replace-22bb", left, right)))
+			}
 		}
 	}
 
@@ -163,23 +162,17 @@ class JuliaAnnotator : Annotator {
 		}
 	}
 
-	private fun integer(
-		element: JuliaInteger,
-		holder: AnnotationHolder) {
+	private fun checkType(value: BigInteger): String = when (value) {
+		in NumeralType.Int32.range ->
+			if (SystemInfo.is32Bit) NumeralType.Int32 else NumeralType.Int64
+		in NumeralType.Int64.range -> NumeralType.Int64
+		in NumeralType.Int128.range -> NumeralType.Int128
+		else -> NumeralType.BigInt
+	}.name
 
-		fun checkType( value : BigInteger ) : String =
-			when(value) {
-				in Int32.min..Int32.max ->
-					if( SystemInfo.is32Bit ) Int32.name else Int64.name
-
-				in Int64.min..Int64.max -> Int64.name
-				in Int128.min..Int128.max -> Int128.name
-
-				else -> "BigInt"
-			}
-
+	private fun integer(element: JuliaInteger, holder: AnnotationHolder) {
 		val code = element.text
-		var value = BigInteger("0")
+		var value: BigInteger
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int")).run {
 			when {
 				code.startsWith("0x") -> {
@@ -219,11 +212,10 @@ class JuliaAnnotator : Annotator {
 						JuliaBundle.message("julia.lint.int-replace-hex")))
 				}
 			}
+			val type = checkType(value)
+			element.type = type
+			holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int-type", type))
 		}
-
-		element.type = checkType(value)
-
-		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int-type", element.type!!))
 	}
 
 }

@@ -482,11 +482,7 @@ macro ::=
     symbol endOfLine
    untypedVariables endOfLine
   statements
- END_KEYWORD {
-	extends=expr
-	implements=['']
-	mixin='org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin'
-}
+ END_KEYWORD { extends=expr }
 
 let ::= LET_KEYWORD statements END_KEYWORD { extends=expr }
 
