@@ -69,15 +69,34 @@ class JuliaConsoleFilterProvider : ConsoleFilterProviderEx {
  * Console folding
  * You will see the console with
  * `julia *.jl` instead of
- * `/PATH-TO-JULIA_HOME/bin/julia --COMMANDS /PATH-TO-SOURCE/_____.jl`
- * @author: zxj5470
- * @date: 2018/1/29
+ * `/PATH-TO-JULIA_HOME/bin/julia --COMMAND_PARAMS /PATH-TO-SOURCE/sourceCode.jl`
+ * @author zxj5470
+ * @date 2018/01/29
+ *
+ * @update 2018/02/11
+ * fold Julia interpreter Stacktrace which is useless.
  */
 class JuliaConsoleFolding : ConsoleFolding() {
-	override fun getPlaceholderText(lines: MutableList<String>): String {
-		val fileNameIndex = lines.firstOrNull()?.lastIndexOf("/") ?: return ""
-		return "julia ${lines[0].substring(fileNameIndex + 1)}"
+	private fun String.matchedIn(): Boolean {
+		return ("include_from_node" in this && "loading.jl:" in this) ||
+			("include" in this && "sysimg.jl:" in this) ||
+			("process_options" in this && "client.jl:" in this) ||
+			("_start" in this && "client.jl:" in this)
 	}
 
-	override fun shouldFoldLine(output: String) = ("julia " in output || "julia.exe" in output) && ".jl" in output
+	override fun getPlaceholderText(lines: MutableList<String>): String {
+		for (it in lines) {
+			if (("julia " in it || "julia.exe" in it) && ".jl" in it) {
+				val fileNameIndex = lines.firstOrNull()?.lastIndexOf("/") ?: 0
+				return "julia ${lines[0].substring(fileNameIndex + 1)}"
+			} else {
+				if(it.matchedIn()){
+					return "..."
+				}
+			}
+		}
+		return ""
+	}
+
+	override fun shouldFoldLine(output: String) = ("julia " in output || "julia.exe" in output) && ".jl" in output || output.matchedIn()
 }
