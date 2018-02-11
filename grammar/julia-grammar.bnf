@@ -129,7 +129,7 @@ typedNamedVariable ::=
  (
    symbol typeAnnotation?
  | symbol? typeAnnotation
- ) (EQ_SYM primaryExpr)?
+ ) (EQ_SYM expr)?
 
 private typeParameters ::=
  LEFT_B_BRACKET endOfLine
@@ -450,7 +450,7 @@ private functionSignature ::=
  LEFT_BRACKET endOfLine
   (typedNamedVariable (commaSep typedNamedVariable)*)?
   (SEMICOLON_SYM endOfLine
-   typedNamedVariable (commaSep typedNamedVariable)*)?
+   (typedNamedVariable (commaSep typedNamedVariable)*)?)?
   commaSep?
   (SLICE_SYM endOfLine)?
  RIGHT_BRACKET { pin=1 }
