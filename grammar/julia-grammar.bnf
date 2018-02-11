@@ -120,17 +120,23 @@ globalStatement ::=
  GLOBAL_KEYWORD endOfLine
  expr (COMMA_SYM endOfLine expr)*
 
-typeAnnotation ::= DOUBLE_COLON endOfLine primaryExpr typeParameters?
+typeAnnotation ::=
+ DOUBLE_COLON endOfLine
+ primaryExpr endOfLine
+ typeParameters? { pin=1 }
 
 typedNamedVariable ::=
- symbol? typeAnnotation? (EQ_SYM expr)? { pin=3 }
+ (
+   symbol typeAnnotation?
+ | symbol? typeAnnotation
+ ) (EQ_SYM primaryExpr)?
 
 private typeParameters ::=
  LEFT_B_BRACKET endOfLine
   expr (commaSep expr?)* endOfLine
  RIGHT_B_BRACKET
 
-userType ::= expr typeParameters?
+userType ::= primaryExpr typeParameters?
 typeAlias ::= TYPEALIAS_KEYWORD symbol typeParameters? userType { extends=expr }
 
 expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
@@ -442,10 +448,11 @@ tuple ::=
 private commaSep ::= endOfLine COMMA_SYM endOfLine
 private functionSignature ::=
  LEFT_BRACKET endOfLine
-  (typedNamedVariable (commaSep typedNamedVariable)* commaSep?)?
+  (typedNamedVariable (commaSep typedNamedVariable)*)?
   (SEMICOLON_SYM endOfLine
-   typedNamedVariable (commaSep typedNamedVariable)* commaSep?)?
-  SLICE_SYM?
+   typedNamedVariable (commaSep typedNamedVariable)*)?
+  commaSep?
+  (SLICE_SYM endOfLine)?
  RIGHT_BRACKET { pin=1 }
 
 private untypedVariables ::=
