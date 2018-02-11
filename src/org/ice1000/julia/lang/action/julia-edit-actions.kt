@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
@@ -35,7 +36,7 @@ class JuliaTryEvaluateAction : JuliaAction(
 class JuliaUnicodeInputAction : JuliaAction(
 	JuliaBundle.message("julia.actions.unicode-input.text"),
 	JuliaBundle.message("julia.actions.unicode-input.description")), DumbAware {
-	private companion object CompletionHolder {
+	companion object CompletionHolder {
 		private const val unicodeFile = "org/ice1000/julia/lang/unicode-list.txt"
 		private val unicodeList: List<LookupElementBuilder> by lazy {
 			JuliaUnicodeInputAction::class.java.classLoader.getResource(unicodeFile)
@@ -69,35 +70,39 @@ class JuliaUnicodeInputAction : JuliaAction(
 				result.stopHere()
 			}
 		}
+
+		fun actionInvoke(editor:Editor,project: Project){
+			val field = TextFieldWithCompletion(project, UnicodeCompletionProvider, "", true, true, true)
+			var popup: JBPopup? = null
+			popup = JBPopupFactory.getInstance()
+				.createComponentPopupBuilder(field, null)
+				.setMovable(true)
+				.setAlpha(0.15F)
+				.setKeyEventHandler {
+					if (it.keyCode == KeyEvent.VK_ENTER) popup?.cancel()
+					false
+				}
+				.setAdText(JuliaBundle.message("julia.actions.unicode-input.popup.ad"))
+				.createPopup()
+			popup.addListener(object : JBPopupListener.Adapter() {
+				override fun onClosed(event: LightweightWindowEvent?) {
+					CommandProcessor.getInstance().executeCommand(project, {
+						ApplicationManager.getApplication().runWriteAction {
+							editor.document.insertString(editor.caretModel.offset, field.text)
+							editor.caretModel.moveCaretRelatively(1, 0, false, false, true)
+						}
+					}, null, null)
+				}
+			})
+			popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor))
+			field.requestFocus()
+		}
 	}
 
 	override fun actionPerformed(e: AnActionEvent) {
 		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
 		val project = e.project ?: return
-		val field = TextFieldWithCompletion(project, UnicodeCompletionProvider, "", true, true, true)
-		var popup: JBPopup? = null
-		popup = JBPopupFactory.getInstance()
-			.createComponentPopupBuilder(field, null)
-			.setMovable(true)
-			.setAlpha(0.15F)
-			.setKeyEventHandler {
-				if (it.keyCode == KeyEvent.VK_ENTER) popup?.cancel()
-				false
-			}
-			.setAdText(JuliaBundle.message("julia.actions.unicode-input.popup.ad"))
-			.createPopup()
-		popup.addListener(object : JBPopupListener.Adapter() {
-			override fun onClosed(event: LightweightWindowEvent?) {
-				CommandProcessor.getInstance().executeCommand(project, {
-					ApplicationManager.getApplication().runWriteAction {
-						editor.document.insertString(editor.caretModel.offset, field.text)
-						editor.caretModel.moveCaretRelatively(1, 0, false, false, true)
-					}
-				}, null, null)
-			}
-		})
-		popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor))
-		field.requestFocus()
+		actionInvoke(editor,project)
 	}
 
 	override fun update(e: AnActionEvent) {
