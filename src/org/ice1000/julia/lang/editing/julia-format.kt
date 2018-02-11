@@ -55,6 +55,9 @@ class JuliaFormattingModelBuilder : FormattingModelBuilder {
 			.around(JuliaTypes.ARROW_SYM).spaces(1)
 			.around(JuliaTypes.EQ_SYM).spaces(1)
 			.afterInside(JuliaTypes.COMMA_SYM, JuliaTypes.EXPRESSION_LIST).spaces(1)
+			.afterInside(JuliaTypes.SEMICOLON_SYM, JuliaTypes.EXPRESSION_LIST).spaces(1)
+			.afterInside(JuliaTypes.COMMA_SYM, JuliaTypes.ARRAY).spaces(1)
+			.afterInside(JuliaTypes.SEMICOLON_SYM, JuliaTypes.ARRAY).spaces(1)
 	}
 
 	override fun getRangeAffectingIndent(file: PsiFile, offset: Int, elementAtOffset: ASTNode): TextRange? {
