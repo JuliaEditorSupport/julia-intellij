@@ -1,6 +1,7 @@
 package org.ice1000.julia.lang.execution
 
 import com.google.common.io.Files
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtilRt
 import org.ice1000.julia.lang.shouldBe
 import org.junit.Test
@@ -37,6 +38,23 @@ class JuliaExecutionTest {
 		println("1")
 		reader.readText().let(::println)
 		println("2")
+	}
+
+	@Test
+	fun testDocker() {
+		//Windows
+		val winCD = "%CD%"
+		val unixPWD = "\$PWD"
+		val currentDir = if (SystemInfo.isWindows) winCD else unixPWD
+		//windows command need not `-it`
+		//currentDir in @Test is Project Root
+		val juliaScriptFile="ParseFunctions.jl"
+		val params=""
+		val cmd = "cmd /c docker run --rm -v \"$currentDir/testData\":/usr/myapp -w /usr/myapp julia julia $juliaScriptFile $params"
+		val process=Runtime.getRuntime().exec(cmd)
+		println(process.inputStream.reader().readText())
+		println("----error----")
+		println(process.errorStream.reader().readText())
 	}
 }
 
