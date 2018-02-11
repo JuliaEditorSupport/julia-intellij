@@ -46,4 +46,8 @@ class UtilsKtTest {
 		.firstOrNull { Files.isExecutable(Paths.get(it, "julia")) }
 		?.let { Paths.get(it).parent.toAbsolutePath().toString() }
 		.let(::println)
+
+	fun doIt() {
+		"\u1d6a5"
+	}
 }
