@@ -96,6 +96,10 @@ class JuliaUnicodeInputAction : JuliaAction(
 		popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor))
 		field.requestFocus()
 	}
+
+	override fun update(e: AnActionEvent) {
+		e.presentation.isEnabledAndVisible = fileType(e) || e.project?.run { juliaSettings.settings.unicodeEnabled } == true
+	}
 }
 
 class JuliaDocumentFormatAction : JuliaAction(

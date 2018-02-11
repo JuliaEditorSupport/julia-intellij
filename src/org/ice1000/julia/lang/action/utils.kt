@@ -21,8 +21,9 @@ abstract class JuliaAction(
 	description: String?,
 	icon: Icon? = JuliaIcons.JULIA_BIG_ICON) :
 	AnAction(text, description, icon) {
+	protected fun fileType(e: AnActionEvent) = e.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
 	override fun update(e: AnActionEvent) {
-		e.presentation.isEnabledAndVisible = e.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
+		e.presentation.isEnabledAndVisible = fileType(e)
 	}
 }
 
