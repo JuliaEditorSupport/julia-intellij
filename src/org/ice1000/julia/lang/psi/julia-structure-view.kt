@@ -13,7 +13,6 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.util.PsiIconUtil
-import com.intellij.util.ReflectionUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.JuliaLanguage
@@ -41,22 +40,11 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 
 	class JuliaStructureViewModel(psiFile: PsiFile) : StructureViewModelBase(psiFile, JuliaStructureViewElement(psiFile)),
 		StructureViewModel.ElementInfoProvider {
-		override fun getSuitableClasses() = ourSuitableClasses
 		override fun shouldEnterElement(o: Any?) = true
 		override fun isAlwaysShowsPlus(element: StructureViewTreeElement) = false
 		override fun isAlwaysLeaf(element: StructureViewTreeElement) = when (element) {
 			is JuliaFunction -> true
 			else -> false
-		}
-
-		companion object {
-			val ourSuitableClasses: Array<Class<out PsiElement>> = arrayOf(
-				JuliaFile::class.java,
-				JuliaAssignLevelOp::class.java,
-				IJuliaFunctionDeclaration::class.java,
-				JuliaModuleDeclaration::class.java,
-				JuliaTypeDeclaration::class.java
-			)
 		}
 	}
 
@@ -74,13 +62,10 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 					if (element.isBlock) {
 						if (element is JuliaStatements) {
 							children.addAll(JuliaStructureViewElement(element).children)
-						} else
+						}
+						else
 							children.add(JuliaStructureViewElement(element))
 					}
-					JuliaStructureViewModel.ourSuitableClasses
-						// FIXME why not replace with `element.isBlock` here?
-						.filter { suitableClass -> ReflectionUtil.isAssignable(suitableClass, element.javaClass) && JuliaStructureViewElement(element) !in children }
-						.mapTo(children) { JuliaStructureViewElement(element) }
 				}
 			return children.toList()
 		}
@@ -92,17 +77,19 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 				is IJuliaFunctionDeclaration -> JuliaIcons.JULIA_FUNCTION_ICON
 				is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
 				is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
-				is JuliaAssignLevelOp -> psiElement.chooseVarOrConst
+				is JuliaAssignLevelOp -> psiElement.varOrConstIcon
+				is JuliaIfExpr -> JuliaIcons.JULIA_BIG_ICON
 				else -> JuliaIcons.JULIA_BIG_ICON
 			}
 
 		override fun getPresentableText() = cutText(psiElement.let {
 			when (it) {
 				is JuliaFile -> it.originalFile.name
-				is IJuliaFunctionDeclaration -> it.exprList.first().text
-				is JuliaAssignLevelOp -> it.text.substringAfter("const ").substringBefore(" ")
+				is JuliaIfExpr -> it.stmtText
+				is JuliaAssignLevelOp -> it.varOrConstName
 				is JuliaTypeDeclaration -> it.exprList.first().text
 				is JuliaModuleDeclaration -> it.symbol.text
+				is IJuliaFunctionDeclaration -> it.exprList.first().text
 				else -> it.text
 			}
 		}, 50)
@@ -123,11 +110,18 @@ val PsiElement.isBlock
 		this is JuliaStatements ||
 		this is JuliaModuleDeclaration ||
 		this is IJuliaFunctionDeclaration ||
-		this is JuliaTypeDeclaration
-		// || this is JuliaIfExpr
+		this is JuliaTypeDeclaration ||
+		this is JuliaIfExpr||
+		this is JuliaAssignLevelOp
 
-val JuliaAssignLevelOp.chooseVarOrConst
+val JuliaAssignLevelOp.varOrConstIcon
 	get() = if (exprList.firstOrNull()?.let { it.firstChild.node.elementType == JuliaTypes.CONST_KEYWORD } == true)
 		JuliaIcons.JULIA_CONST_ICON
 	else
 		JuliaIcons.JULIA_VARIABLE_ICON
+
+val JuliaIfExpr.stmtText
+	get() = "if "+ statements.exprList.first().text
+
+val JuliaAssignLevelOp.varOrConstName: String
+	get() = this.exprList.first().let { if(it is JuliaSymbolLhs)it.symbolList.last().text else it.text }
