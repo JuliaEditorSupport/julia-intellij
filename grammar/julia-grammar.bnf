@@ -226,7 +226,7 @@ applyWhereOp ::= expr whereClause
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
   (expressionList endOfLine)?
-  (SEMICOLON_SYM
+  (SEMICOLON_SYM endOfLine
     (
      commaSep expr endOfLine
      EQ_SYM endOfLine expr
