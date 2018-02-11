@@ -16,13 +16,12 @@ import org.ice1000.julia.lang.psi.JuliaTypes
  */
 class JuliaTypedHandlerDelegate : TypedHandlerDelegate() {
 
-	override fun beforeCharTyped(c: Char, project: Project?, editor: Editor?, file: PsiFile?, fileType: FileType?): Result {
+	override fun beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result {
 		if (fileType != JuliaFileType)
 			return Result.CONTINUE
 		else if (c == '\\') {
-			val offset = editor?.caretModel?.offset ?: return Result.CONTINUE
-			project ?: return Result.CONTINUE
-			val psiElement = file?.findElementAt(offset - 1)
+			val offset = editor.caretModel.offset
+			val psiElement = file.findElementAt(offset - 1)
 			val type = psiElement?.node?.elementType
 			val popupTokensArray = arrayOf(
 				JuliaTypes.EOL,
