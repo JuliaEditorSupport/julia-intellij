@@ -443,10 +443,10 @@ private commaSep ::= endOfLine COMMA_SYM endOfLine
 private functionSignature ::=
  LEFT_BRACKET endOfLine
   (typedNamedVariable (commaSep typedNamedVariable)* commaSep?)?
-  (SEMICOLON_SYM
+  (SEMICOLON_SYM endOfLine
    typedNamedVariable (commaSep typedNamedVariable)* commaSep?)?
   SLICE_SYM?
- RIGHT_BRACKET typeAnnotation? { pin=1 }
+ RIGHT_BRACKET { pin=1 }
 
 private untypedVariables ::=
  LEFT_BRACKET endOfLine
