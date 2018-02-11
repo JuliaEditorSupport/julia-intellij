@@ -44,12 +44,15 @@ class JuliaUnicodeInputAction : JuliaAction(
 				.mapNotNull { str ->
 					if (str.isBlank()) return@mapNotNull null
 					val (a, b) = str.split(' ')
-					LookupElementBuilder.create(b)
-						.withLookupString(a)
-						.withPresentableText(a)
-						.withIcon(JuliaIcons.JULIA_BIG_ICON)
-				}
+					lookupElementBuilder(a, b)
+				} + listOf("nolinebreak" to '\u2060')
+				.map { (a, b) -> lookupElementBuilder(a, b) }
 		}
+
+		private fun lookupElementBuilder(a: String, b: Any) = LookupElementBuilder.create(b)
+			.withLookupString(a)
+			.withPresentableText(a)
+			.withIcon(JuliaIcons.JULIA_BIG_ICON)
 
 		private object UnicodeCompletionProvider : TextCompletionProvider, DumbAware {
 			override fun getAdvertisement() = JuliaBundle.message("julia.actions.unicode-input.provider.ad")
