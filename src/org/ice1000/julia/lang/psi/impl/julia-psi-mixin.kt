@@ -23,7 +23,7 @@ abstract class JuliaStringContentMixin(astNode: ASTNode) : ASTWrapperPsiElement(
 	override fun updateText(s: String) = replace(JuliaTokenType.fromText(s, project)) as JuliaStringContent
 }
 
-interface IJuliaSymbol {
+interface IJuliaSymbol : JuliaExpr {
 	// check if they are declarations
 	val isFunctionName: Boolean
 	val isMacroName: Boolean

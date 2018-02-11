@@ -411,6 +411,7 @@ private primaryExpr ::=
  | typeDeclaration
  | typeAlias
  | symbolLhs
+ | inAsOp
  | macroSymbol
  | bracketedExpr
 
@@ -424,6 +425,7 @@ bracketedExpr ::=
  RIGHT_BRACKET
 
 whereClause ::= WHERE_KEYWORD afterWhere
+inAsOp ::= IN_KEYWORD
 
 private afterWhere ::=
    (symbol | LEFT_B_BRACKET symbol RIGHT_B_BRACKET)
