@@ -32,14 +32,18 @@ class JuliaTryEvaluateAction : JuliaAction(
 	}
 }
 
-class JuliaUnicodeInputAction : JuliaAction("TODO", "TODO") { // TODO
+class JuliaUnicodeInputAction : JuliaAction(
+	JuliaBundle.message("julia.actions.unicode-input.text"),
+	JuliaBundle.message("julia.actions.unicode-input.description")
+) {
 	private companion object CompletionHolder {
 		private const val unicodeFile = "org/ice1000/julia/lang/unicode-list.txt"
-		private val unicodeList by lazy {
+		private val unicodeList : List<LookupElementBuilder> by lazy {
 			JuliaUnicodeInputAction::class.java.classLoader.getResource(unicodeFile)
 				.readText()
 				.split('\n')
-				.map { str ->
+				.mapNotNull { str ->
+					if( str.isBlank() ) return@mapNotNull null
 					val (a, b) = str.split(' ')
 					LookupElementBuilder.create(b)
 						.withLookupString(a)
@@ -49,7 +53,7 @@ class JuliaUnicodeInputAction : JuliaAction("TODO", "TODO") { // TODO
 		}
 
 		private object UnicodeCompletionProvider : TextCompletionProvider {
-			override fun getAdvertisement() = "LaTeX unicode"
+			override fun getAdvertisement() = JuliaBundle.message("julia.actions.unicode-input.provider.ad")
 			override fun getPrefix(text: String, offset: Int) = text.take(offset)
 			override fun acceptChar(c: Char) = CharFilter.Result.ADD_TO_PREFIX
 			override fun applyPrefixMatcher(result: CompletionResultSet, prefix: String) =
@@ -78,7 +82,7 @@ class JuliaUnicodeInputAction : JuliaAction("TODO", "TODO") { // TODO
 				if (it.keyCode == KeyEvent.VK_ENTER) popup?.cancel()
 				false
 			}
-			.setAdText("LaTeX style unicode input") // TODO l18n
+			.setAdText(JuliaBundle.message("julia.actions.unicode-input.popup.ad"))
 			.createPopup()
 		popup.addListener(object : JBPopupListener.Adapter() {
 			override fun onClosed(event: LightweightWindowEvent?) {
