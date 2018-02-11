@@ -161,7 +161,7 @@ expr ::=
  | plusLevelOp
  | bitwiseLevel
  | multiplyLevel
- | fractionOp
+ | fractionLevel
  | exponentLevel
  | typeOp
  | unaryLevel
@@ -346,6 +346,10 @@ private specialRhs ::= symbol | string | charLit | integer | floatLit
 
 // // .//
 // level 12
+private fractionLevel ::=
+   fractionOp
+ | inOp
+
 fractionOp ::= expr FRACTION_SYM endOfLine expr
 
 // ^ .^
@@ -549,7 +553,9 @@ forComprehension ::=
 forExpr ::= indexer statements END_KEYWORD
 private indexer ::= FOR_KEYWORD endOfLine (multiIndexer | singleIndexer)
 private infixIndexer ::= IN_KEYWORD | IN_SYM | EQ_SYM
-singleIndexer ::= symbol infixIndexer endOfLine expr
+private singleIndexerImpl ::= symbol infixIndexer endOfLine expr
+singleIndexer ::= singleIndexerImpl
+inOp ::= singleIndexerImpl
 multiIndexer ::=
  LEFT_BRACKET endOfLine
   symbol (commaSep symbol)+ endOfLine
