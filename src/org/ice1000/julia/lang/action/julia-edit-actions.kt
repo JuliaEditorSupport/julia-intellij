@@ -38,12 +38,12 @@ class JuliaUnicodeInputAction : JuliaAction(
 ) {
 	private companion object CompletionHolder {
 		private const val unicodeFile = "org/ice1000/julia/lang/unicode-list.txt"
-		private val unicodeList : List<LookupElementBuilder> by lazy {
+		private val unicodeList: List<LookupElementBuilder> by lazy {
 			JuliaUnicodeInputAction::class.java.classLoader.getResource(unicodeFile)
 				.readText()
 				.split('\n')
 				.mapNotNull { str ->
-					if( str.isBlank() ) return@mapNotNull null
+					if (str.isBlank()) return@mapNotNull null
 					val (a, b) = str.split(' ')
 					LookupElementBuilder.create(b)
 						.withLookupString(a)
@@ -77,7 +77,7 @@ class JuliaUnicodeInputAction : JuliaAction(
 		popup = JBPopupFactory.getInstance()
 			.createComponentPopupBuilder(field, null)
 			.setMovable(true)
-			.setAlpha(0.2F)
+			.setAlpha(0.15F)
 			.setKeyEventHandler {
 				if (it.keyCode == KeyEvent.VK_ENTER) popup?.cancel()
 				false

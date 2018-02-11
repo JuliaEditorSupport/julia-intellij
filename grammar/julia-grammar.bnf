@@ -122,9 +122,8 @@ globalStatement ::=
 
 typeAnnotation ::= DOUBLE_COLON endOfLine primaryExpr typeParameters?
 
-typedVariable ::= symbol? typeAnnotation?
 typedNamedVariable ::=
- typedVariable EQ_SYM expr { pin=2 }
+ symbol? typeAnnotation? (EQ_SYM expr)? { pin=3 }
 
 private typeParameters ::=
  LEFT_B_BRACKET endOfLine
@@ -443,7 +442,7 @@ tuple ::=
 private commaSep ::= endOfLine COMMA_SYM endOfLine
 private functionSignature ::=
  LEFT_BRACKET endOfLine
-  (typedVariable (commaSep typedVariable)* commaSep?)?
+  (typedNamedVariable (commaSep typedNamedVariable)* commaSep?)?
   (SEMICOLON_SYM
    typedNamedVariable (commaSep typedNamedVariable)* commaSep?)?
   SLICE_SYM?
