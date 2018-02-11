@@ -1,5 +1,5 @@
-sqrt \u221A
-cbrt \u221B
+sqrt √
+cbrt ∛
 female ♀
 mars ♂
 pprime ″
@@ -13,8 +13,6 @@ implies ⟹
 impliedby ⟸
 to →
 euler ℯ
-
-
 ^0 ⁰
 ^1 ¹
 ^2 ²
@@ -84,8 +82,6 @@ euler ℯ
 ^phi ᵠ
 ^chi ᵡ
 ^Phi ᶲ
-
-
 _0 ₀
 _1 ₁
 _2 ₂
@@ -124,16 +120,11 @@ _gamma ᵧ
 _rho ᵨ
 _phi ᵩ
 _chi ᵪ
-
-
 ldots …
 hbar ħ
 del ∇
-
 sout ̶
 euro €
-
-
 textexclamdown ¡
 sterling £
 yen ¥
@@ -869,8 +860,6 @@ openbracketright ⟧
 rrbracket ⟧
 overbrace ⏞
 underbrace ⏟
-
-
 Zbar Ƶ
 overbar ̅
 ovhook ̉
@@ -2478,7 +2467,6 @@ mttsix 𝟼
 mttseven 𝟽
 mtteight 𝟾
 mttnine 𝟿
-
 triangleright ▷
 triangleleft ◁
 leftouterjoin ⟕
