@@ -77,26 +77,26 @@ class JuliaConsoleFilterProvider : ConsoleFilterProviderEx {
  * fold Julia interpreter Stacktrace which is useless.
  */
 class JuliaConsoleFolding : ConsoleFolding() {
-	private fun String.matchedIn(): Boolean {
-		return ("include_from_node" in this && "loading.jl:" in this) ||
-			("include" in this && "sysimg.jl:" in this) ||
-			("process_options" in this && "client.jl:" in this) ||
-			("_start" in this && "client.jl:" in this)
-	}
 
 	override fun getPlaceholderText(lines: MutableList<String>): String {
 		for (it in lines) {
-			if (("julia " in it || "julia.exe" in it) && ".jl" in it) {
+			if (it.matchExecCommand()) {
 				val fileNameIndex = lines.firstOrNull()?.lastIndexOf("/") ?: 0
 				return "julia ${lines[0].substring(fileNameIndex + 1)}"
-			} else {
-				if(it.matchedIn()){
-					return "..."
-				}
+			} else if (it.matchErrorStackTrace()) {
+				return "..."
 			}
 		}
 		return ""
 	}
 
-	override fun shouldFoldLine(output: String) = ("julia " in output || "julia.exe" in output) && ".jl" in output || output.matchedIn()
+	override fun shouldFoldLine(output: String) = output.matchExecCommand() || output.matchErrorStackTrace()
+
+	private fun String.matchErrorStackTrace() =
+		("include_from_node" in this && "loading.jl:" in this) ||
+			("include" in this && "sysimg.jl:" in this) ||
+			("process_options" in this && "client.jl:" in this) ||
+			("_start" in this && "client.jl:" in this)
+
+	private fun String.matchExecCommand() = "julia " in this || "julia.exe" in this && ".jl" in this
 }
