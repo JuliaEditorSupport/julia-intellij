@@ -8,7 +8,7 @@ function add(x, y)
 end
 
 type Lion <: Cat()
-  mane_color::Cat=Cat end
+  mane_color::Cat=Cat
 end
  # Lion is a subtype of Cat
 23333
@@ -178,7 +178,7 @@ end
 # inside the julia folder to find these files.
 
 # You can initialize arrays from ranges
-a = [1:5;] # => 5-element Int64 Array: [1,2,3,4,5]
+ a = [1:5;] # => 5-element Int64 Array: [1,2,3,4,5]
 
 # You can look at ranges with slice syntax.
 a[1:3] # => [1, 2, 3]
@@ -386,7 +386,7 @@ sherekhan = typeof(tigger)(5.6,"fire") # => Tiger(5.6,"fire")
 # The other kind of types is abstract types.
 
 # abstract Name
-abstract Cat # just a name and point in the type hierarchy
+ abstract Cat # just a name and point in the type hierarchy
 # WARNING: deprecated syntax "abstract Cat" at REPL[27]:1.
 # Use "abstract type Cat end" instead.
 
