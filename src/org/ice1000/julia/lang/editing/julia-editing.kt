@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.editing
 
+import com.intellij.ide.IconProvider
 import com.intellij.lang.*
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.psi.*
@@ -7,9 +8,33 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy
 import com.intellij.spellchecker.tokenizer.Tokenizer
 import com.intellij.ui.breadcrumbs.BreadcrumbsProvider
+import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.JuliaBlock
+import javax.swing.Icon
+
+class JuliaIconProvider : IconProvider() {
+	override fun getIcon(element: PsiElement, flags: Int): Icon? {
+		val file = element as? JuliaFile ?: return null
+		val statements = file.children
+			.firstOrNull { it is JuliaStatements }
+			?.let { it as? JuliaStatements } ?: return JuliaIcons.JULIA_ICON
+		val validChildren = statements.children.filterNot {
+			it is JuliaString ||
+				it is JuliaInteger ||
+				it is JuliaUsing ||
+				it is JuliaImportAllExpr ||
+				it is JuliaImportExpr
+		}
+		if (validChildren.size != 1) return JuliaIcons.JULIA_ICON
+		return when (validChildren.first()) {
+			is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
+			is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
+			else -> JuliaIcons.JULIA_ICON
+		}
+	}
+}
 
 class JuliaBraceMatcher : PairedBraceMatcher {
 	private companion object Pairs {
@@ -132,8 +157,6 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 object JuliaNameValidator : InputValidatorEx {
 	override fun canClose(inputString: String?) = checkInput(inputString)
 	override fun getErrorText(inputString: String?) = JuliaBundle.message("julia.actions.new-file.invalid", inputString.orEmpty())
-	override fun checkInput(inputString: String?): Boolean {
-		if (inputString == null) return false
-		return inputString.all { it.isLetterOrDigit() || it in '\u0100'..'\u9999' }
-	}
+	override fun checkInput(inputString: String?) =
+		inputString?.all { it.isLetterOrDigit() || it == '_' || it in '\u0100'..'\u9999' } == true
 }

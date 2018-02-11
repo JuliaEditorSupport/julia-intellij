@@ -34,8 +34,7 @@ class JuliaTryEvaluateAction : JuliaAction(
 
 class JuliaUnicodeInputAction : JuliaAction(
 	JuliaBundle.message("julia.actions.unicode-input.text"),
-	JuliaBundle.message("julia.actions.unicode-input.description")
-) {
+	JuliaBundle.message("julia.actions.unicode-input.description")), DumbAware {
 	private companion object CompletionHolder {
 		private const val unicodeFile = "org/ice1000/julia/lang/unicode-list.txt"
 		private val unicodeList: List<LookupElementBuilder> by lazy {
@@ -52,7 +51,7 @@ class JuliaUnicodeInputAction : JuliaAction(
 				}
 		}
 
-		private object UnicodeCompletionProvider : TextCompletionProvider {
+		private object UnicodeCompletionProvider : TextCompletionProvider, DumbAware {
 			override fun getAdvertisement() = JuliaBundle.message("julia.actions.unicode-input.provider.ad")
 			override fun getPrefix(text: String, offset: Int) = text.take(offset)
 			override fun acceptChar(c: Char) = CharFilter.Result.ADD_TO_PREFIX
