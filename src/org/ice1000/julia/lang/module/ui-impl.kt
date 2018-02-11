@@ -90,7 +90,7 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 	}
 }
 
-class JuliaProjectConfigurableImpl(private val project: Project) : JuliaProjectConfigurable() {
+class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable() {
 	private var settings = project.juliaSettings.settings
 
 	init {
@@ -117,6 +117,7 @@ class JuliaProjectConfigurableImpl(private val project: Project) : JuliaProjectC
 				tryGetBase(exePath)?.let { basePathField.text = it }
 			}
 		})
+		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
 		installAutoFormatButton.addActionListener(installAutoFormat(project, settings))
 	}
 
@@ -125,6 +126,7 @@ class JuliaProjectConfigurableImpl(private val project: Project) : JuliaProjectC
 	override fun isModified() = settings.importPath != importPathField.text ||
 		settings.basePath != basePathField.text ||
 		settings.exePath != juliaExeField.text ||
+		unicodeInputCheckBox.isSelected != settings.unicodeEnabled ||
 		settings.tryEvaluateTextLimit != textLimitField.value ||
 		settings.tryEvaluateTimeLimit != timeLimitField.value
 
@@ -140,5 +142,6 @@ class JuliaProjectConfigurableImpl(private val project: Project) : JuliaProjectC
 		settings.version = version.text
 		settings.basePath = basePathField.text
 		settings.importPath = importPathField.text
+		settings.unicodeEnabled = unicodeInputCheckBox.isSelected
 	}
 }

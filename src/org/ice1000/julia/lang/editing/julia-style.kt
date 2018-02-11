@@ -7,7 +7,7 @@ import org.ice1000.julia.lang.*
 
 
 class JuliaCodeStyleSettings(settings: CodeStyleSettings)
-	: CustomCodeStyleSettings(JuliaBundle.message("julia.codestyle.settings.tag-name"), settings)
+	: CustomCodeStyleSettings(JuliaBundle.message("julia.style.settings.tag-name"), settings)
 
 class JuliaCodeStyleSettingsProvider : CodeStyleSettingsProvider() {
 	override fun getConfigurableDisplayName() = JuliaBundle.message("julia.name")
