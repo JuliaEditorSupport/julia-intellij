@@ -1,4 +1,6 @@
 sqrt √
+backslash \
+\ \
 cbrt ∛
 female ♀
 mars ♂

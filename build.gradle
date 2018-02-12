@@ -100,7 +100,7 @@ task genLexer(type: GenerateLexer) {
 	group = 'build setup'
 	description = 'Generate the Lexer'
 	source = 'grammar/julia-lexer.flex'
-	targetDir = "gen/org/ice1000/julia/lang"
+	targetDir = 'gen/org/ice1000/julia/lang'
 	targetClass = 'JuliaLexer'
 	purgeOldFiles = true
 }
