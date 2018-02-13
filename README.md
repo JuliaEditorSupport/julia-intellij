@@ -93,5 +93,5 @@ Check out [CONTRIBUTING.md](./CONTRIBUTING.md) to learn how to setup the project
 
 + [@ice1000](https://github.com/ice1000)
 + [@zxj5470](https://github.com/zxj5470)
-+ [@LimbolRain](https://github.com/LimbolRain)
++ [@HoshinoTented](https://github.com/HoshinoTented)
 + [@Hexadecimal](https://github.com/Hexadecimaaal)
