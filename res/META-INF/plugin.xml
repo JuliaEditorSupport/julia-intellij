@@ -60,9 +60,6 @@
 		<lang.parserDefinition
 			language="DocumentFormat"
 			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtParserDefinition"/>
-		<lang.parserDefinition
-			language="Julia LaTeX unicode"
-			implementationClass="com.intellij.openapi.fileTypes.PlainTextParserDefinition"/>
 		<lang.commenter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaCommenter"/>
