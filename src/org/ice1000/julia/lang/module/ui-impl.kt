@@ -79,7 +79,6 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 
 	override fun getComponent() = mainPanel
 	override fun validate(): ValidationInfo? {
-		val settings = getSettings()
 		settings.exePath = juliaExeField.text
 		settings.initWithExe()
 		val validate = validateJulia(settings)
