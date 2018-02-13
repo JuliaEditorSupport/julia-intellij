@@ -6,14 +6,27 @@
 Welcome to Julia-Intellij's documentation!
 ==========================================
 
+* :ref:`readme`
+* :ref:`contributing`
+
+
+.. readme:
+
+##
+Readme
+##
+
 .. toctree::
    :maxdepth: 2
 
    README
+
+##
+Contributing
+##
+
+.. toctree::
+   :maxdepth: 2
+
    CONTRIBUTING
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`

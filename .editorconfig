@@ -7,3 +7,7 @@ tab_width=2
 
 [gradle.properties]
 indent_size=0
+
+[*.rst]
+indent_size=3
+indent_style=space
