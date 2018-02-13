@@ -28,7 +28,7 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 				importPathField.text = importPathOf(juliaExeField.text, 500L)
 			}
 		})
-		juliaExeField.text = defaultExePath
+		if(validateJuliaExe(defaultExePath)) juliaExeField.text = defaultExePath
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor()))
 		importPathField.text = importPathOf(defaultExePath, 800L)
 	}
@@ -57,16 +57,27 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 	init {
 		useLocalJuliaDistributionRadioButton.addActionListener {
 			juliaExeField.isEnabled = false
-			juliaExeField.text = juliaPath
+			juliaExeField.text = defaultExePath
+			if(useLocalJuliaDistributionRadioButton.isSelected){
+				selectJuliaExecutableRadioButton.isSelected=false
+			}
 		}
 		selectJuliaExecutableRadioButton.addActionListener {
 			juliaExeField.isEnabled = true
-			juliaExeField.text = settings.exePath
+//			juliaExeField.text = settings.exePath
+			if(selectJuliaExecutableRadioButton.isSelected){
+				useLocalJuliaDistributionRadioButton.isSelected=false
+			}
 		}
 		usefulText.isVisible = false
 		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
 		juliaExeField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor()))
-		juliaExeField.text = getSettings().exePath
+//		default
+		if(validateJuliaExe(defaultExePath)) {
+			juliaExeField.text = defaultExePath
+			getSettings().exePath=juliaExeField.text
+		}
+		selectJuliaExecutableRadioButton.isSelected = true
 	}
 
 	override fun getSettings() = settings
@@ -88,6 +99,9 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 	}
 }
 
+/**
+ * Settings(Preference) | Language & Frameworks | Julia
+ */
 class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable() {
 	private var settings = project.juliaSettings.settings
 
@@ -106,7 +120,6 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		basePathField.text = settings.basePath
 		basePathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project))
 		juliaExeField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor(), project))
-		juliaExeField.text = settings.exePath
 		juliaExeField.textField.document.addDocumentListener(object : DocumentAdapter() {
 			override fun textChanged(e: DocumentEvent) {
 				val exePath = juliaExeField.text
@@ -115,6 +128,10 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 				tryGetBase(exePath)?.let { basePathField.text = it }
 			}
 		})
+		if(settings.exePath.isNotBlank())
+			juliaExeField.text = settings.exePath
+		else
+			juliaExeField.text = defaultExePath
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
 		installAutoFormatButton.addActionListener(installAutoFormat(project, settings))
 	}

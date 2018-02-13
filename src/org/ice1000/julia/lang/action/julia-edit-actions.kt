@@ -101,8 +101,11 @@ class JuliaUnicodeInputAction : JuliaAction(
 
 	override fun actionPerformed(e: AnActionEvent) {
 		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
-		val project = e.project ?: return
-		actionInvoke(editor, project)
+		val psi = e.getData(CommonDataKeys.PSI_FILE) ?: return
+		if(psi is JuliaFile) {
+			val project = e.project ?: return
+			actionInvoke(editor, project)
+		}
 	}
 
 	override fun update(e: AnActionEvent) {

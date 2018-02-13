@@ -11,8 +11,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.PlatformUtils
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.nio.file.*
 
 class JuliaModuleBuilder : ModuleBuilder() {
 	lateinit var settings: JuliaSettings
@@ -29,19 +28,13 @@ class JuliaModuleBuilder : ModuleBuilder() {
 
 	override fun setupRootModel(model: ModifiableRootModel) {
 		if (::settings.isInitialized) model.project.juliaSettings.settings = settings
-		model.inheritSdk()
-		val srcPath = Paths.get(contentEntryPath, "src").toAbsolutePath()
-		Files.createDirectories(srcPath)
-		//Idea Only
+		val srcPath = createSourceDirectory(model,contentEntryPath)
 		if (PlatformUtils.isIntelliJ()) {
 			val sourceRoot = LocalFileSystem
 				.getInstance()
 				.refreshAndFindFileByPath(FileUtil.toSystemIndependentName(srcPath.toString()))
 				?: return
 			doAddContentEntry(model)?.addSourceFolder(sourceRoot, false)
-		} else {
-			//other Platform just doAddContentEntry
-			doAddContentEntry(model)
 		}
 	}
 }
@@ -64,7 +57,6 @@ class JuliaModuleType : ModuleType<JuliaModuleBuilder>(JULIA_MODULE_ID) {
  * @date: 2018/1/29
  */
 class JuliaModuleConfigEditor : ModuleConfigurationEditorProvider {
-
 	override fun createEditors(state: ModuleConfigurationState): Array<ModuleConfigurationEditor> {
 		val module = state.rootModel?.module ?: return emptyArray()
 		return arrayOf(ContentEntriesEditor(module.name, state),
@@ -82,3 +74,9 @@ class JuliaCompileOutputEditor(state: ModuleConfigurationState) : ModuleElements
 	override fun getHelpTopic() = editor.helpTopic
 }
 
+fun createSourceDirectory(model: ModifiableRootModel, entryPath:String?): Path {
+	model.inheritSdk()
+	val srcPath = Paths.get(entryPath, "src").toAbsolutePath()
+	Files.createDirectories(srcPath)
+	return srcPath
+}

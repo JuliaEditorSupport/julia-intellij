@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package org.ice1000.julia.lang.module
 
 import com.intellij.ide.fileTemplates.FileTemplateManager
@@ -22,6 +20,7 @@ import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.action.NewJuliaFile
 
 /**
+ * For other IDE(PyCharm,CLion...)
  * @author zxj5470
  * @date 2018/1/31
  */
@@ -38,27 +37,27 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 	override fun generateProject(project: Project, baseDir: VirtualFile, settings: JuliaSettings, module: Module) {
 		ApplicationManager.getApplication().runWriteAction {
 			val modifiableModel: ModifiableRootModel = ModifiableModelsProvider.SERVICE.getInstance().getModuleModifiableModel(module)
-			JuliaModuleBuilder().setupRootModel(modifiableModel)
+			createSourceDirectory(modifiableModel,project.basePath)
 			ModifiableModelsProvider.SERVICE.getInstance().commitModuleModifiableModel(modifiableModel)
+			project.forCLion()
 		}
 	}
 
-	@Deprecated("wait until Julia v0.7 or later if Julia can compile to executable easily")
+//	@Deprecated("wait until Julia v0.7 or later if Julia can compile to executable easily")
 	private fun Project.forCLion() {
-		fun generateCMakeFile(baseDir: VirtualFile) = runWriteAction {
-			val cmakeList = baseDir.createChildData(this, "CMakeLists.txt")
-			VfsUtil.saveText(cmakeList, """
+		if (PlatformUtils.isCLion()) {
+			fun generateCMakeFile(baseDir: VirtualFile) = runWriteAction {
+				val cmakeList = baseDir.createChildData(this, "CMakeLists.txt")
+				VfsUtil.saveText(cmakeList, """
 project($name)
-add_executable($name
-main.jl)""")
-		}
-		if (PlatformUtils.isCLion() || PlatformUtils.isRider()) {
+""")
+			}
 			val template = FileTemplateManager
 				.getInstance(this)
 				.getTemplate("Julia Module")
-			val root = PsiManager.getInstance(this).findDirectory(baseDir)
-			if (root != null)
-				FileTemplateUtil.createFromTemplate(template, "main.jl", NewJuliaFile.createProperties(this, name), root)
+			val srcDir = PsiManager.getInstance(this).findDirectory(baseDir.createChildDirectory(null,"src"))
+			if (srcDir != null)
+				FileTemplateUtil.createFromTemplate(template, "main.jl", NewJuliaFile.createProperties(this, name), srcDir)
 			generateCMakeFile(baseDir)
 		}
 	}

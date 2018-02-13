@@ -25,7 +25,7 @@
 		<errorHandler implementation="de.halirutan.mathematica.errorreporting.julia.GitHubErrorReporter"/>
 		<breadcrumbsInfoProvider implementation="org.ice1000.julia.lang.editing.JuliaBreadCrumbsProvider"/>
 		<sdkType implementation="org.ice1000.julia.lang.module.JuliaSdkType"/>
-		<typedHandler implementation="org.ice1000.julia.lang.editing.JuliaTypedHandlerDelegate"/>
+		<!--<typedHandler implementation="org.ice1000.julia.lang.editing.JuliaTypedHandlerDelegate"/>-->
 		<languageInjector implementation="org.ice1000.julia.lang.editing.JuliaRegexpInjector" />
 		<completion.contributor
 			language="Julia"
@@ -87,7 +87,7 @@
 		<action
 			id="Julia.UnicodeInput"
 			class="org.ice1000.julia.lang.action.JuliaUnicodeInputAction">
-			<keyboard-shortcut first-keystroke="back_slash" keymap="$default"/>
+			<keyboard-shortcut first-keystroke="BACK_SLASH" keymap="$default"/>
 		</action>
 		<action
 			id="Julia.NewJuliaFile"

@@ -5,6 +5,7 @@ import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.*
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.project.Project
@@ -126,6 +127,10 @@ class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfigura
 			.settings
 			.exePath
 		if (validateJuliaExe(existPath)) configuration.juliaExecutable = existPath
+		else {
+			val exePath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID, "")
+			if (validateJuliaExe(exePath)) configuration.juliaExecutable = exePath
+		}
 		return true
 	}
 }

@@ -2,6 +2,7 @@
 	<actions>
 		<reference id="Julia.NewJuliaProject">
 			<add-to-group group-id="WelcomeScreen.QuickStart.Platform"/>
+			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewProject"/>
 		</reference>
 	</actions>
 </idea-plugin>

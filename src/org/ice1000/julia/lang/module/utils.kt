@@ -15,7 +15,7 @@ import java.nio.file.Paths
 import java.util.stream.Collectors
 
 val defaultExePath by lazy {
-	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID).orEmpty()
+	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID,"")
 	if (Files.isExecutable(Paths.get(existPath))) existPath else juliaPath
 }
 
