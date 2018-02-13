@@ -70,7 +70,6 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 	}
 
 	override fun getSettings() = settings
-	override fun dispose() = Unit
 	override fun buildUI(settingsStep: SettingsStep) = settingsStep.addExpertPanel(component)
 	override fun isBackgroundJobRunning() = false
 	override fun addSettingsListener(listener: ProjectGeneratorPeer.SettingsListener) = Unit
