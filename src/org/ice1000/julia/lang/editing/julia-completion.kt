@@ -6,8 +6,10 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
+import com.intellij.util.containers.Queue
 import icons.JuliaIcons
 import org.ice1000.julia.lang.psi.*
+import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
 open class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
 	override fun addCompletions(
@@ -112,6 +114,10 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 
 	init {
 		extend(CompletionType.BASIC, psiElement()
+			.inside(JuliaStatements::class.java)
+			.andNot(psiElement().withParent(JuliaString::class.java)),
+			JuliaContextCompletionProvider())
+		extend(CompletionType.BASIC, psiElement()
 			.inside(JuliaFunction::class.java)
 			.afterLeaf(")")
 			.andNot(psiElement()
@@ -151,6 +157,25 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 					psiElement().inside(JuliaMacro::class.java))
 				.andNot(psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(functionInside))
+	}
+}
+
+class JuliaContextCompletionProvider : CompletionProvider<CompletionParameters>() {
+
+	//FIXME: stupid code
+	override fun addCompletions(parameters: CompletionParameters, context: ProcessingContext?, result: CompletionResultSet) {
+		val list = ArrayList<PsiElement>()
+		val pos = parameters.position
+		val file = pos.containingFile
+		file.children.forEach { list.add(it) }
+		while (list.isNotEmpty()) {
+			val elem = list.removeAt(list.lastIndex)
+			when (elem) {
+				is JuliaAssignLevelOp -> result.addElement(LookupElementBuilder.create(elem.varOrConstName).withIcon(elem.varOrConstIcon))
+				is IJuliaFunctionDeclaration -> result.addElement(LookupElementBuilder.create(elem.exprList.first().text).withIcon(JuliaIcons.JULIA_FUNCTION_ICON))
+			}
+			elem.children.forEach { list.add(it) }
+		}
 	}
 }
 

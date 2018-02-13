@@ -351,6 +351,7 @@ private fractionLevel ::=
  | inOp
 
 fractionOp ::= expr FRACTION_SYM endOfLine expr
+inOp ::= expr (IN_KEYWORD | IN_SYM) endOfLine expr
 
 // ^ .^
 private exponentLevel ::=
@@ -555,9 +556,7 @@ forComprehension ::=
 forExpr ::= indexer statements END_KEYWORD
 private indexer ::= FOR_KEYWORD endOfLine (multiIndexer | singleIndexer)
 private infixIndexer ::= IN_KEYWORD | IN_SYM | EQ_SYM
-private singleIndexerImpl ::= symbol infixIndexer endOfLine expr
-singleIndexer ::= singleIndexerImpl
-inOp ::= singleIndexerImpl
+singleIndexer ::= symbol infixIndexer endOfLine expr
 multiIndexer ::=
  LEFT_BRACKET endOfLine
   symbol (commaSep symbol)+ endOfLine
