@@ -19,7 +19,7 @@ Readme
 .. toctree::
    :maxdepth: 2
 
-   README
+   MainPage
 
 .. _contributing:
 
