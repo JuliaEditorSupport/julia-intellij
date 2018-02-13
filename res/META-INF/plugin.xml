@@ -22,7 +22,7 @@
 		<moduleConfigurationEditorProvider implementation="org.ice1000.julia.lang.module.JuliaModuleConfigEditor"/>
 		<directoryProjectGenerator implementation="org.ice1000.julia.lang.module.JuliaProjectGenerator"/>
 		<iconProvider implementation="org.ice1000.julia.lang.editing.JuliaIconProvider"/>
-		<errorHandler implementation="de.halirutan.mathematica.errorreporting.GitHubErrorReporter"/>
+		<errorHandler implementation="de.halirutan.mathematica.errorreporting.julia.GitHubErrorReporter"/>
 		<breadcrumbsInfoProvider implementation="org.ice1000.julia.lang.editing.JuliaBreadCrumbsProvider"/>
 		<sdkType implementation="org.ice1000.julia.lang.module.JuliaSdkType"/>
 		<typedHandler implementation="org.ice1000.julia.lang.editing.JuliaTypedHandlerDelegate"/>

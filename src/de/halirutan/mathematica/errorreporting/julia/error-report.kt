@@ -19,7 +19,7 @@
  * THE SOFTWARE.
  */
 
-package de.halirutan.mathematica.errorreporting
+package de.halirutan.mathematica.errorreporting.julia
 
 import com.intellij.CommonBundle
 import com.intellij.diagnostic.*
@@ -58,7 +58,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 private object AnonymousFeedback {
-	private const val tokenFile = "de/halirutan/mathematica/errorreporting/token.bin"
+	private const val tokenFile = "de/halirutan/mathematica/errorreporting-julia/token.bin"
 	private const val gitRepoUser = "ice1000"
 	private const val gitRepo = "julia-intellij"
 	private const val issueLabel = "pending"
@@ -229,7 +229,7 @@ class GitHubErrorBean(throwable: Throwable, lastAction: String) : ErrorBean(thro
  * Messages and strings used by the error reporter
  */
 private object ErrorReportBundle {
-	@NonNls private const val BUNDLE = "de.halirutan.mathematica.errorreporting.report-bundle"
+	@NonNls private const val BUNDLE = "de.halirutan.mathematica.errorreporting-julia.report-bundle"
 	private val bundle: ResourceBundle by lazy { ResourceBundle.getBundle(BUNDLE) }
 
 	@JvmStatic
