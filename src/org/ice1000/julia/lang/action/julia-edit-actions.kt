@@ -71,7 +71,7 @@ class JuliaUnicodeInputAction : JuliaAction(
 			}
 		}
 
-		fun actionInvoke(editor:Editor,project: Project){
+		fun actionInvoke(editor: Editor, project: Project) {
 			val field = TextFieldWithCompletion(project, UnicodeCompletionProvider, "", true, true, true)
 			var popup: JBPopup? = null
 			popup = JBPopupFactory.getInstance()
@@ -89,7 +89,7 @@ class JuliaUnicodeInputAction : JuliaAction(
 					CommandProcessor.getInstance().executeCommand(project, {
 						ApplicationManager.getApplication().runWriteAction {
 							editor.document.insertString(editor.caretModel.offset, field.text)
-							editor.caretModel.moveCaretRelatively(1, 0, false, false, true)
+							editor.caretModel.moveCaretRelatively(field.text.length, 0, false, false, true)
 						}
 					}, null, null)
 				}
@@ -102,7 +102,7 @@ class JuliaUnicodeInputAction : JuliaAction(
 	override fun actionPerformed(e: AnActionEvent) {
 		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
 		val project = e.project ?: return
-		actionInvoke(editor,project)
+		actionInvoke(editor, project)
 	}
 
 	override fun update(e: AnActionEvent) {
