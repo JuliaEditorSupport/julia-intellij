@@ -10,20 +10,22 @@ Welcome to Julia-Intellij's documentation!
 * :ref:`contributing`
 
 
-.. readme:
+.. _readme:
 
-##
+######
 Readme
-##
+######
 
 .. toctree::
    :maxdepth: 2
 
    README
 
-##
+.. _contributing:
+
+############
 Contributing
-##
+############
 
 .. toctree::
    :maxdepth: 2
