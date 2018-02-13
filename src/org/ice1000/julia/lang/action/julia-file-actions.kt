@@ -73,8 +73,7 @@ class NewJuliaFile : CreateFileFromTemplateAction(
  */
 class NewJuliaProject : ProjectSettingsStepBase<JuliaSettings>(
 	JuliaProjectGenerator(),
-	AbstractNewProjectStep.AbstractCallback<JuliaSettings>())
-{
+	AbstractNewProjectStep.AbstractCallback<JuliaSettings>()) {
 	override fun actionPerformed(p0: AnActionEvent) {
 		val panel = createPanel()
 		panel.preferredSize = JBUI.size(600, 300)
@@ -85,7 +84,7 @@ class NewJuliaProject : ProjectSettingsStepBase<JuliaSettings>(
 			title = JuliaBundle.message("julia.actions.new-proj.dialog.title")
 			init()
 		}
-		override fun createCenterPanel(): JComponent? = centerPanel
+		override fun createCenterPanel() = centerPanel
 		override fun createSouthPanel(): JComponent? = null
 	}
 }
