@@ -7,6 +7,9 @@ import org.jdom.Element
 import java.nio.file.Files
 import java.nio.file.Paths
 
+/**
+ * @deprecated
+ */
 class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun getPresentableName() = JuliaBundle.message("julia.modules.sdk.name")
 	override fun getIcon() = JULIA_BIG_ICON
