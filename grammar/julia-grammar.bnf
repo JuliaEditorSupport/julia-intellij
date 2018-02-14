@@ -242,11 +242,10 @@ applyFunctionOp ::=
   )?
  RIGHT_BRACKET doBlock?
 
+private symbolLhsInternal ::= symbol | LEFT_BRACKET symbol RIGHT_BRACKET
 symbolLhs ::=
- ((LOCAL_KEYWORD | CONST_KEYWORD)
-  endOfLine)?
- (symbol | LEFT_BRACKET symbol RIGHT_BRACKET)
-  (COMMA_SYM endOfLine symbol)* { extends=expr }
+ ((LOCAL_KEYWORD | CONST_KEYWORD) endOfLine)
+ symbolLhsInternal (COMMA_SYM endOfLine symbolLhsInternal)* { extends=expr }
 
 // All reserved but unassigned
 // level 2.5
@@ -290,9 +289,11 @@ pipeLevelOp ::= expr pipeLevelOperator endOfLine expr
 
 private quoteLevel ::=
    spliceOp
+ | colonOp
  | quoteOp
  | compoundQuoteOp
 
+colonOp ::= expr COLON_SYM expr
 spliceOp ::= expr SLICE_SYM
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
 quoteOp ::= COLON_SYM endOfLine quotable
@@ -413,6 +414,7 @@ private primaryExpr ::=
  | typeDeclaration
  | typeAlias
  | symbolLhs
+ | symbol
  | inAsOp
  | macroSymbol
  | bracketedExpr
