@@ -461,7 +461,7 @@ private functionSignature ::=
    (typedNamedVariable (commaSep typedNamedVariable)*)?)?
   commaSep?
   (SLICE_SYM endOfLine)?
- RIGHT_BRACKET { pin=1 }
+ RIGHT_BRACKET
 
 private untypedVariables ::=
  LEFT_BRACKET endOfLine

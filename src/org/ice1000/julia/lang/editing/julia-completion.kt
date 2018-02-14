@@ -170,12 +170,28 @@ class JuliaContextCompletionProvider : CompletionProvider<CompletionParameters>(
 		file.children.forEach { list.add(it) }
 		while (list.isNotEmpty()) {
 			val elem = list.removeAt(list.lastIndex)
-			when (elem) {
-				is JuliaAssignOp -> result.addElement(LookupElementBuilder.create(elem.varOrConstName).withIcon(elem.varOrConstIcon))
-				is IJuliaFunctionDeclaration -> result.addElement(LookupElementBuilder.create(elem.exprList.first().text).withIcon(JuliaIcons.JULIA_FUNCTION_ICON))
+			if (elem.canBeNamed) {
+				val text = elem.presentText()
+				val tailText = elem.tailText()
+				val icon = elem.presentIcon()
+				result.addElement(
+					LookupElementBuilder
+						.create(text)
+						.withIcon(icon)
+						.withTypeText(tailText, true))
 			}
 			elem.children.forEach { list.add(it) }
 		}
 	}
+}
+
+private fun PsiElement.tailText() = when (this) {
+	is IJuliaFunctionDeclaration -> {
+//		FIXME
+//		this.exprList.forEach { println(it) }
+//		SYMBOL,SYMBOL_LHS,SYMBOL
+		"Params..."
+	}
+	else -> ""
 }
 
