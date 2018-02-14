@@ -99,7 +99,6 @@ val PsiElement.isBlock
 
 val PsiElement.canBeNamed
 	get() = this is JuliaFile ||
-		this is JuliaStatements ||
 		this is IJuliaFunctionDeclaration ||
 		this is JuliaTypeDeclaration ||
 		this is JuliaAssignOp ||
