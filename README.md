@@ -32,7 +32,7 @@ choose a valid Julia executable and click `Apply`.
 
 ## Screenshots
 
-![](https://plugins.jetbrains.com/files/10413/screenshot_17864.png)
+![](https://plugins.jetbrains.com/files/10413/screenshot_17870.png)
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17865.png)
 
 ## Compatible IDEs

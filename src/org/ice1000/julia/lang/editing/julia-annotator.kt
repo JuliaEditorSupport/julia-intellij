@@ -67,7 +67,7 @@ class JuliaAnnotator : Annotator {
 	 */
 	private fun divide(holder: AnnotationHolder, child: PsiElement) {
 		if ('f' in child.text) return
-		if (BigDecimal.ZERO.compareTo(BigDecimal(child.text)) == 0) holder.createErrorAnnotation(child,
+		if (BigDecimal.ZERO.compareTo(BigDecimal(child.text)) == 0) holder.createWarningAnnotation(child,
 			JuliaBundle.message("julia.lint.div-by-zero"))
 	}
 
