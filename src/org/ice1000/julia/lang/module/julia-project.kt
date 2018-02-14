@@ -37,13 +37,13 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 	override fun generateProject(project: Project, baseDir: VirtualFile, settings: JuliaSettings, module: Module) {
 		ApplicationManager.getApplication().runWriteAction {
 			val modifiableModel: ModifiableRootModel = ModifiableModelsProvider.SERVICE.getInstance().getModuleModifiableModel(module)
-			createSourceDirectory(modifiableModel,project.basePath)
+			createSourceDirectory(modifiableModel, project.basePath)
 			ModifiableModelsProvider.SERVICE.getInstance().commitModuleModifiableModel(modifiableModel)
 			project.forCLion()
 		}
 	}
 
-//	@Deprecated("wait until Julia v0.7 or later if Julia can compile to executable easily")
+	//	@Deprecated("wait until Julia v0.7 or later if Julia can compile to executable easily")
 	private fun Project.forCLion() {
 		if (PlatformUtils.isCLion()) {
 			fun generateCMakeFile(baseDir: VirtualFile) = runWriteAction {
@@ -52,12 +52,13 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 project($name)
 """)
 			}
+
 			val template = FileTemplateManager
 				.getInstance(this)
 				.getTemplate("Julia Module")
-			val srcDir = PsiManager.getInstance(this).findDirectory(baseDir.createChildDirectory(null,"src"))
-			if (srcDir != null)
+			PsiManager.getInstance(this).findDirectory(baseDir.createChildDirectory(null, "src"))?.let { srcDir ->
 				FileTemplateUtil.createFromTemplate(template, "main.jl", NewJuliaFile.createProperties(this, name), srcDir)
+			}
 			generateCMakeFile(baseDir)
 		}
 	}

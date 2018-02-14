@@ -101,15 +101,12 @@ class JuliaUnicodeInputAction : JuliaAction(
 
 	override fun actionPerformed(e: AnActionEvent) {
 		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
-		val psi = e.getData(CommonDataKeys.PSI_FILE) ?: return
-		if(psi is JuliaFile) {
-			val project = e.project ?: return
-			actionInvoke(editor, project)
-		}
+		val project = e.project ?: return
+		actionInvoke(editor, project)
 	}
 
 	override fun update(e: AnActionEvent) {
-		e.presentation.isEnabledAndVisible = fileType(e) || e.project?.run { juliaSettings.settings.unicodeEnabled } == true
+		e.presentation.isEnabledAndVisible = fileType(e) && e.project?.run { juliaSettings.settings.unicodeEnabled } == true
 	}
 }
 

@@ -77,7 +77,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 				is IJuliaFunctionDeclaration -> JuliaIcons.JULIA_FUNCTION_ICON
 				is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
 				is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
-				is JuliaAssignLevelOp -> psiElement.varOrConstIcon
+				is JuliaAssignOp -> psiElement.varOrConstIcon
 				is JuliaIfExpr -> JuliaIcons.JULIA_IF_ICON
 				else -> JuliaIcons.JULIA_BIG_ICON
 			}
@@ -86,7 +86,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 			when (it) {
 				is JuliaFile -> it.originalFile.name
 				is JuliaIfExpr -> it.stmtText
-				is JuliaAssignLevelOp -> it.varOrConstName
+				is JuliaAssignOp -> it.varOrConstName
 				is JuliaTypeDeclaration -> it.exprList.first().text
 				is JuliaModuleDeclaration -> it.symbol.text
 				is IJuliaFunctionDeclaration -> it.exprList.first().text
@@ -112,9 +112,9 @@ val PsiElement.isBlock
 		this is IJuliaFunctionDeclaration ||
 		this is JuliaTypeDeclaration ||
 		this is JuliaIfExpr||
-		this is JuliaAssignLevelOp
+		this is JuliaAssignOp
 
-val JuliaAssignLevelOp.varOrConstIcon
+val JuliaAssignOp.varOrConstIcon
 	get() = if (exprList.firstOrNull()?.let { it.firstChild.node.elementType == JuliaTypes.CONST_KEYWORD } == true)
 		JuliaIcons.JULIA_CONST_ICON
 	else
@@ -123,5 +123,5 @@ val JuliaAssignLevelOp.varOrConstIcon
 val JuliaIfExpr.stmtText
 	get() = "if "+ statements.exprList.first().text
 
-val JuliaAssignLevelOp.varOrConstName: String
+val JuliaAssignOp.varOrConstName: String
 	get() = this.exprList.first().let { if(it is JuliaSymbolLhs)it.symbolList.last().text else it.text }

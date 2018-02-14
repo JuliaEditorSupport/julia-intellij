@@ -171,7 +171,7 @@ class JuliaContextCompletionProvider : CompletionProvider<CompletionParameters>(
 		while (list.isNotEmpty()) {
 			val elem = list.removeAt(list.lastIndex)
 			when (elem) {
-				is JuliaAssignLevelOp -> result.addElement(LookupElementBuilder.create(elem.varOrConstName).withIcon(elem.varOrConstIcon))
+				is JuliaAssignOp -> result.addElement(LookupElementBuilder.create(elem.varOrConstName).withIcon(elem.varOrConstIcon))
 				is IJuliaFunctionDeclaration -> result.addElement(LookupElementBuilder.create(elem.exprList.first().text).withIcon(JuliaIcons.JULIA_FUNCTION_ICON))
 			}
 			elem.children.forEach { list.add(it) }

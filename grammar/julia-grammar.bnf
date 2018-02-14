@@ -149,7 +149,7 @@ applyMacroOp ::= macroSymbol expr*
 expr ::=
    compactFunction
  | applyMacroOp
- | assignLevelOp
+ | assignLevel
  | arrowOp
  | ternaryOp
  | lambda
@@ -188,6 +188,11 @@ compactFunction ::=
 }
 
 // level 0
+private assignLevel ::=
+   assignOp
+ | assignLevelOp
+
+assignOp ::= expr (EQ_SYM | ASSIGN_SYM) endOfLine expr { rightAssociative=true pin=2 }
 assignLevelOp ::= expr assignLevelOperator endOfLine expr { rightAssociative=true pin=2 }
 assignLevelOperator ::=
    COLON_ASSIGN_SYM
@@ -206,8 +211,6 @@ assignLevelOperator ::=
  | DIVIDE_ASSIGN_SYM
  | FACTORISE_ASSIGN_SYM
  | EXPONENT_ASSIGN_SYM
- | EQ_SYM
- | ASSIGN_SYM
 
 // level 1.5
 arrowOp ::= expr ARROW_SYM endOfLine expr { rightAssociative=true }
