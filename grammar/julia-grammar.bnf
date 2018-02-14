@@ -242,11 +242,10 @@ applyFunctionOp ::=
   )?
  RIGHT_BRACKET doBlock?
 
+private symbolLhsInternal ::= symbol | LEFT_BRACKET symbol RIGHT_BRACKET
 symbolLhs ::=
- ((LOCAL_KEYWORD | CONST_KEYWORD)
-  endOfLine)?
- (symbol | LEFT_BRACKET symbol RIGHT_BRACKET)
-  (COMMA_SYM endOfLine symbol)* { extends=expr }
+ ((LOCAL_KEYWORD | CONST_KEYWORD) endOfLine)
+ symbolLhsInternal (COMMA_SYM endOfLine symbolLhsInternal)* { extends=expr }
 
 // All reserved but unassigned
 // level 2.5
@@ -413,6 +412,7 @@ private primaryExpr ::=
  | typeDeclaration
  | typeAlias
  | symbolLhs
+ | symbol
  | inAsOp
  | macroSymbol
  | bracketedExpr
