@@ -78,7 +78,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 				is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
 				is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
 				is JuliaAssignLevelOp -> psiElement.varOrConstIcon
-				is JuliaIfExpr -> JuliaIcons.JULIA_BIG_ICON
+				is JuliaIfExpr -> JuliaIcons.JULIA_IF_ICON
 				else -> JuliaIcons.JULIA_BIG_ICON
 			}
 
