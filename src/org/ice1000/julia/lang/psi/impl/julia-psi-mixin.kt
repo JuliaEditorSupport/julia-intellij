@@ -13,12 +13,12 @@ interface IJuliaFunctionDeclaration : PsiElement {
 	var docString: JuliaStringContent?
 }
 
-abstract class JuliaFunctionMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode),
+abstract class JuliaFunctionMixin(astNode: ASTNode) : JuliaExprMixin(astNode),
 	JuliaFunction {
 	override var docString: JuliaStringContent? = null
 }
 
-abstract class JuliaCompactFunctionMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode),
+abstract class JuliaCompactFunctionMixin(astNode: ASTNode) : JuliaExprMixin(astNode),
 	JuliaCompactFunction {
 	override var docString: JuliaStringContent? = null
 }
