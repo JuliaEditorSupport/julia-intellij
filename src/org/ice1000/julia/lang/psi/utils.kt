@@ -73,7 +73,7 @@ fun PsiElement.presentText() = this.let {
 		is JuliaWhileExpr -> it.compareText
 		is JuliaTypeDeclaration -> it.exprList.first().text
 		is JuliaModuleDeclaration -> it.symbol.text
-		is IJuliaFunctionDeclaration -> it.functionName
+		is IJuliaFunctionDeclaration -> it.toText
 		else -> it.text
 	}
 }
