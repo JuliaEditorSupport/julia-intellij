@@ -20,7 +20,7 @@ import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.action.NewJuliaFile
 
 /**
- * For other IDE(PyCharm,CLion...)
+ * For non-IntelliJ IDE (PyCharm,CLion...)
  * @author zxj5470
  * @date 2018/1/31
  */
@@ -43,7 +43,9 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 		}
 	}
 
-	//	@Deprecated("wait until Julia v0.7 or later if Julia can compile to executable easily")
+	/**
+	 * wait until Julia v0.7 or later if Julia can compile to executable easily
+	 */
 	private fun Project.forCLion() {
 		if (PlatformUtils.isCLion()) {
 			fun generateCMakeFile(baseDir: VirtualFile) = runWriteAction {

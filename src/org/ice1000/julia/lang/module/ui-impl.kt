@@ -28,7 +28,7 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 				importPathField.text = importPathOf(juliaExeField.text, 500L)
 			}
 		})
-		if(validateJuliaExe(defaultExePath)) juliaExeField.text = defaultExePath
+		if (validateJuliaExe(defaultExePath)) juliaExeField.text = defaultExePath
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor()))
 		importPathField.text = importPathOf(defaultExePath, 800L)
 	}
@@ -58,24 +58,24 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 		useLocalJuliaDistributionRadioButton.addActionListener {
 			juliaExeField.isEnabled = false
 			juliaExeField.text = defaultExePath
-			if(useLocalJuliaDistributionRadioButton.isSelected){
-				selectJuliaExecutableRadioButton.isSelected=false
+			if (useLocalJuliaDistributionRadioButton.isSelected) {
+				selectJuliaExecutableRadioButton.isSelected = false
 			}
 		}
 		selectJuliaExecutableRadioButton.addActionListener {
 			juliaExeField.isEnabled = true
 //			juliaExeField.text = settings.exePath
-			if(selectJuliaExecutableRadioButton.isSelected){
-				useLocalJuliaDistributionRadioButton.isSelected=false
+			if (selectJuliaExecutableRadioButton.isSelected) {
+				useLocalJuliaDistributionRadioButton.isSelected = false
 			}
 		}
 		usefulText.isVisible = false
 		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
 		juliaExeField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor()))
 //		default
-		if(validateJuliaExe(defaultExePath)) {
+		if (validateJuliaExe(defaultExePath)) {
 			juliaExeField.text = defaultExePath
-			getSettings().exePath=juliaExeField.text
+			getSettings().exePath = juliaExeField.text
 		}
 		selectJuliaExecutableRadioButton.isSelected = true
 	}
@@ -128,7 +128,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 				tryGetBase(exePath)?.let { basePathField.text = it }
 			}
 		})
-		if(settings.exePath.isNotBlank())
+		if (settings.exePath.isNotBlank())
 			juliaExeField.text = settings.exePath
 		else
 			juliaExeField.text = defaultExePath

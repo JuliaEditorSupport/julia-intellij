@@ -9,7 +9,7 @@ import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 
-inline fun forceRun(lambda: () -> Any) {
+inline fun forceRun(lambda: () -> Unit) {
 	try {
 		lambda()
 	} catch (e: Throwable) {
