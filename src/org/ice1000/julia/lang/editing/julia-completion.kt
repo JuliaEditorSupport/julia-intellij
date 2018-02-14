@@ -172,26 +172,37 @@ class JuliaContextCompletionProvider : CompletionProvider<CompletionParameters>(
 			val elem = list.removeAt(list.lastIndex)
 			if (elem.canBeNamed) {
 				val text = elem.presentText()
+//				the type of return value,show at right of popup
+				val typeText = elem.typeText()
+//				after text,it will not be completed
 				val tailText = elem.tailText()
 				val icon = elem.presentIcon()
 				result.addElement(
 					LookupElementBuilder
 						.create(text)
 						.withIcon(icon)
-						.withTypeText(tailText, true))
+						.withTailText(tailText, true)
+						.withTypeText(typeText, true))
 			}
 			elem.children.forEach { list.add(it) }
 		}
 	}
 }
 
+/**
+ * after text but it won't be completed
+ */
 private fun PsiElement.tailText() = when (this) {
-	is IJuliaFunctionDeclaration -> {
-//		FIXME
-//		this.exprList.forEach { println(it) }
-//		SYMBOL,SYMBOL_LHS,SYMBOL
-		"Params..."
-	}
+	is IJuliaFunctionDeclaration -> this.typeAndParams
+	else -> ""
+}
+
+/**
+ * right side of popup
+ */
+private fun PsiElement.typeText() = when (this) {
+	//the type of return value
+	is IJuliaFunctionDeclaration -> ""
 	else -> ""
 }
 

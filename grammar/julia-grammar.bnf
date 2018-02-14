@@ -131,7 +131,7 @@ typedNamedVariable ::=
  | symbol? typeAnnotation
  ) (EQ_SYM expr)?
 
-private typeParameters ::=
+typeParameters ::=
  LEFT_B_BRACKET endOfLine
   expr (commaSep expr?)* endOfLine
  RIGHT_B_BRACKET
@@ -457,7 +457,7 @@ tuple ::=
  RIGHT_BRACKET { extends=expr }
 
 private commaSep ::= endOfLine COMMA_SYM endOfLine
-private functionSignature ::=
+functionSignature ::=
  LEFT_BRACKET endOfLine
   (typedNamedVariable (commaSep typedNamedVariable)*)?
   (SEMICOLON_SYM endOfLine

@@ -61,10 +61,14 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 				.filter { it !is LeafPsiElement }//filter EOL
 				.forEach { element ->
 					if (element.isBlock) {
-						if (element is JuliaStatements) {
-							children.addAll(JuliaStructureViewElement(element).children)
-						} else
-							children.add(JuliaStructureViewElement(element))
+						when (element) {
+							is JuliaStatements -> children.addAll(JuliaStructureViewElement(element).children)
+							is JuliaTypeDeclaration -> {
+								children.add(JuliaStructureViewElement(element))
+								element.exprList.filter { it is JuliaSymbol }.forEach { children.add(JuliaStructureViewElement(it)) }
+							}
+							else -> children.add(JuliaStructureViewElement(element))
+						}
 					}
 				}
 			return children.toList()
@@ -82,70 +86,5 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun canNavigate() = psiElement is NavigationItem && (psiElement as NavigationItem).canNavigate()
 		override fun canNavigateToSource() = psiElement is NavigationItem && (psiElement as NavigationItem).canNavigateToSource()
 		override fun getAlphaSortKey() = (psiElement as? PsiNamedElement)?.name.orEmpty()
-	}
-}
-
-val PsiElement.isBlock
-	get() = this is JuliaFile ||
-		this is JuliaStatements ||
-		this is JuliaModuleDeclaration ||
-		this is IJuliaFunctionDeclaration ||
-		this is JuliaTypeDeclaration ||
-		this is JuliaIfExpr ||
-		this is JuliaElseIfClause ||
-		this is JuliaElseClause ||
-		this is JuliaWhileExpr ||
-		this is JuliaAssignOp
-
-val PsiElement.canBeNamed
-	get() = this is JuliaFile ||
-		this is IJuliaFunctionDeclaration ||
-		this is JuliaTypeDeclaration ||
-		this is JuliaAssignOp ||
-		this is JuliaSymbol
-
-val JuliaAssignOp.varOrConstIcon
-	get() = if (exprList.firstOrNull()?.let { it.firstChild.node.elementType == JuliaTypes.CONST_KEYWORD } == true)
-		JuliaIcons.JULIA_CONST_ICON
-	else
-		JuliaIcons.JULIA_VARIABLE_ICON
-
-val JuliaIfExpr.compareText
-	get() = "if " + statements.exprList.first().text
-
-val JuliaElseIfClause.compareText
-	get() = "elseif " + statements.exprList.first().text
-
-val JuliaWhileExpr.compareText
-	get() = expr?.text ?: "while"
-
-val JuliaAssignOp.varOrConstName: String
-	get() = this.exprList.first().let { if (it is JuliaSymbolLhs) it.symbolList.last().text else it.text }
-
-fun PsiElement.presentText() = this.let {
-	when (it) {
-		is JuliaFile -> it.originalFile.name
-		is JuliaIfExpr -> it.compareText
-		is JuliaElseClause -> "else"
-		is JuliaElseIfClause -> it.compareText
-		is JuliaAssignOp -> it.varOrConstName
-		is JuliaWhileExpr -> it.compareText
-		is JuliaTypeDeclaration -> it.exprList.first().text
-		is JuliaModuleDeclaration -> it.symbol.text
-		is IJuliaFunctionDeclaration -> it.exprList.first().text
-		else -> it.text
-	}
-}
-
-fun PsiElement.presentIcon(): Icon? {
-	return when (this) {
-		is JuliaFile -> PsiIconUtil.getProvidersIcon(this, 0)
-		is IJuliaFunctionDeclaration -> JuliaIcons.JULIA_FUNCTION_ICON
-		is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
-		is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
-		is JuliaWhileExpr -> JuliaIcons.JULIA_WHILE_ICON
-		is JuliaAssignOp -> this.varOrConstIcon
-		is JuliaIfExpr -> JuliaIcons.JULIA_IF_ICON
-		else -> JuliaIcons.JULIA_BIG_ICON
 	}
 }

@@ -9,7 +9,7 @@ import org.ice1000.julia.lang.JuliaTokenType
 import org.ice1000.julia.lang.psi.*
 
 interface IJuliaFunctionDeclaration : PsiElement {
-	val exprList: List<JuliaExpr>
+//	val exprList: List<JuliaExpr>
 	var docString: JuliaStringContent?
 }
 
