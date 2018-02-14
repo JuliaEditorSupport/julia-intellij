@@ -38,7 +38,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
 			is JuliaPlusLevelOp -> plusLevelOp(element, holder)
-			is JuliaAssignOp -> assignOp(element, holder)
+			is JuliaAssignLevelOp -> assignLevelOp(element, holder)
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
@@ -60,8 +60,8 @@ class JuliaAnnotator : Annotator {
 		}
 	}
 
-	private fun assignOp(element: JuliaAssignOp, holder: AnnotationHolder) {
-		when (element.children.getOrNull(2)?.run { text[0] }) {
+	private fun assignLevelOp(element: JuliaAssignLevelOp, holder: AnnotationHolder) {
+		when (element.children.getOrNull(1)?.run { text[0] }) {
 			'$' -> holder.createWarningAnnotation(element,
 				JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
 				highlightType = ProblemHighlightType.LIKE_DEPRECATED
