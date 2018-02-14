@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
+import java.math.BigDecimal
 import java.math.BigInteger
 
 enum class NumeralType(bit: Int) {
@@ -38,6 +39,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
 			is JuliaPlusLevelOp -> plusLevelOp(element, holder)
+			is JuliaMultiplyLevelOp -> multiplyLevelOp(element, holder)
 			is JuliaAssignLevelOp -> assignLevelOp(element, holder)
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
@@ -60,6 +62,22 @@ class JuliaAnnotator : Annotator {
 		}
 	}
 
+	/**
+	 * 遇到一些奇怪的数字就会爆炸
+	 * 例如 .0, -0f0
+	 * :(
+	 */
+	private fun divide(element: JuliaExpr, holder: AnnotationHolder, child: PsiElement) {
+		if(BigDecimal(child.text).compareTo(BigDecimal.ZERO) == 0) holder.createErrorAnnotation(element, "除数不能为0")		//TODO
+	}
+
+	private fun multiplyLevelOp(element: JuliaMultiplyLevelOp, holder : AnnotationHolder) {
+		when(element.multiplyLevelOperator.text[0]) {
+			'/', '%' -> divide(element, holder, element.lastChild)
+			'\\' -> divide(element, holder, element.firstChild)
+		}
+	}
+
 	private fun assignLevelOp(element: JuliaAssignLevelOp, holder: AnnotationHolder) {
 		when (element.children.getOrNull(1)?.run { text[0] }) {
 			'$' -> holder.createWarningAnnotation(element,
@@ -72,6 +90,9 @@ class JuliaAnnotator : Annotator {
 				registerFix(JuliaReplaceWithTextIntention(element, "$left \u22bb= $right",
 					JuliaBundle.message("julia.lint.xor-is-replace-22bb", left, right)))
 			}
+
+			'/', '%' -> divide(element, holder, element.lastChild)
+			'\\' -> divide(element, holder, element.firstChild)
 		}
 	}
 
@@ -98,6 +119,10 @@ class JuliaAnnotator : Annotator {
 		val name = element.exprList.first()
 		if (name is JuliaSymbol) {
 			if (name.text == "new") holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.KEYWORD
+
+			when(name.text) {
+				"rem", "mod" -> divide(element, holder, name.parent.children.getOrNull(1)?.children?.getOrNull(1) ?: return)
+			}
 		}
 	}
 
