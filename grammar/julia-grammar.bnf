@@ -185,6 +185,7 @@ compactFunction ::=
 	pin=6
 	extends=expr
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaCompactFunctionMixin'
 }
 
 // level 0
@@ -479,6 +480,7 @@ function ::=
   statements
  END_KEYWORD {
 	extends=expr
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaFunctionMixin'
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration']
 }
 

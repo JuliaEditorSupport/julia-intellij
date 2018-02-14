@@ -31,6 +31,7 @@ class DocfmtAnnotator : Annotator {
 				element
 					.children
 					.mapNotNull { (it as? DocfmtConfig)?.takeIf { it.type != -1 } }
+					.asReversed()
 					.forEach {
 						if (existing[it.type]) holder.createWeakWarningAnnotation(it, "Duplicate configuration").run {
 							registerFix(JuliaRemoveElementIntention(it, "Remove duplicate configuration"))

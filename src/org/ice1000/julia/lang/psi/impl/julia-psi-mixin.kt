@@ -10,17 +10,30 @@ import org.ice1000.julia.lang.psi.*
 
 interface IJuliaFunctionDeclaration : PsiElement {
 	val exprList: List<JuliaExpr>
+	var docString: JuliaStringContent?
+}
+
+abstract class JuliaFunctionMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode),
+	JuliaFunction {
+	override var docString: JuliaStringContent? = null
+}
+
+abstract class JuliaCompactFunctionMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode),
+	JuliaCompactFunction {
+	override var docString: JuliaStringContent? = null
 }
 
 interface IJuliaStringContent : PsiLanguageInjectionHost {
 	override fun createLiteralTextEscaper(): StringLiteralEscaper<out JuliaStringContent>
 	override fun updateText(s: String): JuliaStringContent
+	var isDocString: Boolean
 }
 
 abstract class JuliaStringContentMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaStringContent {
 	override fun isValidHost() = true
 	override fun createLiteralTextEscaper() = StringLiteralEscaper(this)
 	override fun updateText(s: String) = replace(JuliaTokenType.fromText(s, project)) as JuliaStringContent
+	override var isDocString = false
 }
 
 interface IJuliaSymbol : JuliaExpr {

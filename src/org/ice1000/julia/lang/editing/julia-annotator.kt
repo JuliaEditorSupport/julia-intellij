@@ -11,23 +11,18 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.BigInteger.ONE
+import java.math.BigInteger.ZERO
 
-enum class NumeralType(bit: Int) {
+enum class NumeralType(
+	bit: Int,
+	val range: ClosedRange<BigInteger> = BigInteger.valueOf(2L).pow(bit - 1).let { -it..it - ONE }) {
 	Int8(8),
 	Int16(16),
 	Int32(32),
 	Int64(64),
 	Int128(128),
-	BigInt(0);
-
-	val range: ClosedRange<BigInteger>
-
-	init {
-		range = if (bit != 0) {
-			val tempVal = BigInteger.valueOf(2L).pow(bit - 1)
-			-tempVal..tempVal - BigInteger.ONE
-		} else BigInteger.ZERO..BigInteger.ZERO
-	}
+	BigInt(0, ZERO..ZERO);
 }
 
 class JuliaAnnotator : Annotator {
