@@ -22,4 +22,7 @@ public interface JuliaIcons {
 
 	@NotNull Icon DOCFMT_RED_ICON = IconLoader.getIcon("/icons/docfmt/docfmt_red.png");
 	@NotNull Icon DOCFMT_BLUE_ICON = IconLoader.getIcon("/icons/docfmt/docfmt_blue.png");
+
+	@NotNull Icon IF_ICON = IconLoader.getIcon("/icons/structure-view/if.png");
+	@NotNull Icon WHILE_ICON = IconLoader.getIcon("/icons/structure-view/while.png");
 }
