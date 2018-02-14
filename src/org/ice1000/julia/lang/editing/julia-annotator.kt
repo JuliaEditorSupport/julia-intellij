@@ -63,23 +63,23 @@ class JuliaAnnotator : Annotator {
 	}
 
 	/**
-	 * 遇到一些奇怪的数字就会爆炸
-	 * 例如 .0, -0f0
-	 * :(
+	 * TODO deal with `f`
 	 */
-	private fun divide(element: JuliaExpr, holder: AnnotationHolder, child: PsiElement) {
-		if(BigDecimal(child.text).compareTo(BigDecimal.ZERO) == 0) holder.createErrorAnnotation(element, "除数不能为0")		//TODO
+	private fun divide(holder: AnnotationHolder, child: PsiElement) {
+		if ('f' in child.text) return
+		if (BigDecimal(child.text) == BigDecimal.ZERO) holder.createErrorAnnotation(child,
+			JuliaBundle.message("julia.lint.div-by-zero"))
 	}
 
-	private fun multiplyLevelOp(element: JuliaMultiplyLevelOp, holder : AnnotationHolder) {
-		when(element.multiplyLevelOperator.text[0]) {
-			'/', '%' -> divide(element, holder, element.lastChild)
-			'\\' -> divide(element, holder, element.firstChild)
+	private fun multiplyLevelOp(element: JuliaMultiplyLevelOp, holder: AnnotationHolder) {
+		when (element.multiplyLevelOperator.text.firstOrNull()) {
+			'/', '%' -> divide(holder, element.lastChild)
+			'\\' -> divide(holder, element.firstChild)
 		}
 	}
 
 	private fun assignLevelOp(element: JuliaAssignLevelOp, holder: AnnotationHolder) {
-		when (element.children.getOrNull(1)?.run { text[0] }) {
+		when (element.children.getOrNull(1)?.run { text.firstOrNull() }) {
 			'$' -> holder.createWarningAnnotation(element,
 				JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
 				highlightType = ProblemHighlightType.LIKE_DEPRECATED
@@ -91,8 +91,8 @@ class JuliaAnnotator : Annotator {
 					JuliaBundle.message("julia.lint.xor-is-replace-22bb", left, right)))
 			}
 
-			'/', '%' -> divide(element, holder, element.lastChild)
-			'\\' -> divide(element, holder, element.firstChild)
+			'/', '%' -> divide(holder, element.lastChild)
+			'\\' -> divide(holder, element.firstChild)
 		}
 	}
 
@@ -116,18 +116,19 @@ class JuliaAnnotator : Annotator {
 	private fun applyFunction(
 		element: JuliaApplyFunctionOp,
 		holder: AnnotationHolder) {
-		val name = element.exprList.first()
+		val name = element.exprList.firstOrNull()
 		if (name is JuliaSymbol) {
-			if (name.text == "new") holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.KEYWORD
-
-			when(name.text) {
-				"rem", "mod" -> divide(element, holder, name.parent.children.getOrNull(1)?.children?.getOrNull(1) ?: return)
+			when (name.text) {
+				"new" -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.KEYWORD
+			// TODO make sure it's not re-defined function
+				"rem",
+				"mod" -> divide(holder, element.children.getOrNull(1)?.children?.getOrNull(1) ?: return)
 			}
 		}
 	}
 
 	private fun string(string: JuliaString, holder: AnnotationHolder) = string.children
-		.filter { it.firstChild.node.elementType == JuliaTypes.STRING_ESCAPE && (it.textContains('x') || it.textContains('u')) }
+		.filter { it.firstChild.node.elementType == JuliaTypes.STRING_ESCAPE && (it.textContains('x') or it.textContains('u')) }
 		.forEach { holder.createErrorAnnotation(it, JuliaBundle.message("julia.lint.invalid-string-escape")) }
 
 	private fun definition(element: PsiElement, holder: AnnotationHolder, attributesKey: TextAttributesKey) {
