@@ -289,9 +289,11 @@ pipeLevelOp ::= expr pipeLevelOperator endOfLine expr
 
 private quoteLevel ::=
    spliceOp
+ | colonOp
  | quoteOp
  | compoundQuoteOp
 
+colonOp ::= expr COLON_SYM expr
 spliceOp ::= expr SLICE_SYM
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
 quoteOp ::= COLON_SYM endOfLine quotable
