@@ -67,7 +67,6 @@ abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode
 
 	override fun subtreeChanged() {
 		type = null
-
 		isResolved = false
 		super.subtreeChanged()
 	}
