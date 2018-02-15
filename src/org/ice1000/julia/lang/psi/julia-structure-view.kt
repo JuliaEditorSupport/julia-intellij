@@ -11,7 +11,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.pom.Navigatable
 import com.intellij.psi.*
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JULIA_LANGUAGE_NAME
 import org.ice1000.julia.lang.editing.cutText
@@ -47,22 +46,20 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun getChildrenBase() = getGrandsonOfYourMother()
 
 		private fun getGrandsonOfYourMother(): List<StructureViewTreeElement> {
-			val children = ArrayList<StructureViewTreeElement>()
+			val children = arrayListOf<StructureViewTreeElement>()
 			psiElement.children
-				.filter { it !is LeafPsiElement }//filter EOL
+				.filter { it.isBlock }//filter EOL
 				.forEach { element ->
-					if (element.isBlock) {
-						when (element) {
-							is JuliaStatements -> children.addAll(JuliaStructureViewElement(element).children)
-							is JuliaTypeDeclaration -> {
-								children.add(JuliaStructureViewElement(element))
-								element.exprList.filter { it is JuliaSymbol }.forEach { children.add(JuliaStructureViewElement(it)) }
-							}
-							else -> children.add(JuliaStructureViewElement(element))
+					when (element) {
+						is JuliaStatements -> children.addAll(JuliaStructureViewElement(element).children)
+						is JuliaTypeDeclaration -> {
+							children.add(JuliaStructureViewElement(element))
+							element.exprList.filter { it is JuliaSymbol }.forEach { children.add(JuliaStructureViewElement(it)) }
 						}
+						else -> children.add(JuliaStructureViewElement(element))
 					}
 				}
-			return children.toList()
+			return children
 		}
 
 		override fun getLocationString() = ""
@@ -73,7 +70,6 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 			(psiElement as? NavigationItem)?.navigate(requestFocus)
 		}
 
-		override fun getValue() = psiElement
 		override fun canNavigate() = psiElement is NavigationItem && (psiElement as NavigationItem).canNavigate()
 		override fun canNavigateToSource() = psiElement is NavigationItem && (psiElement as NavigationItem).canNavigateToSource()
 		override fun getAlphaSortKey() = (psiElement as? PsiNamedElement)?.name.orEmpty()
