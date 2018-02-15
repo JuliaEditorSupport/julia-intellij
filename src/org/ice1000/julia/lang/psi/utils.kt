@@ -6,7 +6,6 @@ import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
-
 val PsiElement.isBlock
 	get() = this is JuliaFile ||
 		this is JuliaStatements ||
@@ -43,24 +42,6 @@ val JuliaWhileExpr.compareText
 
 val JuliaAssignOp.varOrConstName: String
 	get() = exprList.first().let { if (it is JuliaSymbolLhs) it.symbolList.last().text else it.text }
-
-val IJuliaFunctionDeclaration.functionName: String
-	get() = when {
-		this is JuliaFunction -> symbol?.text.toString()
-		this is JuliaCompactFunction -> exprList.first().text.toString()
-		else -> ""
-	}
-
-val IJuliaFunctionDeclaration.typeAndParams: String
-	get() = when {
-		this is JuliaFunction -> typeParameters?.text ?: ""+functionSignature?.text
-		this is JuliaCompactFunction -> typeParameters?.text ?: ""+functionSignature.text
-		else -> ""
-	}
-
-val IJuliaFunctionDeclaration.toText: String
-	get() = functionName + typeAndParams
-
 
 fun PsiElement.presentText(): String = when (this) {
 	is JuliaFile -> originalFile.name

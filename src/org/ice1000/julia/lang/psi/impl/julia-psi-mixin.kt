@@ -9,8 +9,24 @@ import org.ice1000.julia.lang.JuliaTokenType
 import org.ice1000.julia.lang.psi.*
 
 interface IJuliaFunctionDeclaration : PsiElement {
-//	val exprList: List<JuliaExpr>
+	val exprList: List<JuliaExpr>
 	var docString: JuliaStringContent?
+
+	val functionName
+		get() = when {
+			this is JuliaFunction -> symbol?.text.toString()
+			this is JuliaCompactFunction -> exprList.first().text.toString()
+			else -> ""
+		}
+
+	val typeAndParams
+		get() = when {
+			this is JuliaFunction -> typeParameters?.text ?: ""+functionSignature?.text
+			this is JuliaCompactFunction -> typeParameters?.text ?: ""+functionSignature.text
+			else -> ""
+		}
+
+	val toText get() = functionName + typeAndParams
 }
 
 abstract class JuliaFunctionMixin(astNode: ASTNode) : JuliaExprMixin(astNode),
