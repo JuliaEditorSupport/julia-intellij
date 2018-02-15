@@ -23,7 +23,7 @@ This is a **work in progress**, some features are implemented partially, there m
     <td><a href="https://ci.appveyor.com/project/ice1000/julia-intellij"><img src="https://ci.appveyor.com/api/projects/status/jboqu7yt2vhqpmfr?svg=true" alt="AppVeyor Build status"></a></td>
   </tr>
   <tr>
-    <td>CircleCI (with IdeaC)</td>
+    <td>CircleCI (with tests)</td>
     <td><a href="https://circleci.com/gh/ice1000/julia-intellij"><img src="https://circleci.com/gh/ice1000/julia-intellij.svg?style=svg" alt="CircleCI Build status"></a></td>
   </tr>
   <tr>

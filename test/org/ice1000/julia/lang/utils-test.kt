@@ -26,13 +26,16 @@ class UtilsKtTest {
 	}
 
 	@Test
-	fun juliaTest() = Runtime
-		.getRuntime()
-		.exec("$juliaPath --version")
-		.inputStream
-		.bufferedReader()
-		.readLine()
-		.let(::println)
+	fun juliaTest() {
+		if (!System.getenv("CI").isNullOrBlank()) return
+		Runtime
+			.getRuntime()
+			.exec("$juliaPath --version")
+			.inputStream
+			.bufferedReader()
+			.readLine()
+			.let(::println)
+	}
 
 	@Test
 	fun whereIsJulia() = executeCommand("whereis julia", null, 1000)

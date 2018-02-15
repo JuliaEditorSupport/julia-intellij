@@ -1,5 +1,5 @@
 # Julia IDE Documentation
 
-https://plugins.jetbrains.com/files/10413/screenshot_17870.png
+https://julia-intellij.readthedocs.io/en/latest/
 
 ↑↑↑ Go and read ↑↑↑

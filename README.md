@@ -12,7 +12,7 @@ CI | Status
 :---:|:---:
 Travis CI (with IdeaC)|[![Travis CI Build status](https://travis-ci.org/ice1000/julia-intellij.svg)](https://travis-ci.org/ice1000/julia-intellij)
 AppVeyor (on Windows)|[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/jboqu7yt2vhqpmfr?svg=true)](https://ci.appveyor.com/project/ice1000/julia-intellij)
-CircleCI (with IdeaC)|[![CircleCI Build status](https://circleci.com/gh/ice1000/julia-intellij.svg?style=svg)](https://circleci.com/gh/ice1000/julia-intellij)
+CircleCI (with tests)|[![CircleCI Build status](https://circleci.com/gh/ice1000/julia-intellij.svg?style=svg)](https://circleci.com/gh/ice1000/julia-intellij)
 CodeShip (branch master)|[![CodeShip Build status](https://app.codeship.com/projects/4c89a940-ec81-0135-9688-6eaa099eb415/status?branch=master)](https://app.codeship.com/projects/270342)
 
 ## Installation \& Usage
