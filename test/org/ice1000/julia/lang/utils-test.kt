@@ -47,7 +47,8 @@ class UtilsKtTest {
 		?.let { Paths.get(it).parent.toAbsolutePath().toString() }
 		.let(::println)
 
+	@Test
 	fun doIt() {
-		"\u1d6a5"
+		println("\u1d6a5")
 	}
 }

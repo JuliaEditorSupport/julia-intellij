@@ -29,6 +29,7 @@ class JuliaSdkFindTest {
 
 	@Test
 	fun testFindImport() {
+		if (!System.getenv("CI").isNullOrBlank()) return
 		val (stdout, _) = executeJulia(defaultExePath, null, 1000L, "--print", "Pkg.dir()")
 		println(stdout)
 		println(stdout.first())
@@ -36,6 +37,7 @@ class JuliaSdkFindTest {
 	}
 	@Test
 	fun testDefault(){
+		if (!System.getenv("CI").isNullOrBlank()) return
 		println(defaultExePath)
 	}
 }

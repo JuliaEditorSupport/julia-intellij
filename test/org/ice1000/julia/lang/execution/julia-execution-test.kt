@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 class JuliaExecutionTest {
 	@Test
 	fun test() {
-		if (System.getProperty("user.name") != "ice1000") return
+		if (!System.getenv("CI").isNullOrBlank()) return
 		val process = Runtime.getRuntime().exec("/home/ice1000/SDK/julia-6.2/bin/julia -q").also {
 			//language=Julia
 			it.outputStream.let {
@@ -43,6 +43,7 @@ class JuliaExecutionTest {
 	@Test
 	fun testDocker() {
 		//Windows
+		if (!System.getenv("CI").isNullOrBlank()) return
 		val winCD = "%CD%"
 		val unixPWD = "\$PWD"
 		val currentDir = if (SystemInfo.isWindows) winCD else unixPWD
@@ -65,6 +66,7 @@ class JuliaExecutionTest {
 class JuliaConfig {
 	@Test
 	fun testFile() {
+		if (!System.getenv("CI").isNullOrBlank()) return
 		println(FileUtilRt.getNameWithoutExtension("/home/zh/IdeaProjects/JuliaTest/src/lk.jl"))
 		println(Files.getNameWithoutExtension("/home/zh/IdeaProjects/JuliaTest/src/lk.jl"))
 	}
@@ -78,6 +80,7 @@ class JuliaConfig {
 class JuliaConsoleTest {
 	@Test
 	fun testShouldFolding() {
+		if (!System.getenv("CI").isNullOrBlank()) return
 		val command = "/Applications/Julia-0.6.app/Contents/Resources/julia/bin/julia --check-bounds=no --history-file=no --inline=no --color=no --math-mode=ieee --handle-signals=no --startup-file=no --optimize=0 --compile=yes -q /Users/paul/IdeaProjects/julia-project-test2/src/Jul.jl 23 f jh"
 		JuliaConsoleFolding().shouldFoldLine(command) shouldBe true
 	}

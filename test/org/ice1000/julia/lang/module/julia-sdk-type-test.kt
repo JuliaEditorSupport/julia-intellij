@@ -8,9 +8,10 @@ import org.junit.Assert.*
 class JuliaSdkTypeTest {
 	@Test
 	fun suggestHomePath() {
+		if (!System.getenv("CI").isNullOrBlank()) return
 		println(executeCommand("ls", null, 100L).first)
 		println(executeCommand("whereis julia", null, 500L).first)
 		println(defaultExePath)
-		arrayOf("").contains("")
+		println("" in arrayOf(""))
 	}
 }

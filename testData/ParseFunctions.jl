@@ -84,3 +84,7 @@ filter(x -> x > 5, [3, 4, 5, 6, 7]) # => [6, 7]
 # We can use list comprehensions for nicer maps
 [add_10(i) for i=[1, 2, 3]] # => [11, 12, 13]
 [add_10(i) for i in [1, 2, 3]] # => [11, 12, 13]
+
+function wow(a::A, b::B)
+	println("I'm high!")
+end

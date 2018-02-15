@@ -43,3 +43,4 @@ jobs:
       - store_artifacts:
           path: build/distributions
 
+      - run: gradle test
