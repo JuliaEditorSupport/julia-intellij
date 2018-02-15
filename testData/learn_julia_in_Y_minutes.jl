@@ -1,6 +1,3 @@
-# 2333
-a
-233
 # Functions return the value of their last statement
 function add(x, y)
     println("x is $x and y is $y")
@@ -10,18 +7,6 @@ end
 type Lion <: Cat()
   mane_color::Cat=Cat
 end
- # Lion is a subtype of Cat
-23333
-#= Multiline comments can be written
-23333
-23333
-=#
-
-####################################################
-## 1. Primitive Datatypes and Operators
-####################################################
-# Everything in Julia is an expression.
-# There are several basic types of numbers.
 
 3 # => 3 (Int64)
 3.2 # => 3.2 (Float64)
@@ -107,24 +92,7 @@ SomeOtherVar123! = 6 # => 6
 # These are especially handy for mathematical notation
 2 * π # => 6.283185307179586
 
-# A note on naming conventions in Julia:
-#
-# * Word separation can be indicated by underscores ('_'), but use of
-#   underscores is discouraged unless the name would be hard to read
-#   otherwise.
-#
-# * Names of Types begin with a capital letter and word separation is shown
-#   with CamelCase instead of underscores.
-#
-# * Names of functions and macros are in lower case, without underscores.
-#
-# * Functions that modify their inputs have names that end in !. These
-#   functions are sometimes called mutating functions or in-place functions.
-
-# Arrays store a sequence of values indexed by integers 1 through n:
 a = Int64[] # => 0-element Int64 Array
-
-# 1-dimensional array literals can be written with comma-separated values.
 b = [4, 5, 6] # => 3-element Int64 Array: [4, 5, 6]
 b = [4; 5; 6] # => 3-element Int64 Array: [4, 5, 6]
 b[1] # => 4
@@ -178,7 +146,7 @@ end
 # inside the julia folder to find these files.
 
 # You can initialize arrays from ranges
- a = [1:5;] # => 5-element Int64 Array: [1,2,3,4,5]
+a = [1:5;] # => 5-element Int64 Array: [1,2,3,4,5]
 
 # You can look at ranges with slice syntax.
 a[1:3] # => [1, 2, 3]
@@ -381,12 +349,8 @@ tigger = Tiger(3.5,"orange") # => Tiger(3.5,"orange")
 # The type doubles as the constructor function for values of that type
 sherekhan = typeof(tigger)(5.6,"fire") # => Tiger(5.6,"fire")
 
-# These struct-style types are called concrete types
-# They can be instantiated, but cannot have subtypes.
-# The other kind of types is abstract types.
-
 # abstract Name
- abstract Cat # just a name and point in the type hierarchy
+# abstract Cat
 # WARNING: deprecated syntax "abstract Cat" at REPL[27]:1.
 # Use "abstract type Cat end" instead.
 
@@ -489,17 +453,6 @@ try
   fight(Panther(),Lion("RAWR")) # => ERROR: no method fight(Panther,Lion)
 catch
 end
-
-# Also let the cat go first
-fight(c::Cat,l::Lion) = println("The cat beats the Lion")
-# => Warning: New definition
-#    fight(Cat,Lion) at none:1
-# is ambiguous with
-#    fight(Lion,Cat) at none:2.
-# Make sure
-#    fight(Lion,Lion)
-# is defined first.
-#fight (generic function with 4 methods)
 
 # This warning is because it's unclear which fight will be called in:
 fight(Lion("RAR"),Lion("brown","rarrr")) # => prints The victorious cat says rarrr
