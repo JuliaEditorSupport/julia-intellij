@@ -43,11 +43,6 @@ abstract class JuliaStringContentMixin(astNode: ASTNode) : ASTWrapperPsiElement(
 	override fun updateText(s: String) = replace(JuliaTokenType.fromText(s, project)) as JuliaStringContent
 	override var isDocString = false
 	override var isRegex = false
-	override fun subtreeChanged() {
-		isDocString = false
-		isRegex = false
-		super.subtreeChanged()
-	}
 }
 
 interface IJuliaSymbol : JuliaExpr {
