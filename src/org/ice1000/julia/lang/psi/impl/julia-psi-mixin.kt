@@ -14,7 +14,6 @@ interface IJuliaFunctionDeclaration : PsiElement {
 
 	val functionName: String
 	val typeAndParams: String
-	val toText get() = functionName + typeAndParams
 }
 
 abstract class JuliaFunctionMixin(astNode: ASTNode) : JuliaExprMixin(astNode),
