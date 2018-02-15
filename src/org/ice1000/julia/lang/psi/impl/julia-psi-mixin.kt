@@ -9,34 +9,26 @@ import org.ice1000.julia.lang.JuliaTokenType
 import org.ice1000.julia.lang.psi.*
 
 interface IJuliaFunctionDeclaration : PsiElement {
-	val exprList: List<JuliaExpr>
+	// val exprList: List<JuliaExpr>
 	var docString: JuliaStringContent?
 
-	val functionName
-		get() = when {
-			this is JuliaFunction -> symbol?.text.toString()
-			this is JuliaCompactFunction -> exprList.first().text.toString()
-			else -> ""
-		}
-
-	val typeAndParams
-		get() = when {
-			this is JuliaFunction -> typeParameters?.text ?: ""+functionSignature?.text
-			this is JuliaCompactFunction -> typeParameters?.text ?: ""+functionSignature.text
-			else -> ""
-		}
-
+	val functionName: String
+	val typeAndParams: String
 	val toText get() = functionName + typeAndParams
 }
 
 abstract class JuliaFunctionMixin(astNode: ASTNode) : JuliaExprMixin(astNode),
 	JuliaFunction {
 	override var docString: JuliaStringContent? = null
+	override val functionName get() = symbol?.text.toString()
+	override val typeAndParams get() = typeParameters?.text ?: ""+functionSignature?.text
 }
 
 abstract class JuliaCompactFunctionMixin(astNode: ASTNode) : JuliaExprMixin(astNode),
 	JuliaCompactFunction {
 	override var docString: JuliaStringContent? = null
+	override val functionName get() = exprList.first().text.toString()
+	override val typeAndParams get() = typeParameters?.text ?: ""+functionSignature.text
 }
 
 interface IJuliaStringContent : PsiLanguageInjectionHost {
@@ -75,6 +67,7 @@ abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode
 
 	override fun subtreeChanged() {
 		type = null
+
 		isResolved = false
 		super.subtreeChanged()
 	}
