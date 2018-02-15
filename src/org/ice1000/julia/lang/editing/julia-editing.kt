@@ -123,7 +123,7 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 	override fun getElementInfo(element: PsiElement) = cutText(when (element) {
 		is JuliaTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
 		is JuliaModuleDeclaration -> element.symbol.text
-		is JuliaFunction -> "${element.exprList.firstOrNull()?.text}()"
+		is JuliaFunction -> element.toText
 		is JuliaCompactFunction -> "${element.exprList.firstOrNull()?.text}()"
 		is JuliaAbstractTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
 		is JuliaPrimitiveTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
