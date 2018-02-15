@@ -12,13 +12,9 @@ import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.pom.Navigatable
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import com.intellij.util.PsiIconUtil
 import icons.JuliaIcons
-import org.ice1000.julia.lang.JuliaFile
-import org.ice1000.julia.lang.JuliaLanguage
+import org.ice1000.julia.lang.JULIA_LANGUAGE_NAME
 import org.ice1000.julia.lang.editing.cutText
-import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
-import javax.swing.Icon
 
 
 class JuliaStructureViewFactory : PsiStructureViewFactory {
@@ -27,14 +23,12 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 			override fun createMainView(
 				fileEditor: FileEditor?,
 				mainFile: PsiFile?): StructureViewComposite.StructureViewDescriptor? {
-				if (!psiFile.isValid) {
-					return null
-				}
+				if (!psiFile.isValid) return null
 				val builder = object : TreeBasedStructureViewBuilder() {
 					override fun createStructureViewModel(editor: Editor?) = JuliaStructureViewModel(psiFile)
 				}
 				val view = builder.createStructureView(fileEditor, psiFile.project)
-				return StructureViewComposite.StructureViewDescriptor(JuliaLanguage.INSTANCE.displayName, view, JuliaIcons.JULIA_ICON)
+				return StructureViewComposite.StructureViewDescriptor(JULIA_LANGUAGE_NAME, view, JuliaIcons.JULIA_ICON)
 			}
 		}
 	}
@@ -43,10 +37,7 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		StructureViewModel.ElementInfoProvider {
 		override fun shouldEnterElement(o: Any?) = true
 		override fun isAlwaysShowsPlus(element: StructureViewTreeElement) = false
-		override fun isAlwaysLeaf(element: StructureViewTreeElement) = when (element) {
-			is JuliaFunction -> true
-			else -> false
-		}
+		override fun isAlwaysLeaf(element: StructureViewTreeElement) = element is JuliaFunction
 	}
 
 	class JuliaStructureViewElement(private val psiElement: PsiElement) :

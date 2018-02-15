@@ -77,7 +77,7 @@ fun TextRange.subRangeBeginOffsetAndLength(
 	beginOffset: Int,
 	textLength: Int) = TextRange(startOffset + beginOffset, startOffset + beginOffset + textLength)
 
-fun String.trimQuotePair() = trim('\'', '\"')
+fun String.trimQuotePair() = trim('\'', '\"', '`')
 
 /**
  * its effect needs to profit.

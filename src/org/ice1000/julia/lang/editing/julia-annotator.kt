@@ -46,7 +46,7 @@ class JuliaAnnotator : Annotator {
 	}
 
 	private fun plusLevelOp(element: JuliaPlusLevelOp, holder: AnnotationHolder) {
-		when (element.plusLevelOperator.text[0]) {
+		when (element.plusLevelOperator.text.firstOrNull()) {
 			'$' -> holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
 				highlightType = ProblemHighlightType.LIKE_DEPRECATED
 				registerFix(JuliaReplaceWithTextIntention(element, "xor(${element.firstChild.text}, ${element.lastChild.text})",
@@ -140,7 +140,7 @@ class JuliaAnnotator : Annotator {
 			highlightType = ProblemHighlightType.LIKE_DEPRECATED
 			registerFix(JuliaReplaceWithTextIntention(
 				element,
-				"const ${element.children[0].text} = ${element.userType?.text}",
+				"const ${element.children.firstOrNull()?.text} = ${element.userType?.text}",
 				JuliaBundle.message("julia.lint.typealias-fix")))
 		}
 	}
