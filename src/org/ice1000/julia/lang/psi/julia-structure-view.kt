@@ -54,7 +54,8 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 						is JuliaStatements -> children.addAll(JuliaStructureViewElement(element).children)
 						is JuliaTypeDeclaration -> {
 							children.add(JuliaStructureViewElement(element))
-							element.exprList.filter { it is JuliaSymbol }.forEach { children.add(JuliaStructureViewElement(it)) }
+//							FIXME: field in typeDeclaration
+//							element.exprList.filter { it is JuliaSymbol }.forEach { children.add(JuliaStructureViewElement(it)) }
 						}
 						else -> children.add(JuliaStructureViewElement(element))
 					}
