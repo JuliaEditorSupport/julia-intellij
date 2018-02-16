@@ -43,8 +43,8 @@ abstract class ResolveProcessor<ResolveResult>(val place: PsiElement) : PsiScope
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
 	fun addCandidate(candidate: ResolveResult) = candidateSet.add(candidate)
 
-	protected fun isInScope(element: PsiElement): Boolean = PsiTreeUtil.isAncestor(
-		element.parent?.parent, place, false)
+	protected fun isInScope(element: PsiElement) = true
+//		PsiTreeUtil.isAncestor(element.parent?.parent, place, false)
 }
 
 class SymbolResolveProcessor(private val name: String, place: PsiElement, val incompleteCode: Boolean) :
