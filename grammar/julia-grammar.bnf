@@ -104,7 +104,9 @@ charLit ::= CHAR_LITERAL
 private endOfLineImpl ::= EOL | comment
 private endOfLine ::= endOfLineImpl*
 private semi ::= endOfLineImpl | SEMICOLON_SYM
-statements ::= semi* (statement (semi+ statement)*)? semi*
+statements ::= semi* (statement (semi+ statement)*)? semi* {
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaStatementsMixin'
+}
 
 private statement ::=
    moduleDeclaration

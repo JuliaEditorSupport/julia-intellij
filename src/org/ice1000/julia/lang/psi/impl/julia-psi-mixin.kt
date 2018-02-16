@@ -25,8 +25,9 @@ abstract class JuliaFunctionDeclaration(astNode: ASTNode) : JuliaExprMixin(astNo
 		}
 
 	override fun getName(): String = nameIdentifier?.text.orEmpty()
-	override fun getReferences(): Array<PsiReference> = refCache ?: nameIdentifier?.let { collectFrom(parent.parent, it.text) }
-		?.also { refCache = it } ?: emptyArray()
+	override fun getReferences(): Array<PsiReference> = refCache
+		?: nameIdentifier?.let { collectFrom(parent.parent, it.text) }
+			?.also { refCache = it } ?: emptyArray()
 
 	override fun subtreeChanged() {
 		refCache = null
@@ -63,6 +64,12 @@ abstract class JuliaStringContentMixin(astNode: ASTNode) : ASTWrapperPsiElement(
 	override fun updateText(s: String) = replace(JuliaTokenType.fromText(s, project)) as JuliaStringContent
 	override var isDocString = false
 	override var isRegex = false
+}
+
+abstract class JuliaStatementsMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaStatements {
+	override fun processDeclarations(
+		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+		processDeclTrivial(processor, state, lastParent, place)
 }
 
 interface IJuliaSymbol : JuliaExpr {
