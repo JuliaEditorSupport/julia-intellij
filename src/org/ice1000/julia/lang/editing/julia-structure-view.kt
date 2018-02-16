@@ -1,4 +1,4 @@
-package org.ice1000.julia.lang.psi
+package org.ice1000.julia.lang.editing
 
 import com.intellij.ide.structureView.*
 import com.intellij.ide.structureView.impl.StructureViewComposite
@@ -13,7 +13,7 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi.*
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JULIA_LANGUAGE_NAME
-import org.ice1000.julia.lang.editing.cutText
+import org.ice1000.julia.lang.psi.*
 
 
 class JuliaStructureViewFactory : PsiStructureViewFactory {

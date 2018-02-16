@@ -1,9 +1,10 @@
-package org.ice1000.julia.lang.psi
+package org.ice1000.julia.lang.editing
 
 import com.intellij.psi.PsiElement
 import com.intellij.util.PsiIconUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaFile
+import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
 val PsiElement.isBlock

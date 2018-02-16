@@ -50,7 +50,7 @@
 			implementationClass="org.ice1000.julia.lang.JuliaHighlighterFactory"/>
 		<lang.psiStructureViewFactory
 			language="Julia"
-			implementationClass="org.ice1000.julia.lang.psi.JuliaStructureViewFactory"/>
+			implementationClass="org.ice1000.julia.lang.editing.JuliaStructureViewFactory"/>
 		<lang.syntaxHighlighterFactory
 			language="DocumentFormat"
 			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtHighlighterFactory"/>
