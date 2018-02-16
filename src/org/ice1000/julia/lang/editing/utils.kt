@@ -41,7 +41,7 @@ val JuliaElseIfClause.compareText
 val JuliaWhileExpr.compareText
 	get() = expr?.text ?: "while"
 
-val IJuliaFunctionDeclaration.toText get() = functionName + typeAndParams
+val IJuliaFunctionDeclaration.toText get() = name + typeAndParams
 
 val JuliaAssignOp.varOrConstName: String
 	get() = exprList.first().let { if (it is JuliaSymbolLhs) it.symbolList.last().text else it.text }

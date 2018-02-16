@@ -2,32 +2,51 @@ package org.ice1000.julia.lang.psi.impl
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiLanguageInjectionHost
+import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.injected.StringLiteralEscaper
+import com.intellij.psi.scope.PsiScopeProcessor
 import org.ice1000.julia.lang.JuliaTokenType
 import org.ice1000.julia.lang.psi.*
 
-interface IJuliaFunctionDeclaration : PsiElement {
+interface IJuliaFunctionDeclaration : PsiElement, PsiNameIdentifierOwner {
 	// val exprList: List<JuliaExpr>
 	var docString: JuliaStringContent?
-
-	val functionName: String
 	val typeAndParams: String
 }
 
-abstract class JuliaFunctionMixin(astNode: ASTNode) : JuliaExprMixin(astNode),
-	JuliaFunction {
+abstract class JuliaFunctionDeclaration(astNode: ASTNode) : JuliaExprMixin(astNode), IJuliaFunctionDeclaration {
+	private var refCache: Array<PsiReference>? = null
 	override var docString: JuliaStringContent? = null
-	override val functionName get() = symbol?.text.toString()
-	override val typeAndParams get() = typeParameters?.text ?: ""+functionSignature?.text
+	override fun setName(newName: String) = nameIdentifier?.let { JuliaTokenType.fromText(newName, project).let(it::replace) }
+		.also {
+			if (it is JuliaFunctionDeclaration)
+				it.refCache = references.mapNotNull { it.handleElementRename(newName).reference }.toTypedArray()
+		}
+
+	override fun getName(): String = nameIdentifier?.text.orEmpty()
+	override fun getReferences(): Array<PsiReference> = refCache ?: nameIdentifier?.let { collectFrom(parent, it.text) }
+		?.also { refCache = it } ?: emptyArray()
+
+	override fun subtreeChanged() {
+		refCache = null
+		super.subtreeChanged()
+	}
+
+	override fun processDeclarations(
+		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+		processDeclTrivial(processor, substitutor, lastParent, place) && true == nameIdentifier?.let { processor.execute(it, substitutor) }
 }
 
-abstract class JuliaCompactFunctionMixin(astNode: ASTNode) : JuliaExprMixin(astNode),
+abstract class JuliaFunctionMixin(astNode: ASTNode) : JuliaFunctionDeclaration(astNode),
+	JuliaFunction {
+	override fun getNameIdentifier(): JuliaExpr = children.first { it is JuliaSymbol } as JuliaSymbol
+	override val typeAndParams get() = typeParameters?.text ?: functionSignature?.text.orEmpty()
+}
+
+abstract class JuliaCompactFunctionMixin(astNode: ASTNode) : JuliaFunctionDeclaration(astNode),
 	JuliaCompactFunction {
-	override var docString: JuliaStringContent? = null
-	override val functionName get() = exprList.first().text.toString()
-	override val typeAndParams get() = typeParameters?.text ?: ""+functionSignature.text
+	override fun getNameIdentifier(): JuliaExpr = exprList.first()
+	override val typeAndParams: String get() = typeParameters?.text ?: functionSignature.text
 }
 
 interface IJuliaStringContent : PsiLanguageInjectionHost {

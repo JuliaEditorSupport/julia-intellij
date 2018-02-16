@@ -2,9 +2,9 @@
 
 package org.ice1000.julia.lang.psi.impl
 
-import com.intellij.psi.PsiElement
-import com.intellij.psi.ResolveState
+import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
+import org.ice1000.julia.lang.psi.JuliaSymbol
 
 fun PsiElement.processDeclTrivial(
 	processor: PsiScopeProcessor,
@@ -19,3 +19,9 @@ fun PsiElement.processDeclTrivial(
 	return true
 }
 
+fun collectFrom(startPoint: PsiElement, name: String) = SyntaxTraverser
+	.psiTraverser(startPoint)
+	.filter { it is JuliaSymbol && it.text == name }
+	.mapNotNull(PsiElement::getReference)
+	.toList()
+	.toTypedArray()
