@@ -59,7 +59,7 @@ class JuliaAnnotator : Annotator {
 					"${element.name}${typeParams?.text.orEmpty()}${signature?.text ?: "()"} = ()",
 					JuliaBundle.message("julia.lint.replace-compact-function")))
 			statements.size == 1 -> {
-				val statement = statements.first().let { (it as? JuliaReturnExpr)?.text?.removePrefix("return") ?: it.text }
+				val statement = statements.first().let { if (it is JuliaReturnExpr) it.text.removePrefix("return") else it.text }
 				holder.createInfoAnnotation(element, "Function with only one statement")
 					.registerFix(JuliaReplaceWithTextIntention(element,
 						"${element.name}${typeParams?.text.orEmpty()}${signature?.text ?: "()"} = $statement",
