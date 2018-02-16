@@ -12,6 +12,7 @@ interface IJuliaFunctionDeclaration : PsiElement, PsiNameIdentifierOwner {
 	// val exprList: List<JuliaExpr>
 	var docString: JuliaStringContent?
 	val typeAndParams: String
+	override fun getReferences(): Array<out PsiReference>
 }
 
 abstract class JuliaFunctionDeclaration(astNode: ASTNode) : JuliaExprMixin(astNode), IJuliaFunctionDeclaration {
@@ -24,7 +25,7 @@ abstract class JuliaFunctionDeclaration(astNode: ASTNode) : JuliaExprMixin(astNo
 		}
 
 	override fun getName(): String = nameIdentifier?.text.orEmpty()
-	override fun getReferences(): Array<PsiReference> = refCache ?: nameIdentifier?.let { collectFrom(parent, it.text) }
+	override fun getReferences(): Array<PsiReference> = refCache ?: nameIdentifier?.let { collectFrom(parent.parent, it.text) }
 		?.also { refCache = it } ?: emptyArray()
 
 	override fun subtreeChanged() {
@@ -72,7 +73,6 @@ interface IJuliaSymbol : JuliaExpr {
 	val isTypeName: Boolean
 	val isAbstractTypeName: Boolean
 	val isPrimitiveTypeName: Boolean
-	var isResolved: Boolean
 }
 
 abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaSymbol {
@@ -84,11 +84,9 @@ abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode
 	override val isTypeName get() = parent is JuliaTypeDeclaration || parent is JuliaTypeAlias
 	override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
 	override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
-	override var isResolved: Boolean = false
 	override fun getReference() = reference ?: JuliaSymbolRef(this).also { reference = it }
 	override fun subtreeChanged() {
 		type = null
-		isResolved = false
 		reference = null
 		super.subtreeChanged()
 	}
