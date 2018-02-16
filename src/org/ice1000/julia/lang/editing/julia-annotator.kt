@@ -29,6 +29,7 @@ class JuliaAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		when (element) {
 			is JuliaFunction -> function(element, holder)
+			is JuliaCompactFunction -> compactFunction(element, holder)
 			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MACRO_REFERENCE
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
@@ -44,6 +45,29 @@ class JuliaAnnotator : Annotator {
 				// TODO provide conversions
 			}
 		}
+	}
+
+	private fun compactFunction(
+		element: JuliaCompactFunction,
+		holder: AnnotationHolder
+	) {
+		val elements = element.children
+		val functionName = elements.getOrNull(0)?.text
+		val functionParameter = elements.getOrNull(1)?.text
+		val functionBody = elements.getOrNull(2)?.text?.run { if( this == "()" ) "" else this }		//FIXME stupid code
+
+		holder.createInfoAnnotation(element, ":)") //TODO
+			.registerFix(
+				JuliaReplaceWithTextIntention(
+					element,
+					"""
+						|function $functionName$functionParameter
+						|		$functionBody
+						|end
+					""".trimMargin(),
+					":("		//TODO
+				)
+			)
 	}
 
 	private fun function(
@@ -121,7 +145,7 @@ class JuliaAnnotator : Annotator {
 			element.isModuleName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
 			element.isMacroName -> definition(element, holder, JuliaHighlighter.MACRO_NAME)
-			element.isFunctionName -> definition(element, holder, JuliaHighlighter.FUNCTION_NAME)
+			element.isFunctionName -> { definition(element, holder, JuliaHighlighter.FUNCTION_NAME) }
 			element.isAbstractTypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
 			element.isPrimitiveTypeName -> holder.createInfoAnnotation(element, null)
