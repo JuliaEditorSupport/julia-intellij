@@ -78,7 +78,7 @@ interface IJuliaSymbol : JuliaExpr {
 abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaSymbol {
 	private var reference: JuliaSymbolRef? = null
 	override var type: String? = null
-	override val isFunctionName get() = parent is JuliaFunction || parent is JuliaCompactFunction
+	override val isFunctionName get() = parent is JuliaFunction || (parent is JuliaCompactFunction && this === parent.children.firstOrNull())
 	override val isMacroName get() = parent is JuliaMacro
 	override val isModuleName get() = parent is JuliaModuleDeclaration
 	override val isTypeName get() = parent is JuliaTypeDeclaration || parent is JuliaTypeAlias
