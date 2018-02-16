@@ -28,6 +28,20 @@ enum class NumeralType(
 class JuliaAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		when (element) {
+			is JuliaFunction -> {
+				val statements = element.statements?.run { exprList + moduleDeclarationList + globalStatementList } ?: return
+				val signature = element.functionSignature
+				val typeParams = element.typeParameters
+				val where = element.whereClause
+				if (where == null) when {
+					statements.isEmpty() -> holder.createWeakWarningAnnotation(element, "Empty function")
+						.registerFix(JuliaReplaceWithTextIntention(element,
+							"${element.name}${typeParams?.text.orEmpty()}${signature?.text ?: "()"} = ()",
+							"Convert into compact function"))
+					statements.size == 1 -> {
+					}
+				}
+			}
 			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MACRO_REFERENCE
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
