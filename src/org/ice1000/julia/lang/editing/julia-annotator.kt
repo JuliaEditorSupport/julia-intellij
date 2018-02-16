@@ -28,26 +28,7 @@ enum class NumeralType(
 class JuliaAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 		when (element) {
-			is JuliaFunction -> {
-				val statements = element.statements?.run { exprList + moduleDeclarationList + globalStatementList } ?: return
-				val signature = element.functionSignature
-				val typeParams = element.typeParameters
-				val where = element.whereClause
-				if (where == null) when {
-					statements.isEmpty() -> holder.createWeakWarningAnnotation(element, "Empty function")
-						.registerFix(JuliaReplaceWithTextIntention(element,
-							"${element.name}${typeParams?.text.orEmpty()}${signature?.text ?: "()"} = ()",
-							JuliaBundle.message("julia.lint.replace-compact-function")))
-					statements.size == 1 -> holder.createInfoAnnotation(element, "What should I do?")		//TODO
-						.registerFix(
-							JuliaReplaceWithTextIntention(
-								element,
-								"${element.name}${typeParams?.text.orEmpty()}${signature?.text ?: "()"} = ${statements[0].text}",
-								JuliaBundle.message("julia.lint.replace-compact-function")
-							)
-						)
-				}
-			}
+			is JuliaFunction -> function(element, holder)
 			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MACRO_REFERENCE
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
@@ -61,6 +42,28 @@ class JuliaAnnotator : Annotator {
 			is JuliaString -> string(element, holder)
 			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
 				// TODO provide conversions
+			}
+		}
+	}
+
+	private fun function(
+		element: JuliaFunction,
+		holder: AnnotationHolder) {
+		val statements = element.statements?.run { exprList + moduleDeclarationList + globalStatementList } ?: return
+		val signature = element.functionSignature
+		val typeParams = element.typeParameters
+		val where = element.whereClause
+		if (where == null) when {
+			statements.isEmpty() -> holder.createWeakWarningAnnotation(element, "Empty function")
+				.registerFix(JuliaReplaceWithTextIntention(element,
+					"${element.name}${typeParams?.text.orEmpty()}${signature?.text ?: "()"} = ()",
+					JuliaBundle.message("julia.lint.replace-compact-function")))
+			statements.size == 1 -> {
+				val statement = statements.first().let { (it as? JuliaReturnExpr)?.text?.removePrefix("return") ?: it.text }
+				holder.createInfoAnnotation(element, "Function with only one statement")
+					.registerFix(JuliaReplaceWithTextIntention(element,
+						"${element.name}${typeParams?.text.orEmpty()}${signature?.text ?: "()"} = $statement",
+						JuliaBundle.message("julia.lint.replace-compact-function")))
 			}
 		}
 	}
