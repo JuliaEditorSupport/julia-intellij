@@ -37,9 +37,15 @@ class JuliaAnnotator : Annotator {
 					statements.isEmpty() -> holder.createWeakWarningAnnotation(element, "Empty function")
 						.registerFix(JuliaReplaceWithTextIntention(element,
 							"${element.name}${typeParams?.text.orEmpty()}${signature?.text ?: "()"} = ()",
-							"Convert into compact function"))
-					statements.size == 1 -> {
-					}
+							JuliaBundle.message("julia.lint.replace-compact-function")))
+					statements.size == 1 -> holder.createInfoAnnotation(element, "What should I do?")		//TODO
+						.registerFix(
+							JuliaReplaceWithTextIntention(
+								element,
+								"${element.name}${typeParams?.text.orEmpty()}${signature?.text ?: "()"} = ${statements[0].text}",
+								JuliaBundle.message("julia.lint.replace-compact-function")
+							)
+						)
 				}
 			}
 			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
