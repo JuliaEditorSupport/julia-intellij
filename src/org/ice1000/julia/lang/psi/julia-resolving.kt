@@ -19,8 +19,8 @@ class JuliaSymbolRef(private val symbol: JuliaSymbol, private var refTo: PsiElem
 	override fun resolve() = multiResolve(false).firstOrNull()?.element
 	override fun multiResolve(incompleteCode: Boolean) = ResolveCache.getInstance(symbol.project).resolveWithCaching(this, resolver, true, false)
 	override fun isReferenceTo(element: PsiElement?) = element == refTo || (element as? JuliaSymbol)?.text == symbol.text
-	override fun getVariants(): Array<Any> = TODO("not implemented")
-	override fun getCanonicalText(): String = TODO("not implemented")
+	override fun getVariants(): Array<Any> = emptyArray()
+	override fun getCanonicalText(): String = symbol.text
 	override fun handleElementRename(newName: String) = JuliaTokenType.fromText(newName, symbol.project).let(symbol::replace)
 	override fun bindToElement(element: PsiElement) = symbol.also { refTo = element }
 
@@ -43,9 +43,8 @@ abstract class ResolveProcessor<ResolveResult>(val place: PsiElement) : PsiScope
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
 	fun addCandidate(candidate: ResolveResult) = candidateSet.add(candidate)
 
-	protected fun isInScope(element: PsiElement): Boolean = TODO() // PsiTreeUtil.isAncestor(
-//		if (element is CovParameter) element.parent
-//		else element.parent?.parent?.parent, place, false)
+	protected fun isInScope(element: PsiElement): Boolean = PsiTreeUtil.isAncestor(
+		element.parent?.parent, place, false)
 }
 
 class SymbolResolveProcessor(private val name: String, place: PsiElement, val incompleteCode: Boolean) :
@@ -53,14 +52,12 @@ class SymbolResolveProcessor(private val name: String, place: PsiElement, val in
 	constructor(ref: JuliaSymbolRef, incompleteCode: Boolean) : this(ref.canonicalText, ref.element, incompleteCode)
 
 	private fun addCandidate(symbol: PsiElement) = addCandidate(PsiElementResolveResult(symbol, true))
-	private val processedElements = hashSetOf<PsiElement>()
 	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
 	override fun execute(element: PsiElement, resolveState: ResolveState) = when {
 		candidateSet.isNotEmpty() -> false
-		element.canResolve && element !in processedElements -> {
+		element.canResolve -> {
 			val accessible = name == element.text && isInScope(element)
 			if (accessible and element.hasNoError) addCandidate(element)
-			processedElements.add(element)
 			!accessible
 		}
 		else -> true

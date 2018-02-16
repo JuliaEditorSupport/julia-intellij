@@ -57,6 +57,7 @@ interface IJuliaSymbol : JuliaExpr {
 }
 
 abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaSymbol {
+	private var reference: JuliaSymbolRef? = null
 	override var type: String? = null
 	override val isFunctionName get() = parent is JuliaFunction || parent is JuliaCompactFunction
 	override val isMacroName get() = parent is JuliaMacro
@@ -65,10 +66,11 @@ abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode
 	override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
 	override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
 	override var isResolved: Boolean = false
-
+	override fun getReference() = reference ?: JuliaSymbolRef(this).also { reference = it }
 	override fun subtreeChanged() {
 		type = null
 		isResolved = false
+		reference = null
 		super.subtreeChanged()
 	}
 }
