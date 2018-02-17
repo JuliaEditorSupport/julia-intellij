@@ -74,6 +74,7 @@ abstract class JuliaStatementsMixin(astNode: ASTNode) : ASTWrapperPsiElement(ast
 
 interface IJuliaSymbol : JuliaExpr {
 	// check if they are declarations
+	val isField: Boolean
 	val isFunctionName: Boolean
 	val isMacroName: Boolean
 	val isModuleName: Boolean
@@ -85,10 +86,12 @@ interface IJuliaSymbol : JuliaExpr {
 abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaSymbol {
 	private var reference: JuliaSymbolRef? = null
 	override var type: String? = null
+	override val isField: Boolean
+		get() = parent is JuliaTypeDeclaration && this !== parent.children.firstOrNull { it is JuliaSymbol }
 	override val isFunctionName get() = parent is JuliaFunction || (parent is JuliaCompactFunction && this === parent.children.firstOrNull())
 	override val isMacroName get() = parent is JuliaMacro
 	override val isModuleName get() = parent is JuliaModuleDeclaration
-	override val isTypeName get() = parent is JuliaTypeDeclaration || parent is JuliaTypeAlias
+	override val isTypeName get() = (parent is JuliaTypeDeclaration && this === parent.children.firstOrNull { it is JuliaSymbol }) || parent is JuliaTypeAlias
 	override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
 	override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
 	override fun getReference() = reference ?: JuliaSymbolRef(this).also { reference = it }
