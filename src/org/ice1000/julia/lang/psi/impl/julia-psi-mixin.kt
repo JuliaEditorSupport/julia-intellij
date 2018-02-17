@@ -41,13 +41,13 @@ abstract class JuliaFunctionDeclaration(astNode: ASTNode) : JuliaExprMixin(astNo
 
 abstract class JuliaFunctionMixin(astNode: ASTNode) : JuliaFunctionDeclaration(astNode),
 	JuliaFunction {
-	override fun getNameIdentifier(): JuliaExpr = children.first { it is JuliaSymbol } as JuliaSymbol
+	override fun getNameIdentifier(): JuliaExpr? = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
 	override val typeAndParams get() = typeParameters?.text ?: functionSignature?.text.orEmpty()
 }
 
 abstract class JuliaCompactFunctionMixin(astNode: ASTNode) : JuliaFunctionDeclaration(astNode),
 	JuliaCompactFunction {
-	override fun getNameIdentifier(): JuliaExpr = exprList.first()
+	override fun getNameIdentifier(): JuliaExpr? = exprList.firstOrNull()
 	override val typeAndParams: String get() = typeParameters?.text ?: functionSignature.text
 }
 
