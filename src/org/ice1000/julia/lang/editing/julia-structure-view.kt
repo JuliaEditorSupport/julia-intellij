@@ -47,18 +47,15 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 
 		private fun getGrandsonOfYourMother(): List<StructureViewTreeElement> {
 			val children = arrayListOf<StructureViewTreeElement>()
+			fun PsiElement.addIntoChildren() = children.add(JuliaStructureViewElement(this))
 			psiElement.children
-				.filter { it.isBlock }//filter EOL
+				.filter { it.treeViewTokens }//filter EOL
 				.forEach { element ->
 					when (element) {
+						is JuliaSymbol,
+						is JuliaTypeOp -> if(element.isFieldInTypeDeclaration) element.addIntoChildren()
 						is JuliaStatements -> children.addAll(JuliaStructureViewElement(element).children)
-						is JuliaTypeDeclaration -> {
-							children.add(JuliaStructureViewElement(element))
-							element.children.getOrNull(1)?.children?.forEach {
-								if( it is JuliaSymbol ) children.add(JuliaStructureViewElement(it))			//FIXME: Element can not go into the type :(
-							}
-						}
-						else -> children.add(JuliaStructureViewElement(element))
+						else -> element.addIntoChildren()
 					}
 				}
 			return children
