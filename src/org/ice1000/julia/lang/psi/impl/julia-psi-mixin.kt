@@ -90,7 +90,7 @@ abstract class JuliaStatementsMixin(astNode: ASTNode) : ASTWrapperPsiElement(ast
 		processDeclTrivial(processor, state, lastParent, place)
 }
 
-interface IJuliaSymbol : JuliaExpr {
+interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	// check if they are declarations
 	val isField: Boolean
 	val isFunctionName: Boolean
@@ -112,6 +112,9 @@ abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode
 	override val isTypeName get() = (parent is JuliaTypeDeclaration && this === parent.children.firstOrNull { it is JuliaSymbol }) || parent is JuliaTypeAlias
 	override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
 	override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
+	override fun getNameIdentifier() = this
+	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
+	override fun getName() = text
 	override fun getReference() = reference ?: JuliaSymbolRef(this).also { reference = it }
 	override fun subtreeChanged() {
 		type = null
