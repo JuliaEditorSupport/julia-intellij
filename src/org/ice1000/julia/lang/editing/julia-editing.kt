@@ -2,9 +2,12 @@ package org.ice1000.julia.lang.editing
 
 import com.intellij.ide.IconProvider
 import com.intellij.lang.*
+import com.intellij.lang.cacheBuilder.DefaultWordsScanner
+import com.intellij.lang.findUsages.EmptyFindUsagesProvider
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.psi.*
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.TokenSet
 import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy
 import com.intellij.spellchecker.tokenizer.Tokenizer
 import com.intellij.ui.breadcrumbs.BreadcrumbsProvider
@@ -159,4 +162,18 @@ object JuliaNameValidator : InputValidatorEx {
 	override fun getErrorText(inputString: String?) = JuliaBundle.message("julia.actions.new-file.invalid", inputString.orEmpty())
 	override fun checkInput(inputString: String?) =
 		inputString?.all { it.isLetterOrDigit() || it == '_' || it in '\u0100'..'\u9999' } == true
+}
+
+class JuliaFindUsagesProvider : EmptyFindUsagesProvider() {
+	override fun getWordsScanner() = DefaultWordsScanner(JuliaLexerAdapter(),
+		TokenSet.create(JuliaTypes.SYMBOL),
+		JuliaTokenType.COMMENTS,
+		JuliaTokenType.STRINGS)
+
+	override fun getNodeText(element: PsiElement, useFullName: Boolean) =
+		if (element.canBeNamed) element.presentText() else ""
+
+	override fun getDescriptiveName(element: PsiElement) = if (element.canBeNamed) element.presentText() else ""
+	override fun getType(element: PsiElement) = if (element.canBeNamed) element.text else ""
+	override fun canFindUsagesFor(psiElement: PsiElement) = psiElement is PsiNamedElement
 }
