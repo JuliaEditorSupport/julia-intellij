@@ -195,7 +195,13 @@ private assignLevel ::=
    assignOp
  | assignLevelOp
 
-assignOp ::= expr (EQ_SYM | ASSIGN_SYM) endOfLine expr { rightAssociative=true pin=2 }
+assignOp ::= expr (EQ_SYM | ASSIGN_SYM) endOfLine expr {
+	rightAssociative=true
+	pin=2
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaAssignOp']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaAssignOpMixin'
+}
+
 assignLevelOp ::= expr assignLevelOperator endOfLine expr { rightAssociative=true pin=2 }
 assignLevelOperator ::=
    COLON_ASSIGN_SYM

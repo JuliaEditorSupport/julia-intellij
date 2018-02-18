@@ -5,29 +5,33 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.injected.StringLiteralEscaper
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.JuliaTokenType
 import org.ice1000.julia.lang.psi.*
 
-interface IJuliaFunctionDeclaration : PsiElement, PsiNameIdentifierOwner {
+interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner {
 	// val exprList: List<JuliaExpr>
 	var docString: JuliaStringContent?
 	val typeAndParams: String
-	override fun getReferences(): Array<out PsiReference>
 }
 
-abstract class JuliaFunctionDeclaration(astNode: ASTNode) : JuliaExprMixin(astNode), IJuliaFunctionDeclaration {
+abstract class JuliaDeclaration(astNode: ASTNode) : JuliaExprMixin(astNode), PsiNameIdentifierOwner {
 	private var refCache: Array<PsiReference>? = null
-	override var docString: JuliaStringContent? = null
 	override fun setName(newName: String) = nameIdentifier?.let { JuliaTokenType.fromText(newName, project).let(it::replace) }
 		.also {
-			if (it is JuliaFunctionDeclaration)
+			if (it is JuliaDeclaration)
 				it.refCache = references.mapNotNull { it.handleElementRename(newName).reference }.toTypedArray()
 		}
 
-	override fun getName(): String = nameIdentifier?.text.orEmpty()
-	override fun getReferences(): Array<PsiReference> = refCache
-		?: nameIdentifier?.let { collectFrom(parent.parent, it.text) }
-			?.also { refCache = it } ?: emptyArray()
+	open val startPoint: PsiElement
+		get() = PsiTreeUtil.getParentOfType(this, JuliaStatements::class.java) ?: parent
+
+	override fun getName() = nameIdentifier?.text.orEmpty()
+	override fun getReferences() = refCache
+		?: nameIdentifier
+			?.let { collectFrom(startPoint, it.text) }
+			?.also { refCache = it }
+		?: emptyArray()
 
 	override fun subtreeChanged() {
 		refCache = null
@@ -39,16 +43,30 @@ abstract class JuliaFunctionDeclaration(astNode: ASTNode) : JuliaExprMixin(astNo
 		processDeclTrivial(processor, substitutor, lastParent, place) && true == nameIdentifier?.let { processor.execute(it, substitutor) }
 }
 
-abstract class JuliaFunctionMixin(astNode: ASTNode) : JuliaFunctionDeclaration(astNode),
-	JuliaFunction {
-	override fun getNameIdentifier(): JuliaExpr? = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
-	override val typeAndParams get() = typeParameters?.text ?: functionSignature?.text.orEmpty()
+interface IJuliaAssignOp : PsiNameIdentifierOwner
+
+abstract class JuliaAssignOpMixin(astNode: ASTNode) : JuliaDeclaration(astNode), JuliaAssignOp {
+	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol }
 }
 
-abstract class JuliaCompactFunctionMixin(astNode: ASTNode) : JuliaFunctionDeclaration(astNode),
-	JuliaCompactFunction {
+abstract class JuliaFunctionMixin(astNode: ASTNode) : JuliaDeclaration(astNode), JuliaFunction {
+	override var docString: JuliaStringContent? = null
+	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
+	override val typeAndParams get() = typeParameters?.text ?: functionSignature?.text.orEmpty()
+	override fun subtreeChanged() {
+		docString = null
+		super.subtreeChanged()
+	}
+}
+
+abstract class JuliaCompactFunctionMixin(astNode: ASTNode) : JuliaDeclaration(astNode), JuliaCompactFunction {
+	override var docString: JuliaStringContent? = null
 	override fun getNameIdentifier(): JuliaExpr? = exprList.firstOrNull()
 	override val typeAndParams: String get() = typeParameters?.text ?: functionSignature.text
+	override fun subtreeChanged() {
+		docString = null
+		super.subtreeChanged()
+	}
 }
 
 interface IJuliaStringContent : PsiLanguageInjectionHost {

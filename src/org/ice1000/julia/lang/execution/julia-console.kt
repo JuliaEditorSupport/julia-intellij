@@ -61,7 +61,7 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 
 class JuliaConsoleFilterProvider : ConsoleFilterProviderEx {
 	override fun getDefaultFilters(project: Project, scope: GlobalSearchScope) = getDefaultFilters(project)
-	override fun getDefaultFilters(project: Project) = arrayOf(JuliaConsoleFilter(project))
+	override fun getDefaultFilters(project: Project) = arrayOf(JuliaConsoleFilter(project), UrlFilter())
 }
 
 

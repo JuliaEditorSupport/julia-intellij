@@ -55,7 +55,7 @@ class JuliaAnnotator : Annotator {
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.compact-function"))
 			.registerFix(JuliaReplaceWithTextIntention(
 				element, """function ${element.name}${typeParams?.text.orEmpty()}${element.functionSignature.text}
-${if ("()" == functionBody || functionBody.isBlank()) "" else "return $functionBody\n"}end""",
+${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $functionBody\n"}end""",
 				JuliaBundle.message("julia.lint.replace-ordinary-function")))
 	}
 
