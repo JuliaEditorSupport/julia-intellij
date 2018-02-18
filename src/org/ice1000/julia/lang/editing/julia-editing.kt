@@ -4,6 +4,7 @@ import com.intellij.ide.IconProvider
 import com.intellij.lang.*
 import com.intellij.lang.cacheBuilder.DefaultWordsScanner
 import com.intellij.lang.findUsages.EmptyFindUsagesProvider
+import com.intellij.lang.refactoring.RefactoringSupportProvider
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.psi.*
 import com.intellij.psi.tree.IElementType
@@ -176,4 +177,8 @@ class JuliaFindUsagesProvider : EmptyFindUsagesProvider() {
 	override fun getDescriptiveName(element: PsiElement) = if (element.canBeNamed) element.presentText() else ""
 	override fun getType(element: PsiElement) = if (element.canBeNamed) element.text else ""
 	override fun canFindUsagesFor(psiElement: PsiElement) = psiElement is PsiNamedElement
+}
+
+class JuliaRefactoringSupportProvider : RefactoringSupportProvider() {
+	override fun isMemberInplaceRenameAvailable(element: PsiElement, context: PsiElement?) = true
 }

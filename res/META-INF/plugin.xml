@@ -26,7 +26,10 @@
 		<breadcrumbsInfoProvider implementation="org.ice1000.julia.lang.editing.JuliaBreadCrumbsProvider"/>
 		<sdkType implementation="org.ice1000.julia.lang.module.JuliaSdkType"/>
 		<!--<typedHandler implementation="org.ice1000.julia.lang.editing.JuliaTypedHandlerDelegate"/>-->
-		<languageInjector implementation="org.ice1000.julia.lang.editing.JuliaLanguageInjector" />
+		<languageInjector implementation="org.ice1000.julia.lang.editing.JuliaLanguageInjector"/>
+		<lang.refactoringSupport
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaRefactoringSupportProvider"/>
 		<completion.contributor
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor"/>
