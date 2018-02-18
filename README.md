@@ -17,7 +17,8 @@ CodeShip (branch master)|[![CodeShip Build status](https://app.codeship.com/proj
 
 ## Installation \& Usage
 
-Install IntelliJ IDEA, open `Settings | Plugins | Browse repositories`,
+Install IntelliJ IDEA (or other JetBrains IDEs),
+open `Settings | Plugins | Browse repositories`,
 install Julia plugin, and create a Julia project.
 
 ### Configuration
@@ -76,11 +77,7 @@ Now you know your choice :wink:
 
 + Formatter
 + Integrating existing Julia tools
-+ Reference resolving
-+ Completion based on context
 + Displaying numeral output as images
-+ More handy run configuration
-+ Minor features like folding, bread crumbs, etc.
 
 Please don't downvote our plugin for not having one of the features above, because we're just working on it.
 
