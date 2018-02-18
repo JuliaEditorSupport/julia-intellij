@@ -17,11 +17,13 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.textCompletion.TextCompletionProvider
 import com.intellij.util.textCompletion.TextFieldWithCompletion
+import com.intellij.util.ui.JBUI
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.JuliaSettings
 import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.event.KeyEvent
+import javax.swing.JLabel
 
 class JuliaTryEvaluateAction : JuliaAction(
 	JuliaBundle.message("julia.actions.try-eval.name"),
@@ -46,6 +48,8 @@ class JuliaUnicodeInputAction : JuliaAction(
 					if (str.isBlank()) return@mapNotNull null
 					val (a, b) = str.split(' ')
 					lookupElementBuilder(a, b)
+						.withCaseSensitivity(false)
+						.withTailText(" $b", true)
 				} + listOf("nolinebreak" to '\u2060')
 				.map { (a, b) -> lookupElementBuilder(a, b) }
 		}
@@ -75,9 +79,10 @@ class JuliaUnicodeInputAction : JuliaAction(
 			val field = TextFieldWithCompletion(project, UnicodeCompletionProvider, "", true, true, true)
 			var popup: JBPopup? = null
 			popup = JBPopupFactory.getInstance()
-				.createComponentPopupBuilder(field, null)
+				.createComponentPopupBuilder(JBUI.Panels.simplePanel(field)
+					.addToLeft(JLabel("\\")), null)
 				.setMovable(true)
-				.setAlpha(0.15F)
+				.setAlpha(0.1F)
 				.setKeyEventHandler {
 					if (it.keyCode == KeyEvent.VK_ENTER) popup?.cancel()
 					false
