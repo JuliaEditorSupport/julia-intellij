@@ -75,6 +75,9 @@
 		<lang.elementManipulator
 			forClass="org.ice1000.julia.lang.psi.impl.JuliaStringContentMixin"
 			implementationClass="org.ice1000.julia.lang.psi.JuliaStringManipulator"/>
+		<lang.findUsagesProvider
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaFindUsagesProvider"/>
 		<projectConfigurable
 			groupId="language"
 			instance="org.ice1000.julia.lang.module.JuliaProjectConfigurableImpl"/>
