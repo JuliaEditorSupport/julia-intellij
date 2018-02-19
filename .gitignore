@@ -111,3 +111,4 @@ resources
 idea-sandbox-copy
 !lib/org.eclipse.egit.github.core-2.1.5.jar
 gradle
+exportToHTML

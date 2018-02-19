@@ -82,10 +82,19 @@ opAsSymbol ::=
 private comment ::= blockComment | LINE_COMMENT
 private blockComment ::= BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | blockComment)* BLOCK_COMMENT_END
 
-private cmd ::= CMD_QUOTE_START stringTemplateElement* CMD_QUOTE_END
 private str ::= QUOTE_START stringTemplateElement* QUOTE_END
 private rawStr ::= TRIPLE_QUOTE_START stringTemplateElement* TRIPLE_QUOTE_END
-string ::= cmd | str | rawStr { extends=expr }
+command ::= CMD_QUOTE_START stringTemplateElement* CMD_QUOTE_END { extends=expr }
+string ::= str | rawStr {
+	extends=expr
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaString']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaStringMixin'
+}
+regex ::= REGEX_START (stringContent | STRING_ESCAPE)* REGEX_END {
+	extends=expr
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaRegex']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaRegexMixin'
+}
 
 private stringTemplateElement::=
    STRING_UNICODE
@@ -94,10 +103,7 @@ private stringTemplateElement::=
  | stringContent
 
 template ::= SHORT_INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
-stringContent ::= REGULAR_STRING_PART_LITERAL {
-	implements=['org.ice1000.julia.lang.psi.impl.IJuliaStringContent']
-	mixin='org.ice1000.julia.lang.psi.impl.JuliaStringContentMixin'
-}
+stringContent ::= REGULAR_STRING_PART_LITERAL
 
 integer ::= INT_LITERAL { extends=expr }
 floatLit ::= FLOAT_LITERAL | FLOAT_CONSTANT
@@ -400,6 +406,8 @@ unaryPlusOp ::= PLUS_SYM endOfLine expr
 
 private primaryExpr ::=
    string
+ | command
+ | regex
  | charLit
  | integer
  | floatLit

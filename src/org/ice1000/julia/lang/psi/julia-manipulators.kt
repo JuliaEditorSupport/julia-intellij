@@ -2,14 +2,20 @@ package org.ice1000.julia.lang.psi
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.AbstractElementManipulator
+import org.ice1000.julia.lang.JuliaTokenType
 
-class JuliaStringManipulator : AbstractElementManipulator<JuliaStringContent>() {
-	override fun getRangeInElement(element: JuliaStringContent) = TextRange(0, element.textLength)
-	override fun handleContentChange(
-		psi: JuliaStringContent,
-		range: TextRange,
-		new: String): JuliaStringContent {
-		val oldText = psi.text
-		return psi.updateText("${oldText.substring(0, range.startOffset)}$new${oldText.substring(range.endOffset)}")
+class JuliaStringManipulator : AbstractElementManipulator<JuliaString>() {
+	override fun handleContentChange(psi: JuliaString, range: TextRange, new: String): JuliaString {
+		val after = JuliaTokenType.fromText(new, psi.project) as? JuliaString ?: return psi
+		psi.replace(after)
+		return after
+	}
+}
+
+class JuliaRegexManipulator : AbstractElementManipulator<JuliaRegex>() {
+	override fun handleContentChange(psi: JuliaRegex, range: TextRange, new: String): JuliaRegex {
+		val after = JuliaTokenType.fromText(new, psi.project) as? JuliaRegex ?: return psi
+		psi.replace(after)
+		return after
 	}
 }

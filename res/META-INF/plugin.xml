@@ -76,8 +76,11 @@
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
 		<lang.elementManipulator
-			forClass="org.ice1000.julia.lang.psi.impl.JuliaStringContentMixin"
+			forClass="org.ice1000.julia.lang.psi.impl.JuliaStringMixin"
 			implementationClass="org.ice1000.julia.lang.psi.JuliaStringManipulator"/>
+		<lang.elementManipulator
+			forClass="org.ice1000.julia.lang.psi.impl.JuliaRegexMixin"
+			implementationClass="org.ice1000.julia.lang.psi.JuliaRegexManipulator"/>
 		<lang.findUsagesProvider
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFindUsagesProvider"/>
