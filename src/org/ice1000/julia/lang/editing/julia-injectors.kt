@@ -5,6 +5,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import org.ice1000.julia.lang.forceRun
 import org.ice1000.julia.lang.psi.*
+import org.ice1000.julia.lang.psi.impl.DocStringOwner
 import org.intellij.lang.regexp.RegExpLanguage
 
 /**
@@ -20,7 +21,7 @@ class JuliaLanguageInjector : LanguageInjector {
 	}
 
 	private fun markdown(host: PsiLanguageInjectionHost) =
-		host.parent.nextSibling?.let { it as? JuliaFunction ?: it.nextSibling as? JuliaFunction }
+		host.parent.nextSibling?.let { it as? DocStringOwner ?: it.nextSibling as? DocStringOwner }
 
 	override fun getLanguagesToInject(host: PsiLanguageInjectionHost, places: InjectedLanguagePlaces) {
 		if (host !is JuliaStringContent) return

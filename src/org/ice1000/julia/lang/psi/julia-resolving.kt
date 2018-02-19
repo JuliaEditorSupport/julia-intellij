@@ -46,21 +46,20 @@ class JuliaSymbolRef(private val symbol: JuliaSymbol, private var refTo: PsiElem
 }
 
 abstract class ResolveProcessor<ResolveResult>(val place: PsiElement) : PsiScopeProcessor {
-	val candidateSet = ArrayList<ResolveResult>(1)
+	abstract val candidateSet: ArrayList<ResolveResult>
 	override fun handleEvent(event: PsiScopeProcessor.Event, o: Any?) = Unit
 	protected val PsiElement.canResolve get() = this is JuliaSymbol
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
-	fun addCandidate(candidate: ResolveResult) = candidateSet.add(candidate)
-
 	protected fun isInScope(element: PsiElement) = true // TODO
 //		PsiTreeUtil.isAncestor(element.parent?.parent, place, false)
 }
 
-class SymbolResolveProcessor(private val name: String, place: PsiElement, val incompleteCode: Boolean) :
+class SymbolResolveProcessor(private val name: String, place: PsiElement, private val incompleteCode: Boolean) :
 	ResolveProcessor<PsiElementResolveResult>(place) {
 	constructor(ref: JuliaSymbolRef, incompleteCode: Boolean) : this(ref.canonicalText, ref.element, incompleteCode)
 
-	private fun addCandidate(symbol: PsiElement) = addCandidate(PsiElementResolveResult(symbol, true))
+	override val candidateSet = ArrayList<PsiElementResolveResult>(3)
+	private fun addCandidate(symbol: PsiElement) = candidateSet.add(PsiElementResolveResult(symbol, true))
 	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
 	override fun execute(element: PsiElement, resolveState: ResolveState) = when {
 		candidateSet.isNotEmpty() -> false
@@ -73,10 +72,11 @@ class SymbolResolveProcessor(private val name: String, place: PsiElement, val in
 	}
 }
 
-class CompletionProcessor(place: PsiElement, val incompleteCode: Boolean) :
+class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean) :
 	ResolveProcessor<LookupElementBuilder>(place) {
 	constructor(ref: JuliaSymbolRef, incompleteCode: Boolean) : this(ref.element, incompleteCode)
 
+	override val candidateSet = ArrayList<LookupElementBuilder>(20)
 	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
 		if (element.canResolve and element.hasNoError and isInScope(element)) {

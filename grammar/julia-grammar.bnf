@@ -497,7 +497,11 @@ typeDeclaration ::=
  (typeModifiers? (TYPE_KEYWORD | STRUCT_KEYWORD) | typeModifiers) endOfLine
   symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
   statements
- END_KEYWORD { extends=expr }
+ END_KEYWORD {
+	extends=expr
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaTypeDeclaration']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaTypeMixin'
+}
 
 abstractTypeDeclaration ::=
  ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine

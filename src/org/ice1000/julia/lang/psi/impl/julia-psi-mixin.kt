@@ -9,9 +9,12 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.JuliaTokenType
 import org.ice1000.julia.lang.psi.*
 
-interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner {
-	// val exprList: List<JuliaExpr>
+interface DocStringOwner {
 	var docString: JuliaStringContent?
+}
+
+interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
+	// val exprList: List<JuliaExpr>
 	val typeAndParams: String
 }
 
@@ -99,6 +102,18 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	val isTypeName: Boolean
 	val isAbstractTypeName: Boolean
 	val isPrimitiveTypeName: Boolean
+}
+
+interface IJuliaTypeDeclaration : JuliaExpr, PsiNameIdentifierOwner, DocStringOwner
+
+abstract class JuliaTypeMixin(astNode: ASTNode) : JuliaExprMixin(astNode), JuliaTypeDeclaration {
+	override var docString: JuliaStringContent? = null
+	override fun getNameIdentifier() = exprList.firstOrNull()
+	override fun setName(name: String) = nameIdentifier?.replace(JuliaTokenType.fromText(name, project))
+	override fun subtreeChanged() {
+		docString = null
+		super.subtreeChanged()
+	}
 }
 
 abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaSymbol {
