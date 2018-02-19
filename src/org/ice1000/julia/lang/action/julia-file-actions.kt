@@ -75,7 +75,7 @@ class NewJuliaFile : CreateFileFromTemplateAction(
 class NewJuliaProject : ProjectSettingsStepBase<JuliaSettings>(
 	JuliaProjectGenerator(),
 	AbstractNewProjectStep.AbstractCallback<JuliaSettings>()) {
-	override fun actionPerformed(p0: AnActionEvent) {
+	override fun actionPerformed(e: AnActionEvent) {
 		val panel = createPanel()
 		panel.preferredSize = JBUI.size(600, 300)
 		JuliaNewProjectDialog(panel).show()

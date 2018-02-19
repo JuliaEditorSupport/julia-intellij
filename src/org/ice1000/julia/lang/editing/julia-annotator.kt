@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
+import com.intellij.util.SystemProperties
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.*
@@ -87,11 +88,12 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 			val signatureTextPart = signature?.run {
 				"# Arguments\n\n${typedNamedVariableList.joinToString("\n") { "- `${it.text}`:" }}"
 			}.orEmpty()
-			holder.createInfoAnnotation(element, "Function without doc string")
+			holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.no-doc-string-function"))
 				.registerFix(JuliaInsertTextBeforeIntention(element, """$JULIA_DOC_SURROUNDING
     $name$typeParamsText$signatureText
 
 - Julia version: ${element.project.juliaSettings.settings.version}
+- Author: ${SystemProperties.getUserName()}
 
 $signatureTextPart
 
@@ -101,13 +103,13 @@ $signatureTextPart
 julia>
 ```
 $JULIA_DOC_SURROUNDING
-""", "insert doc string"))
+""", JuliaBundle.message("julia.lint.insert-doc-string")))
 		}
 	}
 
 	private fun plusLevelOp(element: JuliaPlusLevelOp, holder: AnnotationHolder) {
-		when (element.plusLevelOperator.text.firstOrNull()) {
-			'$' -> holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
+		when (element.plusLevelOperator.text) {
+			"$" -> holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
 				highlightType = ProblemHighlightType.LIKE_DEPRECATED
 				registerFix(JuliaReplaceWithTextIntention(element, "xor(${element.firstChild.text}, ${element.lastChild.text})",
 					JuliaBundle.message("julia.lint.xor-replace-xor", element.firstChild.text, element.lastChild.text)))
