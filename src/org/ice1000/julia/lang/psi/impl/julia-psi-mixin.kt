@@ -18,7 +18,7 @@ interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
 	val typeAndParams: String
 }
 
-abstract class JuliaDeclaration(astNode: ASTNode) : JuliaExprMixin(astNode), PsiNameIdentifierOwner {
+abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameIdentifierOwner {
 	private var refCache: Array<PsiReference>? = null
 	override fun setName(newName: String) = nameIdentifier?.let { JuliaTokenType.fromText(newName, project).let(it::replace) }
 		.also {
@@ -46,13 +46,11 @@ abstract class JuliaDeclaration(astNode: ASTNode) : JuliaExprMixin(astNode), Psi
 		processDeclTrivial(processor, substitutor, lastParent, place) && true == nameIdentifier?.let { processor.execute(it, substitutor) }
 }
 
-interface IJuliaAssignOp : PsiNameIdentifierOwner
-
-abstract class JuliaAssignOpMixin(astNode: ASTNode) : JuliaDeclaration(astNode), JuliaAssignOp {
+abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), JuliaAssignOp {
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol }
 }
 
-abstract class JuliaFunctionMixin(astNode: ASTNode) : JuliaDeclaration(astNode), JuliaFunction {
+abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaFunction {
 	override var docString: JuliaStringContent? = null
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
 	override val typeAndParams get() = typeParameters?.text ?: functionSignature?.text.orEmpty()
@@ -62,14 +60,16 @@ abstract class JuliaFunctionMixin(astNode: ASTNode) : JuliaDeclaration(astNode),
 	}
 }
 
-abstract class JuliaCompactFunctionMixin(astNode: ASTNode) : JuliaDeclaration(astNode), JuliaCompactFunction {
+abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
 	override var docString: JuliaStringContent? = null
-	override fun getNameIdentifier(): JuliaExpr? = exprList.firstOrNull()
+	override fun getNameIdentifier() = exprList.firstOrNull()
 	override val typeAndParams: String get() = typeParameters?.text ?: functionSignature.text
-	override fun subtreeChanged() {
-		docString = null
-		super.subtreeChanged()
-	}
+}
+
+abstract class JuliaMacroMixin(node: ASTNode) : JuliaDeclaration(node), JuliaMacro {
+	override var docString: JuliaStringContent? = null
+	override var type: String? = null
+	override fun getNameIdentifier() = symbol
 }
 
 interface IJuliaStringContent : PsiLanguageInjectionHost {
@@ -79,7 +79,7 @@ interface IJuliaStringContent : PsiLanguageInjectionHost {
 	var isRegex: Boolean
 }
 
-abstract class JuliaStringContentMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaStringContent {
+abstract class JuliaStringContentMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaStringContent {
 	override fun isValidHost() = true
 	override fun createLiteralTextEscaper() = StringLiteralEscaper(this)
 	override fun updateText(s: String) = replace(JuliaTokenType.fromText(s, project)) as JuliaStringContent
@@ -87,7 +87,7 @@ abstract class JuliaStringContentMixin(astNode: ASTNode) : ASTWrapperPsiElement(
 	override var isRegex = false
 }
 
-abstract class JuliaStatementsMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaStatements {
+abstract class JuliaStatementsMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaStatements {
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
 		processDeclTrivial(processor, state, lastParent, place)
@@ -106,7 +106,7 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 
 interface IJuliaTypeDeclaration : JuliaExpr, PsiNameIdentifierOwner, DocStringOwner
 
-abstract class JuliaTypeDeclarationMixin(astNode: ASTNode) : JuliaExprMixin(astNode), JuliaTypeDeclaration {
+abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), JuliaTypeDeclaration {
 	override var docString: JuliaStringContent? = null
 	override fun getNameIdentifier() = exprList.firstOrNull()
 	override fun setName(name: String) = nameIdentifier?.replace(JuliaTokenType.fromText(name, project))
@@ -117,7 +117,7 @@ abstract class JuliaTypeDeclarationMixin(astNode: ASTNode) : JuliaExprMixin(astN
 	}
 }
 
-abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaSymbol {
+abstract class JuliaSymbolMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaSymbol {
 	private var reference: JuliaSymbolRef? = null
 	override var type: String? = null
 	override val isField: Boolean
@@ -139,11 +139,25 @@ abstract class JuliaSymbolMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode
 	}
 }
 
+abstract class JuliaMacroSymbolMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaMacroSymbol {
+	private var reference: JuliaSymbolRef? = null
+	override var type: String? = null
+	override fun getNameIdentifier() = this
+	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
+	override fun getName() = text
+	override fun getReference() = reference ?: JuliaSymbolRef(this).also { reference = it }
+	override fun subtreeChanged() {
+		reference = null
+		type = null
+		super.subtreeChanged()
+	}
+}
+
 interface IJuliaExpr : PsiElement {
 	var type: String?
 }
 
-abstract class JuliaExprMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaExpr {
+abstract class JuliaExprMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaExpr {
 	override var type: String? = null
 	override fun subtreeChanged() {
 		type = null
@@ -153,7 +167,7 @@ abstract class JuliaExprMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode),
 
 interface IJuliaModuleDeclaration : PsiNameIdentifierOwner, DocStringOwner
 
-abstract class JuliaModuleDeclarationMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaModuleDeclaration {
+abstract class JuliaModuleDeclarationMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaModuleDeclaration {
 	override var docString: JuliaStringContent? = null
 	override fun getNameIdentifier() = symbol
 	override fun setName(name: String) = symbol.replace(JuliaTokenType.fromText(name, project))

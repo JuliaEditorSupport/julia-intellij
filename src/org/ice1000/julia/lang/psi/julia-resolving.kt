@@ -10,7 +10,11 @@ import com.intellij.psi.scope.util.PsiScopesUtil.treeWalkUp
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.JuliaTokenType
 
-class JuliaSymbolRef(private val symbol: JuliaSymbol, private var refTo: PsiElement? = null) : PsiPolyVariantReference {
+/**
+ * @author ice1000
+ * @param symbol should be [org.ice1000.julia.lang.psi.JuliaSymbol] or [org.ice1000.julia.lang.psi.JuliaMacroSymbol]
+ */
+class JuliaSymbolRef(private val symbol: PsiElement, private var refTo: PsiElement? = null) : PsiPolyVariantReference {
 	private val range = TextRange(0, symbol.textLength)
 	override fun equals(other: Any?) = (other as? JuliaSymbolRef)?.element == element
 	override fun hashCode() = symbol.hashCode()
@@ -30,12 +34,25 @@ class JuliaSymbolRef(private val symbol: JuliaSymbol, private var refTo: PsiElem
 	override fun bindToElement(element: PsiElement) = symbol.also { refTo = element }
 	override fun multiResolve(incompleteCode: Boolean): Array<out ResolveResult> {
 		val file = element.containingFile?.takeUnless { symbol.project.isDisposed } ?: return emptyArray()
+		val resolver = when (symbol) {
+			is JuliaSymbol -> symbolResolver
+			is JuliaMacroSymbol -> macroResolver
+			else -> return emptyArray()
+		}
 		return ResolveCache.getInstance(symbol.project).resolveWithCaching(this, resolver, true, incompleteCode, file)
 	}
 
 	private companion object ResolverHolder {
-		private val resolver = ResolveCache.PolyVariantResolver<JuliaSymbolRef> { ref, incompleteCode ->
+		private val symbolResolver = ResolveCache.PolyVariantResolver<JuliaSymbolRef> { ref, incompleteCode ->
 			val processor = SymbolResolveProcessor(ref, incompleteCode)
+			treeWalkUp(processor, ref.symbol, ref.symbol.containingFile, ResolveState.initial())
+			PsiTreeUtil
+				.getParentOfType(ref.symbol, JuliaStatements::class.java)
+				?.processDeclarations(processor, ResolveState.initial(), ref.symbol, processor.place)
+			return@PolyVariantResolver processor.candidateSet.toTypedArray()
+		}
+		private val macroResolver = ResolveCache.PolyVariantResolver<JuliaSymbolRef> { ref, incompleteCode ->
+			val processor = MacroSymbolResolveProcessor(ref, incompleteCode)
 			treeWalkUp(processor, ref.symbol, ref.symbol.containingFile, ResolveState.initial())
 			PsiTreeUtil
 				.getParentOfType(ref.symbol, JuliaStatements::class.java)
@@ -48,28 +65,38 @@ class JuliaSymbolRef(private val symbol: JuliaSymbol, private var refTo: PsiElem
 abstract class ResolveProcessor<ResolveResult>(val place: PsiElement) : PsiScopeProcessor {
 	abstract val candidateSet: ArrayList<ResolveResult>
 	override fun handleEvent(event: PsiScopeProcessor.Event, o: Any?) = Unit
+	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
 	protected val PsiElement.canResolve get() = this is JuliaSymbol
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
 	protected fun isInScope(element: PsiElement) = true // TODO
 //		PsiTreeUtil.isAncestor(element.parent?.parent, place, false)
 }
 
-class SymbolResolveProcessor(private val name: String, place: PsiElement, private val incompleteCode: Boolean) :
+open class SymbolResolveProcessor(
+	@JvmField protected val name: String,
+	place: PsiElement,
+	private val incompleteCode: Boolean) :
 	ResolveProcessor<PsiElementResolveResult>(place) {
 	constructor(ref: JuliaSymbolRef, incompleteCode: Boolean) : this(ref.canonicalText, ref.element, incompleteCode)
 
 	override val candidateSet = ArrayList<PsiElementResolveResult>(3)
-	private fun addCandidate(symbol: PsiElement) = candidateSet.add(PsiElementResolveResult(symbol, true))
-	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
+	protected open fun accessible(element: PsiElement) = name == element.text && isInScope(element)
 	override fun execute(element: PsiElement, resolveState: ResolveState) = when {
 		candidateSet.isNotEmpty() -> false
 		element.canResolve -> {
-			val accessible = name == element.text && isInScope(element)
-			if (accessible and element.hasNoError) addCandidate(element)
+			val accessible = accessible(element)
+			if (accessible and element.hasNoError) candidateSet.add(PsiElementResolveResult(element, true))
 			!accessible
 		}
 		else -> true
 	}
+}
+
+class MacroSymbolResolveProcessor(name: String, place: PsiElement, incompleteCode: Boolean) :
+	SymbolResolveProcessor(name, place, incompleteCode) {
+	constructor(ref: JuliaSymbolRef, incompleteCode: Boolean) : this(ref.canonicalText, ref.element, incompleteCode)
+
+	override fun accessible(element: PsiElement) = "@${element.text}" == name && isInScope(element)
 }
 
 class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean) :
@@ -77,7 +104,6 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 	constructor(ref: JuliaSymbolRef, incompleteCode: Boolean) : this(ref.element, incompleteCode)
 
 	override val candidateSet = ArrayList<LookupElementBuilder>(20)
-	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
 		if (element.canResolve and element.hasNoError and isInScope(element)) {
 			val symbol = element.text
