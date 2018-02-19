@@ -16,7 +16,7 @@ import org.intellij.lang.regexp.RegExpLanguage
 class JuliaLanguageInjector : LanguageInjector {
 
 	private fun markdown(host: PsiLanguageInjectionHost) =
-		host.parent.nextSibling?.let { it as? DocStringOwner ?: it.nextSibling as? DocStringOwner }
+		host.nextSibling?.let { it as? DocStringOwner ?: it.nextSibling as? DocStringOwner }
 
 	override fun getLanguagesToInject(host: PsiLanguageInjectionHost, places: InjectedLanguagePlaces) {
 		when (host) {
@@ -25,10 +25,12 @@ class JuliaLanguageInjector : LanguageInjector {
 				val markdownLanguage = Language.findLanguageByID("Markdown")
 					?: Language.findLanguageByID("MultiMarkdown")
 					?: return@forceRun
-				places.addPlace(markdownLanguage, TextRange(0, host.textLength), null, null)
+				val start = host.firstChild.textLength
+				val length = host.textLength - start - host.lastChild.textLength
+				places.addPlace(markdownLanguage, TextRange(start, length), null, null)
 			}
 			is JuliaRegex ->
-				places.addPlace(RegExpLanguage.INSTANCE, TextRange(0, host.textLength), "^", "$")
+				places.addPlace(RegExpLanguage.INSTANCE, TextRange(2, host.textLength - 1), "^", "$")
 		}
 	}
 }

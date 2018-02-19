@@ -56,6 +56,7 @@ class JuliaBraceMatcher : PairedBraceMatcher {
 			BracePair(JuliaTypes.STRING_INTERPOLATE_START, JuliaTypes.STRING_INTERPOLATE_END, false),
 			BracePair(JuliaTypes.BLOCK_COMMENT_START, JuliaTypes.BLOCK_COMMENT_END, false),
 			BracePair(JuliaTypes.QUOTE_START, JuliaTypes.QUOTE_END, false),
+			BracePair(JuliaTypes.REGEX_START, JuliaTypes.REGEX_END, false),
 			BracePair(JuliaTypes.CMD_QUOTE_START, JuliaTypes.CMD_QUOTE_END, false),
 			BracePair(JuliaTypes.TRIPLE_QUOTE_START, JuliaTypes.TRIPLE_QUOTE_END, false),
 			BracePair(JuliaTypes.LEFT_B_BRACKET, JuliaTypes.RIGHT_B_BRACKET, false),
