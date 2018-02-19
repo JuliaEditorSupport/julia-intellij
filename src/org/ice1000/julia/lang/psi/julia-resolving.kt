@@ -68,8 +68,19 @@ abstract class ResolveProcessor<ResolveResult>(val place: PsiElement) : PsiScope
 	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
 	protected val PsiElement.canResolve get() = this is JuliaSymbol
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
-	protected fun isInScope(element: PsiElement) = true // TODO
-//		PsiTreeUtil.isAncestor(element.parent?.parent, place, false)
+	@Suppress("WhenWithOnlyElse")
+	protected fun isInScope(element: PsiElement) = if (element is JuliaSymbol) when {
+		element.isFunctionName ||
+			element.isModuleName ||
+			element.isMacroName ||
+			element.isAbstractTypeName ||
+			element.isPrimitiveTypeName ||
+			element.isTypeName -> default(element)
+		else -> false
+	} else false
+
+	private fun default(element: PsiElement) =
+		PsiTreeUtil.isAncestor(PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), place, false)
 }
 
 open class SymbolResolveProcessor(

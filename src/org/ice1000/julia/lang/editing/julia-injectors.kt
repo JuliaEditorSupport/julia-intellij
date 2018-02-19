@@ -1,6 +1,7 @@
 package org.ice1000.julia.lang.editing
 
 import com.intellij.lang.Language
+import com.intellij.openapi.fileTypes.PlainTextLanguage
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import org.ice1000.julia.lang.forceRun
@@ -22,11 +23,11 @@ class JuliaLanguageInjector : LanguageInjector {
 		when (host) {
 			is JuliaString -> if (host.isDocString || markdown(host)?.let { it.docString = host } != null) forceRun {
 				host.isDocString = true
-				val markdownLanguage = Language.findLanguageByID("Markdown")
+				val markdownLanguage: Language = Language.findLanguageByID("Markdown")
 					?: Language.findLanguageByID("MultiMarkdown")
-					?: return@forceRun
+					?: PlainTextLanguage.INSTANCE
 				val start = host.firstChild.textLength
-				val length = host.textLength - start - host.lastChild.textLength
+				val length = host.textLength - host.lastChild.textLength
 				places.addPlace(markdownLanguage, TextRange(start, length), null, null)
 			}
 			is JuliaRegex ->
