@@ -85,8 +85,8 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 			}
 		}
 		if (docString == null) {
-			val signatureTextPart = signature?.run {
-				"# Arguments\n\n${typedNamedVariableList.joinToString("\n") { "- `${it.text}`:" }}"
+			val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
+				"# Arguments\n\n${joinToString("\n") { "- `${it.text}`:" }}"
 			}.orEmpty()
 			holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.no-doc-string-function"))
 				.registerFix(JuliaInsertTextBeforeIntention(element, """$JULIA_DOC_SURROUNDING
