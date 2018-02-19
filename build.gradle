@@ -25,7 +25,7 @@ allprojects {
 	apply plugin: 'org.jetbrains.grammarkit'
 	apply plugin: 'org.jetbrains.intellij'
 	intellij {
-		def username = System.getProperty("user.name")
+		String username = System.getProperty("user.name")
 		if (username == 'ice1000') {
 			localPath '/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/173.4548.28'
 		} else if (username == 'hoshino') {
@@ -50,8 +50,8 @@ sourceSets {
 	}
 }
 
-def pluginVersion = '0.1.2'
-def packageName = 'org.ice1000.julia'
+String pluginVersion = '0.1.2'
+String packageName = 'org.ice1000.julia'
 
 group packageName
 version pluginVersion

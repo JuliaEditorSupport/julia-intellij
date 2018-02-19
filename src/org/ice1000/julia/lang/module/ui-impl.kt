@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectGeneratorPeer
-import com.intellij.platform.WebProjectGenerator
 import com.intellij.ui.DocumentAdapter
 import org.ice1000.julia.lang.JULIA_SDK_HOME_PATH_ID
 import org.ice1000.julia.lang.JuliaBundle
@@ -55,19 +54,14 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 
 class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : JuliaProjectGeneratorPeer() {
 	init {
-		useLocalJuliaDistributionRadioButton.addActionListener {
+		setupLaterRadioButton.addChangeListener {
 			juliaExeField.isEnabled = false
 			juliaExeField.text = defaultExePath
-			if (useLocalJuliaDistributionRadioButton.isSelected) {
-				selectJuliaExecutableRadioButton.isSelected = false
-			}
+			selectJuliaExecutableRadioButton.isSelected = !setupLaterRadioButton.isSelected
 		}
-		selectJuliaExecutableRadioButton.addActionListener {
+		selectJuliaExecutableRadioButton.addChangeListener {
 			juliaExeField.isEnabled = true
-//			juliaExeField.text = settings.exePath
-			if (selectJuliaExecutableRadioButton.isSelected) {
-				useLocalJuliaDistributionRadioButton.isSelected = false
-			}
+			setupLaterRadioButton.isSelected = !selectJuliaExecutableRadioButton.isSelected
 		}
 		usefulText.isVisible = false
 		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
@@ -75,7 +69,7 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 //		default
 		if (validateJuliaExe(defaultExePath)) {
 			juliaExeField.text = defaultExePath
-			getSettings().exePath = juliaExeField.text
+			settings.exePath = juliaExeField.text
 		}
 		selectJuliaExecutableRadioButton.isSelected = true
 	}
@@ -86,10 +80,11 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 	override fun addSettingsListener(listener: ProjectGeneratorPeer.SettingsListener) = Unit
 	/** Deprecated in 2017.3 But We must override it. */
 	@Deprecated("", ReplaceWith("addSettingsListener"))
-	override fun addSettingsStateListener(listener: WebProjectGenerator.SettingsStateListener) = Unit
+	override fun addSettingsStateListener(@Suppress("DEPRECATION") listener: com.intellij.platform.WebProjectGenerator.SettingsStateListener) = Unit
 
 	override fun getComponent() = mainPanel
 	override fun validate(): ValidationInfo? {
+		if (setupLaterRadioButton.isSelected) return null
 		settings.exePath = juliaExeField.text
 		settings.initWithExe()
 		val validate = validateJulia(settings)

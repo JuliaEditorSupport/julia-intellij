@@ -12,6 +12,6 @@ public abstract class JuliaProjectGeneratorPeer implements ProjectGeneratorPeer<
 	protected @NotNull JLabel usefulText;
 	protected @NotNull TextFieldWithBrowseButton juliaExeField;
 	protected @NotNull JPanel mainPanel;
-	protected @NotNull JRadioButton useLocalJuliaDistributionRadioButton;
+	protected @NotNull JRadioButton setupLaterRadioButton;
 	protected @NotNull JRadioButton selectJuliaExecutableRadioButton;
 }

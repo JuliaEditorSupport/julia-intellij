@@ -24,12 +24,12 @@
           <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
-      <component id="f8022" class="javax.swing.JRadioButton" binding="useLocalJuliaDistributionRadioButton" default-binding="true">
+      <component id="f8022" class="javax.swing.JRadioButton" binding="setupLaterRadioButton">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Use local Julia distribution"/>
+          <text value="Setup Julia later"/>
         </properties>
       </component>
       <component id="1585d" class="javax.swing.JRadioButton" binding="selectJuliaExecutableRadioButton" default-binding="true">
