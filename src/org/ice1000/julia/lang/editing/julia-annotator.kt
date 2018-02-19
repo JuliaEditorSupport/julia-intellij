@@ -11,6 +11,7 @@ import com.intellij.util.SystemProperties
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.*
+import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.BigInteger.ONE
@@ -53,12 +54,15 @@ class JuliaAnnotator : Annotator {
 		element: JuliaCompactFunction,
 		holder: AnnotationHolder) {
 		val typeParams = element.typeParameters
+		val name = element.name
+		val signature = element.functionSignature
 		val functionBody = element.exprList.lastOrNull()?.text.orEmpty()
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.compact-function"))
 			.registerFix(JuliaReplaceWithTextIntention(
 				element, """function ${element.name}${typeParams?.text.orEmpty()}${element.functionSignature.text}
 ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $functionBody\n"}end""",
 				JuliaBundle.message("julia.lint.replace-ordinary-function")))
+		docStringFunction(element, signature, holder, name, "", signature.text)
 	}
 
 	private fun function(
@@ -70,7 +74,6 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		val typeParamsText = element.typeParameters?.text.orEmpty()
 		val where = element.whereClause
 		val name = element.name
-		val docString = element.docString
 		if (where == null) when {
 			statements.isEmpty() -> holder.createWeakWarningAnnotation(element, JuliaBundle.message("julia.lint.empty-function"))
 				.registerFix(JuliaReplaceWithTextIntention(element,
@@ -84,13 +87,23 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 						JuliaBundle.message("julia.lint.replace-compact-function")))
 			}
 		}
-		if (docString == null) {
-			val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
-				"# Arguments\n\n${joinToString("\n") { "- `${it.text}`:" }}"
-			}.orEmpty()
-			holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.no-doc-string-function"))
-				.registerFix(JuliaInsertTextBeforeIntention(element, """$JULIA_DOC_SURROUNDING
-    $name$typeParamsText$signatureText
+		docStringFunction(element, signature, holder, name, typeParamsText, signatureText)
+	}
+
+	private fun docStringFunction(
+		element: IJuliaFunctionDeclaration,
+		signature: JuliaFunctionSignature?,
+		holder: AnnotationHolder,
+		name: String?,
+		typeParamsText: String,
+		signatureText: String) {
+		if (element.docString != null) return
+		val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
+			"# Arguments\n\n${joinToString("\n") { "- `${it.text}`:" }}"
+		}.orEmpty()
+		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.no-doc-string-function"))
+			.registerFix(JuliaInsertTextBeforeIntention(element, """$JULIA_DOC_SURROUNDING
+$name$typeParamsText$signatureText
 
 - Julia version: ${element.project.juliaSettings.settings.version}
 - Author: ${SystemProperties.getUserName()}
@@ -104,7 +117,6 @@ julia>
 ```
 $JULIA_DOC_SURROUNDING
 """, JuliaBundle.message("julia.lint.insert-doc-string")))
-		}
 	}
 
 	private fun plusLevelOp(element: JuliaPlusLevelOp, holder: AnnotationHolder) {
