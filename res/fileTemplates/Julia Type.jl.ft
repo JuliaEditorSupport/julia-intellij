@@ -1,7 +1,9 @@
 """
-type ${NAME}:
-+ Julia version ${JULIA_VERSION}
-+ Created by ${USER} at ${YEAR}-${MONTH}-${DAY}
+\#\# type ${NAME}
+
+- Julia version: ${JULIA_VERSION}
+- Author: ${USER}
+- Date: ${YEAR}-${MONTH}-${DAY}
 """
 type ${NAME}
 end
