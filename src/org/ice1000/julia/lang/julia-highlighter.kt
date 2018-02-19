@@ -127,6 +127,8 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.CMD_QUOTE_END,
 		JuliaTypes.TRIPLE_QUOTE_START,
 		JuliaTypes.TRIPLE_QUOTE_END,
+		JuliaTypes.REGEX_START,
+		JuliaTypes.REGEX_END,
 		JuliaTypes.REGULAR_STRING_PART_LITERAL -> STRING_KEY
 		JuliaTypes.STRING_INTERPOLATE_START,
 		JuliaTypes.STRING_INTERPOLATE_END -> STRING_INTERPOLATE_KEY
