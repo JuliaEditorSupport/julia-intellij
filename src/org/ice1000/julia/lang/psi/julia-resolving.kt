@@ -68,7 +68,7 @@ abstract class ResolveProcessor<ResolveResult>(val place: PsiElement) : PsiScope
 	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
 	protected val PsiElement.canResolve get() = this is JuliaSymbol
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
-	@Suppress("WhenWithOnlyElse")
+	// TODO add definitions
 	protected fun isInScope(element: PsiElement) = if (element is JuliaSymbol) when {
 		element.isFunctionName ||
 			element.isModuleName ||
