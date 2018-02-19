@@ -29,7 +29,7 @@ class JuliaSymbolRef(private val symbol: JuliaSymbol, private var refTo: PsiElem
 	override fun handleElementRename(newName: String) = JuliaTokenType.fromText(newName, symbol.project).let(symbol::replace)
 	override fun bindToElement(element: PsiElement) = symbol.also { refTo = element }
 	override fun multiResolve(incompleteCode: Boolean): Array<out ResolveResult> {
-		if (symbol.project.isDisposed) return emptyArray()
+		if (symbol.project.isDisposed || element.containingFile == null) return emptyArray()
 		return ResolveCache.getInstance(symbol.project).resolveWithCaching(this, resolver, true, false)
 	}
 
