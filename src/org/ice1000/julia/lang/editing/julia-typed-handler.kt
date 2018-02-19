@@ -13,6 +13,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes
 /**
  * a temp file...
  * It can be mixed into julia-editing.kt
+ * FIXME move to julia-editing.kt
  */
 class JuliaTypedHandlerDelegate : TypedHandlerDelegate() {
 
