@@ -33,8 +33,6 @@ class JuliaAnnotator : Annotator {
 		when (element) {
 			is JuliaFunction -> function(element, holder)
 			is JuliaCompactFunction -> compactFunction(element, holder)
-			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.MACRO_REFERENCE
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
 			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
@@ -99,11 +97,13 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		signatureText: String) {
 		if (element.docString != null) return
 		val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
-			"# Arguments\n\n${joinToString("\n") { "- `${it.text}`:" }}"
+			"# Arguments\n\n${joinToString("\n") {
+				"- `${it.exprList.firstOrNull()?.text.orEmpty()}${it.typeAnnotation?.text.orEmpty()}`:"
+			}}"
 		}.orEmpty()
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.no-doc-string-function"))
 			.registerFix(JuliaInsertTextBeforeIntention(element, """$JULIA_DOC_SURROUNDING
-$name$typeParamsText$signatureText
+    $name$typeParamsText$signatureText
 
 - Julia version: ${element.project.juliaSettings.settings.version}
 - Author: ${SystemProperties.getUserName()}
