@@ -1,10 +1,14 @@
 package org.ice1000.julia.lang.editing
 
+import com.intellij.codeInsight.editorActions.*
 import com.intellij.ide.IconProvider
 import com.intellij.lang.*
 import com.intellij.lang.cacheBuilder.DefaultWordsScanner
 import com.intellij.lang.findUsages.EmptyFindUsagesProvider
 import com.intellij.lang.refactoring.RefactoringSupportProvider
+import com.intellij.openapi.editor.*
+import com.intellij.openapi.fileTypes.*
+import com.intellij.openapi.project.*
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.psi.*
 import com.intellij.psi.tree.IElementType
@@ -14,6 +18,7 @@ import com.intellij.spellchecker.tokenizer.Tokenizer
 import com.intellij.ui.breadcrumbs.BreadcrumbsProvider
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.action.*
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.JuliaBlock
 import javax.swing.Icon
@@ -185,4 +190,27 @@ class JuliaFindUsagesProvider : EmptyFindUsagesProvider() {
 
 class JuliaRefactoringSupportProvider : RefactoringSupportProvider() {
 	override fun isMemberInplaceRenameAvailable(element: PsiElement, context: PsiElement?) = true
+}
+
+@Deprecated("This class is deprecated because we use action instead of TypedHandler",ReplaceWith("org.ice1000.julia.lang.action.JuliaUnicodeInputAction"))
+class JuliaTypedHandlerDelegate : TypedHandlerDelegate() {
+	override fun beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result {
+		if (fileType != JuliaFileType)
+			return Result.CONTINUE
+		else if (c == '\\') {
+			val offset = editor.caretModel.offset
+			val psiElement = file.findElementAt(offset - 1)
+			val type = psiElement?.node?.elementType
+			val popupTokensArray = arrayOf(
+				JuliaTypes.EOL,
+				TokenType.WHITE_SPACE,
+				JuliaTypes.SYM
+			)
+			if (type in popupTokensArray) {
+				JuliaUnicodeInputAction.actionInvoke(editor, project)
+				return Result.STOP
+			}
+		}
+		return Result.CONTINUE
+	}
 }
