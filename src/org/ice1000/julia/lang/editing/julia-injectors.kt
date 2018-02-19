@@ -30,7 +30,7 @@ class JuliaLanguageInjector : LanguageInjector {
 				places.addPlace(markdownLanguage, TextRange(start, length), null, null)
 			}
 			is JuliaRegex ->
-				places.addPlace(RegExpLanguage.INSTANCE, TextRange(2, host.textLength - 1), "^", "$")
+				places.addPlace(RegExpLanguage.INSTANCE, TextRange(2, host.textLength - 1), null, null)
 		}
 	}
 }
