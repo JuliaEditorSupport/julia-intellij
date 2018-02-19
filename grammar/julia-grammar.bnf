@@ -116,7 +116,10 @@ private statement ::=
 moduleDeclaration ::=
  (BAREMODULE_KEYWORD | MODULE_KEYWORD) symbol endOfLine
   statements
- END_KEYWORD
+ END_KEYWORD {
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaModuleDeclaration']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaModuleDeclarationMixin'
+}
 
 globalStatement ::=
  GLOBAL_KEYWORD endOfLine
@@ -500,7 +503,7 @@ typeDeclaration ::=
  END_KEYWORD {
 	extends=expr
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaTypeDeclaration']
-	mixin='org.ice1000.julia.lang.psi.impl.JuliaTypeMixin'
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaTypeDeclarationMixin'
 }
 
 abstractTypeDeclaration ::=

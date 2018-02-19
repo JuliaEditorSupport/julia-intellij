@@ -106,10 +106,11 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 
 interface IJuliaTypeDeclaration : JuliaExpr, PsiNameIdentifierOwner, DocStringOwner
 
-abstract class JuliaTypeMixin(astNode: ASTNode) : JuliaExprMixin(astNode), JuliaTypeDeclaration {
+abstract class JuliaTypeDeclarationMixin(astNode: ASTNode) : JuliaExprMixin(astNode), JuliaTypeDeclaration {
 	override var docString: JuliaStringContent? = null
 	override fun getNameIdentifier() = exprList.firstOrNull()
 	override fun setName(name: String) = nameIdentifier?.replace(JuliaTokenType.fromText(name, project))
+	override fun getName() = nameIdentifier?.text
 	override fun subtreeChanged() {
 		docString = null
 		super.subtreeChanged()
@@ -146,6 +147,19 @@ abstract class JuliaExprMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode),
 	override var type: String? = null
 	override fun subtreeChanged() {
 		type = null
+		super.subtreeChanged()
+	}
+}
+
+interface IJuliaModuleDeclaration : PsiNameIdentifierOwner, DocStringOwner
+
+abstract class JuliaModuleDeclarationMixin(astNode: ASTNode) : ASTWrapperPsiElement(astNode), JuliaModuleDeclaration {
+	override var docString: JuliaStringContent? = null
+	override fun getNameIdentifier() = symbol
+	override fun setName(name: String) = symbol.replace(JuliaTokenType.fromText(name, project))
+	override fun getName() = nameIdentifier.text
+	override fun subtreeChanged() {
+		docString = null
 		super.subtreeChanged()
 	}
 }
