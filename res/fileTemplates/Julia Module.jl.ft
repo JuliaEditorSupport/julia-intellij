@@ -1,5 +1,5 @@
 """
-\#\# module ${NAME}
+## module ${NAME}
 
 - Julia version: ${JULIA_VERSION}
 - Author: ${USER}
