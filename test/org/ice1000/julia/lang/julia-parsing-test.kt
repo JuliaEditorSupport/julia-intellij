@@ -25,6 +25,11 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 		println(name)
 		doTest(false)
 	}
+
+	fun testRegex() {
+		println(name)
+		doTest(true)
+	}
 }
 
 class JuliaLexerTest {

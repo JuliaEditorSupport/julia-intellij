@@ -24,20 +24,16 @@ class JuliaSdkFindTest {
 
 	@Test
 	fun testFindPathWindows() {
-		println(findPathWindows())
+		if (SystemInfo.isWindows) println(findPathWindows())
 	}
 
-	@Test
-	fun testFindImport() {
-		if (!System.getenv("CI").isNullOrBlank()) return
-		val (stdout, _) = executeJulia(defaultExePath, null, 1000L, "--print", "Pkg.dir()")
-		println(stdout)
-		println(stdout.first())
-		println(Files.exists(Paths.get(stdout.first())))
-	}
-	@Test
-	fun testDefault(){
-		if (!System.getenv("CI").isNullOrBlank()) return
-		println(defaultExePath)
+	companion object {
+		@JvmStatic
+		fun main(args: Array<String>) {
+			val (stdout, _) = executeJulia(defaultExePath, null, 1000L, "--print", "Pkg.dir()")
+			println(stdout)
+			println(stdout.first())
+			println(Files.exists(Paths.get(stdout.first())))
+		}
 	}
 }
