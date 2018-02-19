@@ -22,7 +22,10 @@ symbol ::= SYM {
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin'
 }
 
-macroSymbol ::= MACRO_SYM
+macroSymbol ::= MACRO_SYM {
+	implements=['com.intellij.psi.PsiNameIdentifierOwner']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaMacroSymbolMixin'
+}
 
 unaryOpAsSymbol ::=
    MINUS_SYM
@@ -201,7 +204,7 @@ private assignLevel ::=
 assignOp ::= expr (EQ_SYM | ASSIGN_SYM) endOfLine expr {
 	rightAssociative=true
 	pin=2
-	implements=['org.ice1000.julia.lang.psi.impl.IJuliaAssignOp']
+	implements=['com.intellij.psi.PsiNameIdentifierOwner']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaAssignOpMixin'
 }
 
@@ -477,7 +480,7 @@ functionSignature ::=
   (SLICE_SYM endOfLine)?
  RIGHT_BRACKET { pin=1 }
 
-private untypedVariables ::=
+untypedVariables ::=
  LEFT_BRACKET endOfLine
   (symbol (commaSep symbol)*)? endOfLine
  RIGHT_BRACKET
@@ -521,7 +524,11 @@ macro ::=
     symbol endOfLine
    untypedVariables endOfLine
   statements
- END_KEYWORD { extends=expr }
+ END_KEYWORD {
+	extends=expr
+	implements=['com.intellij.psi.PsiNameIdentifierOwner' 'org.ice1000.julia.lang.psi.impl.DocStringOwner']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaMacroMixin'
+}
 
 let ::= LET_KEYWORD statements END_KEYWORD { extends=expr }
 
