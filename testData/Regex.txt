@@ -1,0 +1,11 @@
+FILE
+  PsiComment(BLOCK_COMMENT_START)('#=')
+  PsiComment(BLOCK_COMMENT_BODY)('\n# Regex\n# Julia version: \nCreated by ice1000 at 2018-02-20\n')
+  PsiComment(BLOCK_COMMENT_END)('=#')
+  PsiElement(EOL)('\n\n')
+  JuliaStatementsImpl(STATEMENTS)
+    JuliaRegexImpl(REGEX)
+      PsiElement(REGEX_START)('r"')
+      JuliaStringContentImpl(STRING_CONTENT)
+        PsiElement(REGULAR_STRING_PART_LITERAL)('[a-zA-Z_]')
+      PsiElement(REGEX_END)('"')
