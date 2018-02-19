@@ -51,6 +51,7 @@ class NewJuliaFile : CreateFileFromTemplateAction(
 			.addKind("File", JuliaIcons.JULIA_ICON, "Julia File")
 			.addKind("Module", JuliaIcons.JULIA_MODULE_ICON, "Julia Module")
 			.addKind("Type", JuliaIcons.JULIA_TYPE_ICON, "Julia Type")
+			.addKind("Function", JuliaIcons.JULIA_FUNCTION_ICON, "Julia Function")
 	}
 
 	override fun createFileFromTemplate(name: String, template: FileTemplate, dir: PsiDirectory) = try {
