@@ -68,6 +68,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 
 abstract class JuliaMacroMixin(node: ASTNode) : JuliaDeclaration(node), JuliaMacro {
 	override var docString: JuliaStringContent? = null
+	override var type: String? = null
 	override fun getNameIdentifier() = symbol
 }
 
@@ -140,12 +141,14 @@ abstract class JuliaSymbolMixin(node: ASTNode) : ASTWrapperPsiElement(node), Jul
 
 abstract class JuliaMacroSymbolMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaMacroSymbol {
 	private var reference: JuliaSymbolRef? = null
+	override var type: String? = null
 	override fun getNameIdentifier() = this
 	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
 	override fun getName() = text
 	override fun getReference() = reference ?: JuliaSymbolRef(this).also { reference = it }
 	override fun subtreeChanged() {
 		reference = null
+		type = null
 		super.subtreeChanged()
 	}
 }

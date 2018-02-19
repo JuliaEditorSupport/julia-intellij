@@ -134,7 +134,7 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 		is JuliaCompactFunction -> "${element.exprList.firstOrNull()?.text}()"
 		is JuliaAbstractTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
 		is JuliaPrimitiveTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
-		is JuliaMacro -> "@${element.symbolList.firstOrNull()?.text}()"
+		is JuliaMacro -> "@${element.symbol?.text}()"
 		is JuliaIfExpr -> "if ${element.statements.exprList.firstOrNull()?.text}"
 		is JuliaTryCatch -> "try"
 		is JuliaFinallyClause -> "finally"

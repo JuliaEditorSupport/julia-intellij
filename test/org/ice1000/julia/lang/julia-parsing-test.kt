@@ -20,6 +20,11 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 		println(name)
 		doTest(true)
 	}
+
+	fun testParseJuliac() {
+		println(name)
+		doTest(false)
+	}
 }
 
 class JuliaLexerTest {
