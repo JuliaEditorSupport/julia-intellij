@@ -5,6 +5,8 @@
 - Author: ${USER}
 - Date: ${YEAR}-${MONTH}-${DAY}
 
+# Arguments
+
 # Examples
 
 ```jldoctest

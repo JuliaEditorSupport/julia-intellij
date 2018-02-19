@@ -12,15 +12,15 @@ import org.ice1000.julia.lang.JuliaTokenType
 import org.jetbrains.annotations.Nls
 import org.jetbrains.annotations.NonNls
 
-abstract class JuliaIntentionAction : BaseIntentionAction() {
+abstract class JuliaIntentionAction(@Nls private val info: String? = null) : BaseIntentionAction() {
+	override fun getText() = info ?: super.getText()
 	override fun isAvailable(project: Project, editor: Editor?, psiFile: PsiFile?) = true
 	override fun getFamilyName() = JuliaBundle.message("julia.name")
 }
 
 class JuliaRemoveElementIntention(
 	private val element: PsiElement,
-	@Nls private val intentionText: String) : JuliaIntentionAction() {
-	override fun getText() = intentionText
+	intentionText: String) : JuliaIntentionAction(intentionText) {
 	override operator fun invoke(project: Project, editor: Editor?, psiFile: PsiFile?) {
 		ApplicationManager.getApplication().runWriteAction(element::delete)
 	}
@@ -29,8 +29,7 @@ class JuliaRemoveElementIntention(
 class JuliaRemoveElementChildIntention(
 	private val element: PsiElement,
 	private val child: ASTNode,
-	@Nls private val intentionText: String) : JuliaIntentionAction() {
-	override fun getText() = intentionText
+	intentionText: String) : JuliaIntentionAction(intentionText) {
 	override operator fun invoke(project: Project, editor: Editor?, psiFile: PsiFile?) {
 		ApplicationManager.getApplication().runWriteAction { element.node.removeChild(child) }
 	}
@@ -39,8 +38,7 @@ class JuliaRemoveElementChildIntention(
 class JuliaReplaceWithTextIntention(
 	private val element: PsiElement,
 	@NonNls private val new: String,
-	@Nls private val info: String) : JuliaIntentionAction() {
-	override fun getText() = info
+	info: String) : JuliaIntentionAction(info) {
 	override operator fun invoke(project: Project, editor: Editor?, psiFile: PsiFile?) {
 		ApplicationManager.getApplication().runWriteAction {
 			JuliaTokenType.fromText(new, project).let(element::replace)
@@ -48,14 +46,24 @@ class JuliaReplaceWithTextIntention(
 	}
 }
 
+class JuliaInsertTextBeforeIntention(
+	private val element: PsiElement,
+	@NonNls private val new: String,
+	info: String) : JuliaIntentionAction(info) {
+	override fun invoke(project: Project, editor: Editor?, file: PsiFile?) {
+		ApplicationManager.getApplication().runWriteAction {
+			element.parent.addBefore(JuliaTokenType.fromText(new, project), element)
+		}
+	}
+}
+
 class JuliaReplaceNodeWithTextIntention(
 	private val element: ASTNode,
 	@NonNls private val new: String,
-	@Nls private val info: String) : JuliaIntentionAction() {
-	override fun getText() = info
+	info: String) : JuliaIntentionAction(info) {
 	override operator fun invoke(project: Project, editor: Editor?, psiFile: PsiFile?) {
 		ApplicationManager.getApplication().runWriteAction {
-			JuliaTokenType.fromText(new, project).let { element.treeParent.replaceChild(element, it.node) }
+			element.treeParent.replaceChild(element, JuliaTokenType.fromText(new, project).node)
 		}
 	}
 }

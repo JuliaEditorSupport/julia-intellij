@@ -8,6 +8,7 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.*
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -63,21 +64,44 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		element: JuliaFunction,
 		holder: AnnotationHolder) {
 		val statements = element.statements?.run { exprList + moduleDeclarationList + globalStatementList } ?: return
-		val signatureText = element.functionSignature?.text ?: "()"
+		val signature = element.functionSignature
+		val signatureText = signature?.text ?: "()"
 		val typeParamsText = element.typeParameters?.text.orEmpty()
 		val where = element.whereClause
+		val name = element.name
+		val docString = element.docString
 		if (where == null) when {
 			statements.isEmpty() -> holder.createWeakWarningAnnotation(element, JuliaBundle.message("julia.lint.empty-function"))
 				.registerFix(JuliaReplaceWithTextIntention(element,
-					"${element.name}$typeParamsText$signatureText = ()",
+					"$name$typeParamsText$signatureText = ()",
 					JuliaBundle.message("julia.lint.replace-compact-function")))
 			statements.size == 1 -> {
 				val statement = statements.first().let { if (it is JuliaReturnExpr) it.text.removePrefix("return") else it.text }
 				holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.lonely-function"))
 					.registerFix(JuliaReplaceWithTextIntention(element,
-						"${element.name}$typeParamsText$signatureText = $statement",
+						"$name$typeParamsText$signatureText = $statement",
 						JuliaBundle.message("julia.lint.replace-compact-function")))
 			}
+		}
+		if (docString == null) {
+			val signatureTextPart = signature?.run {
+				"# Arguments\n\n${typedNamedVariableList.joinToString("\n") { "- `${it.text}`:" }}"
+			}.orEmpty()
+			holder.createInfoAnnotation(element, "Function without doc string")
+				.registerFix(JuliaInsertTextBeforeIntention(element, """$JULIA_DOC_SURROUNDING
+    $name$typeParamsText$signatureText
+
+- Julia version: ${element.project.juliaSettings.settings.version}
+
+$signatureTextPart
+
+# Examples
+
+```jldoctest
+julia>
+```
+$JULIA_DOC_SURROUNDING
+""", "insert doc string"))
 		}
 	}
 
