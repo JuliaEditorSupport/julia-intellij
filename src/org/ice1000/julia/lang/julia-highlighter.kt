@@ -193,8 +193,6 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			"functionName" to JuliaHighlighter.FUNCTION_NAME,
 			"moduleName" to JuliaHighlighter.MODULE_NAME,
 			"macroName" to JuliaHighlighter.MACRO_NAME,
-			"macroRef" to JuliaHighlighter.MACRO_REFERENCE,
-			"stringEscape" to JuliaHighlighter.STRING_ESCAPE,
 			"stringEscapeInvalid" to JuliaHighlighter.STRING_ESCAPE_INVALID,
 			"typeName" to JuliaHighlighter.TYPE_NAME,
 			"charEscape" to JuliaHighlighter.CHAR_ESCAPE,
@@ -220,11 +218,11 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		   (1 + 3.2)::Float64
 		   IntOrString = Union{Int, AbstractString}
 		   div(5, 2) # => 2 # for a truncated result, use div
-		   <macroRef>@printf</macroRef> "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
-		   assertTrue("1 + 2 = 3" == "1 + 2 = $(1 + 2)")
-		   [1, 2, 3][2] # => 2, index start from 1
+		   @printf "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
+		   ismatch(r"1 \+ 2 = 3", "1 + 2 = $(1 + 2)")
+		   [1, 2, 3][2:end] # => 2, index start from 1
 		   try
-		       println("Hello<stringEscape>\n</stringEscape>World <stringEscapeInvalid>'\xjb'</stringEscapeInvalid>" +
+		       println("Hello\nWorld '<stringEscapeInvalid>\x</stringEscapeInvalid>jb'" +
 		         '<charEscapeInvalid>\x</charEscapeInvalid>' + '<charEscape>\a<charEscape>')
 		       some_other_var # => Unresolved reference: some_other_var
 		   catch exception
