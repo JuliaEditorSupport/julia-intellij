@@ -42,6 +42,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val MACRO_REFERENCE = TextAttributesKey.createTextAttributesKey("JULIA_MACRO_REFERENCE", DefaultLanguageHighlighterColors.FUNCTION_CALL)
 
 	@JvmField val KEYWORD_KEY = arrayOf(KEYWORD)
+	@JvmField val MACRO_REFERENCE_KEY = arrayOf(MACRO_REFERENCE)
 	@JvmField val STRING_KEY = arrayOf(STRING)
 	@JvmField val STRING_VALID_KEY = arrayOf(STRING_TEMPLATE)
 	@JvmField val STRING_INTERPOLATE_KEY = arrayOf(STRING_INTERPOLATE)
@@ -140,6 +141,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.FLOAT_LITERAL -> NUMBER_KEY
 		JuliaTypes.SEMICOLON_SYM -> SEMICOLON_KEY
 		JuliaTypes.FLOAT_CONSTANT -> FLOAT_LIT_KEY
+		JuliaTypes.MACRO_SYM -> MACRO_REFERENCE_KEY
 		in BRACKETS -> BRACKETS_KEY
 		in M_BRACKETS -> M_BRACKETS_KEY
 		in B_BRACKETS -> B_BRACKETS_KEY

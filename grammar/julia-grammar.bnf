@@ -22,7 +22,7 @@ symbol ::= SYM {
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin'
 }
 
-macroSymbol ::= AT_SYM SYM
+macroSymbol ::= MACRO_SYM
 
 unaryOpAsSymbol ::=
    MINUS_SYM

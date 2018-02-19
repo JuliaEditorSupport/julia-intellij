@@ -33,8 +33,6 @@ class JuliaAnnotator : Annotator {
 		when (element) {
 			is JuliaFunction -> function(element, holder)
 			is JuliaCompactFunction -> compactFunction(element, holder)
-			is JuliaMacroSymbol -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.MACRO_REFERENCE
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
 			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)

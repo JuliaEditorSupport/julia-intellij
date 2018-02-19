@@ -142,6 +142,8 @@ OTHERWISE=[^]
   return JuliaTypes.BLOCK_COMMENT_END;
 }
 
+<YYINITIAL, LONG_TEMPLATE> @{SIMPLE_SYMBOL} { return JuliaTypes.MACRO_SYM; }
+
 <YYINITIAL, LONG_TEMPLATE> end { return noEnd ? JuliaTypes.SYM : JuliaTypes.END_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> break { return JuliaTypes.BREAK_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> where { return JuliaTypes.WHERE_KEYWORD; }
@@ -195,7 +197,6 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> , { return JuliaTypes.COMMA_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \? { return JuliaTypes.QUESTION_SYM; }
 <YYINITIAL, LONG_TEMPLATE> = { return JuliaTypes.EQ_SYM; }
-<YYINITIAL, LONG_TEMPLATE> @ { return JuliaTypes.AT_SYM; }
 <YYINITIAL, LONG_TEMPLATE> <: { return JuliaTypes.SUBTYPE_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \$ { return JuliaTypes.INTERPOLATE_SYM; }
 <YYINITIAL, LONG_TEMPLATE> -> { return JuliaTypes.LAMBDA_ABSTRACTION; }
