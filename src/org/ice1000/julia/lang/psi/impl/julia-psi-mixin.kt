@@ -73,12 +73,12 @@ interface IJuliaString : PsiLanguageInjectionHost {
 	var isDocString: Boolean
 }
 
+@Suppress("HasPlatformType")
 abstract class JuliaStringMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaString {
+	override var type: String? = "String"
 	override var isDocString = false
 	override fun isValidHost() = true
-	@Suppress("HasPlatformType")
 	override fun createLiteralTextEscaper() = LiteralTextEscaper.createSimple(this)
-	@Suppress("HasPlatformType")
 	override fun updateText(s: String) = ElementManipulators.handleContentChange(this, s)
 }
 
@@ -87,11 +87,11 @@ interface IJuliaRegex : PsiLanguageInjectionHost {
 	override fun updateText(s: String): JuliaRegex
 }
 
+@Suppress("HasPlatformType")
 abstract class JuliaRegexMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaRegex {
+	override var type: String? = "Regex"
 	override fun isValidHost() = true
-	@Suppress("HasPlatformType")
 	override fun createLiteralTextEscaper() = LiteralTextEscaper.createSimple(this)
-	@Suppress("HasPlatformType")
 	override fun updateText(s: String) = ElementManipulators.handleContentChange(this, s)
 }
 
