@@ -21,33 +21,19 @@ Install IntelliJ IDEA (or other JetBrains IDEs),
 open `Settings | Plugins | Browse repositories`,
 install Julia plugin, and create a Julia project.
 
-### Configuration
-
-If you're creating a new project, the plugin will automatically detect a julia executable.<br/>
-But that one might not be correct, so you can select one yourself as well.
-
-### Configure an existing project
-
-Open `File | Settings | Languages & Frameworks | Julia`,
-choose a valid Julia executable and click `Apply`.
+For detailed use instruction, visit: https://julia-intellij.readthedocs.io/en/latest/
 
 ## Screenshots
 
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17880.png)
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17879.png)
+![](https://plugins.jetbrains.com/files/10413/screenshot_17881.png)
 
 ## Compatible IDEs
 
 The plugin is compatible with any IntelliJ based IDE starting from 2016.1.
 If you don't have any yet, try [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/),
 it's free.
-
-## Feedback
-
-You can report the error to us when you see this plugin throwing exceptions, this will create a GitHub issue labeled
-with `pending` and we'll deal with it.<br/>
-This function comes from the Mathematica plugin and I just did very little refactor without changing any classes' or
-functions' names.
 
 ## Alternatives
 
@@ -72,14 +58,6 @@ you'll find 4 related repositories:
   try-evaluate)
 
 Now you know your choice :wink:
-
-## Unfinished features
-
-+ Formatter
-+ Integrating existing Julia tools
-+ Displaying numeral output as images
-
-Please don't downvote our plugin for not having one of the features above, because we're just working on it.
 
 ## Contributing
 
