@@ -7,5 +7,5 @@ FILE
     JuliaRegexImpl(REGEX)
       PsiElement(REGEX_START)('r"')
       JuliaStringContentImpl(STRING_CONTENT)
-        PsiElement(REGULAR_STRING_PART_LITERAL)('[a-zA-Z_]')
+        PsiElement(REGULAR_STRING_PART_LITERAL)('[a-zA-Z_]$')
       PsiElement(REGEX_END)('"')
