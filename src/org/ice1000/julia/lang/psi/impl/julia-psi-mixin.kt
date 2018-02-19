@@ -117,9 +117,21 @@ abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), 
 	}
 }
 
-abstract class JuliaSymbolMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaSymbol {
+abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), PsiNameIdentifierOwner, JuliaExpr {
 	private var reference: JuliaSymbolRef? = null
 	override var type: String? = null
+	override fun getReference() = reference ?: JuliaSymbolRef(this).also { reference = it }
+	override fun getNameIdentifier() = this
+	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
+	override fun getName() = text
+	override fun subtreeChanged() {
+		type = null
+		reference = null
+		super.subtreeChanged()
+	}
+}
+
+abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaSymbol {
 	override val isField: Boolean
 		get() = parent is JuliaTypeDeclaration && this !== parent.children.firstOrNull { it is JuliaSymbol }
 	override val isFunctionName get() = parent is JuliaFunction || (parent is JuliaCompactFunction && this === parent.children.firstOrNull())
@@ -128,30 +140,9 @@ abstract class JuliaSymbolMixin(node: ASTNode) : ASTWrapperPsiElement(node), Jul
 	override val isTypeName get() = (parent is JuliaTypeDeclaration && this === parent.children.firstOrNull { it is JuliaSymbol }) || parent is JuliaTypeAlias
 	override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
 	override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
-	override fun getNameIdentifier() = this
-	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
-	override fun getName() = text
-	override fun getReference() = reference ?: JuliaSymbolRef(this).also { reference = it }
-	override fun subtreeChanged() {
-		type = null
-		reference = null
-		super.subtreeChanged()
-	}
 }
 
-abstract class JuliaMacroSymbolMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaMacroSymbol {
-	private var reference: JuliaSymbolRef? = null
-	override var type: String? = null
-	override fun getNameIdentifier() = this
-	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
-	override fun getName() = text
-	override fun getReference() = reference ?: JuliaSymbolRef(this).also { reference = it }
-	override fun subtreeChanged() {
-		reference = null
-		type = null
-		super.subtreeChanged()
-	}
-}
+abstract class JuliaMacroSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaMacroSymbol
 
 interface IJuliaExpr : PsiElement {
 	var type: String?
