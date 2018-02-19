@@ -5,7 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.injected.StringLiteralEscaper
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.parentOfType
 import org.ice1000.julia.lang.JuliaTokenType
 import org.ice1000.julia.lang.psi.*
 
@@ -26,8 +26,7 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 				it.refCache = references.mapNotNull { it.handleElementRename(newName).reference }.toTypedArray()
 		}
 
-	open val startPoint: PsiElement
-		get() = PsiTreeUtil.getParentOfType(this, JuliaStatements::class.java) ?: parent
+	open val startPoint: PsiElement get() = parentOfType<JuliaStatements>() ?: parent
 
 	override fun getName() = nameIdentifier?.text.orEmpty()
 	override fun getReferences() = refCache
@@ -54,10 +53,6 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	override var docString: JuliaStringContent? = null
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
 	override val typeAndParams get() = typeParameters?.text ?: functionSignature?.text.orEmpty()
-	override fun subtreeChanged() {
-		docString = null
-		super.subtreeChanged()
-	}
 }
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
@@ -111,10 +106,6 @@ abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), 
 	override fun getNameIdentifier() = exprList.firstOrNull()
 	override fun setName(name: String) = nameIdentifier?.replace(JuliaTokenType.fromText(name, project))
 	override fun getName() = nameIdentifier?.text
-	override fun subtreeChanged() {
-		docString = null
-		super.subtreeChanged()
-	}
 }
 
 abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), PsiNameIdentifierOwner, JuliaExpr {
@@ -163,8 +154,4 @@ abstract class JuliaModuleDeclarationMixin(node: ASTNode) : ASTWrapperPsiElement
 	override fun getNameIdentifier() = symbol
 	override fun setName(name: String) = symbol.replace(JuliaTokenType.fromText(name, project))
 	override fun getName() = nameIdentifier.text
-	override fun subtreeChanged() {
-		docString = null
-		super.subtreeChanged()
-	}
 }
