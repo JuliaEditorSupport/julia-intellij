@@ -99,11 +99,13 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		signatureText: String) {
 		if (element.docString != null) return
 		val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
-			"# Arguments\n\n${joinToString("\n") { "- `${it.text}`:" }}"
+			"# Arguments\n\n${joinToString("\n") {
+				"- `${it.exprList.firstOrNull()?.text.orEmpty()}${it.typeAnnotation?.text.orEmpty()}`:"
+			}}"
 		}.orEmpty()
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.no-doc-string-function"))
 			.registerFix(JuliaInsertTextBeforeIntention(element, """$JULIA_DOC_SURROUNDING
-$name$typeParamsText$signatureText
+    $name$typeParamsText$signatureText
 
 - Julia version: ${element.project.juliaSettings.settings.version}
 - Author: ${SystemProperties.getUserName()}
