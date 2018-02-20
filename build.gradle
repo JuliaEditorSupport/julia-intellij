@@ -50,11 +50,25 @@ sourceSets {
 	}
 }
 
+private static String commitHash() {
+	try {
+		File headFile = new File('.git/HEAD')
+		if (headFile.exists()) {
+			String[] strings = headFile.text.split(' ')
+			if (strings.size() > 1) return new File(".git/${strings[1]}".replace('\n', '')).text.substring(0, 7)
+		}
+	} catch (Exception e) {
+		e.printStackTrace()
+	}
+	return "unknown"
+}
+
 String pluginVersion = '0.1.3'
 String packageName = 'org.ice1000.julia'
 
 group packageName
-version pluginVersion
+if (System.getenv("CI")?.trim()) version "$pluginVersion-${commitHash()}"
+else version pluginVersion
 
 repositories {
 	mavenCentral()
