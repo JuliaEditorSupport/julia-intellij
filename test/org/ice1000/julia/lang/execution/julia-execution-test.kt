@@ -65,8 +65,9 @@ class JuliaExecutionTest {
 class JuliaConfig {
 	@Test
 	fun testFile() {
-		println(FileUtilRt.getNameWithoutExtension("/home/zh/IdeaProjects/JuliaTest/src/lk.jl"))
-		println(Files.getNameWithoutExtension("/home/zh/IdeaProjects/JuliaTest/src/lk.jl"))
+		FileUtilRt.getNameWithoutExtension("/home/zh/IdeaProjects/JuliaTest/src/lk.jl") shouldBe
+			"/home/zh/IdeaProjects/JuliaTest/src/lk"
+		Files.getNameWithoutExtension("/home/zh/IdeaProjects/JuliaTest/src/lk.jl") shouldBe "lk"
 	}
 }
 

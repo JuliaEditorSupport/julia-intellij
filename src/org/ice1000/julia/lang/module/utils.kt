@@ -37,7 +37,7 @@ fun findPathMac(): String {
 }
 
 fun findPathWindows() = executeCommandToFindPath("where julia")
-private fun findPathLinux() = executeCommandToFindPath("whereis julia")
+fun findPathLinux() = executeCommandToFindPath("whereis julia")
 
 class JuliaSettings(
 	var importPath: String = "",

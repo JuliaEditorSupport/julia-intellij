@@ -27,6 +27,11 @@ class JuliaSdkFindTest {
 		if (SystemInfo.isWindows) println(findPathWindows())
 	}
 
+	@Test
+	fun testFindPathLinux() {
+		if (SystemInfo.isLinux) println(findPathLinux())
+	}
+
 	companion object {
 		@JvmStatic
 		fun main(args: Array<String>) {
