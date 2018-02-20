@@ -9,33 +9,21 @@ import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
-fun childrenOf(root: NavigatablePsiElement): Array<StructureViewTreeElement> {
-	return root
-		.children
-		.filter {
-			if (it is JuliaSymbol || it is JuliaTypeOp) it.isFieldInTypeDeclaration
-			else it.treeViewTokens
-		}
-		.map { JuliaStructureViewElement(it as NavigatablePsiElement) }
-		.toTypedArray()
-// 		.forEach { element ->
-//			when (element) {
-//				is JuliaSymbol,
-//				is JuliaTypeOp -> if (element.isFieldInTypeDeclaration && element is NavigatablePsiElement)
-//					children.add(JuliaStructureViewElement(element))
-//				is JuliaStatementsMixin -> children.addAll(childrenOf(element))
-//				is NavigatablePsiElement -> children.add(JuliaStructureViewElement(element))
-//			}
-//		}
-//	return children.toTypedArray()
-}
+fun childrenOf(root: NavigatablePsiElement): Array<StructureViewTreeElement> = root
+	.children
+	.flatMap { (it as? JuliaStatements)?.children?.toList() ?: listOf(it) }
+	.filter {
+		if (it is JuliaSymbol || it is JuliaTypeOp) it.isFieldInTypeDeclaration
+		else it.treeViewTokens
+	}
+	.map { JuliaStructureViewElement(it as NavigatablePsiElement) }
+	.toTypedArray()
 
 /**
  * Used in treeViewTokens
  */
 val PsiElement.treeViewTokens
 	get() = this is JuliaFile ||
-		this is JuliaStatements ||
 		this is JuliaModuleDeclaration ||
 		this is IJuliaFunctionDeclaration ||
 		this is JuliaTypeDeclaration ||
@@ -91,8 +79,8 @@ fun PsiElement.presentText(): String = when (this) {
 	is JuliaElseIfClause -> compareText
 	is JuliaAssignOp -> varOrConstName
 	is JuliaWhileExpr -> compareText
-	is JuliaTypeDeclaration -> exprList.first().text
-	is JuliaModuleDeclaration -> symbol.text
+	is JuliaTypeDeclaration -> "type ${exprList.first().text}"
+	is JuliaModuleDeclaration -> "module ${symbol.text}"
 	is IJuliaFunctionDeclaration -> toText
 	is JuliaTypeOp -> identifier
 	else -> text

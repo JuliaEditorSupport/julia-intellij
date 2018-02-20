@@ -51,25 +51,41 @@ abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 
 abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaFunction {
 	override var docString: JuliaString? = null
+	private var typeAndParamsCache: String? = null
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
 	override val typeAndParams: String
-		get() = typeParameters?.exprList
+		get() = typeAndParamsCache ?: "${typeParameters?.exprList
 			?.joinToString(", ") { it.text }
-			.orEmpty() + functionSignature
+			.orEmpty() //   ↓↓↓  这是一把卡在石头里面的宝剑 XD
+			.let { "{$it}" }}${functionSignature
 			?.typedNamedVariableList
 			?.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "ANY" }
 			.orEmpty()
+			.let { "($it)" }}".also { typeAndParamsCache = it }
+
+	override fun subtreeChanged() {
+		typeAndParamsCache = null
+		super.subtreeChanged()
+	}
 }
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
 	override var docString: JuliaString? = null
+	private var typeAndParamsCache: String? = null
 	override fun getNameIdentifier() = exprList.firstOrNull()
 	override val typeAndParams: String
-		get() = typeParameters?.exprList
+		get() = typeAndParamsCache ?: "${typeParameters?.exprList
 			?.joinToString(", ") { it.text }
-			.orEmpty() + functionSignature
+			.orEmpty() //   ↓↓↓  这是一把卡在石头里面的宝剑 XD
+			.let { "{$it}" }}${functionSignature
 			.typedNamedVariableList
 			.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "ANY" }
+			.let { "($it)" }}".also { typeAndParamsCache = it }
+
+	override fun subtreeChanged() {
+		typeAndParamsCache = null
+		super.subtreeChanged()
+	}
 }
 
 abstract class JuliaMacroMixin(node: ASTNode) : JuliaDeclaration(node), JuliaMacro {
