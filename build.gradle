@@ -50,7 +50,7 @@ sourceSets {
 	}
 }
 
-String pluginVersion = '0.1.2'
+String pluginVersion = '0.1.3'
 String packageName = 'org.ice1000.julia'
 
 group packageName

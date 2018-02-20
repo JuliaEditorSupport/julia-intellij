@@ -14,12 +14,6 @@ class JuliaCharEscapeHintTest {
 	}
 
 	@Test
-	fun testCharEscape() {
-		testNull()
-		testSucceed()
-	}
-
-	@Test
 	fun testNull() {
 		unicodeUToChar("") shouldBe null
 	}
