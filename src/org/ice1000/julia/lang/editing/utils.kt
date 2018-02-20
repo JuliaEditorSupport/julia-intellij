@@ -33,26 +33,17 @@ val PsiElement.canBeNamed
 val JuliaAssignOp.varOrConstIcon
 	get() = if (exprList.firstOrNull()?.let { it.firstChild.node.elementType == JuliaTypes.CONST_KEYWORD } == true)
 		JuliaIcons.JULIA_CONST_ICON
-	else
-		JuliaIcons.JULIA_VARIABLE_ICON
+	else JuliaIcons.JULIA_VARIABLE_ICON
 
-val JuliaIfExpr.compareText
-	get() = "if " + statements.exprList.firstOrNull()?.text
+val JuliaIfExpr.compareText get() = "if ${statements.exprList.firstOrNull()?.text.orEmpty()}"
+val JuliaElseIfClause.compareText get() = "elseif ${statements.exprList.firstOrNull()?.text.orEmpty()}"
+val JuliaWhileExpr.compareText get() = "while ${expr?.text.orEmpty()}"
 
-val JuliaElseIfClause.compareText
-	get() = "elseif " + statements.exprList.firstOrNull()?.text
-
-val JuliaWhileExpr.compareText
-	get() = expr?.text ?: "while"
-
-val IJuliaFunctionDeclaration.toText
-	get() = name + typeAndParams
+val JuliaTypeOp.lhsText: String get() = exprList.first().text
+val IJuliaFunctionDeclaration.toText get() = "$name$typeAndParams"
 
 val JuliaAssignOp.varOrConstName: String
 	get() = exprList.first().let { if (it is JuliaSymbolLhs) it.symbolList.last().text else it.text }
-
-val JuliaTypeOp.identifier: String
-	get() = exprList.first().text
 
 val PsiElement.isFieldInTypeDeclaration: Boolean
 	get() = parent is JuliaStatements && parent.parent is JuliaTypeDeclaration
@@ -70,7 +61,7 @@ fun PsiElement.presentText(): String = when (this) {
 	is JuliaTypeDeclaration -> "type ${exprList.first().text}"
 	is JuliaModuleDeclaration -> "module ${symbol.text}"
 	is IJuliaFunctionDeclaration -> toText
-	is JuliaTypeOp -> identifier
+	is JuliaTypeOp -> lhsText
 	else -> text
 }
 

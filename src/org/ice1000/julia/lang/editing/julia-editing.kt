@@ -20,6 +20,7 @@ import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.JuliaBlock
+import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 import javax.swing.Icon
 
 class JuliaIconProvider : IconProvider() {
@@ -135,8 +136,7 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 	override fun getElementInfo(element: PsiElement) = cutText(when (element) {
 		is JuliaTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
 		is JuliaModuleDeclaration -> element.symbol.text
-		is JuliaFunction -> element.toText
-		is JuliaCompactFunction -> "${element.exprList.firstOrNull()?.text}()"
+		is IJuliaFunctionDeclaration -> element.toText
 		is JuliaAbstractTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
 		is JuliaPrimitiveTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
 		is JuliaMacro -> "@${element.symbol?.text}()"
