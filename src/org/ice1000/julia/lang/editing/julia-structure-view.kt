@@ -16,7 +16,6 @@ class JuliaStructureViewModel(psiFile: PsiFile, editor: Editor?) :
 	StructureViewModel.ElementInfoProvider {
 	init {
 		withSuitableClasses(JuliaFile::class.java,
-			JuliaStatements::class.java,
 			JuliaModuleDeclaration::class.java,
 			IJuliaFunctionDeclaration::class.java,
 			JuliaTypeDeclaration::class.java,

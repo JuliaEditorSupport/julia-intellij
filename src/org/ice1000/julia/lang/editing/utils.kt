@@ -8,12 +8,15 @@ import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
-import org.ice1000.julia.lang.psi.impl.JuliaStatementsMixin
 
 fun childrenOf(root: NavigatablePsiElement): Array<StructureViewTreeElement> {
-	val children = arrayListOf<StructureViewTreeElement>()
-return 	root.children
-		.filter { it.treeViewTokens }.map { JuliaStructureViewElement(it as NavigatablePsiElement) }.toTypedArray()
+	return root
+		.children
+		.filter {
+			(it is JuliaSymbol || it is JuliaTypeOp) && it.isFieldInTypeDeclaration || it.treeViewTokens
+		}
+		.map { JuliaStructureViewElement(it as NavigatablePsiElement) }
+		.toTypedArray()
 // 		.forEach { element ->
 //			when (element) {
 //				is JuliaSymbol,
