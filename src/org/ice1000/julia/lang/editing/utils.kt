@@ -1,11 +1,30 @@
 package org.ice1000.julia.lang.editing
 
+import com.intellij.ide.structureView.StructureViewTreeElement
+import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.PsiIconUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
+import org.ice1000.julia.lang.psi.impl.JuliaStatementsMixin
+
+fun childrenOf(root: NavigatablePsiElement): Array<StructureViewTreeElement> {
+	val children = arrayListOf<StructureViewTreeElement>()
+return 	root.children
+		.filter { it.treeViewTokens }.map { JuliaStructureViewElement(it as NavigatablePsiElement) }.toTypedArray()
+// 		.forEach { element ->
+//			when (element) {
+//				is JuliaSymbol,
+//				is JuliaTypeOp -> if (element.isFieldInTypeDeclaration && element is NavigatablePsiElement)
+//					children.add(JuliaStructureViewElement(element))
+//				is JuliaStatementsMixin -> children.addAll(childrenOf(element))
+//				is NavigatablePsiElement -> children.add(JuliaStructureViewElement(element))
+//			}
+//		}
+//	return children.toTypedArray()
+}
 
 /**
  * Used in treeViewTokens
