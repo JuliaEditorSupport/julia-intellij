@@ -52,13 +52,24 @@ abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaFunction {
 	override var docString: JuliaString? = null
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
-	override val typeAndParams get() = typeParameters?.text ?: functionSignature?.text.orEmpty()
+	override val typeAndParams: String
+		get() = typeParameters?.exprList
+			?.joinToString(", ") { it.text }
+			.orEmpty() + functionSignature
+			?.typedNamedVariableList
+			?.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "ANY" }
+			.orEmpty()
 }
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
 	override var docString: JuliaString? = null
 	override fun getNameIdentifier() = exprList.firstOrNull()
-	override val typeAndParams: String get() = typeParameters?.text ?: functionSignature.text
+	override val typeAndParams: String
+		get() = typeParameters?.exprList
+			?.joinToString(", ") { it.text }
+			.orEmpty() + functionSignature
+			.typedNamedVariableList
+			.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "ANY" }
 }
 
 abstract class JuliaMacroMixin(node: ASTNode) : JuliaDeclaration(node), JuliaMacro {

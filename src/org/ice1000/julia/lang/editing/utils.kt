@@ -13,7 +13,8 @@ fun childrenOf(root: NavigatablePsiElement): Array<StructureViewTreeElement> {
 	return root
 		.children
 		.filter {
-			(it is JuliaSymbol || it is JuliaTypeOp) && it.isFieldInTypeDeclaration || it.treeViewTokens
+			if (it is JuliaSymbol || it is JuliaTypeOp) it.isFieldInTypeDeclaration
+			else it.treeViewTokens
 		}
 		.map { JuliaStructureViewElement(it as NavigatablePsiElement) }
 		.toTypedArray()
