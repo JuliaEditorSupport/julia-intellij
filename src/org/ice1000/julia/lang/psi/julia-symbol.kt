@@ -1,18 +1,18 @@
 package org.ice1000.julia.lang.psi
 
-import com.intellij.navigation.*
+import com.intellij.navigation.GotoClassContributor
+import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.stubs.StubIndexKey
 import org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin
 
+// TODO this doesn't work at all
 abstract class JuliaNavigationContributorBase<T>
 protected constructor(
 	private val indexKey: StubIndexKey<String, T>,
-	private val clazz: Class<T>) : ChooseByNameContributor,
-	GotoClassContributor where T : NavigationItem, T : JuliaSymbolMixin {
-
+	private val clazz: Class<T>) : GotoClassContributor where T : NavigationItem, T : JuliaSymbolMixin {
 	override fun getNames(project: Project, includeNonProjectItems: Boolean) =
 		StubIndex.getInstance().getAllKeys(indexKey, project).toTypedArray()
 
