@@ -55,11 +55,11 @@ val JuliaAssignOp.varOrConstName: String
 val JuliaTypeOp.identifier: String
 	get() = exprList.first().text
 
-val PsiElement.isFieldInTypeDeclaration:Boolean
+val PsiElement.isFieldInTypeDeclaration: Boolean
 	get() = parent is JuliaStatements && parent.parent is JuliaTypeDeclaration
 
 val JuliaSymbol.itsIcon
-	get() = if(isField) JuliaIcons.JULIA_VARIABLE_ICON else JuliaIcons.JULIA_BIG_ICON
+	get() = if (isFieldInTypeDeclaration) JuliaIcons.JULIA_VARIABLE_ICON else JuliaIcons.JULIA_BIG_ICON
 
 fun PsiElement.presentText(): String = when (this) {
 	is JuliaFile -> originalFile.name
