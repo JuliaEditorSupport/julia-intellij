@@ -16,7 +16,7 @@ import org.ice1000.julia.lang.editing.JuliaRemoveElementIntention
 
 class DocfmtAnnotator : Annotator {
 	private companion object {
-		internal val noWsOpGroup = listOf("8", "13", "14", "16")
+		private val noWsOpGroup = listOf("8", "13", "14", "16")
 		private val indentArgs = listOf(
 			"CSTParser.Begin", "CSTParser.Quote",
 			"CSTParser.For", "CSTParser.While", "CSTParser.FunctionDef", "CSTParser.Macro",
@@ -79,7 +79,7 @@ class DocfmtAnnotator : Annotator {
 							else -> invalidValue(value)
 						}
 					}
-				// TODO ask about usage
+				// TODO ask about usage, see https://github.com/ZacLN/DocumentFormat.jl/issues/19
 					"IndentEXPR" -> {
 						// if (value.text !in indentArgs) invalidValue(value)
 						element.type = 4

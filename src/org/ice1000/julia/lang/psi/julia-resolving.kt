@@ -96,7 +96,7 @@ open class SymbolResolveProcessor(
 		candidateSet.isNotEmpty() -> false
 		element.canResolve -> {
 			val accessible = accessible(element)
-			if (accessible and element.hasNoError) candidateSet.add(PsiElementResolveResult(element, true))
+			if (accessible and element.hasNoError) candidateSet += PsiElementResolveResult(element, true)
 			!accessible
 		}
 		else -> true
