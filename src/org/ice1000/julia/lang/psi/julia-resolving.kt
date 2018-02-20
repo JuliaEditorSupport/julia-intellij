@@ -6,7 +6,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.scope.util.PsiScopesUtil.treeWalkUp
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.JuliaTokenType
 
