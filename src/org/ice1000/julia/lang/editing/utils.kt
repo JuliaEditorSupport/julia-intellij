@@ -1,23 +1,11 @@
 package org.ice1000.julia.lang.editing
 
-import com.intellij.ide.structureView.StructureViewTreeElement
-import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.PsiIconUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
-
-fun childrenOf(root: NavigatablePsiElement): Array<StructureViewTreeElement> = root
-	.children
-	.flatMap { (it as? JuliaStatements)?.children?.toList() ?: listOf(it) }
-	.filter {
-		if (it is JuliaSymbol || it is JuliaTypeOp) it.isFieldInTypeDeclaration
-		else it.treeViewTokens
-	}
-	.map { JuliaStructureViewElement(it as NavigatablePsiElement) }
-	.toTypedArray()
 
 /**
  * Used in treeViewTokens

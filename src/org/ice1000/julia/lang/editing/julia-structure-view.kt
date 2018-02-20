@@ -35,7 +35,6 @@ class JuliaStructureViewModel(psiFile: PsiFile, editor: Editor?) :
 
 class JuliaStructureViewElement(private val root: NavigatablePsiElement) :
 	StructureViewTreeElement, ItemPresentation, SortableTreeElement, Navigatable by root {
-	override fun getChildren() = childrenOf(root)
 	override fun getLocationString() = ""
 	override fun getIcon(open: Boolean) = root.presentIcon()
 	override fun getPresentableText() = cutText(root.presentText(), 50)
@@ -45,6 +44,15 @@ class JuliaStructureViewElement(private val root: NavigatablePsiElement) :
 	override fun canNavigate() = root.canNavigate()
 	override fun canNavigateToSource() = root.canNavigateToSource()
 	override fun getAlphaSortKey() = (root as? PsiNamedElement)?.name.orEmpty()
+	override fun getChildren() = root
+		.children
+		.flatMap { (it as? JuliaStatements)?.children?.toList() ?: listOf(it) }
+		.filter {
+			if (it is JuliaSymbol || it is JuliaTypeOp) it.isFieldInTypeDeclaration
+			else it.treeViewTokens
+		}
+		.map { JuliaStructureViewElement(it as NavigatablePsiElement) }
+		.toTypedArray<StructureViewTreeElement>()
 }
 
 class JuliaStructureViewFactory : PsiStructureViewFactory {
