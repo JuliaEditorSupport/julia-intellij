@@ -56,8 +56,9 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	override val typeAndParams: String
 		get() = typeAndParamsCache ?: "${typeParameters?.exprList
 			?.joinToString(", ") { it.text }
-			.orEmpty() //   ↓↓↓  这是一把卡在石头里面的宝剑 XD
-			.let { "{$it}" }}${functionSignature
+			?.let { "{$it}" }
+			//        ↓↓↓  这是一把卡在石头里面的宝剑 XD
+			.orEmpty()}${functionSignature
 			?.typedNamedVariableList
 			?.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "ANY" }
 			.orEmpty()
@@ -76,8 +77,9 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 	override val typeAndParams: String
 		get() = typeAndParamsCache ?: "${typeParameters?.exprList
 			?.joinToString(", ") { it.text }
-			.orEmpty() //   ↓↓↓  这是一把卡在石头里面的宝剑 XD
-			.let { "{$it}" }}${functionSignature
+			?.let { "{$it}" }
+			//        ↓↓↓  这是一把卡在石头里面的宝剑 XD
+			.orEmpty()}${functionSignature
 			.typedNamedVariableList
 			.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "ANY" }
 			.let { "($it)" }}".also { typeAndParamsCache = it }
