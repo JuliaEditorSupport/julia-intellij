@@ -37,12 +37,9 @@ class JuliaStructureViewElement(private val root: NavigatablePsiElement) :
 	StructureViewTreeElement, ItemPresentation, SortableTreeElement, Navigatable by root {
 	override fun getLocationString() = ""
 	override fun getIcon(open: Boolean) = root.presentIcon()
-	override fun getPresentableText() = cutText(root.presentText(), 50)
+	override fun getPresentableText() = cutText(root.presentText(), 60)
 	override fun getPresentation() = this
-	override fun navigate(requestFocus: Boolean) = root.navigate(requestFocus)
 	override fun getValue() = root
-	override fun canNavigate() = root.canNavigate()
-	override fun canNavigateToSource() = root.canNavigateToSource()
 	override fun getAlphaSortKey() = (root as? PsiNamedElement)?.name.orEmpty()
 	override fun getChildren() = root
 		.children

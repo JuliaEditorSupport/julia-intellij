@@ -98,7 +98,7 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		if (element.docString != null) return
 		val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
 			"# Arguments\n\n${joinToString("\n") {
-				"- `${it.exprList.firstOrNull()?.text.orEmpty()}${it.typeAnnotation?.text ?: "::ANY"}`:"
+				"- `${it.exprList.firstOrNull()?.text.orEmpty()}`:"
 			}}"
 		}.orEmpty()
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.no-doc-string-function"))
