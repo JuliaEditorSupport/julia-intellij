@@ -24,7 +24,6 @@ class JuliaSymbolRef(private val symbol: PsiElement, private var refTo: PsiEleme
 	override fun isReferenceTo(element: PsiElement?) = element == refTo || (element as? JuliaSymbol)?.text == symbol.text
 	override fun getVariants(): Array<LookupElementBuilder> {
 		val variantsProcessor = CompletionProcessor(this, true)
-		// FIXME #96
 		treeWalkUp(variantsProcessor, symbol, symbol.containingFile)
 		return variantsProcessor.candidateSet.toTypedArray()
 	}
@@ -45,7 +44,6 @@ class JuliaSymbolRef(private val symbol: PsiElement, private var refTo: PsiEleme
 	private companion object ResolverHolder {
 		private val symbolResolver = ResolveCache.PolyVariantResolver<JuliaSymbolRef> { ref, incompleteCode ->
 			val processor = SymbolResolveProcessor(ref, incompleteCode)
-			// FIXME #96
 			treeWalkUp(processor, ref.symbol, ref.symbol.containingFile)
 			PsiTreeUtil
 				.getParentOfType(ref.symbol, JuliaStatements::class.java)
@@ -55,7 +53,6 @@ class JuliaSymbolRef(private val symbol: PsiElement, private var refTo: PsiEleme
 
 		private val macroResolver = ResolveCache.PolyVariantResolver<JuliaSymbolRef> { ref, incompleteCode ->
 			val processor = MacroSymbolResolveProcessor(ref, incompleteCode)
-			// FIXME #96
 			treeWalkUp(processor, ref.symbol, ref.symbol.containingFile)
 			PsiTreeUtil
 				.getParentOfType(ref.symbol, JuliaStatements::class.java)
