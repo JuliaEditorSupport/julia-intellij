@@ -95,10 +95,10 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		name: String?,
 		typeParamsText: String,
 		signatureText: String) {
-		if (element.docString != null) return
+		if (element.docString != null || element.parent !is JuliaStatements) return
 		val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
 			"# Arguments\n\n${joinToString("\n") {
-				"- `${it.exprList.firstOrNull()?.text.orEmpty()}`:"
+				"- `${it.exprList.firstOrNull()?.text.orEmpty()}${it.typeAnnotation?.text ?: "::Any"}`:"
 			}}"
 		}.orEmpty()
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.no-doc-string-function"))

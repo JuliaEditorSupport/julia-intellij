@@ -60,7 +60,7 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 			//        ↓↓↓  这是一把卡在石头里面的宝剑 XD
 			.orEmpty()}${functionSignature
 			?.typedNamedVariableList
-			?.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "ANY" }
+			?.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "Any" }
 			.orEmpty()
 			.let { "($it)" }}".also { typeAndParamsCache = it }
 
@@ -81,7 +81,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 			//        ↓↓↓  这是一把卡在石头里面的宝剑 XD
 			.orEmpty()}${functionSignature
 			.typedNamedVariableList
-			.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "ANY" }
+			.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "Any" }
 			.let { "($it)" }}".also { typeAndParamsCache = it }
 
 	override fun subtreeChanged() {
@@ -151,15 +151,18 @@ abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), 
 }
 
 abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), PsiNameIdentifierOwner, JuliaExpr {
-	private var reference: JuliaSymbolRef? = null
+	private val ref by lazy {
+		object : JuliaSymbolRef() {
+			override fun getElement() = this@JuliaAbstractSymbol
+		}
+	}
 	override var type: String? = null
-	override fun getReference() = reference ?: JuliaSymbolRef(this).also { reference = it }
+	override fun getReference() = ref
 	override fun getNameIdentifier() = this
 	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
 	override fun getName() = text
 	override fun subtreeChanged() {
 		type = null
-		reference = null
 		super.subtreeChanged()
 	}
 }

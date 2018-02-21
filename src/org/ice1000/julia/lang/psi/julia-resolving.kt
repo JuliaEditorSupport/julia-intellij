@@ -11,52 +11,51 @@ import org.ice1000.julia.lang.JuliaTokenType
 
 /**
  * @author ice1000
- * @param symbol should be [org.ice1000.julia.lang.psi.JuliaSymbol] or [org.ice1000.julia.lang.psi.JuliaMacroSymbol]
+ * element should be [JuliaSymbol] or [JuliaMacroSymbol]
  */
-class JuliaSymbolRef(private val symbol: PsiElement, private var refTo: PsiElement? = null) : PsiPolyVariantReference {
-	private val range = TextRange(0, symbol.textLength)
+abstract class JuliaSymbolRef( private var refTo: PsiElement? = null) : PsiPolyVariantReference {
+	private val range = TextRange(0, element.textLength)
 	override fun equals(other: Any?) = (other as? JuliaSymbolRef)?.element == element
-	override fun hashCode() = symbol.hashCode()
-	override fun getElement() = symbol
+	override fun hashCode() = element.hashCode()
 	override fun getRangeInElement() = range
 	override fun isSoft() = true
 	override fun resolve() = multiResolve(false).firstOrNull()?.element
-	override fun isReferenceTo(element: PsiElement?) = element == refTo || (element as? JuliaSymbol)?.text == symbol.text
+	override fun isReferenceTo(element: PsiElement?) = element == refTo || (element as? JuliaSymbol)?.text == this.element.text
 	override fun getVariants(): Array<LookupElementBuilder> {
 		val variantsProcessor = CompletionProcessor(this, true)
-		treeWalkUp(variantsProcessor, symbol, symbol.containingFile)
+		treeWalkUp(variantsProcessor, element, element.containingFile)
 		return variantsProcessor.candidateSet.toTypedArray()
 	}
 
-	override fun getCanonicalText(): String = symbol.text
-	override fun handleElementRename(newName: String) = JuliaTokenType.fromText(newName, symbol.project).let(symbol::replace)
-	override fun bindToElement(element: PsiElement) = symbol.also { refTo = element }
+	override fun getCanonicalText(): String = element.text
+	override fun handleElementRename(newName: String) = JuliaTokenType.fromText(newName, element.project).let(element::replace)
+	override fun bindToElement(element: PsiElement) = element.also { refTo = element }
 	override fun multiResolve(incompleteCode: Boolean): Array<out ResolveResult> {
-		val file = element.containingFile?.takeUnless { symbol.project.isDisposed } ?: return emptyArray()
-		val resolver = when (symbol) {
+		val file = element.containingFile?.takeUnless { element.project.isDisposed } ?: return emptyArray()
+		val resolver = when (element) {
 			is JuliaSymbol -> symbolResolver
 			is JuliaMacroSymbol -> macroResolver
 			else -> return emptyArray()
 		}
-		return ResolveCache.getInstance(symbol.project).resolveWithCaching(this, resolver, true, incompleteCode, file)
+		return ResolveCache.getInstance(element.project).resolveWithCaching(this, resolver, true, incompleteCode, file)
 	}
 
 	private companion object ResolverHolder {
 		private val symbolResolver = ResolveCache.PolyVariantResolver<JuliaSymbolRef> { ref, incompleteCode ->
 			val processor = SymbolResolveProcessor(ref, incompleteCode)
-			treeWalkUp(processor, ref.symbol, ref.symbol.containingFile)
+			treeWalkUp(processor, ref.element, ref.element.containingFile)
 			PsiTreeUtil
-				.getParentOfType(ref.symbol, JuliaStatements::class.java)
-				?.processDeclarations(processor, ResolveState.initial(), ref.symbol, processor.place)
+				.getParentOfType(ref.element, JuliaStatements::class.java)
+				?.processDeclarations(processor, ResolveState.initial(), ref.element, processor.place)
 			return@PolyVariantResolver processor.candidateSet.toTypedArray()
 		}
 
 		private val macroResolver = ResolveCache.PolyVariantResolver<JuliaSymbolRef> { ref, incompleteCode ->
 			val processor = MacroSymbolResolveProcessor(ref, incompleteCode)
-			treeWalkUp(processor, ref.symbol, ref.symbol.containingFile)
+			treeWalkUp(processor, ref.element, ref.element.containingFile)
 			PsiTreeUtil
-				.getParentOfType(ref.symbol, JuliaStatements::class.java)
-				?.processDeclarations(processor, ResolveState.initial(), ref.symbol, processor.place)
+				.getParentOfType(ref.element, JuliaStatements::class.java)
+				?.processDeclarations(processor, ResolveState.initial(), ref.element, processor.place)
 			return@PolyVariantResolver processor.candidateSet.toTypedArray()
 		}
 	}
@@ -70,11 +69,11 @@ abstract class ResolveProcessor<ResolveResult>(val place: PsiElement) : PsiScope
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
 	// TODO add definitions
 	protected fun isInScope(element: PsiElement) = if (element is JuliaSymbol) when {
-		element.isFunctionName or
-			element.isModuleName or
-			element.isMacroName or
-			element.isAbstractTypeName or
-			element.isPrimitiveTypeName or
+		element.isFunctionName ||
+			element.isModuleName ||
+			element.isMacroName ||
+			element.isAbstractTypeName ||
+			element.isPrimitiveTypeName ||
 			element.isTypeName -> default(element)
 		else -> false
 	} else false

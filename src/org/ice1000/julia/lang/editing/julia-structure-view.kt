@@ -11,8 +11,8 @@ import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
-class JuliaStructureViewModel(psiFile: PsiFile, editor: Editor?) :
-	StructureViewModelBase(psiFile, editor, JuliaStructureViewElement(psiFile)),
+class JuliaStructureViewModel(root: PsiFile, editor: Editor?) :
+	StructureViewModelBase(root, editor, JuliaStructureViewElement(root)),
 	StructureViewModel.ElementInfoProvider {
 	init {
 		withSuitableClasses(JuliaFile::class.java,
@@ -49,7 +49,7 @@ class JuliaStructureViewElement(private val root: NavigatablePsiElement) :
 			else it.treeViewTokens
 		}
 		.map { JuliaStructureViewElement(it as NavigatablePsiElement) }
-		.toTypedArray<StructureViewTreeElement>()
+		.toTypedArray()
 }
 
 class JuliaStructureViewFactory : PsiStructureViewFactory {
