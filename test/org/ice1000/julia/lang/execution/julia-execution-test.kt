@@ -5,6 +5,7 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtilRt
 import org.ice1000.julia.lang.shouldBe
 import org.junit.Test
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>) {
@@ -56,6 +57,20 @@ class JuliaExecutionTest {
 		println("----error----")
 		println(process.errorStream.reader().readText())
 	}
+
+	@Test
+	fun testUnixDocker(){
+		val pwd= File(".").absolutePath
+		val juliaFile = "ParseFunctions.jl"
+		val containerName="julia"
+		val exeName="julia"
+		val params = ""
+		val cmd = "docker run --rm -v $pwd/testData:$pwd/testData -w $pwd/testData $containerName $exeName $juliaFile $params"
+		val process = Runtime.getRuntime().exec(cmd)
+		println(process.inputStream.reader().readText())
+		System.err.println(process.errorStream.reader().readText())
+	}
+
 }
 
 /**
