@@ -39,14 +39,14 @@ allprojects {
 sourceSets {
 	main {
 		java.srcDirs = ['src', 'gen']
-		kotlin.srcDirs = ['src']
-		resources.srcDirs = ['res']
+		kotlin.srcDirs 'src'
+		resources.srcDirs 'res'
 	}
 
 	test {
 		java.srcDirs = ['test']
-		kotlin.srcDirs = ['test']
-		resources.srcDirs = ['testData']
+		kotlin.srcDirs 'test'
+		resources.srcDirs 'testData'
 	}
 }
 

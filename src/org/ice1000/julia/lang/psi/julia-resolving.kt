@@ -70,11 +70,11 @@ abstract class ResolveProcessor<ResolveResult>(val place: PsiElement) : PsiScope
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
 	// TODO add definitions
 	protected fun isInScope(element: PsiElement) = if (element is JuliaSymbol) when {
-		element.isFunctionName ||
-			element.isModuleName ||
-			element.isMacroName ||
-			element.isAbstractTypeName ||
-			element.isPrimitiveTypeName ||
+		element.isFunctionName or
+			element.isModuleName or
+			element.isMacroName or
+			element.isAbstractTypeName or
+			element.isPrimitiveTypeName or
 			element.isTypeName -> default(element)
 		else -> false
 	} else false
