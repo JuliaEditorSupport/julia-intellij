@@ -125,7 +125,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		extend(CompletionType.BASIC,
 			psiElement()
 				.inside(JuliaStatements::class.java).andNot(
-				psiElement().withParent(JuliaString::class.java)),
+					psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(statementBegin))
 		extend(CompletionType.BASIC,
 			psiElement()
@@ -162,7 +162,10 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 class JuliaContextCompletionProvider : CompletionProvider<CompletionParameters>() {
 
 	//FIXME: stupid code
-	override fun addCompletions(parameters: CompletionParameters, context: ProcessingContext?, result: CompletionResultSet) {
+	override fun addCompletions(
+		parameters: CompletionParameters,
+		context: ProcessingContext?,
+		result: CompletionResultSet) {
 		val list = ArrayList<PsiElement>()
 		val pos = parameters.position
 		val file = pos.containingFile
@@ -192,7 +195,7 @@ class JuliaContextCompletionProvider : CompletionProvider<CompletionParameters>(
  * after text but it won't be completed
  */
 private fun PsiElement.tailText() = when (this) {
-	is IJuliaFunctionDeclaration -> this.typeAndParams
+	is IJuliaFunctionDeclaration -> "$typeParamsText$paramsText"
 	else -> ""
 }
 
@@ -200,7 +203,7 @@ private fun PsiElement.tailText() = when (this) {
  * right side of popup
  */
 private fun PsiElement.typeText() = when (this) {
-	//the type of return value
+//the type of return value
 	is IJuliaFunctionDeclaration -> ""
 	else -> ""
 }

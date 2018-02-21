@@ -13,8 +13,8 @@ interface DocStringOwner {
 }
 
 interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
-	// val exprList: List<JuliaExpr>
-	val typeAndParams: String
+	val paramsText: String
+	val typeParamsText: String
 }
 
 abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameIdentifierOwner {
@@ -31,7 +31,7 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 	override fun getName() = nameIdentifier?.text.orEmpty()
 	override fun getReferences() = refCache
 		?: nameIdentifier
-			?.let { collectFrom(startPoint, it.text) }
+			?.let { collectFrom(startPoint, it.text, nameIdentifier) }
 			?.also { refCache = it }
 		?: emptyArray()
 
@@ -51,41 +51,53 @@ abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 
 abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaFunction {
 	override var docString: JuliaString? = null
-	private var typeAndParamsCache: String? = null
+	private var paramsTextCache: String? = null
+	private var typeParamsTextCache: String? = null
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
-	override val typeAndParams: String
-		get() = typeAndParamsCache ?: "${typeParameters?.exprList
+	override val typeParamsText: String
+		get() = typeParamsTextCache ?: typeParameters?.exprList
 			?.joinToString(", ") { it.text }
 			?.let { "{$it}" }
-			//        ↓↓↓  这是一把卡在石头里面的宝剑 XD
-			.orEmpty()}${functionSignature
+			.orEmpty()
+			.also { typeParamsTextCache = it }
+
+	override val paramsText: String
+		get() = paramsTextCache ?: functionSignature
 			?.typedNamedVariableList
 			?.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "Any" }
 			.orEmpty()
-			.let { "($it)" }}".also { typeAndParamsCache = it }
+			.let { "($it)" }
+			.also { paramsTextCache = it }
 
 	override fun subtreeChanged() {
-		typeAndParamsCache = null
+		paramsTextCache = null
+		typeParamsTextCache = null
 		super.subtreeChanged()
 	}
 }
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
 	override var docString: JuliaString? = null
-	private var typeAndParamsCache: String? = null
+	private var paramsTextCache: String? = null
+	private var typeParamsTextCache: String? = null
 	override fun getNameIdentifier() = exprList.firstOrNull()
-	override val typeAndParams: String
-		get() = typeAndParamsCache ?: "${typeParameters?.exprList
+	override val typeParamsText: String
+		get() = typeParamsTextCache ?: typeParameters?.exprList
 			?.joinToString(", ") { it.text }
 			?.let { "{$it}" }
-			//        ↓↓↓  这是一把卡在石头里面的宝剑 XD
-			.orEmpty()}${functionSignature
+			.orEmpty()
+			.also { typeParamsTextCache = it }
+
+	override val paramsText: String
+		get() = paramsTextCache ?: functionSignature
 			.typedNamedVariableList
 			.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "Any" }
-			.let { "($it)" }}".also { typeAndParamsCache = it }
+			.let { "($it)" }
+			.also { paramsTextCache = it }
 
 	override fun subtreeChanged() {
-		typeAndParamsCache = null
+		paramsTextCache = null
+		typeParamsTextCache = null
 		super.subtreeChanged()
 	}
 }

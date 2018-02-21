@@ -19,9 +19,9 @@ fun PsiElement.processDeclTrivial(
 	return true
 }
 
-fun collectFrom(startPoint: PsiElement, name: String) = SyntaxTraverser
+fun collectFrom(startPoint: PsiElement, name: String, self: PsiElement? = null) = SyntaxTraverser
 	.psiTraverser(startPoint)
-	.filter { it is JuliaSymbol && it.text == name }
+	.filter { it is JuliaSymbol && it.text == name && it != self }
 	.mapNotNull(PsiElement::getReference)
 	.toList()
 	.toTypedArray()

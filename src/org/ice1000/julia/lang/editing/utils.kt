@@ -40,7 +40,7 @@ val JuliaElseIfClause.compareText get() = "elseif ${statements.exprList.firstOrN
 val JuliaWhileExpr.compareText get() = "while ${expr?.text.orEmpty()}"
 
 val JuliaTypeOp.lhsText: String get() = exprList.first().text
-val IJuliaFunctionDeclaration.toText get() = "$name$typeAndParams"
+val IJuliaFunctionDeclaration.toText get() = "$name$typeParamsText$paramsText"
 
 val JuliaAssignOp.varOrConstName: String
 	get() = exprList.first().let { if (it is JuliaSymbolLhs) it.symbolList.last().text else it.text }
