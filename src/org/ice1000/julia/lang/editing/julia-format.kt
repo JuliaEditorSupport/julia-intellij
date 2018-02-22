@@ -6,6 +6,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.formatter.common.AbstractBlock
+import com.intellij.psi.tree.TokenSet
 import org.ice1000.julia.lang.JuliaLanguage
 import org.ice1000.julia.lang.psi.JuliaTypes
 import java.util.*
@@ -49,15 +50,15 @@ class JuliaFormattingModelBuilder : FormattingModelBuilder {
 //		val codeStyleSettings = settings.getCustomSettings(JuliaCodeStyleSettings::class.java)
 //		val commonSettings = settings.getCommonSettings(JsonLanguage.INSTANCE)
 //		val spacesAroundAssign = if (commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS) 1 else 0
+		val tokenSetForCommaAndSemi=TokenSet.create(JuliaTypes.COMMA_SYM,JuliaTypes.SEMICOLON_SYM)
 		return SpacingBuilder(settings, JuliaLanguage.INSTANCE)
 			.around(JuliaTypes.ASSIGN_LEVEL_OPERATOR).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
 			.around(JuliaTypes.COMPARISON_LEVEL_OPERATOR).spaces(1)
 			.around(JuliaTypes.ARROW_SYM).spaces(1)
 			.around(JuliaTypes.EQ_SYM).spaces(1)
-			.afterInside(JuliaTypes.COMMA_SYM, JuliaTypes.EXPRESSION_LIST).spaces(1)
-			.afterInside(JuliaTypes.SEMICOLON_SYM, JuliaTypes.EXPRESSION_LIST).spaces(1)
-			.afterInside(JuliaTypes.COMMA_SYM, JuliaTypes.ARRAY).spaces(1)
-			.afterInside(JuliaTypes.SEMICOLON_SYM, JuliaTypes.ARRAY).spaces(1)
+			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.EXPRESSION_LIST).spaces(1)
+			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.ARRAY).spaces(1)
+			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.FUNCTION_SIGNATURE).spaces(1)
 	}
 
 	override fun getRangeAffectingIndent(file: PsiFile, offset: Int, elementAtOffset: ASTNode): TextRange? {
