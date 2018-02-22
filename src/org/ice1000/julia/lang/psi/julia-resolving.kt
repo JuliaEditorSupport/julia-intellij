@@ -45,6 +45,7 @@ abstract class JuliaSymbolRef( private var refTo: PsiElement? = null) : PsiPolyV
 			val processor = SymbolResolveProcessor(ref, incompleteCode)
 			treeWalkUp(processor, ref.element, ref.element.containingFile)
 			PsiTreeUtil
+				// TODO workaround for KT-22916
 				.getParentOfType(ref.element, JuliaStatements::class.java)
 				?.processDeclarations(processor, ResolveState.initial(), ref.element, processor.place)
 			return@PolyVariantResolver processor.candidateSet.toTypedArray()
@@ -54,6 +55,7 @@ abstract class JuliaSymbolRef( private var refTo: PsiElement? = null) : PsiPolyV
 			val processor = MacroSymbolResolveProcessor(ref, incompleteCode)
 			treeWalkUp(processor, ref.element, ref.element.containingFile)
 			PsiTreeUtil
+				// TODO workaround for KT-22916
 				.getParentOfType(ref.element, JuliaStatements::class.java)
 				?.processDeclarations(processor, ResolveState.initial(), ref.element, processor.place)
 			return@PolyVariantResolver processor.candidateSet.toTypedArray()
