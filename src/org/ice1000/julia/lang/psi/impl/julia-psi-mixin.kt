@@ -56,8 +56,7 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
 	override val typeParamsText: String
 		get() = typeParamsTextCache ?: typeParameters?.exprList
-			?.joinToString(", ") { it.text }
-			?.let { "{$it}" }
+			?.joinToString(prefix = "{", postfix = "}") { it.text }
 			.orEmpty()
 			.also { typeParamsTextCache = it }
 

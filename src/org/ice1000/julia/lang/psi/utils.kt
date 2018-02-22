@@ -15,8 +15,7 @@ fun treeWalkUp(
 
 	while (scope != null) {
 		ProgressIndicatorProvider.checkCanceled()
-		if (scope is PsiClass)
-			if (!scope.processDeclarations(processor, state, prevParent, entrance)) return false
+		if (!scope.processDeclarations(processor, state, prevParent, entrance)) return false
 		if (scope == maxScope) break
 		prevParent = scope
 		scope = prevParent.context
