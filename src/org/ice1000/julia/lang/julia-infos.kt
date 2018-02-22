@@ -68,11 +68,9 @@ object JuliaBundle {
 }
 
 class JuliaApplicationComponent : ApplicationComponent {
-
-	var isUpdated = false
-	var isUpdateNotificationShown = false
-
 	override fun initComponent() {
 		// TODO something?
 	}
+
+	override fun getComponentName(): String = ""			// TODO
 }
