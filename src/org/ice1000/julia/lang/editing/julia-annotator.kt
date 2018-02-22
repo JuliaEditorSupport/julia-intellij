@@ -90,8 +90,8 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		}
 		docStringFunction(element, signature, holder, name, typeParamsText, signature
 			?.typedNamedVariableList
-			?.joinToString(", ") { it.exprList.firstOrNull()?.text.orEmpty() }
 			.orEmpty()
+			.joinToString(", ") { it.exprList.firstOrNull()?.text.orEmpty() }
 			.let { "($it)" })
 	}
 
