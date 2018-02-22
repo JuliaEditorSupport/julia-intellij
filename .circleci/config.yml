@@ -38,6 +38,8 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
+      - run: gradle displayCommitHash
+
       - run: gradle buildPlugin
 
       - store_artifacts:

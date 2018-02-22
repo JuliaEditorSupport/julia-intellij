@@ -26,6 +26,7 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 		}
 
 	open val startPoint: PsiElement
+		// TODO workaround for KT-22916
 		get() = PsiTreeUtil.getParentOfType(this, JuliaStatements::class.java) ?: parent
 
 	override fun getName() = nameIdentifier?.text.orEmpty()
