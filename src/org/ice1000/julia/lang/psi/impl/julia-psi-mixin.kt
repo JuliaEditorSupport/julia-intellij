@@ -64,7 +64,7 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	override val paramsText: String
 		get() = paramsTextCache ?: functionSignature
 			?.typedNamedVariableList
-			?.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "Any" }
+			?.joinToString() { it.typeAnnotation?.expr?.text ?: "Any" }
 			.orEmpty()
 			.let { "($it)" }
 			.also { paramsTextCache = it }
@@ -83,16 +83,14 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 	override fun getNameIdentifier() = exprList.firstOrNull()
 	override val typeParamsText: String
 		get() = typeParamsTextCache ?: typeParameters?.exprList
-			?.joinToString(", ") { it.text }
-			?.let { "{$it}" }
+			?.joinToString(prefix = "{", postfix = "}") { it.text }
 			.orEmpty()
 			.also { typeParamsTextCache = it }
 
 	override val paramsText: String
 		get() = paramsTextCache ?: functionSignature
 			.typedNamedVariableList
-			.joinToString(", ") { it.typeAnnotation?.expr?.text ?: "Any" }
-			.let { "($it)" }
+			.joinToString(prefix = "(", postfix = ")") { it.typeAnnotation?.expr?.text ?: "Any" }
 			.also { paramsTextCache = it }
 
 	override fun subtreeChanged() {
