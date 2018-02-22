@@ -3,7 +3,8 @@ environment:
 #
 
 build_script:
-  - gradlew buildPlugin --info
+  - gradlew displayCommitHash
+  - gradlew buildPlugin
 #
 
 artifacts:

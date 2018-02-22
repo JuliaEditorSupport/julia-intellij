@@ -95,8 +95,10 @@ patchPluginXml {
 	pluginId = packageName
 }
 
-task copyConfig() {
-
+task displayCommitHash() {
+	group = 'help'
+	description = 'Display the newest commit hash'
+	println "Commit hash: ${commitHash()}"
 }
 
 task genParser(type: GenerateParser) {
