@@ -60,7 +60,10 @@ class JuliaAnnotator : Annotator {
 				element, """function ${element.name}${typeParams?.text.orEmpty()}${element.functionSignature.text}
 ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $functionBody\n"}end""",
 				JuliaBundle.message("julia.lint.replace-ordinary-function")))
-		docStringFunction(element, signature, holder, name, "", signature.text)
+		docStringFunction(element, signature, holder, name, "", signatureText = signature
+			.typedNamedVariableList
+			.joinToString(", ") { it.exprList.firstOrNull()?.text.orEmpty() }
+			.let { "($it)" })
 	}
 
 	private fun function(
@@ -78,14 +81,18 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 					"$name$typeParamsText$signatureText = ()",
 					JuliaBundle.message("julia.lint.replace-compact-function")))
 			statements.size == 1 -> {
-				val statement = statements.first().let { if (it is JuliaReturnExpr) it.text.removePrefix("return") else it.text }
+				val statement = statements.first().let { (it as? JuliaReturnExpr)?.text?.removePrefix("return") ?: it.text }
 				holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.lonely-function"))
 					.registerFix(JuliaReplaceWithTextIntention(element,
 						"$name$typeParamsText$signatureText = $statement",
 						JuliaBundle.message("julia.lint.replace-compact-function")))
 			}
 		}
-		docStringFunction(element, signature, holder, name, typeParamsText, signatureText)
+		docStringFunction(element, signature, holder, name, typeParamsText, signature
+			?.typedNamedVariableList
+			?.joinToString(", ") { it.exprList.firstOrNull()?.text.orEmpty() }
+			.orEmpty()
+			.let { "($it)" })
 	}
 
 	private fun docStringFunction(
