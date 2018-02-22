@@ -64,7 +64,7 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	override val paramsText: String
 		get() = paramsTextCache ?: functionSignature
 			?.typedNamedVariableList
-			?.joinToString() { it.typeAnnotation?.expr?.text ?: "Any" }
+			?.joinToString { it.typeAnnotation?.expr?.text ?: "Any" }
 			.orEmpty()
 			.let { "($it)" }
 			.also { paramsTextCache = it }
