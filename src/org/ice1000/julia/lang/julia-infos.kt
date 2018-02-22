@@ -4,6 +4,10 @@ import com.intellij.CommonBundle
 import com.intellij.codeInsight.template.TemplateContextType
 import com.intellij.codeInsight.template.impl.DefaultLiveTemplatesProvider
 import com.intellij.extapi.psi.PsiFileBase
+import com.intellij.ide.plugins.PluginManager
+import com.intellij.openapi.components.ApplicationComponent
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileTypes.*
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -12,8 +16,11 @@ import org.ice1000.julia.lang.docfmt.DocfmtFileType
 import org.ice1000.julia.lang.psi.impl.processDeclTrivial
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
+import org.jetbrains.rpc.LOG
 import java.util.*
 
+
+val isRelease by lazy { PluginManager.getPlugin(PluginId.getId(JULIA_PLUGIN_ID))?.version?.run { '-' !in this } ?: false }
 
 object JuliaFileType : LanguageFileType(JuliaLanguage.INSTANCE) {
 	override fun getDefaultExtension() = JULIA_EXTENSION
@@ -60,3 +67,12 @@ object JuliaBundle {
 		CommonBundle.message(bundle, key, *params)
 }
 
+class JuliaApplicationComponent : ApplicationComponent {
+
+	var isUpdated = false
+	var isUpdateNotificationShown = false
+
+	override fun initComponent() {
+		// TODO something?
+	}
+}
