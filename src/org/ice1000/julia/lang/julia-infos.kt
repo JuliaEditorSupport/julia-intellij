@@ -5,9 +5,16 @@ import com.intellij.codeInsight.template.TemplateContextType
 import com.intellij.codeInsight.template.impl.DefaultLiveTemplatesProvider
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.ide.plugins.PluginManager
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.event.EditorFactoryAdapter
+import com.intellij.openapi.editor.event.EditorFactoryEvent
+import com.intellij.openapi.editor.event.EditorFactoryListener
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.*
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -67,10 +74,32 @@ object JuliaBundle {
 		CommonBundle.message(bundle, key, *params)
 }
 
-class JuliaApplicationComponent : ApplicationComponent {
-	override fun initComponent() {
-		// TODO something?
+class JuliaApplicationComponent : ApplicationComponent, Disposable {
+	object EditorListener : EditorFactoryAdapter() {
+		override fun editorCreated(event: EditorFactoryEvent) {
+			val document = event.editor.document
+			val file = FileDocumentManager.getInstance().getFile(document)
+			if (file != null && file.fileType == JuliaFileType) checkRelease()
+		}
 	}
+
+	companion object {
+		val LOG = Logger.getInstance(JuliaApplicationComponent::class.java)
+
+		fun checkRelease() {
+//		if(! isRelease) {
+				ApplicationManager.getApplication().executeOnPooledThread {
+					LOG.info("Hello world!")		// FIXME QAQ
+				}
+//		}
+		}
+	}
+
+	override fun initComponent() {
+		EditorFactory.getInstance().addEditorFactoryListener(EditorListener, this)
+	}
+
+	override fun dispose() = disposeComponent()
 
 	override fun getComponentName(): String = ""			// TODO
 }
