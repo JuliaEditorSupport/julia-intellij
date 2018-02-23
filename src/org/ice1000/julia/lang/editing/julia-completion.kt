@@ -176,7 +176,7 @@ class JuliaContextCompletionProvider : CompletionProvider<CompletionParameters>(
 				val text = elem.presentText()
 //				the type of return value,show at right of popup
 				val typeText = elem.typeText()
-//				after text,it will not be completed
+//				tail text, it will not be completed by Enter Key press
 				val tailText = elem.tailText()
 				val icon = elem.presentIcon()
 				result.addElement(
