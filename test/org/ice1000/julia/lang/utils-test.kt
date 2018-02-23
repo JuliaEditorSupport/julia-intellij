@@ -1,5 +1,7 @@
 package org.ice1000.julia.lang
 
+import org.ice1000.julia.lang.editing.hint.executeJuliaE
+import org.ice1000.julia.lang.module.defaultExePath
 import org.ice1000.julia.lang.module.juliaPath
 import org.ice1000.julia.lang.module.versionOf
 import org.junit.Test
@@ -51,7 +53,7 @@ class UtilsKtTest {
 		.let(::println)
 
 	@Test
-	fun doIt() {
-		println("\u1d6a5")
+	fun executeJuliaCode() {
+		println(executeJulia("/home/hoshino/文档/Compiler/Julia/juliac/bin/julia", "println(1)", 1000))
 	}
 }

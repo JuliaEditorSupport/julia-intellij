@@ -3,7 +3,11 @@ package org.ice1000.julia.lang.editing.hint
 import com.intellij.codeInsight.hints.InlayInfo
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.executeCommand
+import org.ice1000.julia.lang.executeJulia
+import org.ice1000.julia.lang.module.JuliaSettings
 import org.ice1000.julia.lang.module.defaultExePath
+import org.ice1000.julia.lang.module.juliaPath
+import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.JuliaExpr
 import java.nio.file.Paths
 
@@ -11,6 +15,7 @@ fun providePropertyTypeHint(elem: PsiElement): List<InlayInfo> {
 	return provideTypeHint(elem, elem.textOffset + elem.text.length)
 }
 
+@Deprecated("A bug function", ReplaceWith("executeJulia"), DeprecationLevel.WARNING)
 fun executeJuliaE(exePath: String, code: String?, timeLimit: Long, vararg params: String) =
 	executeCommand(
 		"${Paths.get(exePath).toAbsolutePath()} -E \"$code\"",
@@ -21,9 +26,9 @@ fun executeJuliaE(exePath: String, code: String?, timeLimit: Long, vararg params
 fun provideTypeHint(element: PsiElement, offset: Int): List<InlayInfo> {
 	val text = if (element is JuliaExpr) {
 		try {
-			val juliaExe = defaultExePath
+			val juliaExe = element.project.juliaSettings.settings.exePath			//用工程的Julia路径会不会好点来着。。
 			val output = buildString {
-				val (stdout, stderr) = executeJuliaE(juliaExe, element.text, 1000)
+				val (stdout, stderr) = executeJulia(juliaExe, element.text, 1000)
 				if (stdout.isNotEmpty()) {
 					append(" => ")
 					stdout.forEach { append(it) }

@@ -8,11 +8,9 @@ import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.EditorFactoryAdapter
 import com.intellij.openapi.editor.event.EditorFactoryEvent
-import com.intellij.openapi.editor.event.EditorFactoryListener
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.*
@@ -84,14 +82,10 @@ class JuliaApplicationComponent : ApplicationComponent, Disposable {
 	}
 
 	companion object {
-		val LOG = Logger.getInstance(JuliaApplicationComponent::class.java)
-
 		fun checkRelease() {
-//		if(! isRelease) {
-				ApplicationManager.getApplication().executeOnPooledThread {
-					LOG.info("Hello world!")		// FIXME QAQ
-				}
-//		}
+			if(! isRelease) {
+// 			TODO something here
+			}
 		}
 	}
 
@@ -101,5 +95,5 @@ class JuliaApplicationComponent : ApplicationComponent, Disposable {
 
 	override fun dispose() = disposeComponent()
 
-	override fun getComponentName(): String = ""			// TODO
+	override fun getComponentName(): String = "JuliaApplicationComponent"
 }
