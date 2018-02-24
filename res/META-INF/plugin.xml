@@ -98,8 +98,8 @@
 
 	<application-components>
 		<component>
-			<interface-class>org.ice1000.julia.lang.JuliaApplicationComponent</interface-class>
-			<implementation-class>org.ice1000.julia.lang.JuliaApplicationComponentImpl</implementation-class>
+			<interface-class>org.ice1000.julia.lang.module.JuliaApplicationComponent</interface-class>
+			<implementation-class>org.ice1000.julia.lang.module.JuliaApplicationComponentImpl</implementation-class>
 		</component>
 	</application-components>
 

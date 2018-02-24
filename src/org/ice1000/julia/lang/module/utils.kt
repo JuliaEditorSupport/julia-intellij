@@ -9,13 +9,12 @@ import com.intellij.openapi.util.SystemInfo
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import java.awt.event.ActionListener
-import java.math.BigInteger
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.stream.Collectors
 
 val defaultExePath by lazy {
-	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID,"")
+	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID, "")
 	if (Files.isExecutable(Paths.get(existPath))) existPath else juliaPath
 }
 
@@ -77,7 +76,8 @@ fun importPathOf(exePath: String, timeLimit: Long = 800L) =
 		.trim('"')
 
 fun validateJuliaExe(exePath: String) = versionOf(exePath) != JuliaBundle.message("julia.modules.sdk.unknown-version")
-fun validateJulia(settings: JuliaSettings) = settings.version != JuliaBundle.message("julia.modules.sdk.unknown-version")
+fun validateJulia(settings: JuliaSettings) = settings.version
+	.let { it.isNotBlank() && it != JuliaBundle.message("julia.modules.sdk.unknown-version") }
 
 fun installAutoFormat(
 	project: Project,
