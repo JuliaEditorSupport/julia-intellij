@@ -96,11 +96,11 @@
 			implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>
 	</extensions>
 
-	<application-components>
+	<project-components>
 		<component>
 			<implementation-class>org.ice1000.julia.lang.module.JuliaApplicationComponent</implementation-class>
 		</component>
-	</application-components>
+	</project-components>
 
 	<actions>
 		<action
