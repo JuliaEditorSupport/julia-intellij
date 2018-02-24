@@ -4,28 +4,17 @@ import com.intellij.navigation.GotoClassContributor
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.StringStubIndexExtension
-import com.intellij.psi.stubs.StubIndex
-import com.intellij.psi.stubs.StubIndexKey
-import org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin
+import com.intellij.psi.stubs.*
+import org.ice1000.julia.lang.psi.impl.JuliaModuleDeclarationMixin
 
-//又抄了点代码过来x
-
-class JuliaNamedElementIndex : StringStubIndexExtension<JuliaSymbolMixin>() {
-	companion object {
-		val KEY : StubIndexKey<String, JuliaSymbolMixin> = StubIndexKey.createIndexKey("org.ice1000.julia.lang.psi.JuliaNamedElementIndex")
+class JuliaModuleNavigationContributor : GotoClassContributor {
+	private companion object JuliaModuleIndex : StringStubIndexExtension<JuliaModuleDeclarationMixin>() {
+		private val KEY = StubIndexKey.createIndexKey<String, JuliaModuleDeclarationMixin>(JuliaModuleIndex::class.java.name)
+		override fun getKey() = KEY
 	}
 
-	override fun getKey() = KEY
-}
-
-// TODO this doesn't work at all
-abstract class JuliaNavigationContributorBase<T>
-protected constructor(
-	private val indexKey: StubIndexKey<String, T>,
-	private val clazz: Class<T>) : GotoClassContributor where T : NavigationItem, T : JuliaSymbolMixin {
 	override fun getNames(project: Project, includeNonProjectItems: Boolean) =
-		StubIndex.getInstance().getAllKeys(indexKey, project).toTypedArray()
+		StubIndex.getInstance().getAllKeys(JuliaModuleIndex.key, project).toTypedArray()
 
 	override fun getItemsByName(
 		name: String,
@@ -36,14 +25,9 @@ protected constructor(
 			GlobalSearchScope.allScope(project)
 		else
 			GlobalSearchScope.projectScope(project)
-		return StubIndex.getElements(indexKey, name, project, scope, clazz).toTypedArray()
+		return StubIndex.getElements(JuliaModuleIndex.key, name, project, scope, JuliaModuleDeclarationMixin::class.java).toTypedArray()
 	}
 
-	override fun getQualifiedName(item: NavigationItem?) = (item as? JuliaSymbol)?.name
+	override fun getQualifiedName(item: NavigationItem?) = (item as? JuliaModuleDeclaration)?.name
 	override fun getQualifiedNameSeparator() = "::"
 }
-
-class JuliaSymbolNavigationContributor : JuliaNavigationContributorBase<JuliaSymbolMixin>(
-	JuliaNamedElementIndex.KEY,
-	JuliaSymbolMixin::class.java
-)

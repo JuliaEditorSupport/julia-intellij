@@ -208,5 +208,5 @@ abstract class JuliaModuleDeclarationMixin(node: ASTNode) : ASTWrapperPsiElement
 	override var docString: JuliaString? = null
 	override fun getNameIdentifier() = symbol
 	override fun setName(name: String) = symbol.replace(JuliaTokenType.fromText(name, project))
-	override fun getName() = nameIdentifier.text
+	override fun getName(): String = nameIdentifier.text
 }

@@ -105,6 +105,7 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		if (element.docString != null || element.parent !is JuliaStatements) return
 		val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
 			"# Arguments\n\n${joinToString("\n") {
+				//                    这是一根被卡在石头里的宝剑 XD ⇊⇊⇊
 				"- `${it.exprList.firstOrNull()?.text.orEmpty()}${it.typeAnnotation?.text ?: "::Any"}`:"
 			}}"
 		}.orEmpty()
