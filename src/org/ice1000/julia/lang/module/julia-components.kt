@@ -36,12 +36,10 @@ class JuliaApplicationComponentImpl(project: Project) : JuliaApplicationComponen
 
 	override fun projectOpened() {
 		super.projectOpened()
-		if (!validateJulia(myProject.juliaSettings.settings)) {
-			notify(
-				JuliaBundle.message("julia.messages.notify.invalid-julia.title"),
-				JuliaBundle.message("julia.messages.notify.invalid-julia.content"),
-				NotificationType.WARNING)
-		}
+		if (!validateJulia(myProject.juliaSettings.settings)) notify(
+			JuliaBundle.message("julia.messages.notify.invalid-julia.title"),
+			JuliaBundle.message("julia.messages.notify.invalid-julia.content"),
+			NotificationType.WARNING)
 		if (!isRelease and !isNotReleaseNotificationShown) {
 			isNotReleaseNotificationShown = true
 			notify(
