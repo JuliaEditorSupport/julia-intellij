@@ -154,12 +154,12 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 		is JuliaImportExpr -> "import ${element.exprList.firstOrNull()?.text}"
 		is JuliaImportAllExpr -> "importall ${element.expr.text}"
 		is JuliaUsing -> "using ${element.exprList.firstOrNull()?.text}"
-		is JuliaCompoundQuoteOp -> "quote"
+		is JuliaCompoundQuoteOp,
 		is JuliaQuoteOp -> "quote"
 		is JuliaSymbol -> element.text
 		is JuliaForExpr -> "for ${element.children.mapNotNull {
 			(it as? JuliaSingleIndexer)?.children?.firstOrNull()
-			?: (it as? JuliaMultiIndexer)?.children?.firstOrNull()
+				?: (it as? JuliaMultiIndexer)?.children?.firstOrNull()
 		}.joinToString()}"
 		is JuliaForComprehension -> "[ ${element.exprList.firstOrNull()?.text} for |"
 		is JuliaWhileExpr -> "while ${element.expr}"

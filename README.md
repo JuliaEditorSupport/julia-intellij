@@ -22,6 +22,8 @@ install Julia plugin, and create a Julia project.
 
 For detailed use instruction, visit: https://julia-intellij.readthedocs.io/en/latest/
 
+To download a nightly build (buggy!), visit https://ci.appveyor.com/project/ice1000/julia-intellij/build/artifacts/.
+
 ## Screenshots
 
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17880.png)

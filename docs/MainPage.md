@@ -39,6 +39,8 @@ Install IntelliJ IDEA (or other JetBrains IDEs),
 open `Settings | Plugins | Browse repositories`,
 install Julia plugin, and create a Julia project.
 
+To download a nightly build (buggy!), visit https://ci.appveyor.com/project/ice1000/julia-intellij/build/artifacts/.
+
 ### Configuration
 
 If you're creating a new project, the plugin will automatically detect a julia executable.<br/>
