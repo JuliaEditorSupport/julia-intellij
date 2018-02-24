@@ -187,7 +187,7 @@ expr ::=
 }
 
 memberAccessOp ::= expr DOT_SYM (symbol | macroSymbol)
-accessAllOp ::= DOT_SYM (symbol | macroSymbol) { pin=1 }
+accessAllOp ::= DOT_SYM+ (symbol | macroSymbol) { pin=1 }
 private access ::= accessAllOp | memberAccessOp
 
 compactFunction ::=
@@ -393,12 +393,14 @@ private unaryLevel ::=
    unaryPlusOp
  | unaryMinusOp
  | unaryTypeOp
+ | unarySubtypeOp
  | unaryInterpolateOp
  | notOp
  | bitWiseNotOp
 
 bitWiseNotOp ::= BITWISE_NOT_SYM endOfLine expr
 unaryTypeOp ::= DOUBLE_COLON endOfLine expr
+unarySubtypeOp ::= SUBTYPE_SYM endOfLine expr
 unaryMinusOp ::= MINUS_SYM endOfLine expr
 unaryInterpolateOp ::= INTERPOLATE_SYM endOfLine expr
 notOp ::= NOT_SYM endOfLine expr
@@ -495,7 +497,8 @@ untypedVariables ::=
 
 function ::=
  FUNCTION_KEYWORD endOfLine
-  symbol
+  (SYM DOT_SYM)? // TODO
+   symbol
    (typeParameters endOfLine)?
    (functionSignature endOfLine)?
    (whereClause endOfLine)?
@@ -588,8 +591,8 @@ forComprehension ::=
   (IF_KEYWORD expr)?
  RIGHT_M_BRACKET { extends=expr }
 
-forExpr ::= indexer statements END_KEYWORD
-private indexer ::= FOR_KEYWORD endOfLine (multiIndexer | singleIndexer)
+forExpr ::= FOR_KEYWORD endOfLine indexer (commaSep indexer)* statements END_KEYWORD
+private indexer ::= multiIndexer | singleIndexer
 private infixIndexer ::= IN_KEYWORD | IN_SYM | EQ_SYM
 singleIndexer ::= symbol infixIndexer endOfLine expr
 multiIndexer ::=
