@@ -12,14 +12,6 @@ fun providePropertyTypeHint(elem: PsiElement): List<InlayInfo> {
 	return provideTypeHint(elem, elem.textOffset + elem.text.length)
 }
 
-@Deprecated("A bug function", ReplaceWith("executeJulia(exePath, code, timeLimit, * params)"), DeprecationLevel.WARNING)
-fun executeJuliaE(exePath: String, code: String?, timeLimit: Long, vararg params: String) =
-	executeCommand(
-		"${Paths.get(exePath).toAbsolutePath()} -E \"$code\"",
-		null,
-		timeLimit
-	)
-
 fun provideTypeHint(element: PsiElement, offset: Int): List<InlayInfo> {
 	val text = if (element is JuliaExpr) {
 		try {

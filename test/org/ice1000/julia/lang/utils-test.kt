@@ -1,7 +1,5 @@
 package org.ice1000.julia.lang
 
-import org.ice1000.julia.lang.editing.hint.executeJuliaE
-import org.ice1000.julia.lang.module.defaultExePath
 import org.ice1000.julia.lang.module.juliaPath
 import org.ice1000.julia.lang.module.versionOf
 import org.junit.Test
