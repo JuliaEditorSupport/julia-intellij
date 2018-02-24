@@ -157,7 +157,10 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 		is JuliaCompoundQuoteOp -> "quote"
 		is JuliaQuoteOp -> "quote"
 		is JuliaSymbol -> element.text
-		is JuliaForExpr -> "for ${(element.multiIndexer ?: element.singleIndexer)?.text}"
+		is JuliaForExpr -> "for ${element.children.mapNotNull {
+			(it as? JuliaSingleIndexer)?.children?.firstOrNull()
+			?: (it as? JuliaMultiIndexer)?.children?.firstOrNull()
+		}.joinToString()}"
 		is JuliaForComprehension -> "[ ${element.exprList.firstOrNull()?.text} for |"
 		is JuliaWhileExpr -> "while ${element.expr}"
 		else -> "??"
