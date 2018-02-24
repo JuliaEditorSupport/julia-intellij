@@ -6,7 +6,6 @@ import com.intellij.codeInsight.template.impl.DefaultLiveTemplatesProvider
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.EditorFactoryAdapter
@@ -21,11 +20,7 @@ import org.ice1000.julia.lang.docfmt.DocfmtFileType
 import org.ice1000.julia.lang.psi.impl.processDeclTrivial
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
-import org.jetbrains.rpc.LOG
 import java.util.*
-
-
-val isRelease by lazy { PluginManager.getPlugin(PluginId.getId(JULIA_PLUGIN_ID))?.version?.run { '-' !in this } ?: false }
 
 object JuliaFileType : LanguageFileType(JuliaLanguage.INSTANCE) {
 	override fun getDefaultExtension() = JULIA_EXTENSION
@@ -73,27 +68,21 @@ object JuliaBundle {
 }
 
 class JuliaApplicationComponent : ApplicationComponent, Disposable {
-	object EditorListener : EditorFactoryAdapter() {
-		override fun editorCreated(event: EditorFactoryEvent) {
-			val document = event.editor.document
-			val file = FileDocumentManager.getInstance().getFile(document)
-			if (file != null && file.fileType == JuliaFileType) checkRelease()
+	private companion object EditorListener : EditorFactoryAdapter() {
+		private val isRelease by lazy {
+			PluginManager.getPlugin(PluginId.getId(JULIA_PLUGIN_ID))?.run { '-' !in version } == true
 		}
-	}
 
-	companion object {
-		fun checkRelease() {
-			if(! isRelease) {
+		private fun checkRelease() {
+			if (!isRelease) {
 // 			TODO something here
 			}
 		}
 	}
 
+	override fun getComponentName() = "JuliaApplicationComponent"
+	override fun dispose() = disposeComponent()
 	override fun initComponent() {
 		EditorFactory.getInstance().addEditorFactoryListener(EditorListener, this)
 	}
-
-	override fun dispose() = disposeComponent()
-
-	override fun getComponentName(): String = "JuliaApplicationComponent"
 }
