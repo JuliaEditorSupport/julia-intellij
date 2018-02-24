@@ -4,9 +4,6 @@ import com.intellij.codeInsight.hints.InlayInfo
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.executeCommand
 import org.ice1000.julia.lang.executeJulia
-import org.ice1000.julia.lang.module.JuliaSettings
-import org.ice1000.julia.lang.module.defaultExePath
-import org.ice1000.julia.lang.module.juliaPath
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.JuliaExpr
 import java.nio.file.Paths
