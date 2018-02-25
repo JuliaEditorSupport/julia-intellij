@@ -1,6 +1,26 @@
 # Features
 
-TODO()
+<ul>
+	<li>SDK and module management</li>
+	<li>Syntax highlight</li>
+	<li>Language injection</li>
+	<li>Run configuration and code execution</li>
+	<li>Live templates</li>
+	<li>File templates</li>
+	<li>Completions</li>
+	<li>Jump to definition</li>
+	<li>Find usages</li>
+	<li>Renaming</li>
+	<li>Doc string generation</li>
+	<li>Try Evaluate</li>
+	<li>Bread crumbs</li>
+	<li>Regular expression injection</li>
+	<li>DocString markdown injection (works only when either Markdown or MarkdownNavigator is installed)</li>
+	<li>Special input for LaTeX style unicode character</li>
+	<li>Structure view</li>
+	<li>DocumentFormat.jl integration</li>
+	<li>Error reporter</li>
+</ul>
 
 ## Further features
 
