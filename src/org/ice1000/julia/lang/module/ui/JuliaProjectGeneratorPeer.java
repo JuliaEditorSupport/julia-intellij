@@ -1,8 +1,9 @@
-package org.ice1000.julia.lang.module;
+package org.ice1000.julia.lang.module.ui;
 
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.platform.ProjectGeneratorPeer;
 import com.intellij.ui.components.labels.LinkLabel;
+import org.ice1000.julia.lang.module.JuliaSettings;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

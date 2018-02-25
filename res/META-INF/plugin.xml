@@ -89,10 +89,10 @@
 		<projectConfigurable
 			groupId="language"
 			id="Julia.LanguageConfigurationRoot"
-			instance="org.ice1000.julia.lang.module.JuliaProjectConfigurableImpl"/>
+			instance="org.ice1000.julia.lang.module.ui.JuliaProjectConfigurableImpl"/>
 		<projectConfigurable
 			parentId="Julia.LanguageConfigurationRoot"
-			instance="org.ice1000.julia.lang.module.JuliaPackageManagerImpl"/>
+			instance="org.ice1000.julia.lang.module.ui.JuliaPackageManagerImpl"/>
 		<codeInsight.parameterNameHints
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.hint.JuliaInlayParameterHintsProvider"/>

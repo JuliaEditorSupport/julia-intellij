@@ -18,6 +18,7 @@ import com.intellij.util.PlatformUtils
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.action.NewJuliaFile
+import org.ice1000.julia.lang.module.ui.JuliaProjectGeneratorPeerImpl
 
 /**
  * For non-IntelliJ IDE (PyCharm,CLion...)

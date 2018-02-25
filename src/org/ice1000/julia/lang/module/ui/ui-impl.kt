@@ -1,4 +1,4 @@
-package org.ice1000.julia.lang.module
+package org.ice1000.julia.lang.module.ui
 
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.ide.util.PropertiesComponent
@@ -12,6 +12,7 @@ import com.intellij.platform.ProjectGeneratorPeer
 import com.intellij.ui.DocumentAdapter
 import org.ice1000.julia.lang.JULIA_SDK_HOME_PATH_ID
 import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.module.*
 import java.text.NumberFormat
 import javax.swing.event.DocumentEvent
 import javax.swing.text.DefaultFormatterFactory

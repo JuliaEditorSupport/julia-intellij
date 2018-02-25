@@ -66,7 +66,7 @@ you'll find 4 related repositories:
 + satamas/julia-plugin (ditto)
 + ice1000/julia-intellij (too many [features](https://julia-intellij.readthedocs.io/en/latest/Features.html), can't list here)
 
-Now you know your choice :wink:
+Now you know your choice 😉
 
 ## Contributing
 

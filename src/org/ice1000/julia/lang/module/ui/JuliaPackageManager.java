@@ -1,4 +1,4 @@
-package org.ice1000.julia.lang.module;
+package org.ice1000.julia.lang.module.ui;
 
 import com.intellij.openapi.options.Configurable;
 import org.jetbrains.annotations.NotNull;
