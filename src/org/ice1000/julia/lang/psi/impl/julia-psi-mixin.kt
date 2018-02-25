@@ -6,6 +6,7 @@ import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.JuliaTokenType
+import org.ice1000.julia.lang.editing.typeText
 import org.ice1000.julia.lang.orFalse
 import org.ice1000.julia.lang.psi.*
 
@@ -108,7 +109,14 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
 	override var docString: JuliaString? = null
+	private var body: JuliaExpr? = null
+		get() {
+			if (field == null) field = lastChild as? JuliaExpr ?: return null
+			return field
+		}
+
 	private var paramsTextCache: String? = null
+	override val returnType: Type get() = body?.type ?: "<unknown>"
 	private var typeParamsTextCache: String? = null
 	override fun getNameIdentifier() = exprList.firstOrNull()
 	override val typeParamsText: String
@@ -126,6 +134,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 	override fun subtreeChanged() {
 		paramsTextCache = null
 		typeParamsTextCache = null
+		body = null
 		super.subtreeChanged()
 	}
 }
