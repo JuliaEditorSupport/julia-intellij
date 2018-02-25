@@ -19,9 +19,12 @@ fun PsiElement.processDeclTrivial(
 	return true
 }
 
+/**
+ * @param self The declaration itself
+ */
 fun collectFrom(startPoint: PsiElement, name: String, self: PsiElement? = null) = SyntaxTraverser
 	.psiTraverser(startPoint)
-	.filter { it is JuliaSymbol && it.text == name && it != self }
+	.filter { it is JuliaSymbol && !it.isDeclaration && it.text == name && it != self }
 	.mapNotNull(PsiElement::getReference)
 	.toList()
 	.toTypedArray()
