@@ -11,6 +11,7 @@ import shutil
 # pre
 shutil.copy2("../CONTRIBUTING.md", ".")
 shutil.copy2("../README.md", "MainPage.md")
+shutil.copy2("../res/META-INF/description.html", "Features.md")
 
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.intersphinx',
