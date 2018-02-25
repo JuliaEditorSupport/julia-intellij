@@ -12,7 +12,7 @@ include unnecessary dependencies and it's slow.
 
 ## Use Idea build
 
-### Prerequirements
+### Prerequisites
 
 First install required plugins in your IntelliJ IDEA:
 
@@ -23,6 +23,8 @@ First install required plugins in your IntelliJ IDEA:
 
 I've compiled a Grammar-Kit which supports completing Java codes in the jflex code fragment which can be found
 [here](https://github.com/ice1000/julia-intellij/releases/download/0.0.2/grammar-kit-2017.1.1.zip).
+
+For debugging purpose, it's recommended to install a plugin called PsiViewer [![JetBrains Plugins](https://plugins.jetbrains.com/plugin/227-psiviewer)](https://plugins.jetbrains.com/plugin/227-psiviewer).
 
 ### Build
 
@@ -55,12 +57,13 @@ For more information, see [the official doc](http://www.jetbrains.org/intellij/s
 0. Break the code style -- use tab indents with spaces aligns (see [.editorconfig](.editorconfig))
 0. Open pull requests just to fix code style, or use some syntax sugar (this is not SharpLang!)
 0. Add any kind of generated file into the git repo (including the parser!)
+0. Use `!!`
 0. Violate the open source license
 
 ## You should
 
 0. Use Kotlin except UI, but if you only know Java, never mind, we can help you convert
-0. Name your files like `julia-xxx.kt`
+0. Name your files like `julia-xxx.kt`, or `utils.kt`, or `ui-impl.kt`
 0. Put all highly related classes into a single file
 0. Use English, but we also read Chinese so if you only know Chinese just use it
 0. Write commit message starts with `[ issue id or refactor type ]`

@@ -81,31 +81,9 @@ you'll find 4 related repositories:
 + snefru/juliafy (incomplete syntax highlight, SDK management, file recognizing, only support MacOS)
 + sysint64/intellij-julia (this only recognize your file as a `Julia file`, and do nothing else)
 + satamas/julia-plugin (ditto)
-+ ice1000/julia-intellij
- (better syntax highlight (may not be 100% correct, though),
-  inspections and quick fixes,
-  basic completions,
-  code execution,
-  JetBrains style icons,
-  SDK management,
-  External Julia tools integration,
-  support all three platforms,
-  try-evaluate)
++ ice1000/julia-intellij (too many [features](<!-- TODO() -->), can't list here)
 
 Now you know your choice 😉
-
-## Further features
-
-+ Formatter
-+ Displaying numeral output as images
-+ GUI package manager
-
-Please don't downvote our plugin for not having one of the features above, because we're just working on it.
-
-## Contributing
-
-You're encouraged to contribute to the plugin in any form if you've found any issues or missing functionality that you'd want to see.
-Check out [CONTRIBUTING.md](../CONTRIBUTING.md) to learn how to setup the project and contributing guidelines.
 
 ## Contributors
 

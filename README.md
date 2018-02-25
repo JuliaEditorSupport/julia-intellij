@@ -47,7 +47,7 @@ you'll find 4 related repositories:
 + snefru/juliafy (incomplete syntax highlight, SDK management, file recognizing, only support MacOS)
 + sysint64/intellij-julia (this only recognize your file as a `Julia file`, and do nothing else)
 + satamas/julia-plugin (ditto)
-+ ice1000/julia-intellij (too many features, can't list here)
++ ice1000/julia-intellij (too many [features](<!-- TODO() -->), can't list here)
 
 Now you know your choice :wink:
 
