@@ -130,7 +130,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 				element.isFunctionName -> (element.parent as? JuliaFunction)?.let { function ->
 					quadOf(
 						JuliaIcons.JULIA_FUNCTION_ICON,
-						element.text,
+						"${element.text}()",
 						function.paramsText,
 						function.returnType
 					)
