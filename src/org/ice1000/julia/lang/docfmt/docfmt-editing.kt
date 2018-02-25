@@ -109,7 +109,8 @@ class DocfmtCompletionContributor : CompletionContributor() {
 	internal companion object ValueCompleter : CompletionProvider<CompletionParameters>() {
 		override fun addCompletions(p: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
 			val value = p.originalPosition
-				?.run { parent as? DocfmtValue ?: prevSibling.parent as? DocfmtValue } ?: return
+				?.run { parent as? DocfmtValue ?: prevSibling.parent as? DocfmtValue }
+				?: return
 			val key = (value.parent as? DocfmtConfig)?.firstChild ?: return
 			when (key.text) {
 				"KW_WS", "NewLineEOF", "StripLineEnds", "UseTab" -> BOOLEAN.forEach(result::addElement)

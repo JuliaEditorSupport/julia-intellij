@@ -16,3 +16,20 @@ abstract class DocfmtConfigMixin(node: ASTNode) : DocfmtConfig, ASTWrapperPsiEle
 		super.subtreeChanged()
 	}
 }
+
+/*
+ice1000@ice1000:~/.julia/v0.6/DocumentFormat$ tree
+.
+├── appveyor.yml
+├── LICENSE.md
+├── README.md
+├── REQUIRE
+├── src
+│   ├── DocumentFormat.jl
+│   ├── formatconfig.jl
+│   ├── options.jl
+│   └── utils.jl
+└── test
+    ├── runtests.jl
+    └── test_formatconfig.jl
+*/

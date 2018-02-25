@@ -12,7 +12,6 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
-import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.BigInteger.ONE
 import java.math.BigInteger.ZERO
@@ -139,19 +138,10 @@ $JULIA_DOC_SURROUNDING
 		}
 	}
 
-	/**
-	 * TODO deal with `f`
-	 */
-	private fun divide(holder: AnnotationHolder, child: PsiElement) {
-		if ('f' in child.text) return
-		if (BigDecimal.ZERO.compareTo(BigDecimal(child.text)) == 0) holder.createWarningAnnotation(child,
-			JuliaBundle.message("julia.lint.div-by-zero"))
-	}
-
 	private fun multiplyLevelOp(element: JuliaMultiplyLevelOp, holder: AnnotationHolder) {
 		when (element.multiplyLevelOperator.text.firstOrNull()) {
-			'/', '%' -> divide(holder, element.lastChild)
-			'\\' -> divide(holder, element.firstChild)
+			'/', '%' ->
+			'\\' ->
 		}
 	}
 
@@ -168,8 +158,8 @@ $JULIA_DOC_SURROUNDING
 					JuliaBundle.message("julia.lint.xor-is-replace-22bb", left, right)))
 			}
 
-			'/', '%' -> divide(holder, element.lastChild)
-			'\\' -> divide(holder, element.firstChild)
+			'/', '%' ->
+			'\\' ->
 		}
 	}
 
@@ -201,7 +191,9 @@ $JULIA_DOC_SURROUNDING
 				"new" -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.KEYWORD
 			// TODO make sure it's not re-defined function
 				"rem",
-				"mod" -> divide(holder, element.children.getOrNull(1)?.children?.getOrNull(1) ?: return)
+				"mod" -> {
+					element.children.getOrNull(1)?.children?.getOrNull(1) ?: return
+				}
 			}
 		}
 	}

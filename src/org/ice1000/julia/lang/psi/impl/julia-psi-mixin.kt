@@ -175,8 +175,9 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	val isTypeName: Boolean
 	val isAbstractTypeName: Boolean
 	val isPrimitiveTypeName: Boolean
-	val isDeclaration: Boolean
 	val isFunctionParameter: Boolean
+	val isVariableName: Boolean
+	val isDeclaration: Boolean
 }
 
 interface IJuliaTypeDeclaration : JuliaExpr, PsiNameIdentifierOwner, DocStringOwner
@@ -222,8 +223,10 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	final override val isAbstractTypeName by lazy { parent is JuliaAbstractTypeDeclaration }
 	final override val isPrimitiveTypeName by lazy { parent is JuliaPrimitiveTypeDeclaration }
 	final override val isFunctionParameter by lazy { parent is JuliaTypedNamedVariable && this === parent.firstChild }
+	final override val isVariableName by lazy { parent is JuliaAssignOp && this === parent.firstChild }
 	final override val isDeclaration by lazy {
 		isFunctionName or
+			isVariableName or
 			isFunctionParameter or
 			isMacroName or
 			isModuleName or

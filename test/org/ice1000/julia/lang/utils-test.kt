@@ -54,4 +54,9 @@ class UtilsKtTest {
 	fun executeJuliaCode() {
 		println(executeJulia("/home/hoshino/文档/Compiler/Julia/juliac/bin/julia", "println(1)", 1000))
 	}
+
+	@Test
+	fun removePrefix() {
+		"ass".removePrefix("x") shouldBe "ass"
+	}
 }
