@@ -5,9 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import org.ice1000.julia.lang.JuliaTokenType
-import org.ice1000.julia.lang.editing.typeText
-import org.ice1000.julia.lang.orFalse
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 
 interface DocStringOwner {
@@ -75,9 +73,7 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	override var docString: JuliaString? = null
 	private var paramsTextCache: String? = null
 	private var typeParamsTextCache: String? = null
-	override val returnType: Type
-		get() = "<unsupported>"
-
+	override val returnType: Type get() = UNKNOWN_VALUE_PLACEHOLDER
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
 	override val typeParamsText: String
 		get() = typeParamsTextCache ?: typeParameters?.exprList
@@ -116,7 +112,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 		}
 
 	private var paramsTextCache: String? = null
-	override val returnType: Type get() = body?.type ?: "<unknown>"
+	override val returnType: Type get() = body?.type ?: UNKNOWN_VALUE_PLACEHOLDER
 	private var typeParamsTextCache: String? = null
 	override fun getNameIdentifier() = exprList.firstOrNull()
 	override val typeParamsText: String

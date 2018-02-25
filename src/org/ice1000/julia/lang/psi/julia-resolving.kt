@@ -8,8 +8,7 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import icons.JuliaIcons
-import org.ice1000.julia.lang.JuliaTokenType
-import org.ice1000.julia.lang.orFalse
+import org.ice1000.julia.lang.*
 
 /**
  * @author ice1000
@@ -113,7 +112,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,
-					element.type ?: "<unknown>"
+					element.type ?: UNKNOWN_VALUE_PLACEHOLDER
 				)
 				element.isModuleName -> quadOf(
 					JuliaIcons.JULIA_MODULE_ICON,
@@ -130,7 +129,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 				element.isFunctionName -> (element.parent as? JuliaFunction)?.let { function ->
 					quadOf(
 						JuliaIcons.JULIA_FUNCTION_ICON,
-						"${element.text}()",
+						element.text,
 						function.paramsText,
 						function.returnType
 					)
