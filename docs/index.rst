@@ -8,6 +8,7 @@ Welcome to julia-Intellij's documentation!
 
 * :ref:`readme`
 * :ref:`contributing`
+* :ref:`features`
 
 
 .. _readme:
@@ -20,6 +21,17 @@ Readme
    :maxdepth: 2
 
    MainPage
+
+.. _features:
+
+########
+Features
+########
+
+.. toctree::
+   :maxdepth: 2
+
+   Features
 
 .. _contributing:
 
