@@ -197,7 +197,7 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	final override val isTypeName by lazy { (parent is JuliaTypeDeclaration && this === parent.children.firstOrNull { it is JuliaSymbol }) || parent is JuliaTypeAlias }
 	final override val isAbstractTypeName by lazy { parent is JuliaAbstractTypeDeclaration }
 	final override val isPrimitiveTypeName by lazy { parent is JuliaPrimitiveTypeDeclaration }
-	final override val isDeclaration by lazy { !(isFunctionName or isMacroName or isModuleName or isTypeName or isAbstractTypeName or isPrimitiveTypeName) }
+	final override val isDeclaration by lazy { isFunctionName or isMacroName or isModuleName or isTypeName or isAbstractTypeName or isPrimitiveTypeName }
 	override fun getReference() = if (isDeclaration) null else super.getReference()
 }
 
