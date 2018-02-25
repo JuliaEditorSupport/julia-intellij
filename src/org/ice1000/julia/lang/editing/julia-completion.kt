@@ -113,10 +113,6 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 
 	init {
 		extend(CompletionType.BASIC, psiElement()
-			.inside(JuliaStatements::class.java)
-			.andNot(psiElement().withParent(JuliaString::class.java)),
-			JuliaContextCompletionProvider())
-		extend(CompletionType.BASIC, psiElement()
 			.inside(JuliaFunction::class.java)
 			.afterLeaf(")")
 			.andNot(psiElement()
@@ -156,38 +152,6 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 					psiElement().inside(JuliaMacro::class.java))
 				.andNot(psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(functionInside))
-	}
-}
-
-class JuliaContextCompletionProvider : CompletionProvider<CompletionParameters>() {
-
-	//FIXME: stupid code
-	override fun addCompletions(
-		parameters: CompletionParameters,
-		context: ProcessingContext?,
-		result: CompletionResultSet) {
-		val list = ArrayList<PsiElement>()
-		val pos = parameters.position
-		val file = pos.containingFile
-		file.children.forEach { list.add(it) }
-		while (list.isNotEmpty()) {
-			val elem = list.removeAt(list.lastIndex)
-			if (elem.canBeNamed) {
-				val text = elem.presentText()
-//				the type of return value,show at right of popup
-				val typeText = elem.typeText()
-//				tail text, it will not be completed by Enter Key press
-				val tailText = elem.tailText()
-				val icon = elem.presentIcon()
-				result.addElement(
-					LookupElementBuilder
-						.create(text)
-						.withIcon(icon)
-						.withTailText(tailText, true)
-						.withTypeText(typeText, true))
-			}
-			elem.children.forEach { list.add(it) }
-		}
 	}
 }
 
