@@ -168,7 +168,7 @@ abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), 
  * Just to provide implementation of [PsiNameIdentifierOwner] for [JuliaMacroSymbolMixin]
  * and [JuliaSymbolMixin] (see [JuliaSymbolRef]). (for code reuse purpose)
  */
-sealed class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), PsiNameIdentifierOwner, JuliaExpr {
+abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), PsiNameIdentifierOwner, JuliaExpr {
 	private val ref by lazy {
 		object : JuliaSymbolRef() {
 			override fun getElement() = this@JuliaAbstractSymbol
@@ -191,13 +191,13 @@ sealed class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), Ps
 abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaSymbol {
 	override val isField: Boolean
 		get() = parent is JuliaTypeDeclaration && this !== parent.children.firstOrNull { it is JuliaSymbol }
-	final override val isFunctionName = parent is JuliaFunction || (parent is JuliaCompactFunction && this === parent.children.firstOrNull())
-	final override val isMacroName = parent is JuliaMacro
-	final override val isModuleName = parent is JuliaModuleDeclaration
-	final override val isTypeName = (parent is JuliaTypeDeclaration && this === parent.children.firstOrNull { it is JuliaSymbol }) || parent is JuliaTypeAlias
-	final override val isAbstractTypeName = parent is JuliaAbstractTypeDeclaration
-	final override val isPrimitiveTypeName = parent is JuliaPrimitiveTypeDeclaration
-	final override val isDeclaration = !(isFunctionName or isMacroName or isModuleName or isTypeName or isAbstractTypeName or isPrimitiveTypeName)
+	final override val isFunctionName by lazy { parent is JuliaFunction || (parent is JuliaCompactFunction && this === parent.children.firstOrNull()) }
+	final override val isMacroName by lazy { parent is JuliaMacro }
+	final override val isModuleName by lazy { parent is JuliaModuleDeclaration }
+	final override val isTypeName by lazy { (parent is JuliaTypeDeclaration && this === parent.children.firstOrNull { it is JuliaSymbol }) || parent is JuliaTypeAlias }
+	final override val isAbstractTypeName by lazy { parent is JuliaAbstractTypeDeclaration }
+	final override val isPrimitiveTypeName by lazy { parent is JuliaPrimitiveTypeDeclaration }
+	final override val isDeclaration by lazy { !(isFunctionName or isMacroName or isModuleName or isTypeName or isAbstractTypeName or isPrimitiveTypeName) }
 	override fun getReference() = if (isDeclaration) null else super.getReference()
 }
 

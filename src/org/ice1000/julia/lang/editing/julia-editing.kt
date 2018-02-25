@@ -4,7 +4,7 @@ import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.ide.IconProvider
 import com.intellij.lang.*
 import com.intellij.lang.cacheBuilder.DefaultWordsScanner
-import com.intellij.lang.findUsages.EmptyFindUsagesProvider
+import com.intellij.lang.findUsages.FindUsagesProvider
 import com.intellij.lang.refactoring.RefactoringSupportProvider
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
@@ -177,7 +177,7 @@ object JuliaNameValidator : InputValidatorEx {
 	} == true
 }
 
-class JuliaFindUsagesProvider : EmptyFindUsagesProvider() {
+class JuliaFindUsagesProvider : FindUsagesProvider {
 	override fun getWordsScanner() = DefaultWordsScanner(JuliaLexerAdapter(),
 		TokenSet.create(JuliaTypes.SYMBOL),
 		JuliaTokenType.COMMENTS,
@@ -186,9 +186,11 @@ class JuliaFindUsagesProvider : EmptyFindUsagesProvider() {
 	override fun getNodeText(element: PsiElement, useFullName: Boolean) =
 		if (element.canBeNamed) element.presentText() else ""
 
+	override fun getHelpId(psiElement: PsiElement): String? = null
 	override fun getDescriptiveName(element: PsiElement) = if (element.canBeNamed) element.presentText() else ""
 	override fun getType(element: PsiElement) = if (element.canBeNamed) element.text else ""
-	override fun canFindUsagesFor(psiElement: PsiElement) = psiElement is PsiNamedElement
+	override fun canFindUsagesFor(element: PsiElement) = (element as? JuliaSymbol)?.isDeclaration
+		?: element is PsiNamedElement
 }
 
 class JuliaRefactoringSupportProvider : RefactoringSupportProvider() {
