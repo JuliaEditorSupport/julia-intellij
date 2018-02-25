@@ -14,8 +14,7 @@ class JuliaPackageTest {
 		val (stdout, stderr) = executeJulia(juliaPath, code, 5000)
 		var path = stdout.firstOrNull()
 		if (path != null) {
-			path = path.substring(1, path.lastIndex)
-			println(path)
+			path = path.trim('"')
 			File(path).list().filter { !it.startsWith(".") }.forEach(::println)
 		}
 	}
