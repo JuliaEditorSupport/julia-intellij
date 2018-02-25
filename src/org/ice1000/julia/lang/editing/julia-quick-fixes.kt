@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.util.FileContentUtil
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.JuliaTokenType
 import org.jetbrains.annotations.Nls
@@ -49,10 +50,12 @@ class JuliaReplaceWithTextIntention(
 class JuliaInsertTextBeforeIntention(
 	private val element: PsiElement,
 	@NonNls private val new: String,
-	info: String) : JuliaIntentionAction(info) {
+	info: String,
+	private val reparse: Boolean = false) : JuliaIntentionAction(info) {
 	override fun invoke(project: Project, editor: Editor?, file: PsiFile?) {
 		ApplicationManager.getApplication().runWriteAction {
 			element.parent.addBefore(JuliaTokenType.fromText(new, project), element)
+			if (reparse) element.containingFile.virtualFile?.let { FileContentUtil.reparseFiles(it) }
 		}
 	}
 }

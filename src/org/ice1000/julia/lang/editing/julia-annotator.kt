@@ -123,7 +123,7 @@ $signatureTextPart
 julia>
 ```
 $JULIA_DOC_SURROUNDING
-""", JuliaBundle.message("julia.lint.insert-doc-string")))
+""", JuliaBundle.message("julia.lint.insert-doc-string"), true))
 	}
 
 	private fun plusLevelOp(element: JuliaPlusLevelOp, holder: AnnotationHolder) {
