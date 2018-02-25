@@ -8,6 +8,7 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.JuliaTokenType
+import org.ice1000.julia.lang.editing.*
 
 /**
  * @author ice1000
@@ -56,13 +57,13 @@ abstract class JuliaSymbolRef(private var refTo: PsiElement? = null) : PsiPolyVa
 	}
 }
 
-abstract class ResolveProcessor<ResolveResult>(val place: PsiElement) : PsiScopeProcessor {
+abstract class ResolveProcessor<ResolveResult>(private val place: PsiElement) : PsiScopeProcessor {
 	abstract val candidateSet: ArrayList<ResolveResult>
 	override fun handleEvent(event: PsiScopeProcessor.Event, o: Any?) = Unit
 	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
 	// TODO add definitions
-	protected fun isInScope(element: PsiElement) = if (element is JuliaSymbol) when {
+	fun isInScope(element: PsiElement) = if (element is JuliaSymbol) when {
 		element.isFunctionParameter -> PsiTreeUtil.isAncestor(element.parent.parent, place, true)
 		element.isDeclaration -> PsiTreeUtil.isAncestor(PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), place, false)
 		else -> false
@@ -105,7 +106,18 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 		if (element is JuliaSymbol) {
 			if (element.isDeclaration and element.hasNoError and isInScope(element)) {
 				val symbol = element.text
-				// TODO add to result
+				val elem = element
+				val text = elem.presentText()
+//				the type of return value,show at right of popup
+				val typeText = elem.typeText()
+//				tail text, it will not be completed by Enter Key press
+				val tailText = elem.tailText()
+				val icon = elem.presentIcon()
+				candidateSet += LookupElementBuilder
+					.create(text)
+					.withIcon(icon)
+					.withTailText(tailText, true)
+					.withTypeText(typeText, true)
 			}
 		}
 		return true

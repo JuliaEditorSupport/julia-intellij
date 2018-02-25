@@ -194,7 +194,7 @@ class JuliaContextCompletionProvider : CompletionProvider<CompletionParameters>(
 /**
  * after text but it won't be completed
  */
-private fun PsiElement.tailText() = when (this) {
+fun PsiElement.tailText() = when (this) {
 	is IJuliaFunctionDeclaration -> "$typeParamsText$paramsText"
 	else -> ""
 }
@@ -202,7 +202,7 @@ private fun PsiElement.tailText() = when (this) {
 /**
  * right side of popup
  */
-private fun PsiElement.typeText() = when (this) {
+fun PsiElement.typeText() = when (this) {
 //the type of return value
 	is IJuliaFunctionDeclaration -> ""
 	else -> ""
