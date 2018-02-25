@@ -10,9 +10,11 @@ import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectGeneratorPeer
 import com.intellij.ui.DocumentAdapter
+import com.intellij.ui.layout.panel
 import org.ice1000.julia.lang.JULIA_SDK_HOME_PATH_ID
 import org.ice1000.julia.lang.JuliaBundle
 import java.text.NumberFormat
+import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
@@ -153,5 +155,19 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		settings.basePath = basePathField.text
 		settings.importPath = importPathField.text
 		settings.unicodeEnabled = unicodeInputCheckBox.isSelected
+	}
+}
+
+/**
+ * TODO PackageManager
+ * Settings(Preference) | Language & Frameworks | Julia | Package Manager
+ */
+class JuliaPackageManagerImpl : JuliaProjectConfigurable() {
+	init {
+	}
+	override fun getDisplayName() = JuliaBundle.message("julia.package.manager.title")
+	override fun createComponent(): JComponent? = null
+	override fun isModified() = false
+	override fun apply() {
 	}
 }

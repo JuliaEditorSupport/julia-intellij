@@ -88,7 +88,11 @@
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFindUsagesProvider"/>
 		<projectConfigurable
 			groupId="language"
+			id="Julia.LanguageConfigurationRoot"
 			instance="org.ice1000.julia.lang.module.JuliaProjectConfigurableImpl"/>
+		<projectConfigurable
+			parentId="Julia.LanguageConfigurationRoot"
+			instance="org.ice1000.julia.lang.module.JuliaPackageManagerImpl"/>
 		<codeInsight.parameterNameHints
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.hint.JuliaInlayParameterHintsProvider"/>
