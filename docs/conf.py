@@ -6,6 +6,12 @@ import os
 import re
 import juliadoc
 import sphinx_rtd_theme
+import shutil
+
+# pre
+shutil.copy2("../CONTRIBUTING.md", ".")
+shutil.copy2("../README.md", "MainPage.md")
+
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.intersphinx',
               'sphinx.ext.imgmath',
@@ -23,7 +29,7 @@ source_parsers = {
 master_doc = 'index'
 
 # General information about the project.
-project = 'Julia-Intellij'
+project = 'Julia-IntelliJ'
 copyright = '2018, ice1000'
 author = 'ice1000'
 
