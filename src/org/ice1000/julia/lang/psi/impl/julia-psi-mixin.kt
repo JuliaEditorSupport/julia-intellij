@@ -17,6 +17,9 @@ interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
 	val typeParamsText: String
 }
 
+/**
+ *
+ */
 abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameIdentifierOwner {
 	private var refCache: Array<PsiReference>? = null
 	override fun setName(newName: String) = nameIdentifier?.let { JuliaTokenType.fromText(newName, project).let(it::replace) }
@@ -26,7 +29,7 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 		}
 
 	open val startPoint: PsiElement
-		// TODO workaround for KT-22916
+	// TODO workaround for KT-22916
 		get() = PsiTreeUtil.getParentOfType(this, JuliaStatements::class.java) ?: parent
 
 	override fun getName() = nameIdentifier?.text.orEmpty()
@@ -161,14 +164,21 @@ abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), 
 	override fun getName() = nameIdentifier?.text
 }
 
-abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), PsiNameIdentifierOwner, JuliaExpr {
+/**
+ * Just to provide implementation of [PsiNameIdentifierOwner] for [JuliaMacroSymbolMixin]
+ * and [JuliaSymbolMixin] (see [JuliaSymbolRef]). (for code reuse purpose)
+ */
+sealed class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), PsiNameIdentifierOwner, JuliaExpr {
 	private val ref by lazy {
 		object : JuliaSymbolRef() {
 			override fun getElement() = this@JuliaAbstractSymbol
 		}
 	}
 	override var type: String? = null
-	override fun getReference() = ref
+
+	/** For [JuliaSymbolMixin], we cannot have a reference if it's a declaration. */
+	override fun getReference(): JuliaSymbolRef? = ref
+
 	override fun getNameIdentifier() = this
 	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
 	override fun getName() = text
@@ -181,13 +191,14 @@ abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), 
 abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaSymbol {
 	override val isField: Boolean
 		get() = parent is JuliaTypeDeclaration && this !== parent.children.firstOrNull { it is JuliaSymbol }
-	override val isFunctionName get() = parent is JuliaFunction || (parent is JuliaCompactFunction && this === parent.children.firstOrNull())
-	override val isMacroName get() = parent is JuliaMacro
-	override val isModuleName get() = parent is JuliaModuleDeclaration
-	override val isTypeName get() = (parent is JuliaTypeDeclaration && this === parent.children.firstOrNull { it is JuliaSymbol }) || parent is JuliaTypeAlias
-	override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
-	override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
-	override val isDeclaration: Boolean get() = !(isFunctionName or isMacroName or isModuleName or isTypeName or isAbstractTypeName or isPrimitiveTypeName)
+	final override val isFunctionName = parent is JuliaFunction || (parent is JuliaCompactFunction && this === parent.children.firstOrNull())
+	final override val isMacroName = parent is JuliaMacro
+	final override val isModuleName = parent is JuliaModuleDeclaration
+	final override val isTypeName = (parent is JuliaTypeDeclaration && this === parent.children.firstOrNull { it is JuliaSymbol }) || parent is JuliaTypeAlias
+	final override val isAbstractTypeName = parent is JuliaAbstractTypeDeclaration
+	final override val isPrimitiveTypeName = parent is JuliaPrimitiveTypeDeclaration
+	final override val isDeclaration = !(isFunctionName or isMacroName or isModuleName or isTypeName or isAbstractTypeName or isPrimitiveTypeName)
+	override fun getReference() = if (isDeclaration) null else super.getReference()
 }
 
 abstract class JuliaMacroSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaMacroSymbol
