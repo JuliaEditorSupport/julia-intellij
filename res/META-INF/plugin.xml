@@ -5,6 +5,7 @@
 
 	<depends>com.intellij.modules.lang</depends>
 	<depends optional="true" config-file="plugin-clion.xml">com.intellij.modules.clion</depends>
+	<depends optional="true" config-file="plugin-goland.xml">com.intellij.modules.go</depends>
 	<extensions defaultExtensionNs="com.intellij">
 		<internalFileTemplate name="Julia Module"/>
 		<gotoClassContributor implementation="org.ice1000.julia.lang.psi.JuliaModuleNavigationContributor"/>
@@ -118,7 +119,7 @@
 			class="org.ice1000.julia.lang.action.NewJuliaProject"
 			text="New Julia Project"
 			description="Create a new Julia file">
-			<!--<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewProject"/>-->
+			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewProject"/>
 		</action>
 		<action
 			id="Julia.TryEvaluate"
