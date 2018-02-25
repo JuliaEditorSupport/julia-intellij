@@ -85,7 +85,7 @@ fun installDocumentFormat(
 	ProgressManager.getInstance()
 		.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.doc-format.installing"), true) {
 			override fun run(indicator: ProgressIndicator) {
-				// indicator.text = JuliaBundle.message("julia.messages.auto-format.installing")
+				indicator.text = JuliaBundle.message("julia.messages.doc-format.installing")
 				executeJulia(settings.exePath, DOCFMT_INSTALL, 1000000L)
 			}
 

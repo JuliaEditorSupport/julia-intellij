@@ -14,6 +14,7 @@ interface DocStringOwner {
 }
 
 interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
+	val returnType: Type
 	val paramsText: String
 	val typeParamsText: String
 }
@@ -51,7 +52,7 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 }
 
 abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(node), JuliaTypedNamedVariable {
-	override var type: String? = null
+	override var type: Type? = null
 		set(value) = Unit
 
 	override fun getNameIdentifier() = firstChild as? JuliaSymbol
@@ -73,6 +74,9 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	override var docString: JuliaString? = null
 	private var paramsTextCache: String? = null
 	private var typeParamsTextCache: String? = null
+	override val returnType: Type
+		get() = "<unsupported>"
+
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
 	override val typeParamsText: String
 		get() = typeParamsTextCache ?: typeParameters?.exprList
@@ -128,7 +132,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 
 abstract class JuliaMacroMixin(node: ASTNode) : JuliaDeclaration(node), JuliaMacro {
 	override var docString: JuliaString? = null
-	override var type: String? = null
+	override var type: Type? = null
 	override fun getNameIdentifier() = symbol
 }
 
@@ -140,7 +144,7 @@ interface IJuliaString : PsiLanguageInjectionHost {
 
 @Suppress("HasPlatformType")
 abstract class JuliaStringMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaString {
-	override var type: String? = "String"
+	override var type: Type? = "String"
 	override var isDocString = false
 	override fun isValidHost() = true
 	override fun createLiteralTextEscaper() = LiteralTextEscaper.createSimple(this)
@@ -154,7 +158,7 @@ interface IJuliaRegex : PsiLanguageInjectionHost {
 
 @Suppress("HasPlatformType")
 abstract class JuliaRegexMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaRegex {
-	override var type: String? = "Regex"
+	override var type: Type? = "Regex"
 	override fun isValidHost() = true
 	override fun createLiteralTextEscaper() = LiteralTextEscaper.createSimple(this)
 	override fun updateText(s: String) = ElementManipulators.handleContentChange(this, s)
@@ -199,10 +203,11 @@ abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), 
 			override fun getElement() = this@JuliaAbstractSymbol
 		}
 	}
-	override var type: String? = null
+	override var type: Type? = null
 
 	/** For [JuliaSymbolMixin], we cannot have a reference if it's a declaration. */
 	override fun getReference() = referenceImpl
+
 	override fun getNameIdentifier(): JuliaAbstractSymbol? = this
 	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
 	override fun getName() = text
@@ -240,11 +245,11 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 abstract class JuliaMacroSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaMacroSymbol
 
 interface IJuliaExpr : PsiElement {
-	var type: String?
+	var type: Type?
 }
 
 abstract class JuliaExprMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaExpr {
-	override var type: String? = null
+	override var type: Type? = null
 	override fun subtreeChanged() {
 		type = null
 		super.subtreeChanged()

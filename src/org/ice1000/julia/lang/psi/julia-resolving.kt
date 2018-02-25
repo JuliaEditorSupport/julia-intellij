@@ -7,8 +7,8 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
+import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaTokenType
-import org.ice1000.julia.lang.editing.*
 import org.ice1000.julia.lang.orFalse
 
 /**
@@ -108,13 +108,50 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 	override val candidateSet = ArrayList<LookupElementBuilder>(20)
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
 		if (element is JuliaSymbol) {
+			val (icon, value, tail, type) = when {
+				element.isVariableName -> quadOf(
+					JuliaIcons.JULIA_VARIABLE_ICON,
+					element.text,
+					null,
+					element.type ?: "<unknown>"
+				)
+				element.isModuleName -> quadOf(
+					JuliaIcons.JULIA_MODULE_ICON,
+					element.text,
+					element.containingFile.virtualFile?.name?.let { "in $it" }.orEmpty(),
+					null
+				)
+				element.isMacroName -> quadOf(
+					JuliaIcons.JULIA_MACRO_ICON,
+					"@${element.text}",
+					null,
+					null
+				)
+				element.isFunctionName -> (element.parent as? JuliaFunction)?.let { function ->
+					quadOf(
+						JuliaIcons.JULIA_FUNCTION_ICON,
+						element.text,
+						function.paramsText,
+						function.returnType
+					)
+				} ?: quadOf(JuliaIcons.JULIA_FUNCTION_ICON, element.text, null, null)
+				element.isTypeName or
+					element.isPrimitiveTypeName or
+					element.isAbstractTypeName -> quadOf(
+					JuliaIcons.JULIA_TYPE_ICON,
+					element.text,
+					null,
+					null
+				)
+				else -> return true
+			}
 			if (element.isDeclaration and element.hasNoError and isInScope(element)) candidateSet += LookupElementBuilder
-				.create(element.presentText())
-				.withIcon(element.presentIcon())
+				.create(value)
+				.withIcon(icon)
 				// tail text, it will not be completed by Enter Key press
-				.withTailText(element.tailText(), true)
+				.withTailText(tail, true)
 				// the type of return value,show at right of popup
-				.withTypeText(element.typeText(), true)
+				.withTypeText(type, true)
 		}
 		return true
 	}

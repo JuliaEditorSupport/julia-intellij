@@ -49,19 +49,3 @@ fun PsiElement.presentText(): String = when (this) {
 	is JuliaTypeOp -> exprList.first().text
 	else -> text
 }
-
-fun PsiElement.presentIcon() = when (this) {
-	is JuliaFile -> PsiIconUtil.getProvidersIcon(this, 0)
-	is IJuliaFunctionDeclaration -> JuliaIcons.JULIA_FUNCTION_ICON
-	is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
-	is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
-	is JuliaWhileExpr -> JuliaIcons.JULIA_WHILE_ICON
-	is JuliaTypeOp -> JuliaIcons.JULIA_VARIABLE_ICON
-	is JuliaIfExpr -> JuliaIcons.JULIA_IF_ICON
-	is JuliaAssignOp ->
-		if (exprList.firstOrNull()?.let { it.firstChild.node.elementType == JuliaTypes.CONST_KEYWORD }.orFalse())
-			JuliaIcons.JULIA_CONST_ICON
-		else JuliaIcons.JULIA_VARIABLE_ICON
-	is JuliaSymbol -> if (isFieldInTypeDeclaration) JuliaIcons.JULIA_VARIABLE_ICON else JuliaIcons.JULIA_BIG_ICON
-	else -> JuliaIcons.JULIA_BIG_ICON
-}
