@@ -104,21 +104,13 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 	override val candidateSet = ArrayList<LookupElementBuilder>(20)
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
 		if (element is JuliaSymbol) {
-			if (element.isDeclaration and element.hasNoError and isInScope(element)) {
-				val symbol = element.text
-				val elem = element
-				val text = elem.presentText()
-//				the type of return value,show at right of popup
-				val typeText = elem.typeText()
-//				tail text, it will not be completed by Enter Key press
-				val tailText = elem.tailText()
-				val icon = elem.presentIcon()
-				candidateSet += LookupElementBuilder
-					.create(text)
-					.withIcon(icon)
-					.withTailText(tailText, true)
-					.withTypeText(typeText, true)
-			}
+			if (element.isDeclaration and element.hasNoError and isInScope(element)) candidateSet += LookupElementBuilder
+				.create(element.presentText())
+				.withIcon(element.presentIcon())
+				// tail text, it will not be completed by Enter Key press
+				.withTailText(element.tailText(), true)
+				// the type of return value,show at right of popup
+				.withTypeText(element.typeText(), true)
 		}
 		return true
 	}
