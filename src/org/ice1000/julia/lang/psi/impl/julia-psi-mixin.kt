@@ -47,7 +47,7 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		processDeclTrivial(processor, substitutor, lastParent, place) && nameIdentifier?.let { processor.execute(it, substitutor) }.orFalse()
+		processDeclTrivial(processor, substitutor, lastParent, place) and nameIdentifier?.let { processor.execute(it, substitutor) }.orFalse()
 }
 
 abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(node), JuliaTypedNamedVariable {
@@ -96,9 +96,9 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		super.processDeclarations(processor, substitutor, lastParent, place) &&
+		super.processDeclarations(processor, substitutor, lastParent, place) and
 			functionSignature?.run {
-				typedNamedVariableList.all { processor.execute(it, substitutor) }
+				typedNamedVariableList.all { processor.execute(it.firstChild, substitutor) }
 			}.orFalse()
 }
 

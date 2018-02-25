@@ -53,7 +53,8 @@ class JuliaFormattingModelBuilder : FormattingModelBuilder {
 //		val spacesAroundAssign = if (commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS) 1 else 0
 		val tokenSetForCommaAndSemi=TokenSet.create(JuliaTypes.COMMA_SYM,JuliaTypes.SEMICOLON_SYM)
 		val tokenSetForBinaryOp=TokenSet.create(
-			JuliaTypes.EQ_SYM,
+			JuliaTypes.DOUBLE_COLON,
+			JuliaTypes.SUBTYPE_SYM,
 			JuliaTypes.ARROW_SYM,
 			JuliaTypes.COMPARISON_LEVEL_OPERATOR,
 			JuliaTypes.PIPE_LEVEL_OPERATOR,
