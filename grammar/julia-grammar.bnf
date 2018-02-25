@@ -143,7 +143,10 @@ typedNamedVariable ::=
  (
    symbol typeAnnotation?
  | symbol? typeAnnotation
- ) (EQ_SYM expr)?
+ ) (EQ_SYM expr)? {
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaTypedNamedVariableMixin'
+	implements=['com.intellij.psi.PsiNameIdentifierOwner']
+}
 
 typeParameters ::=
  LEFT_B_BRACKET endOfLine

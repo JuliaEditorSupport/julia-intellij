@@ -13,7 +13,7 @@ import org.ice1000.julia.lang.JuliaTokenType
  * @author ice1000
  * element should be [JuliaSymbol] or [JuliaMacroSymbol]
  */
-abstract class JuliaSymbolRef( private var refTo: PsiElement? = null) : PsiPolyVariantReference {
+abstract class JuliaSymbolRef(private var refTo: PsiElement? = null) : PsiPolyVariantReference {
 	private val range = TextRange(0, element.textLength)
 	override fun equals(other: Any?) = (other as? JuliaSymbolRef)?.element == element
 	override fun hashCode() = element.hashCode()
@@ -42,23 +42,18 @@ abstract class JuliaSymbolRef( private var refTo: PsiElement? = null) : PsiPolyV
 
 	private companion object ResolverHolder {
 		private val symbolResolver = ResolveCache.PolyVariantResolver<JuliaSymbolRef> { ref, incompleteCode ->
-			val processor = SymbolResolveProcessor(ref, incompleteCode)
-			treeWalkUp(processor, ref.element, ref.element.containingFile)
-			PsiTreeUtil
-				// TODO workaround for KT-22916
-				.getParentOfType(ref.element, JuliaStatements::class.java)
-				?.processDeclarations(processor, ResolveState.initial(), ref.element, processor.place)
-			return@PolyVariantResolver processor.candidateSet.toTypedArray()
+			resolveWith(SymbolResolveProcessor(ref, incompleteCode), ref)
 		}
 
 		private val macroResolver = ResolveCache.PolyVariantResolver<JuliaSymbolRef> { ref, incompleteCode ->
-			val processor = MacroSymbolResolveProcessor(ref, incompleteCode)
+			resolveWith(MacroSymbolResolveProcessor(ref, incompleteCode), ref)
+		}
+
+		private inline fun <reified T> resolveWith(
+			processor: ResolveProcessor<T>,
+			ref: JuliaSymbolRef): Array<T> {
 			treeWalkUp(processor, ref.element, ref.element.containingFile)
-			PsiTreeUtil
-				// TODO workaround for KT-22916
-				.getParentOfType(ref.element, JuliaStatements::class.java)
-				?.processDeclarations(processor, ResolveState.initial(), ref.element, processor.place)
-			return@PolyVariantResolver processor.candidateSet.toTypedArray()
+			return processor.candidateSet.toTypedArray()
 		}
 	}
 }
