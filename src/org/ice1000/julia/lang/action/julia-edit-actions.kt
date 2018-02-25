@@ -111,7 +111,7 @@ class JuliaUnicodeInputAction : JuliaAction(
 	}
 
 	override fun update(e: AnActionEvent) {
-		e.presentation.isEnabledAndVisible = fileType(e) && e.project?.run { juliaSettings.settings.unicodeEnabled } == true
+		e.presentation.isEnabledAndVisible = fileType(e) and e.project?.run { juliaSettings.settings.unicodeEnabled }.orFalse()
 	}
 }
 

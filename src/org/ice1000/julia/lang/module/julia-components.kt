@@ -5,8 +5,7 @@ import com.intellij.notification.*
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
-import org.ice1000.julia.lang.JULIA_PLUGIN_ID
-import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.*
 import org.jetbrains.annotations.Nls
 
 class JuliaApplicationComponent(private val project: Project) : ProjectComponent {
@@ -15,7 +14,7 @@ class JuliaApplicationComponent(private val project: Project) : ProjectComponent
 	override fun getComponentName() = "JuliaApplicationComponent"
 	override fun projectOpened() {
 		super.projectOpened()
-		val isNightly = PluginManager.getPlugin(PluginId.getId(JULIA_PLUGIN_ID))?.run { '-' in version } == true
+		val isNightly = PluginManager.getPlugin(PluginId.getId(JULIA_PLUGIN_ID))?.run { '-' in version }.orFalse()
 		if (!validateJulia(project.juliaSettings.settings)) notify(
 			JuliaBundle.message("julia.messages.notify.invalid-julia.title"),
 			JuliaBundle.message("julia.messages.notify.invalid-julia.content"),

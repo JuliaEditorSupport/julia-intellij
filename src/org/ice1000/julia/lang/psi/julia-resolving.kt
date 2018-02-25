@@ -60,7 +60,6 @@ abstract class ResolveProcessor<ResolveResult>(val place: PsiElement) : PsiScope
 	abstract val candidateSet: ArrayList<ResolveResult>
 	override fun handleEvent(event: PsiScopeProcessor.Event, o: Any?) = Unit
 	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
-	protected val PsiElement.canResolve get() = this is JuliaSymbol
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
 	// TODO add definitions
 	protected fun isInScope(element: PsiElement) = if (element is JuliaSymbol) when {
@@ -81,8 +80,8 @@ open class SymbolResolveProcessor(
 	protected open fun accessible(element: PsiElement) = name == element.text && isInScope(element)
 	override fun execute(element: PsiElement, resolveState: ResolveState) = when {
 		candidateSet.isNotEmpty() -> false
-		element.canResolve -> {
-			val accessible = accessible(element)
+		element is JuliaSymbol -> {
+			val accessible = accessible(element) and element.isDeclaration
 			if (accessible and element.hasNoError) candidateSet += PsiElementResolveResult(element, true)
 			!accessible
 		}
@@ -103,9 +102,11 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 
 	override val candidateSet = ArrayList<LookupElementBuilder>(20)
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
-		if (element.canResolve and element.hasNoError and isInScope(element)) {
-			val symbol = element.text
-			// TODO add to result
+		if (element is JuliaSymbol) {
+			if (element.isDeclaration and element.hasNoError and isInScope(element)) {
+				val symbol = element.text
+				// TODO add to result
+			}
 		}
 		return true
 	}

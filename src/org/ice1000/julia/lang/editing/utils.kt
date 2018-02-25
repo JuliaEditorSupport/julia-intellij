@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.PsiIconUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaFile
+import org.ice1000.julia.lang.orFalse
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
@@ -30,38 +31,22 @@ val PsiElement.canBeNamed
 		this is JuliaAssignOp ||
 		this is JuliaSymbol
 
-val JuliaAssignOp.varOrConstIcon
-	get() = if (exprList.firstOrNull()?.let { it.firstChild.node.elementType == JuliaTypes.CONST_KEYWORD } == true)
-		JuliaIcons.JULIA_CONST_ICON
-	else JuliaIcons.JULIA_VARIABLE_ICON
-
-val JuliaIfExpr.compareText get() = "if ${statements.exprList.firstOrNull()?.text.orEmpty()}"
-val JuliaElseIfClause.compareText get() = "elseif ${statements.exprList.firstOrNull()?.text.orEmpty()}"
-val JuliaWhileExpr.compareText get() = "while ${expr?.text.orEmpty()}"
-
-val JuliaTypeOp.lhsText: String get() = exprList.first().text
 val IJuliaFunctionDeclaration.toText get() = "$name$typeParamsText$paramsText"
-
-val JuliaAssignOp.varOrConstName: String
-	get() = exprList.first().let { if (it is JuliaSymbolLhs) it.symbolList.last().text else it.text }
 
 val PsiElement.isFieldInTypeDeclaration: Boolean
 	get() = parent is JuliaStatements && parent.parent is JuliaTypeDeclaration
 
-val JuliaSymbol.itsIcon
-	get() = if (isFieldInTypeDeclaration) JuliaIcons.JULIA_VARIABLE_ICON else JuliaIcons.JULIA_BIG_ICON
-
 fun PsiElement.presentText(): String = when (this) {
 	is JuliaFile -> originalFile.name
-	is JuliaIfExpr -> compareText
+	is JuliaIfExpr -> "if ${statements.exprList.firstOrNull()?.text.orEmpty()}"
 	is JuliaElseClause -> "else"
-	is JuliaElseIfClause -> compareText
-	is JuliaAssignOp -> varOrConstName
-	is JuliaWhileExpr -> compareText
+	is JuliaElseIfClause -> "elseif ${statements.exprList.firstOrNull()?.text.orEmpty()}"
+	is JuliaAssignOp -> exprList.first().let { if (it is JuliaSymbolLhs) it.symbolList.last().text else it.text }
+	is JuliaWhileExpr -> "while ${expr?.text.orEmpty()}"
 	is JuliaTypeDeclaration -> "type ${exprList.first().text}"
 	is JuliaModuleDeclaration -> "module ${symbol.text}"
 	is IJuliaFunctionDeclaration -> toText
-	is JuliaTypeOp -> lhsText
+	is JuliaTypeOp -> exprList.first().text
 	else -> text
 }
 
@@ -73,7 +58,10 @@ fun PsiElement.presentIcon() = when (this) {
 	is JuliaWhileExpr -> JuliaIcons.JULIA_WHILE_ICON
 	is JuliaTypeOp -> JuliaIcons.JULIA_VARIABLE_ICON
 	is JuliaIfExpr -> JuliaIcons.JULIA_IF_ICON
-	is JuliaAssignOp -> varOrConstIcon
-	is JuliaSymbol -> itsIcon
+	is JuliaAssignOp ->
+		if (exprList.firstOrNull()?.let { it.firstChild.node.elementType == JuliaTypes.CONST_KEYWORD }.orFalse())
+			JuliaIcons.JULIA_CONST_ICON
+		else JuliaIcons.JULIA_VARIABLE_ICON
+	is JuliaSymbol -> if (isFieldInTypeDeclaration) JuliaIcons.JULIA_VARIABLE_ICON else JuliaIcons.JULIA_BIG_ICON
 	else -> JuliaIcons.JULIA_BIG_ICON
 }

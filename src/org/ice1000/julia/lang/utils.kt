@@ -73,9 +73,8 @@ private fun collectLines(it: InputStream): List<String> {
 }
 
 fun TextRange.narrow(fromStart: Int, toEnd: Int) = TextRange(startOffset + fromStart, endOffset - toEnd)
-fun TextRange.subRangeBeginOffsetAndLength(
-	beginOffset: Int,
-	textLength: Int) = TextRange(startOffset + beginOffset, startOffset + beginOffset + textLength)
+fun TextRange.subRangeBeginOffsetAndLength(beginOffset: Int, textLength: Int) =
+	TextRange(startOffset + beginOffset, startOffset + beginOffset + textLength)
 
 fun String.trimQuotePair() = trim('\'', '\"', '`')
 
@@ -98,3 +97,4 @@ fun String.splitsOf(someStr: String, expandSize: Int): Array<String> {
 }
 
 fun Boolean.toYesNo() = if (this) "yes" else "no"
+fun Boolean?.orFalse() = true == this

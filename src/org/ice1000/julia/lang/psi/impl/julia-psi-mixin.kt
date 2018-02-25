@@ -6,6 +6,7 @@ import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.JuliaTokenType
+import org.ice1000.julia.lang.orFalse
 import org.ice1000.julia.lang.psi.*
 
 interface DocStringOwner {
@@ -46,7 +47,7 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		processDeclTrivial(processor, substitutor, lastParent, place) && true == nameIdentifier?.let { processor.execute(it, substitutor) }
+		processDeclTrivial(processor, substitutor, lastParent, place) && nameIdentifier?.let { processor.execute(it, substitutor) }.orFalse()
 }
 
 abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(node), JuliaTypedNamedVariable {
@@ -92,6 +93,13 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 		typeParamsTextCache = null
 		super.subtreeChanged()
 	}
+
+	override fun processDeclarations(
+		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+		super.processDeclarations(processor, substitutor, lastParent, place) &&
+			functionSignature?.run {
+				typedNamedVariableList.all { processor.execute(it, substitutor) }
+			}.orFalse()
 }
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
