@@ -140,8 +140,6 @@ $JULIA_DOC_SURROUNDING
 
 	private fun multiplyLevelOp(element: JuliaMultiplyLevelOp, holder: AnnotationHolder) {
 		when (element.multiplyLevelOperator.text.firstOrNull()) {
-			'/', '%' ->
-			'\\' ->
 		}
 	}
 
@@ -157,9 +155,6 @@ $JULIA_DOC_SURROUNDING
 				registerFix(JuliaReplaceWithTextIntention(element, "$left \u22bb= $right",
 					JuliaBundle.message("julia.lint.xor-is-replace-22bb", left, right)))
 			}
-
-			'/', '%' ->
-			'\\' ->
 		}
 	}
 
