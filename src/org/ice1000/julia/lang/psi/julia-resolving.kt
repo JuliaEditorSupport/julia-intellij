@@ -49,9 +49,7 @@ abstract class JuliaSymbolRef(private var refTo: PsiElement? = null) : PsiPolyVa
 			resolveWith(MacroSymbolResolveProcessor(ref, incompleteCode), ref)
 		}
 
-		private inline fun <reified T> resolveWith(
-			processor: ResolveProcessor<T>,
-			ref: JuliaSymbolRef): Array<T> {
+		private inline fun <reified T> resolveWith(processor: ResolveProcessor<T>, ref: JuliaSymbolRef): Array<T> {
 			treeWalkUp(processor, ref.element, ref.element.containingFile)
 			return processor.candidateSet.toTypedArray()
 		}
@@ -66,17 +64,10 @@ abstract class ResolveProcessor<ResolveResult>(val place: PsiElement) : PsiScope
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
 	// TODO add definitions
 	protected fun isInScope(element: PsiElement) = if (element is JuliaSymbol) when {
-		element.isFunctionName ||
-			element.isModuleName ||
-			element.isMacroName ||
-			element.isAbstractTypeName ||
-			element.isPrimitiveTypeName ||
-			element.isTypeName -> default(element)
+		element.isFunctionParameter -> PsiTreeUtil.isAncestor(element.parent.parent, place, true)
+		element.isDeclaration -> PsiTreeUtil.isAncestor(PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), place, false)
 		else -> false
 	} else false
-
-	private fun default(element: PsiElement) =
-		PsiTreeUtil.isAncestor(PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), place, false)
 }
 
 open class SymbolResolveProcessor(
