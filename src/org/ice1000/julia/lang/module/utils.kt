@@ -79,7 +79,7 @@ fun validateJuliaExe(exePath: String) = versionOf(exePath) != JuliaBundle.messag
 fun validateJulia(settings: JuliaSettings) = settings.version
 	.let { it.isNotBlank() && it != JuliaBundle.message("julia.modules.sdk.unknown-version") }
 
-fun installAutoFormat(
+fun installDocumentFormat(
 	project: Project,
 	settings: JuliaSettings): ActionListener = ActionListener {
 	ProgressManager.getInstance()

@@ -128,7 +128,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		else
 			juliaExeField.text = defaultExePath
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
-		installAutoFormatButton.addActionListener(installAutoFormat(project, settings))
+		installAutoFormatButton.addActionListener(installDocumentFormat(project, settings))
 	}
 
 	override fun getDisplayName() = JuliaBundle.message("julia.name")
