@@ -48,7 +48,6 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 	override fun getConfigurationEditor() = JuliaRunConfigurationEditorImpl(this, project)
 	override fun getState(executor: Executor, env: ExecutionEnvironment) = JuliaCommandLineState(this, env)
 	override fun writeExternal(element: Element) {
-		PathMacroManager.getInstance(project).expandPaths(element)
 		super.writeExternal(element)
 		JDOMExternalizer.write(element, "workingDir", workingDir)
 		JDOMExternalizer.write(element, "targetFile", targetFile)
@@ -70,10 +69,12 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.write(element, "historyOption", historyOption)
 		JDOMExternalizer.write(element, "launchReplOption", launchReplOption)
 		JDOMExternalizer.write(element, "optimizationLevel", optimizationLevel)
+		PathMacroManager.getInstance(project).collapsePathsRecursively(element)
 	}
 
 	override fun readExternal(element: Element) {
 		super.readExternal(element)
+		PathMacroManager.getInstance(project).expandPaths(element)
 		JDOMExternalizer.readString(element, "workingDir")?.let { workingDir = it }
 		JDOMExternalizer.readString(element, "targetFile")?.let { targetFile = it }
 		JDOMExternalizer.readString(element, "additionalOptions")?.let { additionalOptions = it }
@@ -94,7 +95,6 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JDOMExternalizer.readBoolean(element, "historyOption").let { historyOption = it }
 		JDOMExternalizer.readBoolean(element, "launchReplOption").let { launchReplOption = it }
 		JDOMExternalizer.readInteger(element, "optimizationLevel", 3).let { optimizationLevel = it }
-		PathMacroManager.getInstance(project).collapsePathsRecursively(element)
 	}
 }
 
@@ -103,11 +103,12 @@ class JuliaRunConfigurationFactory(type: JuliaRunConfigurationType) : Configurat
 }
 
 object JuliaRunConfigurationType : ConfigurationType {
+	private val factories = arrayOf(JuliaRunConfigurationFactory(this))
 	override fun getIcon() = JuliaIcons.JULIA_BIG_ICON
 	override fun getConfigurationTypeDescription() = JuliaBundle.message("julia.run-config.description")
 	override fun getId() = JULIA_RUN_CONFIG_ID
 	override fun getDisplayName() = JuliaBundle.message("julia.name")
-	override fun getConfigurationFactories() = arrayOf(JuliaRunConfigurationFactory(this))
+	override fun getConfigurationFactories() = factories
 }
 
 class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfiguration>(JuliaRunConfigurationType) {

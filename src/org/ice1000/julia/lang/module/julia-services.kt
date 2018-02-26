@@ -18,7 +18,7 @@ val Project.juliaSettings: JuliaProjectSettingsService
 @State(
 	name = "JuliaProjectSettings",
 	storages = [
-		Storage(file = "\$PROJECT_FILE\$"),
+		Storage(file = "juliaConfig.xml", scheme = StorageScheme.DIRECTORY_BASED),
 		Storage(file = "\$PROJECT_CONFIG_DIR\$/juliaConfig.xml", scheme = StorageScheme.DIRECTORY_BASED)])
 class JuliaProjectSettingsServiceImpl :
 	JuliaProjectSettingsService, PersistentStateComponent<JuliaSettings> {

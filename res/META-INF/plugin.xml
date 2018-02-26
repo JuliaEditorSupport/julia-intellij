@@ -74,7 +74,7 @@
 		<lang.formatter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFormattingModelBuilder"/>
-		<projectService
+		<applicationService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
 		<lang.elementManipulator
@@ -110,16 +110,19 @@
 	<actions>
 		<action
 			id="Julia.UnicodeInput"
+			icon="JuliaIcons.JULIA_BIG_ICON"
 			class="org.ice1000.julia.lang.action.JuliaUnicodeInputAction">
 			<keyboard-shortcut first-keystroke="BACK_SLASH" keymap="$default"/>
 		</action>
 		<action
 			id="Julia.NewJuliaFile"
+			icon="JuliaIcons.JULIA_BIG_ICON"
 			class="org.ice1000.julia.lang.action.NewJuliaFile">
 			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
 		</action>
 		<action
 			id="Julia.NewJuliaProject"
+			icon="JuliaIcons.JULIA_BIG_ICON"
 			class="org.ice1000.julia.lang.action.NewJuliaProject"
 			text="New Julia Project"
 			description="Create a new Julia file">
@@ -127,6 +130,7 @@
 		</action>
 		<action
 			id="Julia.TryEvaluate"
+			icon="JuliaIcons.JULIA_BIG_ICON"
 			class="org.ice1000.julia.lang.action.JuliaTryEvaluateAction">
 			<keyboard-shortcut keymap="$default" first-keystroke="ctrl shift e"/>
 			<add-to-group group-id="EditorPopupMenu1" anchor="first"/>
@@ -138,6 +142,7 @@
 			popup="true">
 			<action
 				id="Julia.Tools.DocumentFormat"
+				icon="JuliaIcons.JULIA_BIG_ICON"
 				class="org.ice1000.julia.lang.action.JuliaDocumentFormatAction">
 			</action>
 			<add-to-group group-id="ToolsMenu" anchor="last"/>
