@@ -16,11 +16,13 @@ import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Dimension
 import javax.swing.*
 
+/**
+ * icon is configured in plugin.xml
+ */
 abstract class JuliaAction(
 	text: String?,
-	description: String?,
-	icon: Icon? = JuliaIcons.JULIA_BIG_ICON) :
-	AnAction(text, description, icon) {
+	description: String?) :
+	AnAction(text, description, null) {
 	protected fun fileType(e: AnActionEvent) = e.getData(CommonDataKeys.VIRTUAL_FILE)?.fileType == JuliaFileType
 	override fun update(e: AnActionEvent) {
 		e.presentation.isEnabledAndVisible = fileType(e)
