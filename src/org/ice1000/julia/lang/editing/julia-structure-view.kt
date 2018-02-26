@@ -14,6 +14,9 @@ import org.ice1000.julia.lang.orFalse
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
+/**
+ * Alt + 7弹出来的那个玩意
+ */
 class JuliaStructureViewModel(root: PsiFile, editor: Editor?) :
 	StructureViewModelBase(root, editor, JuliaStructureViewElement(root)),
 	StructureViewModel.ElementInfoProvider {
@@ -33,13 +36,16 @@ class JuliaStructureViewModel(root: PsiFile, editor: Editor?) :
 
 	override fun shouldEnterElement(o: Any?) = true
 	override fun isAlwaysShowsPlus(element: StructureViewTreeElement) = false
-	override fun isAlwaysLeaf(element: StructureViewTreeElement) = element is JuliaFunction
+	override fun isAlwaysLeaf(element: StructureViewTreeElement) = element is JuliaFunction		//判断是否永远为`叶子`
 }
 
+/**
+ * Structure View 的元素s
+ */
 class JuliaStructureViewElement(private val root: NavigatablePsiElement) :
 	StructureViewTreeElement, ItemPresentation, SortableTreeElement, Navigatable by root {
 	override fun getLocationString() = ""
-	override fun getIcon(open: Boolean) = when (root) {
+	override fun getIcon(open: Boolean) = when (root) {		//根据类型获取icon
 		is JuliaFile -> PsiIconUtil.getProvidersIcon(root, 0)
 		is IJuliaFunctionDeclaration -> JuliaIcons.JULIA_FUNCTION_ICON
 		is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON

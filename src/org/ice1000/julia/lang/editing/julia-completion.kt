@@ -19,7 +19,7 @@ open class JuliaCompletionProvider(private val list: List<LookupElement>) : Comp
 
 class JuliaBasicCompletionContributor : CompletionContributor() {
 	private companion object CompletionHolder {
-		private val statementBegin = listOf(
+		private val statementBegin = listOf(	//关键字s
 			"type ",
 			"abstract type ",
 			"primitive type ",
@@ -44,23 +44,23 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"macro ",
 			"function ",
 			"end"
-		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
-		private val tryInside = listOf(
+		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }		//搞成LookupElementBuilder
+		private val tryInside = listOf(			//try块里的东西
 			"catch ",
 			"finally"
 		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
-		private val loopInside = listOf(
+		private val loopInside = listOf(		//loop块里的东西
 			"break",
 			"continue"
 		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
-		private val ifInside = listOf(
+		private val ifInside = listOf(			//if块里的东西
 			"elseif ",
 			"else"
 		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
 		private val functionInside = listOf(LookupElementBuilder.create("return"))
 
 		// FIXME temp workaround. Should be replaced by reference resolving.
-		private val builtinFunction = listOf(
+		private val builtinFunction = listOf(		//函数s
 			"typeof",
 			"isa",
 			"sqrt",
@@ -108,11 +108,14 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 
 	}
 
+	/**
+	 * 什么时候需要提示呢。。。
+	 */
 	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =
-		position.parent !is JuliaString && typeChar in ".([\\"
+		position.parent !is JuliaString && typeChar in ".([\\"		//不是在字符串里 && char是这些字符里的其中之一...
 
 	init {
-		extend(CompletionType.BASIC, psiElement()
+		extend(CompletionType.BASIC, psiElement()		//一堆初始化(>_<)
 			.inside(JuliaFunction::class.java)
 			.afterLeaf(")")
 			.andNot(psiElement()

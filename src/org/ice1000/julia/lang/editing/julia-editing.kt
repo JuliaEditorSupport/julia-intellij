@@ -23,10 +23,15 @@ import org.ice1000.julia.lang.psi.JuliaBlock
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 import javax.swing.Icon
 
+/**
+ * Icon提供
+ * 似乎只给文件提供
+ * ...
+ */
 class JuliaIconProvider : IconProvider() {
 	override fun getIcon(element: PsiElement, flags: Int): Icon? {
-		val file = element as? JuliaFile ?: return null
-		val statements = file.children
+		val file = element as? JuliaFile ?: return null		//获取file
+		val statements = file.children			//balabala...看不懂了啦
 			.firstOrNull { it is JuliaStatements }
 			?.let { it as? JuliaStatements } ?: return JuliaIcons.JULIA_ICON
 		val validChildren = statements.children.filterNot {
