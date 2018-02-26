@@ -7,5 +7,5 @@ import javax.swing.*;
 
 public abstract class JuliaPackageManager implements Configurable {
 	protected @NotNull JPanel mainPanel;
-	private JComboBox comboBox1;
+	private JComboBox alternativeExecutables;
 }
