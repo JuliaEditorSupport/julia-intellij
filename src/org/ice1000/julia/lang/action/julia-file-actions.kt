@@ -25,7 +25,7 @@ import javax.swing.*
 /**
  * Create a Julia file from template
  *
- * @author LimbolRain, ice1000
+ * @author HoshinoTented, ice1000
  */
 class NewJuliaFile : CreateFileFromTemplateAction(
 	JuliaBundle.message("julia.actions.new-file.title"),
@@ -46,14 +46,20 @@ class NewJuliaFile : CreateFileFromTemplateAction(
 
 	override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {
 		builder
-			.setTitle(JuliaBundle.message("julia.actions.new-file.title"))
+			.setTitle(JuliaBundle.message("julia.actions.new-file.title"))		//标题
 			.setValidator(JuliaNameValidator)
-			.addKind("File", JuliaIcons.JULIA_ICON, "Julia File")
+			.addKind("File", JuliaIcons.JULIA_ICON, "Julia File")		//添加下拉菜单的选项
 			.addKind("Module", JuliaIcons.JULIA_MODULE_ICON, "Julia Module")
 			.addKind("Type", JuliaIcons.JULIA_TYPE_ICON, "Julia Type")
 			.addKind("Function", JuliaIcons.JULIA_FUNCTION_ICON, "Julia Function")
 	}
 
+	/**
+	 * 从模板里创造文件
+	 * @param name 不知道是啥
+	 * @param template 样板对象
+	 * @param dir 大概是创建文件的文件夹吧
+	 */
 	override fun createFileFromTemplate(name: String, template: FileTemplate, dir: PsiDirectory) = try {
 		val className = FileUtilRt.getNameWithoutExtension(name)
 		val project = dir.project
@@ -72,7 +78,7 @@ class NewJuliaFile : CreateFileFromTemplateAction(
  * @author zxj5470
  * @date 2018/1/30
  */
-class NewJuliaProject : ProjectSettingsStepBase<JuliaSettings>(
+class NewJuliaProject : ProjectSettingsStepBase<JuliaSettings>(		//这个不归我管, 我不懂:(
 	JuliaProjectGenerator(),
 	AbstractNewProjectStep.AbstractCallback<JuliaSettings>()) {
 	override fun actionPerformed(e: AnActionEvent) {

@@ -27,9 +27,17 @@ enum class NumeralType(
 	BigInt(0, ZERO..ZERO);
 }
 
+/**
+ * 代码的高亮提示之类的
+ */
 class JuliaAnnotator : Annotator {
+	/**
+	 * 主入口
+	 * @param element 接受处理的PsiElement
+	 * @param holder 接下来要高亮提示什么的都要靠这玩意
+	 */
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-		when (element) {
+		when (element) {		//根据element的类型处理
 			is JuliaFunction -> function(element, holder)
 			is JuliaCompactFunction -> compactFunction(element, holder)
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
@@ -47,33 +55,44 @@ class JuliaAnnotator : Annotator {
 		}
 	}
 
+	/**
+	 * 紧凑的函数...
+	 * function a(...) = b
+	 */
 	private fun compactFunction(
 		element: JuliaCompactFunction,
 		holder: AnnotationHolder) {
-		val typeParams = element.typeParameters
-		val name = element.name
-		val signature = element.functionSignature
-		val functionBody = element.exprList.lastOrNull()?.text.orEmpty()
-		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.compact-function"))
-			.registerFix(JuliaReplaceWithTextIntention(
-				element, """function ${element.name}${typeParams?.text.orEmpty()}${element.functionSignature.text}
-${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $functionBody\n"}end""",
-				JuliaBundle.message("julia.lint.replace-ordinary-function")))
+		val typeParams = element.typeParameters		//函数的参数s
+		val name = element.name		//函数名
+		val signature = element.functionSignature		//这啥
+		val functionBody = element.exprList.lastOrNull()?.text.orEmpty()		//函数主体
+		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.compact-function"))		//添加提示
+			.registerFix(JuliaReplaceWithTextIntention(		//注册修复事件, 用的是JuliaReplaceWithTextIntention, 就是替换文本
+				element,		//被替换的element
+				"""function ${element.name}${typeParams?.text.orEmpty()}${element.functionSignature.text}
+${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $functionBody\n"}end""",			//替换的文本
+				JuliaBundle.message("julia.lint.replace-ordinary-function")))		//替换事件的文名称
 		docStringFunction(element, signature, holder, name, "", signatureText = signature
 			.typedNamedVariableList
 			.joinToString(", ") { it.exprList.firstOrNull()?.text.orEmpty() }
 			.let { "($it)" })
 	}
 
+	/**
+	 * 普通的函数
+	 * function a(...)
+	 * b
+	 * end
+	 */
 	private fun function(
 		element: JuliaFunction,
 		holder: AnnotationHolder) {
-		val statements = element.statements?.run { exprList + moduleDeclarationList + globalStatementList } ?: return
-		val signature = element.functionSignature
-		val signatureText = signature?.text ?: "()"
-		val typeParamsText = element.typeParameters?.text.orEmpty()
-		val where = element.whereClause
-		val name = element.name
+		val statements = element.statements?.run { exprList + moduleDeclarationList + globalStatementList } ?: return		//不懂
+		val signature = element.functionSignature		//还是不懂
+		val signatureText = signature?.text ?: "()"		//QAQ仍然不懂
+		val typeParamsText = element.typeParameters?.text.orEmpty()		//参数s
+		val where = element.whereClause		//?
+		val name = element.name			//函数名
 		if (where == null) when {
 			statements.isEmpty() -> holder.createWeakWarningAnnotation(element, JuliaBundle.message("julia.lint.empty-function"))
 				.registerFix(JuliaReplaceWithTextIntention(element,
