@@ -8,7 +8,7 @@ import javax.swing.*;
 /**
  * Icon holder, don't change package name because it can be used in plugin.xml
  *
- * @author ice1000
+ * @author ice1000, HoshinoTented
  */
 public interface JuliaIcons {
 	@NotNull Icon JULIA_BIG_ICON = IconLoader.getIcon("/icons/julia.png");
