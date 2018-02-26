@@ -7,8 +7,8 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import org.ice1000.julia.lang.JuliaTokenType
-import org.ice1000.julia.lang.editing.*
+import icons.JuliaIcons
+import org.ice1000.julia.lang.*
 
 /**
  * @author ice1000
@@ -16,11 +16,13 @@ import org.ice1000.julia.lang.editing.*
  */
 abstract class JuliaSymbolRef(private var refTo: PsiElement? = null) : PsiPolyVariantReference {
 	private val range = TextRange(0, element.textLength)
+	private val isDeclaration = (element as? JuliaSymbol)?.isDeclaration.orFalse()
 	override fun equals(other: Any?) = (other as? JuliaSymbolRef)?.element == element
+	abstract override fun getElement(): PsiElement
 	override fun hashCode() = element.hashCode()
 	override fun getRangeInElement() = range
 	override fun isSoft() = true
-	override fun resolve() = multiResolve(false).firstOrNull()?.element
+	override fun resolve() = if (isDeclaration) null else multiResolve(false).firstOrNull()?.element
 	override fun isReferenceTo(element: PsiElement?) = element == refTo || (element as? JuliaSymbol)?.text == this.element.text
 	override fun getVariants(): Array<LookupElementBuilder> {
 		val variantsProcessor = CompletionProcessor(this, true)
@@ -32,7 +34,8 @@ abstract class JuliaSymbolRef(private var refTo: PsiElement? = null) : PsiPolyVa
 	override fun handleElementRename(newName: String) = JuliaTokenType.fromText(newName, element.project).let(element::replace)
 	override fun bindToElement(element: PsiElement) = element.also { refTo = element }
 	override fun multiResolve(incompleteCode: Boolean): Array<out ResolveResult> {
-		val file = element.containingFile?.takeUnless { element.project.isDisposed } ?: return emptyArray()
+		val file = element.containingFile ?: return emptyArray()
+		if (isDeclaration or element.project.isDisposed) return emptyArray()
 		val resolver = when (element) {
 			is JuliaSymbol -> symbolResolver
 			is JuliaMacroSymbol -> macroResolver
@@ -104,13 +107,50 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 	override val candidateSet = ArrayList<LookupElementBuilder>(20)
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
 		if (element is JuliaSymbol) {
+			val (icon, value, tail, type) = when {
+				element.isVariableName -> quadOf(
+					JuliaIcons.JULIA_VARIABLE_ICON,
+					element.text,
+					null,
+					element.type ?: UNKNOWN_VALUE_PLACEHOLDER
+				)
+				element.isModuleName -> quadOf(
+					JuliaIcons.JULIA_MODULE_ICON,
+					element.text,
+					element.containingFile.virtualFile?.name?.let { "in $it" }.orEmpty(),
+					null
+				)
+				element.isMacroName -> quadOf(
+					JuliaIcons.JULIA_MACRO_ICON,
+					"@${element.text}",
+					null,
+					null
+				)
+				element.isFunctionName -> (element.parent as? JuliaFunction)?.let { function ->
+					quadOf(
+						JuliaIcons.JULIA_FUNCTION_ICON,
+						element.text,
+						function.paramsText,
+						function.returnType
+					)
+				} ?: quadOf(JuliaIcons.JULIA_FUNCTION_ICON, element.text, null, null)
+				element.isTypeName or
+					element.isPrimitiveTypeName or
+					element.isAbstractTypeName -> quadOf(
+					JuliaIcons.JULIA_TYPE_ICON,
+					element.text,
+					null,
+					null
+				)
+				else -> return true
+			}
 			if (element.isDeclaration and element.hasNoError and isInScope(element)) candidateSet += LookupElementBuilder
-				.create(element.presentText())
-				.withIcon(element.presentIcon())
+				.create(value)
+				.withIcon(icon)
 				// tail text, it will not be completed by Enter Key press
-				.withTailText(element.tailText(), true)
+				.withTailText(tail, true)
 				// the type of return value,show at right of popup
-				.withTypeText(element.typeText(), true)
+				.withTypeText(type, true)
 		}
 		return true
 	}

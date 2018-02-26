@@ -154,21 +154,3 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			JuliaCompletionProvider(functionInside))
 	}
 }
-
-/**
- * after text but it won't be completed
- */
-fun PsiElement.tailText() = when (this) {
-	is IJuliaFunctionDeclaration -> "$typeParamsText$paramsText"
-	else -> ""
-}
-
-/**
- * right side of popup
- */
-fun PsiElement.typeText() = when (this) {
-//the type of return value
-	is IJuliaFunctionDeclaration -> ""
-	else -> ""
-}
-

@@ -5,8 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import org.ice1000.julia.lang.JuliaTokenType
-import org.ice1000.julia.lang.orFalse
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 
 interface DocStringOwner {
@@ -14,6 +13,7 @@ interface DocStringOwner {
 }
 
 interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
+	val returnType: Type
 	val paramsText: String
 	val typeParamsText: String
 }
@@ -51,7 +51,7 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 }
 
 abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(node), JuliaTypedNamedVariable {
-	override var type: String? = null
+	override var type: Type? = null
 		set(value) = Unit
 
 	override fun getNameIdentifier() = firstChild as? JuliaSymbol
@@ -73,6 +73,7 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	override var docString: JuliaString? = null
 	private var paramsTextCache: String? = null
 	private var typeParamsTextCache: String? = null
+	override val returnType: Type get() = UNKNOWN_VALUE_PLACEHOLDER
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
 	override val typeParamsText: String
 		get() = typeParamsTextCache ?: typeParameters?.exprList
@@ -104,7 +105,14 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
 	override var docString: JuliaString? = null
+	private var body: JuliaExpr? = null
+		get() {
+			if (field == null) field = lastChild as? JuliaExpr ?: return null
+			return field
+		}
+
 	private var paramsTextCache: String? = null
+	override val returnType: Type get() = body?.type ?: UNKNOWN_VALUE_PLACEHOLDER
 	private var typeParamsTextCache: String? = null
 	override fun getNameIdentifier() = exprList.firstOrNull()
 	override val typeParamsText: String
@@ -122,13 +130,14 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 	override fun subtreeChanged() {
 		paramsTextCache = null
 		typeParamsTextCache = null
+		body = null
 		super.subtreeChanged()
 	}
 }
 
 abstract class JuliaMacroMixin(node: ASTNode) : JuliaDeclaration(node), JuliaMacro {
 	override var docString: JuliaString? = null
-	override var type: String? = null
+	override var type: Type? = null
 	override fun getNameIdentifier() = symbol
 }
 
@@ -140,7 +149,7 @@ interface IJuliaString : PsiLanguageInjectionHost {
 
 @Suppress("HasPlatformType")
 abstract class JuliaStringMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaString {
-	override var type: String? = "String"
+	override var type: Type? = "String"
 	override var isDocString = false
 	override fun isValidHost() = true
 	override fun createLiteralTextEscaper() = LiteralTextEscaper.createSimple(this)
@@ -154,7 +163,7 @@ interface IJuliaRegex : PsiLanguageInjectionHost {
 
 @Suppress("HasPlatformType")
 abstract class JuliaRegexMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaRegex {
-	override var type: String? = "Regex"
+	override var type: Type? = "Regex"
 	override fun isValidHost() = true
 	override fun createLiteralTextEscaper() = LiteralTextEscaper.createSimple(this)
 	override fun updateText(s: String) = ElementManipulators.handleContentChange(this, s)
@@ -194,15 +203,14 @@ abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), 
  * and [JuliaSymbolMixin] (see [JuliaSymbolRef]). (for code reuse purpose)
  */
 abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), PsiNameIdentifierOwner, JuliaExpr {
-	private val ref by lazy {
+	private val referenceImpl by lazy {
 		object : JuliaSymbolRef() {
 			override fun getElement() = this@JuliaAbstractSymbol
 		}
 	}
-	override var type: String? = null
 
 	/** For [JuliaSymbolMixin], we cannot have a reference if it's a declaration. */
-	override fun getReference(): JuliaSymbolRef? = ref
+	override fun getReference() = referenceImpl
 
 	override fun getNameIdentifier(): JuliaAbstractSymbol? = this
 	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
@@ -214,7 +222,7 @@ abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), 
 }
 
 abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaSymbol {
-	override val isField: Boolean
+	final override val isField: Boolean
 		get() = parent is JuliaTypeDeclaration && this !== parent.children.firstOrNull { it is JuliaSymbol }
 	final override val isFunctionName by lazy { parent is JuliaFunction || (parent is JuliaCompactFunction && this === parent.firstChild) }
 	final override val isMacroName by lazy { parent is JuliaMacro }
@@ -235,18 +243,28 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			isPrimitiveTypeName
 	}
 
-	override fun getReference() = if (isDeclaration) null else super.getReference()
-	override fun getNameIdentifier() = if (isDeclaration) null else super.getNameIdentifier()
+	final override fun getNameIdentifier() = if (isDeclaration) null else super.getNameIdentifier()
+	override var type: Type? = null
+		get() = if (isVariableName)
+			(parent as JuliaAssignOp)
+				.children
+				.lastOrNull { it is JuliaExpr }
+				?.let { it as JuliaExpr }
+				?.type
+				?.also { field = it }
+		else field
 }
 
-abstract class JuliaMacroSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaMacroSymbol
+abstract class JuliaMacroSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaMacroSymbol {
+	override var type: Type? = null
+}
 
 interface IJuliaExpr : PsiElement {
-	var type: String?
+	var type: Type?
 }
 
 abstract class JuliaExprMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaExpr {
-	override var type: String? = null
+	override var type: Type? = null
 	override fun subtreeChanged() {
 		type = null
 		super.subtreeChanged()

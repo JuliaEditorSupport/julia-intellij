@@ -24,6 +24,8 @@ First install required plugins in your IntelliJ IDEA:
 I've compiled a Grammar-Kit which supports completing Java codes in the jflex code fragment which can be found
 [here](https://github.com/ice1000/julia-intellij/releases/download/0.0.2/grammar-kit-2017.1.1.zip).
 
+For debugging purpose, it's recommended to install a plugin called PsiViewer [![JetBrains Plugins](https://plugins.jetbrains.com/plugin/227-psiviewer)](https://plugins.jetbrains.com/plugin/227-psiviewer).
+
 ### Build
 
 Clone this repo:

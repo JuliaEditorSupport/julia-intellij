@@ -1,4 +1,4 @@
-package org.ice1000.julia.lang.module
+package org.ice1000.julia.lang.module.ui
 
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.ide.util.PropertiesComponent
@@ -12,6 +12,7 @@ import com.intellij.platform.ProjectGeneratorPeer
 import com.intellij.ui.DocumentAdapter
 import org.ice1000.julia.lang.JULIA_SDK_HOME_PATH_ID
 import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.module.*
 import java.text.NumberFormat
 import javax.swing.event.DocumentEvent
 import javax.swing.text.DefaultFormatterFactory
@@ -128,7 +129,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		else
 			juliaExeField.text = defaultExePath
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
-		installAutoFormatButton.addActionListener(installAutoFormat(project, settings))
+		installAutoFormatButton.addActionListener(installDocumentFormat(project, settings))
 	}
 
 	override fun getDisplayName() = JuliaBundle.message("julia.name")
@@ -153,5 +154,20 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		settings.basePath = basePathField.text
 		settings.importPath = importPathField.text
 		settings.unicodeEnabled = unicodeInputCheckBox.isSelected
+	}
+}
+
+/**
+ * TODO PackageManager
+ * Settings(Preference) | Language & Frameworks | Julia | Package Manager
+ */
+class JuliaPackageManagerImpl : JuliaPackageManager() {
+	init {
+	}
+
+	override fun getDisplayName() = JuliaBundle.message("julia.package.manager.title")
+	override fun createComponent() = mainPanel
+	override fun isModified() = false
+	override fun apply() {
 	}
 }

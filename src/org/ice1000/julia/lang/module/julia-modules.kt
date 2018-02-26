@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.PlatformUtils
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.module.ui.JuliaSetupSdkWizardStepImpl
 import java.nio.file.*
 
 class JuliaModuleBuilder : ModuleBuilder() {

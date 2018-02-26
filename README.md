@@ -7,12 +7,29 @@ This is a **work in progress**, some features are implemented partially, there m
 [![JetBrains plugins](https://img.shields.io/jetbrains/plugin/d/10413-julia.svg)](https://plugins.jetbrains.com/plugin/10413-julia)
 [![Join the chat at https://gitter.im/julia-intellij/Lobby](https://badges.gitter.im/julia-intellij/Lobby.svg)](https://gitter.im/julia-intellij/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-CI | Status
-:---:|:---:
-Travis CI (with IdeaC)|[![Travis CI Build status](https://travis-ci.org/ice1000/julia-intellij.svg)](https://travis-ci.org/ice1000/julia-intellij)
-AppVeyor (on Windows)|[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/jboqu7yt2vhqpmfr?svg=true)](https://ci.appveyor.com/project/ice1000/julia-intellij)
-CircleCI (with tests)|[![CircleCI Build status](https://circleci.com/gh/ice1000/julia-intellij.svg?style=svg)](https://circleci.com/gh/ice1000/julia-intellij)
-CodeShip (branch master)|[![CodeShip Build status](https://app.codeship.com/projects/4c89a940-ec81-0135-9688-6eaa099eb415/status?branch=master)](https://app.codeship.com/projects/270342)
+<style>td, th {border: 1px solid #e1e4e5 !important;border-collapse: collapse;}</style>
+<table>
+  <tr>
+    <th>CI</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>Travis CI (with IdeaC)</td>
+    <td><a href="https://travis-ci.org/ice1000/julia-intellij"><img src="https://travis-ci.org/ice1000/julia-intellij.svg" alt="Travis CI Build status"></a></td>
+  </tr>
+  <tr>
+    <td>AppVeyor (on Windows)</td>
+    <td><a href="https://ci.appveyor.com/project/ice1000/julia-intellij"><img src="https://ci.appveyor.com/api/projects/status/jboqu7yt2vhqpmfr?svg=true" alt="AppVeyor Build status"></a></td>
+  </tr>
+  <tr>
+    <td>CircleCI (with tests)</td>
+    <td><a href="https://circleci.com/gh/ice1000/julia-intellij"><img src="https://circleci.com/gh/ice1000/julia-intellij.svg?style=svg" alt="CircleCI Build status"></a></td>
+  </tr>
+  <tr>
+    <td>CodeShip (branch master)</td>
+    <td><a href="https://app.codeship.com/projects/270342"><img src="https://app.codeship.com/projects/4c89a940-ec81-0135-9688-6eaa099eb415/status?branch=master" alt="CodeShip Build status"></a></td>
+  </tr>
+</table>
 
 ## Installation \& Usage
 
@@ -47,18 +64,9 @@ you'll find 4 related repositories:
 + snefru/juliafy (incomplete syntax highlight, SDK management, file recognizing, only support MacOS)
 + sysint64/intellij-julia (this only recognize your file as a `Julia file`, and do nothing else)
 + satamas/julia-plugin (ditto)
-+ ice1000/julia-intellij
- (better syntax highlight (may not be 100% correct, though),
-  inspections and quick fixes,
-  basic completions,
-  code execution,
-  JetBrains style icons,
-  SDK management,
-  External Julia tools integration,
-  support all three platforms,
-  try-evaluate)
++ ice1000/julia-intellij (too many [features](https://julia-intellij.readthedocs.io/en/latest/Features.html), can't list here)
 
-Now you know your choice :wink:
+Now you know your choice 😉
 
 ## Contributing
 

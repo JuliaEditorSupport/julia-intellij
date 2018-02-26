@@ -79,13 +79,13 @@ fun validateJuliaExe(exePath: String) = versionOf(exePath) != JuliaBundle.messag
 fun validateJulia(settings: JuliaSettings) = settings.version
 	.let { it.isNotBlank() && it != JuliaBundle.message("julia.modules.sdk.unknown-version") }
 
-fun installAutoFormat(
+fun installDocumentFormat(
 	project: Project,
 	settings: JuliaSettings): ActionListener = ActionListener {
 	ProgressManager.getInstance()
 		.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.doc-format.installing"), true) {
 			override fun run(indicator: ProgressIndicator) {
-				// indicator.text = JuliaBundle.message("julia.messages.auto-format.installing")
+				indicator.text = JuliaBundle.message("julia.messages.doc-format.installing")
 				executeJulia(settings.exePath, DOCFMT_INSTALL, 1000000L)
 			}
 

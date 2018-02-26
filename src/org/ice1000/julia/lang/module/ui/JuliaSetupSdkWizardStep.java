@@ -1,4 +1,4 @@
-package org.ice1000.julia.lang.module;
+package org.ice1000.julia.lang.module.ui;
 
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
