@@ -208,7 +208,6 @@ abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), 
 			override fun getElement() = this@JuliaAbstractSymbol
 		}
 	}
-	override var type: Type? = null
 
 	/** For [JuliaSymbolMixin], we cannot have a reference if it's a declaration. */
 	override fun getReference() = referenceImpl
@@ -223,7 +222,7 @@ abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), 
 }
 
 abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaSymbol {
-	override val isField: Boolean
+	final override val isField: Boolean
 		get() = parent is JuliaTypeDeclaration && this !== parent.children.firstOrNull { it is JuliaSymbol }
 	final override val isFunctionName by lazy { parent is JuliaFunction || (parent is JuliaCompactFunction && this === parent.firstChild) }
 	final override val isMacroName by lazy { parent is JuliaMacro }
@@ -244,10 +243,20 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			isPrimitiveTypeName
 	}
 
-	override fun getNameIdentifier() = if (isDeclaration) null else super.getNameIdentifier()
+	final override fun getNameIdentifier() = if (isDeclaration) null else super.getNameIdentifier()
+	override var type: Type? = null
+		get() = if (isVariableName)
+			(parent as JuliaAssignOp)
+				.exprList
+				.lastOrNull()
+				?.type
+				?.also { field = it }
+		else field
 }
 
-abstract class JuliaMacroSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaMacroSymbol
+abstract class JuliaMacroSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaMacroSymbol {
+	override var type: Type? = null
+}
 
 interface IJuliaExpr : PsiElement {
 	var type: Type?
