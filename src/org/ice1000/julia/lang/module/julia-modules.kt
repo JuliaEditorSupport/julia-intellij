@@ -28,8 +28,9 @@ class JuliaModuleBuilder : ModuleBuilder() {
 	}
 
 	override fun setupRootModel(model: ModifiableRootModel) {
-		if (::settings.isInitialized) model.project.juliaSettings.settings = settings
-		val srcPath = createSourceDirectory(model,contentEntryPath)
+		if (::settings.isInitialized)
+			(model.project.juliaSettings as JuliaProjectSettingsServiceImpl).loadState(settings)
+		val srcPath = createSourceDirectory(model, contentEntryPath)
 		if (PlatformUtils.isIntelliJ()) {
 			val sourceRoot = LocalFileSystem
 				.getInstance()
@@ -75,7 +76,7 @@ class JuliaCompileOutputEditor(state: ModuleConfigurationState) : ModuleElements
 	override fun getHelpTopic() = editor.helpTopic
 }
 
-fun createSourceDirectory(model: ModifiableRootModel, entryPath:String?): Path {
+fun createSourceDirectory(model: ModifiableRootModel, entryPath: String?): Path {
 	model.inheritSdk()
 	val srcPath = Paths.get(entryPath, "src").toAbsolutePath()
 	Files.createDirectories(srcPath)

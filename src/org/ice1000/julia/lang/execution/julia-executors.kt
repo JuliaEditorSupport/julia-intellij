@@ -49,9 +49,8 @@ class JuliaCommandLineState(
 			params += configuration.targetFile
 			params += configuration.programArgs.split(' ', '\n').filter(String::isNotBlank)
 		}
-		val handler = OSProcessHandler(GeneralCommandLine(params).also {
-			it.withCharset(Charset.forName("UTF-8"))
-			it.withWorkDirectory(configuration.workingDir)
+		val handler = OSProcessHandler(GeneralCommandLine(params).apply {
+			withWorkDirectory(configuration.workingDir)
 		})
 		ProcessTerminatedListener.attach(handler)
 		handler.startNotify()

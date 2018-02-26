@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.module
 
+import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.*
@@ -15,11 +16,14 @@ import java.util.stream.Collectors
 
 val defaultExePath by lazy {
 	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID, "")
-	if (Files.isExecutable(Paths.get(existPath))) existPath else juliaPath
+	// Notice:
+	// Files.isExecutable(Paths.get("")) == true
+	// And the isExecutable is used to check whether you have permission to access the file.
+	if (!existPath.isEmpty() && Files.isExecutable(Paths.get(existPath))) existPath else juliaPath
 }
 
 val juliaPath by lazy {
-	when {
+	PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath ?: when {
 		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
 		SystemInfo.isMac -> findPathMac()
 		else -> findPathLinux() ?: "/usr/bin/julia"
@@ -35,7 +39,10 @@ fun findPathMac(): String {
 	return result.toAbsolutePath().toString() + folderAfterPath
 }
 
+@Deprecated("", ReplaceWith("PathEnvironmentVariableUtil.findInPath"))
 fun findPathWindows() = executeCommandToFindPath("where julia")
+
+@Deprecated("", ReplaceWith("PathEnvironmentVariableUtil.findInPath"))
 fun findPathLinux() = executeCommandToFindPath("whereis julia")
 
 class JuliaSettings(
