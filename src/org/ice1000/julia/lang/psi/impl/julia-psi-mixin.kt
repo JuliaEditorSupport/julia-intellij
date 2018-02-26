@@ -247,8 +247,9 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	override var type: Type? = null
 		get() = if (isVariableName)
 			(parent as JuliaAssignOp)
-				.exprList
-				.lastOrNull()
+				.children
+				.lastOrNull { it is JuliaExpr }
+				?.let { it as JuliaExpr }
 				?.type
 				?.also { field = it }
 		else field
