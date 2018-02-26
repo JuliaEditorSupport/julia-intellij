@@ -36,7 +36,6 @@ class JuliaAnnotator : Annotator {
 			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
 			is JuliaPlusLevelOp -> plusLevelOp(element, holder)
-			is JuliaMultiplyLevelOp -> multiplyLevelOp(element, holder)
 			is JuliaAssignLevelOp -> assignLevelOp(element, holder)
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
@@ -56,7 +55,7 @@ class JuliaAnnotator : Annotator {
 		val functionBody = element.exprList.lastOrNull()?.text.orEmpty()
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.compact-function"))
 			.registerFix(JuliaReplaceWithTextIntention(
-				element, """function ${element.name}${typeParams?.text.orEmpty()}${element.functionSignature.text}
+				element, """function $name${typeParams?.text.orEmpty()}${element.functionSignature.text}
 ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $functionBody\n"}end""",
 				JuliaBundle.message("julia.lint.replace-ordinary-function")))
 		docStringFunction(element, signature, holder, name, "", signatureText = signature
@@ -75,15 +74,21 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		val where = element.whereClause
 		val name = element.name
 		if (where == null) when {
-			statements.isEmpty() -> holder.createWeakWarningAnnotation(element, JuliaBundle.message("julia.lint.empty-function"))
+			statements.isEmpty() -> holder.createWeakWarningAnnotation(
+				element.firstChild,
+				JuliaBundle.message("julia.lint.empty-function"))
 				.registerFix(JuliaReplaceWithTextIntention(element,
 					"$name$typeParamsText$signatureText = ()",
 					JuliaBundle.message("julia.lint.replace-compact-function")))
 			statements.size == 1 -> {
-				val statement = statements.first().let { (it as? JuliaReturnExpr)?.text?.removePrefix("return") ?: it.text }
-				holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.lonely-function"))
+				val expression = statements.first().let {
+					(it as? JuliaReturnExpr)?.exprList?.joinToString(", ") { it.text } ?: it.text
+				}
+				holder.createWeakWarningAnnotation(
+					element.firstChild,
+					JuliaBundle.message("julia.lint.lonely-function"))
 					.registerFix(JuliaReplaceWithTextIntention(element,
-						"$name$typeParamsText$signatureText = $statement",
+						"$name$typeParamsText$signatureText = $expression",
 						JuliaBundle.message("julia.lint.replace-compact-function")))
 			}
 		}
@@ -102,13 +107,14 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		typeParamsText: String,
 		signatureText: String) {
 		if (element.docString != null || element.parent !is JuliaStatements) return
+		val identifier = element.nameIdentifier ?: return
 		val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
 			"# Arguments\n\n${joinToString("\n") {
 				//                    这是一根被卡在石头里的宝剑 XD ⇊⇊⇊
 				"- `${it.exprList.firstOrNull()?.text.orEmpty()}${it.typeAnnotation?.text ?: "::Any"}`:"
 			}}"
 		}.orEmpty()
-		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.no-doc-string-function"))
+		holder.createInfoAnnotation(identifier, JuliaBundle.message("julia.lint.no-doc-string-function"))
 			.registerFix(JuliaInsertTextBeforeIntention(element, """$JULIA_DOC_SURROUNDING
     $name$typeParamsText$signatureText
 
@@ -135,11 +141,6 @@ $JULIA_DOC_SURROUNDING
 				registerFix(JuliaReplaceWithTextIntention(element, "${element.firstChild.text} \u22bb ${element.lastChild.text}",
 					JuliaBundle.message("julia.lint.xor-replace-22bb", element.firstChild.text, element.lastChild.text)))
 			}
-		}
-	}
-
-	private fun multiplyLevelOp(element: JuliaMultiplyLevelOp, holder: AnnotationHolder) {
-		when (element.multiplyLevelOperator.text.firstOrNull()) {
 		}
 	}
 
@@ -184,11 +185,6 @@ $JULIA_DOC_SURROUNDING
 		if (name is JuliaSymbol) {
 			when (name.text) {
 				"new" -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.KEYWORD
-			// TODO make sure it's not re-defined function
-				"rem",
-				"mod" -> {
-					element.children.getOrNull(1)?.children?.getOrNull(1) ?: return
-				}
 			}
 		}
 	}

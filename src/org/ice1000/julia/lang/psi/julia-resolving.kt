@@ -9,16 +9,22 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
 /**
  * @author ice1000
- * element should be [JuliaSymbol] or [JuliaMacroSymbol]
+ * element should be only [JuliaSymbol] or [JuliaMacroSymbol]
  */
 abstract class JuliaSymbolRef(private var refTo: PsiElement? = null) : PsiPolyVariantReference {
 	private val range = TextRange(0, element.textLength)
 	private val isDeclaration = (element as? JuliaSymbol)?.isDeclaration.orFalse()
+	private val resolver by lazy {
+		if (element is JuliaMacroSymbol) macroResolver
+		else /* is JuliaSymbol */ symbolResolver
+	}
+
 	override fun equals(other: Any?) = (other as? JuliaSymbolRef)?.element == element
-	abstract override fun getElement(): PsiElement
+	abstract override fun getElement(): PsiNameIdentifierOwner
 	override fun hashCode() = element.hashCode()
 	override fun getRangeInElement() = range
 	override fun isSoft() = true
@@ -36,12 +42,8 @@ abstract class JuliaSymbolRef(private var refTo: PsiElement? = null) : PsiPolyVa
 	override fun multiResolve(incompleteCode: Boolean): Array<out ResolveResult> {
 		val file = element.containingFile ?: return emptyArray()
 		if (isDeclaration or element.project.isDisposed) return emptyArray()
-		val resolver = when (element) {
-			is JuliaSymbol -> symbolResolver
-			is JuliaMacroSymbol -> macroResolver
-			else -> return emptyArray()
-		}
-		return ResolveCache.getInstance(element.project).resolveWithCaching(this, resolver, true, incompleteCode, file)
+		return ResolveCache.getInstance(element.project)
+			.resolveWithCaching(this, resolver, true, incompleteCode, file)
 	}
 
 	private companion object ResolverHolder {
@@ -67,8 +69,10 @@ abstract class ResolveProcessor<ResolveResult>(private val place: PsiElement) : 
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
 	// TODO add definitions
 	fun isInScope(element: PsiElement) = if (element is JuliaSymbol) when {
-		element.isFunctionParameter -> PsiTreeUtil.isAncestor(element.parent.parent, place, true)
-		element.isDeclaration -> PsiTreeUtil.isAncestor(PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), place, false)
+		element.isFunctionParameter -> PsiTreeUtil.isAncestor(
+			PsiTreeUtil.getParentOfType(element, IJuliaFunctionDeclaration::class.java), place, true)
+		element.isDeclaration -> PsiTreeUtil.isAncestor(
+			PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), place, false)
 		else -> false
 	} else false
 }
@@ -86,7 +90,7 @@ open class SymbolResolveProcessor(
 		candidateSet.isNotEmpty() -> false
 		element is JuliaSymbol -> {
 			val accessible = accessible(element) and element.isDeclaration
-			if (accessible and element.hasNoError) candidateSet += PsiElementResolveResult(element, true)
+			if (accessible) candidateSet += PsiElementResolveResult(element, element.hasNoError)
 			!accessible
 		}
 		else -> true
@@ -126,7 +130,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 					null,
 					null
 				)
-				element.isFunctionName -> (element.parent as? JuliaFunction)?.let { function ->
+				element.isFunctionName -> (element.parent as? IJuliaFunctionDeclaration)?.let { function ->
 					quadOf(
 						JuliaIcons.JULIA_FUNCTION_ICON,
 						element.text,
