@@ -16,10 +16,10 @@ public interface JuliaIcons {
 	@NotNull Icon JOJO_ICON = IconLoader.getIcon("/icons/jojo.png");
 	@NotNull Icon JULIA_MODULE_ICON = IconLoader.getIcon("/icons/module.png");
 	@NotNull Icon JULIA_TYPE_ICON = IconLoader.getIcon("/icons/type.png");
-	@NotNull Icon JULIA_FUNCTION_ICON = IconLoader.getIcon("/nodes/field.png");
+	@NotNull Icon JULIA_FUNCTION_ICON = IconLoader.getIcon("/icons/field.png");
 	@NotNull Icon JULIA_VARIABLE_ICON = IconLoader.getIcon("/icons/field_variable.png");
-	@NotNull Icon JULIA_CONST_ICON = IconLoader.getIcon("/nodes/class.png");
-	@NotNull Icon JULIA_MACRO_ICON = IconLoader.getIcon("/nodes/annotationtype.png");
+	@NotNull Icon JULIA_CONST_ICON = IconLoader.getIcon("/icons/const.png");
+	@NotNull Icon JULIA_MACRO_ICON = IconLoader.getIcon("/icons/annotationtype.png");
 
 	@NotNull Icon DOCFMT_RED_ICON = IconLoader.getIcon("/icons/docfmt/docfmt_red.png");
 	@NotNull Icon DOCFMT_BLUE_ICON = IconLoader.getIcon("/icons/docfmt/docfmt_blue.png");
