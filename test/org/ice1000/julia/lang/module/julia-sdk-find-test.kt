@@ -41,4 +41,9 @@ class JuliaSdkFindTest {
 			println(Files.exists(Paths.get(stdout.first())))
 		}
 	}
+
+	@Test
+	fun testYourFiles() {
+		println(Files.isExecutable(Paths.get("")))
+	}
 }
