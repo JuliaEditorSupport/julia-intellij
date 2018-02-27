@@ -3,12 +3,15 @@ package org.ice1000.julia.lang.editing.hint
 import com.intellij.codeInsight.hints.*
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.JuliaLanguage
+import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.JuliaApplyFunctionOp
 import org.ice1000.julia.lang.psi.JuliaAssignLevelOp
 
 enum class JuliaHintType(desc: String, enabled: Boolean) {
 	EVAL_HINT("Show Eval value inline type hints (Warning: it will make your editor become very slow!!!)", false) {
-		override fun provideHints(elem: PsiElement) = providePropertyTypeHint(elem)
+		override fun provideHints(elem: PsiElement) =
+			if(elem.project.juliaSettings.settings.showEvalHint) providePropertyTypeHint(elem) else emptyList()
+
 		override fun isApplicable(elem: PsiElement): Boolean = when (elem) {
 			is JuliaApplyFunctionOp,
 			is JuliaAssignLevelOp -> true

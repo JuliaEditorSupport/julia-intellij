@@ -18,4 +18,9 @@ public abstract class JuliaProjectConfigurable implements Configurable {
 	protected @NotNull TextFieldWithBrowseButton basePathField;
 	protected @NotNull JButton installAutoFormatButton;
 	protected @NotNull JCheckBox unicodeInputCheckBox;
+	protected @NotNull JCheckBox showEvalValueInlineCheckBox;
+
+	private void createUIComponents() {
+		// TODO: place custom component creation code here
+	}
 }

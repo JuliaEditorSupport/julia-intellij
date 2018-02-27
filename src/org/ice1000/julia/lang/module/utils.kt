@@ -51,6 +51,7 @@ class JuliaSettings(
 	var basePath: String = "",
 	var version: String = "",
 	var unicodeEnabled: Boolean = true,
+	var showEvalHint: Boolean = false,
 	var tryEvaluateTimeLimit: Long = 2500L,
 	var tryEvaluateTextLimit: Int = 320) {
 	fun initWithExe() {
