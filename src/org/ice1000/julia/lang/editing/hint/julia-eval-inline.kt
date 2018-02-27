@@ -41,7 +41,7 @@ class JuliaInlayParameterHintsProvider : InlayParameterHintsProvider {
 	override fun canShowHintsWhenDisabled() = true
 	override fun getDefaultBlackList(): Set<String> = emptySet()
 	override fun isBlackListSupported() = false
-	override fun getSupportedOptions(): List<Option> = JuliaHintType.values().map { it.option }
+	override fun getSupportedOptions() = JuliaHintType.values().map { it.option }
 
 	/**
 	 * @param inlayText String: `text` in InlayInfo
