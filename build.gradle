@@ -59,7 +59,7 @@ def commitHash = { ->
 	return stdout.toString().trim()
 }
 
-String pluginVersion = '0.1.5'
+String pluginVersion = '0.1.6'
 String packageName = 'org.ice1000.julia'
 
 group packageName
