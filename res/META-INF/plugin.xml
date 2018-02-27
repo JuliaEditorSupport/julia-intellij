@@ -95,7 +95,7 @@
 			instance="org.ice1000.julia.lang.module.ui.JuliaPackageManagerImpl"/>
 		<codeInsight.parameterNameHints
 			language="Julia"
-			implementationClass="org.ice1000.julia.lang.editing.hint.JuliaInlayParameterHintsProvider"/>
+			implementationClass="org.ice1000.julia.lang.editing.JuliaInlayParameterHintsProvider"/>
 		<moduleType
 			id="JULIA_MODULE_TYPE"
 			implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>

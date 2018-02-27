@@ -22,6 +22,7 @@ val defaultExePath by lazy {
 	if (!existPath.isEmpty() && Files.isExecutable(Paths.get(existPath))) existPath else juliaPath
 }
 
+@Suppress("DEPRECATION")
 val juliaPath by lazy {
 	PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath ?: when {
 		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"

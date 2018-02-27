@@ -107,7 +107,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 	override var docString: JuliaString? = null
 	private var body: JuliaExpr? = null
 		get() {
-			if (field == null) field = lastChild as? JuliaExpr ?: return null
+			if (field == null) field = lastChild as? JuliaExpr
 			return field
 		}
 

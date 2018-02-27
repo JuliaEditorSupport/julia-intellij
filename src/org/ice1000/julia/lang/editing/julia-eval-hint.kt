@@ -1,4 +1,4 @@
-package org.ice1000.julia.lang.editing.hint
+package org.ice1000.julia.lang.editing
 
 import com.intellij.codeInsight.hints.*
 import com.intellij.psi.PsiElement
@@ -34,7 +34,7 @@ enum class JuliaHintType(desc: String, enabled: Boolean) {
 			return resolved.takeIf { it.option.get() }
 		}
 
-		fun providePropertyTypeHint(elem: JuliaExpr): List<InlayInfo> {
+		private fun providePropertyTypeHint(elem: JuliaExpr): List<InlayInfo> {
 			val juliaExe = elem.project.juliaSettings.settings.exePath // 这不就是工程的Julia路径吗
 			val output = buildString {
 				val (stdout, stderr) = executeJulia(juliaExe, elem.text, 1000)
