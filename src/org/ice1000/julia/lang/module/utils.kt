@@ -84,10 +84,8 @@ fun importPathOf(exePath: String, timeLimit: Long = 800L) =
 		.orEmpty()
 		.trim('"')
 
-fun validateJuliaExe(exePath: String) = versionOf(exePath) != JuliaBundle.message("julia.modules.sdk.unknown-version")
-fun validateJulia(settings: JuliaSettings) = settings.version
-	.let { it.isNotBlank() && it != JuliaBundle.message("julia.modules.sdk.unknown-version") }
-
+fun validateJuliaExe(exePath: String) = Files.isExecutable(Paths.get(exePath))
+fun validateJulia(settings: JuliaSettings) = validateJuliaExe(settings.exePath)
 fun installDocumentFormat(
 	project: Project,
 	settings: JuliaSettings): ActionListener = ActionListener {

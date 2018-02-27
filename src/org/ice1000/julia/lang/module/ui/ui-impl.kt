@@ -129,7 +129,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		else
 			juliaExeField.text = defaultExePath
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
-		showEvalValueInlineCheckBox.isSelected = settings.showEvalHint
+		showEvalHintCheckBox.isSelected = settings.showEvalHint
 		installAutoFormatButton.addActionListener(installDocumentFormat(project, settings))
 	}
 
@@ -139,7 +139,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		settings.basePath != basePathField.text ||
 		settings.exePath != juliaExeField.text ||
 		unicodeInputCheckBox.isSelected != settings.unicodeEnabled ||
-		showEvalValueInlineCheckBox.isSelected != settings.showEvalHint ||
+		showEvalHintCheckBox.isSelected != settings.showEvalHint ||
 		settings.tryEvaluateTextLimit != (textLimitField.value as Number).toInt() ||
 		settings.tryEvaluateTimeLimit != (timeLimitField.value as Number).toLong()
 
@@ -156,7 +156,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		settings.basePath = basePathField.text
 		settings.importPath = importPathField.text
 		settings.unicodeEnabled = unicodeInputCheckBox.isSelected
-		settings.showEvalHint = showEvalValueInlineCheckBox.isSelected
+		settings.showEvalHint = showEvalHintCheckBox.isSelected
 	}
 }
 

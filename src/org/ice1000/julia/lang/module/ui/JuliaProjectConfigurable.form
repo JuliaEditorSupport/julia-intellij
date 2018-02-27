@@ -214,7 +214,7 @@
                   <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.modules.unicode-input"/>
                 </properties>
               </component>
-              <component id="64f66" class="javax.swing.JCheckBox" binding="showEvalValueInlineCheckBox" default-binding="true">
+              <component id="64f66" class="javax.swing.JCheckBox" binding="showEvalHintCheckBox" default-binding="true">
                 <constraints>
                   <grid row="13" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
