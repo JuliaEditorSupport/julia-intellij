@@ -4,13 +4,16 @@ import com.intellij.codeInsight.hints.*
 import com.intellij.psi.PsiElement
 import org.ice1000.julia.lang.JuliaLanguage
 import org.ice1000.julia.lang.module.juliaSettings
-import org.ice1000.julia.lang.psi.JuliaApplyFunctionOp
-import org.ice1000.julia.lang.psi.JuliaAssignLevelOp
+import org.ice1000.julia.lang.psi.*
 
 enum class JuliaHintType(desc: String, enabled: Boolean) {
 	EVAL_HINT("Show Eval value inline type hints", false) {
 		override fun provideHints(elem: PsiElement) =
-			if (elem.project.juliaSettings.settings.showEvalHint) providePropertyTypeHint(elem) else emptyList()
+			if (elem.project.juliaSettings.settings.showEvalHint &&
+				elem is JuliaExpr &&
+				elem.parent is JuliaStatements)
+				providePropertyTypeHint(elem)
+			else emptyList()
 
 		override fun isApplicable(elem: PsiElement): Boolean = when (elem) {
 			is JuliaApplyFunctionOp,
