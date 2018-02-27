@@ -168,7 +168,7 @@ class JuliaPackageManagerImpl : JuliaPackageManager() {
 	init {
 	}
 
-	override fun getDisplayName() = JuliaBundle.message("julia.package.manager.title")
+	override fun getDisplayName() = JuliaBundle.message("julia.pkg-manager.title")
 	override fun createComponent() = mainPanel
 	override fun isModified() = false
 	override fun apply() {

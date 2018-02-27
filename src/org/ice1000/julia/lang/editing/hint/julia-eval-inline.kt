@@ -8,9 +8,9 @@ import org.ice1000.julia.lang.psi.JuliaApplyFunctionOp
 import org.ice1000.julia.lang.psi.JuliaAssignLevelOp
 
 enum class JuliaHintType(desc: String, enabled: Boolean) {
-	EVAL_HINT("Show Eval value inline type hints (Warning: it will make your editor become very slow!!!)", false) {
+	EVAL_HINT("Show Eval value inline type hints", false) {
 		override fun provideHints(elem: PsiElement) =
-			if(elem.project.juliaSettings.settings.showEvalHint) providePropertyTypeHint(elem) else emptyList()
+			if (elem.project.juliaSettings.settings.showEvalHint) providePropertyTypeHint(elem) else emptyList()
 
 		override fun isApplicable(elem: PsiElement): Boolean = when (elem) {
 			is JuliaApplyFunctionOp,
