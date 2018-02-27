@@ -140,8 +140,8 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		settings.exePath != juliaExeField.text ||
 		unicodeInputCheckBox.isSelected != settings.unicodeEnabled ||
 		showEvalValueInlineCheckBox.isSelected != settings.showEvalHint ||
-		settings.tryEvaluateTextLimit != textLimitField.value ||
-		settings.tryEvaluateTimeLimit != timeLimitField.value
+		settings.tryEvaluateTextLimit != (textLimitField.value as Number).toInt() ||
+		settings.tryEvaluateTimeLimit != (timeLimitField.value as Number).toLong()
 
 	@Throws(ConfigurationException::class)
 	override fun apply() {
