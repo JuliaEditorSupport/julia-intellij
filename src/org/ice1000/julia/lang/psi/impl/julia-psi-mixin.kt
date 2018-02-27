@@ -66,6 +66,10 @@ abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(no
 }
 
 abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), JuliaAssignOp {
+	override var type: Type?
+		get() = exprList.lastOrNull()?.type
+		set(value) {}
+
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol }
 }
 

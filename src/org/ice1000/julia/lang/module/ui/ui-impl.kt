@@ -13,6 +13,8 @@ import com.intellij.ui.DocumentAdapter
 import org.ice1000.julia.lang.JULIA_SDK_HOME_PATH_ID
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.module.*
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.text.NumberFormat
 import javax.swing.event.DocumentEvent
 import javax.swing.text.DefaultFormatterFactory
@@ -130,7 +132,10 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 			juliaExeField.text = defaultExePath
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
 		showEvalHintCheckBox.isSelected = settings.showEvalHint
-		installAutoFormatButton.addActionListener(installDocumentFormat(project, settings))
+		if (Files.exists(Paths.get(settings.importPath, "DocumentFormat"))) {
+			installAutoFormatButton.isEnabled = false
+			installAutoFormatButton.text = JuliaBundle.message("julia.messages.doc-format.already")
+		} else installAutoFormatButton.addActionListener(installDocumentFormat(project, settings))
 	}
 
 	override fun getDisplayName() = JuliaBundle.message("julia.name")
