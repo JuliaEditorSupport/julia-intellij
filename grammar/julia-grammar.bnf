@@ -189,9 +189,9 @@ expr ::=
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaExprMixin'
 }
 
-memberAccessOp ::= expr DOT_SYM (symbol | macroSymbol)
-accessAllOp ::= DOT_SYM+ (symbol | macroSymbol) { pin=1 }
-private access ::= accessAllOp | memberAccessOp
+memberAccessOp ::= symbolAndMacroSymbol (DOT_SYM symbolAndMacroSymbol)*
+private access ::= (DOT_SYM|DOUBLE_DOT_SYM|SLICE_SYM)? (memberAccessOp)
+private symbolAndMacroSymbol ::= symbol | macroSymbol
 
 compactFunction ::=
  symbol
@@ -566,12 +566,7 @@ importAllExpr ::=
 
 importExpr ::=
  IMPORT_KEYWORD endOfLine
-  access
-  (
-    COLON_SYM endOfLine
-    memberAccessOp
-   (commaSep memberAccessOp)*
-  )?
+  access (COLON_SYM symbolAndMacroSymbol)? (commaSep access)*
 
 using ::=
  USING_KEYWORD endOfLine
