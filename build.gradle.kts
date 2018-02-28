@@ -1,5 +1,7 @@
 import java.io.ByteArrayOutputStream
 import com.google.common.util.concurrent.SimpleTimeLimiter
+import java.io.InputStream
+import java.util.stream.Collectors
 
 buildscript {
 	var kotlin_version : String by extra
@@ -47,6 +49,21 @@ allprojects {
 	}
 }
 
+fun collectLines(it: InputStream): List<String> {
+	val reader = it.bufferedReader()
+	val ret = reader.lines().collect(Collectors.toList())
+	forceRun(reader::close)
+	return ret
+}
+
+inline fun forceRun(lambda: () -> Unit) {
+	try {
+		lambda()
+	} catch (e: Throwable) {
+
+	}
+}
+
 fun executeCommand(
 	command: String,
 	input: String?,
@@ -79,6 +96,17 @@ val commitHash get() = ByteArrayOutputStream().apply {
 
 val pluginVersion = "0.1.6"
 val packageName = "org.ice1000.julia"
+val kotlin_version : String by extra
 
 group = packageName
-version = if(System.getenv("CI")?.trim() != null) "$pluginVersion-${commitHash()}" else pluginVersion
+version = if(System.getenv("CI")?.trim() != null) "$pluginVersion-$commitHash" else pluginVersion
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile(kotlin("stdlib", kotlin_version))
+	compile("org.eclipse.egit.github.core-2.1.5")
+	testCompile("junit", "junit", "4.12")
+}
