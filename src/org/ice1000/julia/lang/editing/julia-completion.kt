@@ -7,6 +7,7 @@ import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import icons.JuliaIcons
+import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
@@ -44,7 +45,12 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"macro ",
 			"function ",
 			"end"
-		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
+		).map {
+			LookupElementBuilder
+				.create(it)
+				.withIcon(JuliaIcons.JULIA_BIG_ICON)
+				.withTailText(JuliaBundle.message("julia.completion.keyword.tail"))
+		}
 		private val tryInside = listOf(
 			"catch ",
 			"finally"
@@ -52,7 +58,12 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		private val loopInside = listOf(
 			"break",
 			"continue"
-		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
+		).map {
+			LookupElementBuilder
+				.create(it)
+				.withIcon(JuliaIcons.JULIA_BIG_ICON)
+				.withTailText(JuliaBundle.message("julia.completion.jump.tail"))
+		}
 		private val ifInside = listOf(
 			"elseif ",
 			"else"
@@ -102,7 +113,12 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"throw",
 			"println",
 			"print"
-		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_FUNCTION_ICON) }
+		).map {
+			LookupElementBuilder
+				.create(it)
+				.withIcon(JuliaIcons.JULIA_FUNCTION_ICON)
+				.withTailText("Predefined symbol")
+		}
 
 		private val where = listOf(LookupElementBuilder.create("where").withIcon(JuliaIcons.JULIA_BIG_ICON))
 
