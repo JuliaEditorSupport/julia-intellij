@@ -80,7 +80,7 @@ fun executeCommand(
 				it.flush()
 			}
 			process.waitFor(timeLimit, TimeUnit.MILLISECONDS)
-			output = process.inputStream.use(::collectLines)
+			output = process.inputStream.also(::collectLines).also { it.close() }
 			outputErr = process.errorStream.use(::collectLines)
 			forceRun(process::destroy)
 		}, timeLimit + 100, TimeUnit.MILLISECONDS, true)
