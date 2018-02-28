@@ -110,6 +110,10 @@ inline fun <reified Closable : Closeable, reified Unit : Any>
 	close()
 }
 
+inline fun <reified TheTask : BaseTask>
+	Project.genTask(name: String, noinline configuration: TheTask.() -> Unit) =
+	task(name, TheTask::class, configuration)
+
 val commitHash by lazy {
 	val output: String
 	val process: Process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
@@ -157,9 +161,6 @@ task("isCI") {
 		println(if (isCI) "Yes, I'm on a CI." else "No, I'm not on CI.")
 	}
 }
-
-inline fun <reified type : BaseTask> Project.genTask(name: String, noinline configuration: type.() -> Unit)
-	= task(name, type::class, configuration)
 
 genTask<GenerateParser>("genParser") {
 	group = "build setup"

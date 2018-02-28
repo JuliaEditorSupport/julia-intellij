@@ -5,6 +5,7 @@ jdk:
 - oraclejdk8
 script:
 - ./gradlew displayCommitHash
+- ./gradlew isCI
 - ./gradlew buildPlugin
 before_install:
 - chmod a+x gradlew
