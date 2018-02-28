@@ -23,7 +23,8 @@ inline fun forceRun(lambda: () -> Unit) {
  * @param params additional parameters to the Julia compiler
  * @return (stdout, stderr)
  */
-fun executeJulia(exePath: String, code: String?, timeLimit: Long, vararg params: String) =
+fun executeJulia(
+	exePath: String, code: String?, timeLimit: Long, vararg params: String) =
 	executeCommand(
 		"${Paths.get(exePath).toAbsolutePath()} ${params.joinToString(" ")}",
 		code?.let { "$it\nquit()" },
@@ -40,9 +41,7 @@ fun executeCommandToFindPath(command: String) = executeCommand(command, null, 50
 		.firstOrNull(::validateJuliaExe)
 
 fun executeCommand(
-	command: String,
-	input: String?,
-	timeLimit: Long): Pair<List<String>, List<String>> {
+	command: String, input: String? = null, timeLimit: Long = 1200L): Pair<List<String>, List<String>> {
 	var processRef: Process? = null
 	var output: List<String> = emptyList()
 	var outputErr: List<String> = emptyList()
@@ -63,35 +62,6 @@ fun executeCommand(
 		processRef?.destroy()
 	}
 	return output to outputErr
-}
-
-fun executeCommandUntilResult(
-	command: String,
-	input: String?,
-	untilResult: String, timeLimit: Long = 20_000L): List<String> {
-	var processRef: Process? = null
-	var output: List<String> = emptyList()
-	try {
-		SimpleTimeLimiter().callWithTimeout({
-			val process: Process = Runtime.getRuntime().exec(command)
-			processRef = process
-			if (input != null) process.outputStream.use {
-				it.write(input.toByteArray())
-				it.flush()
-			}
-			while (true) {
-				process.waitFor(500L, TimeUnit.MILLISECONDS)
-				output = process.inputStream.use(::collectLines)
-				if (output.any{ untilResult in it }) {
-					break
-				}
-			}
-			forceRun(process::destroy)
-		}, timeLimit,TimeUnit.MILLISECONDS, true)
-	} catch (e: Exception) {
-		processRef?.destroy()
-	}
-	return output
 }
 
 private fun collectLines(it: InputStream): List<String> {

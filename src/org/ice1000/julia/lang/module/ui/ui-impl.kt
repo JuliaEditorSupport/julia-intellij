@@ -3,19 +3,15 @@ package org.ice1000.julia.lang.module.ui
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.ide.util.projectWizard.SettingsStep
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.Task
+import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectGeneratorPeer
 import com.intellij.ui.DocumentAdapter
-import org.ice1000.julia.lang.JULIA_SDK_HOME_PATH_ID
-import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -174,71 +170,34 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
  * TODO PackageManager
  * Settings(Preference) | Language & Frameworks | Julia | Package Manager
  */
-class JuliaPackageManagerImpl : JuliaPackageManager() {
-	var editable = false
-	private val info = JuliaPackageManagerInfoList.infoList
-	private fun edit(block: () -> Unit) {
-		editable = true
-		block()
-		editable = false
-	}
+class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManager() {
 
 	init {
 		val title = arrayOf("Package", "Version", "Latest")
 		val model = object : DefaultTableModel(0, 3) {
-			override fun isCellEditable(row: Int, column: Int) = editable
+			override fun isCellEditable(row: Int, column: Int) = false
 		}
 
-		edit{model.addRow(title)}
+		model.addRow(title)
 		packagesList.model = model
 		packagesList.setShowGrid(false)
 
-		Thread{
-			/**
-			 * It takes about 2-3 seconds in Windows
-			 */
-			if (info.nameList.isEmpty()) {
-				println("isEmpty")
-				edit {
-					val data = JuliaPackageManagerUtil.packagesList()
-					info.nameList.addAll(data)
-					println(data.size)
-					data.forEach { model.addRow(arrayOf(it, "", "")) }
-				}
-			} else {
-				println("notEmpty")
-				edit {
-					info.nameList.forEach { model.addRow(arrayOf(it, "", "")) }
-				}
-			}
-			/**
-			 * It takes more than 10 seconds in Windows.
-			 */
-			if (info.versionList.isEmpty()) {
-				edit {
-					val versionList = JuliaPackageManagerUtil.versionsList()
-					(1 until model.rowCount).forEach {
-						val value = model.getValueAt(it, 0).toString()
-						model.setValueAt(versionList.getOrDefault(value, ""), it, 1)
-						info.versionList.add(value)
-					}
-				}
-			} else {
-				edit {
-					(1..info.versionList.size).forEach {
-						model.setValueAt(info.versionList[it - 1], it, 1)
-					}
-				}
-			}
-
-
-			packagesList.model = model
-		}.start()
-
 		ProgressManager.getInstance()
-			.run(object : Task.Backgroundable(null, JuliaBundle.message("julia.messages.doc-format.installing"), true) {
+			.run(object : Task.Backgroundable(project,
+				JuliaBundle.message("julia.messages.doc-format.installing"), true) {
 				override fun run(indicator: ProgressIndicator) {
-//TODO
+					/** It takes about 10 seconds in Windows */
+					if (JuliaPackageManagerInfoList.infos.isEmpty()) {
+						val versionList = JuliaPackageManagerUtil.versionsList()
+						versionList.forEach { (name, version) ->
+							JuliaPackageManagerInfoList.infos += InfoData(name, version)
+							model.addRow(arrayOf(name, version, UNKNOWN_VALUE_PLACEHOLDER))
+						}
+					} else JuliaPackageManagerInfoList.infos.forEach {
+						model.addRow(arrayOf(it.name, it.version, UNKNOWN_VALUE_PLACEHOLDER))
+					}
+
+					packagesList.model = model
 				}
 			})
 	}

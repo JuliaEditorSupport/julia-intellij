@@ -1,19 +1,23 @@
 package org.ice1000.julia.lang.module
 
-import org.ice1000.julia.lang.executeCommandUntilResult
+import org.ice1000.julia.lang.executeCommand
 import org.intellij.lang.annotations.Language
 import java.io.File
 
+data class InfoData(val name: String, val version: String)
+
 object JuliaPackageManagerInfoList {
-	data class InfoData(val nameList: ArrayList<String>, val versionList: ArrayList<String>)
-	val infoList = InfoData(arrayListOf(), arrayListOf())
+	val infos = emptyList<InfoData>().toMutableList()
 }
 
+/**
+ * FIXME @zxj5470 convert to top-level function.
+ */
 object JuliaPackageManagerUtil {
 	fun packagesList(): List<String> {
 		@Language("Julia")
-		val code = """Pkg.dir()"""
-		val stdout = executeCommandUntilResult(juliaPath, code, "\"")
+		val code = "Pkg.dir()"
+		val (stdout) = executeCommand(juliaPath, code)
 		return stdout
 			.firstOrNull()
 			?.trim('"')
@@ -24,17 +28,18 @@ object JuliaPackageManagerUtil {
 			?: emptyList()
 	}
 
-	fun versionsList(): Map<String, String> {
+	fun versionsList(): List<Pair<String, String>> {
 		@Language("Julia")
-		val code = """Pkg.installed()"""
-		val ret = executeCommandUntilResult(juliaPath, code, "\"", 30_000L)
-		return ret.filter { "=>" in it }
+		val code = "Pkg.installed()"
+		val (ret) = executeCommand(juliaPath, code)
+		return ret
+			.filter { "=>" in it }
 			.map {
-				it.replace("v\"", "")
-					.replace("\"", "")
-					.replace(" ", "")
+				//language=RegExp
+				val (name, version) = it.replace(Regex("v?\"|\\s"), "")
 					.split("=>")
-			}.map { it[0] to it[1] }.toMap()
+				name to version
+			}
 	}
 }
 
