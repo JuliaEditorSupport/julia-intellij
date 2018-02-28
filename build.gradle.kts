@@ -3,6 +3,7 @@ import org.gradle.api.internal.HasConvention
 import org.jetbrains.grammarkit.tasks.GenerateLexer
 import org.jetbrains.grammarkit.tasks.GenerateParser
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
 import java.nio.file.*
 import java.util.stream.Collectors
@@ -123,6 +124,12 @@ java.sourceSets {
 	}
 }
 
+tasks.withType<KotlinCompile> {
+	kotlinOptions {
+		jvmTarget = "1.8"
+	}
+}
+
 task("displayCommitHash") {
 	group = "help"
 	description = "Display the newest commit hash"
@@ -139,7 +146,7 @@ task("isCI") {
 	}
 }
 
-task("genParser", GenerateParser::class) {
+task<GenerateParser>("genParser") {
 	group = "build setup"
 	description = "Generate the Parser and PsiElement classes"
 	source = "grammar/julia-grammar.bnf"
@@ -149,7 +156,7 @@ task("genParser", GenerateParser::class) {
 	purgeOldFiles = true
 }
 
-task("genLexer", GenerateLexer::class) {
+task<GenerateLexer>("genLexer") {
 	dependsOn("genParser")
 	group = "build setup"
 	description = "Generate the Lexer"
@@ -159,7 +166,7 @@ task("genLexer", GenerateLexer::class) {
 	purgeOldFiles = true
 }
 
-task("genDocfmtParser", GenerateParser::class) {
+task<GenerateParser>("genDocfmtParser") {
 	group = "build setup"
 	description = "Generate the Parser for DocumentFormat.jl"
 	source = "grammar/docfmt-grammar.bnf"
@@ -169,7 +176,7 @@ task("genDocfmtParser", GenerateParser::class) {
 	purgeOldFiles = true
 }
 
-task("genDocfmtLexer", GenerateLexer::class) {
+task<GenerateLexer>("genDocfmtLexer") {
 	dependsOn("genDocfmtParser")
 	group = "build setup"
 	description = "Generate the Lexer for DocumentFormat.jl"
