@@ -21,6 +21,12 @@ import javax.swing.table.DefaultTableModel
 import javax.swing.table.JTableHeader
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
+import javax.swing.SortOrder
+import javax.swing.RowSorter
+import java.util.ArrayList
+import javax.swing.table.TableRowSorter
+
+
 
 class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : JuliaSetupSdkWizardStep() {
 	init {
@@ -185,6 +191,15 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 			} else JuliaPackageManagerInfoList.infos.map {
 				arrayOf(it.name, it.version, UNKNOWN_VALUE_PLACEHOLDER)
 			}.toTypedArray(), arrayOf("Package", "Version", "Latest"))
+
+		packagesList.autoCreateRowSorter=true
+		packagesList.setShowGrid(false)
+		val sorter = TableRowSorter<DefaultTableModel>(packagesList.model as DefaultTableModel)
+		packagesList.rowSorter = sorter
+		val sortKeys = ArrayList<RowSorter.SortKey>()
+		sortKeys.add(RowSorter.SortKey(0, SortOrder.ASCENDING))
+		sorter.sortKeys = sortKeys
+		sorter.sort()
 
 		// FIXME replace with a refresh button
 		ProgressManager.getInstance()
