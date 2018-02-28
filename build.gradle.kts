@@ -1,4 +1,5 @@
 import java.io.*
+import java.nio.file.*
 import java.util.stream.Collectors
 
 buildscript {
@@ -93,6 +94,6 @@ repositories {
 
 dependencies {
 	compile(kotlin("stdlib", kotlinVersion))
-	compile(files("lib/org.eclipse.egit.github.core-2.1.5"))
+	compile(files(Paths.get("lib", "org.eclipse.egit.github.core-2.1.5")))
 	testCompile("junit", "junit", "4.12")
 }
