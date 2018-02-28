@@ -60,9 +60,23 @@ java {
 }
 
 tasks.withType<KotlinCompile> {
+	dependsOn("genParser")
+	dependsOn("genLexer")
+	dependsOn("genDocfmtParser")
+	dependsOn("genDocfmtLexer")
 	kotlinOptions {
 		jvmTarget = "1.8"
 	}
+}
+
+tasks.withType<Delete> {
+	dependsOn("cleanGenerated")
+}
+
+tasks.withType<PatchPluginXmlTask> {
+	changeNotes(file("res/META-INF/change-notes.html").readText())
+	pluginDescription(file("res/META-INF/description.html").readText())
+	version(pluginVersion)
 }
 
 val SourceSet.kotlin
@@ -187,21 +201,4 @@ task("cleanGenerated") {
 	doFirst {
 		delete("gen")
 	}
-}
-
-getTasksByName("compileKotlin", false).forEach {
-	it.dependsOn("genParser")
-	it.dependsOn("genLexer")
-	it.dependsOn("genDocfmtParser")
-	it.dependsOn("genDocfmtLexer")
-}
-
-getTasksByName("clean", false).forEach {
-	it.dependsOn("cleanGenerated")
-}
-
-tasks.withType<PatchPluginXmlTask> {
-	changeNotes(file("res/META-INF/change-notes.html").readText())
-	pluginDescription(file("res/META-INF/description.html").readText())
-	version(pluginVersion)
 }
