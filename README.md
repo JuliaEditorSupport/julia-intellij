@@ -45,6 +45,7 @@ To download a nightly build (buggy!), visit https://ci.appveyor.com/project/ice1
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17880.png)
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17879.png)
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17881.png)
+![](https://plugins.jetbrains.com/files/10413/screenshot_17891.png)
 
 ## Compatible IDEs
 
