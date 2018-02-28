@@ -46,12 +46,10 @@ allprojects {
 	}
 }
 
-fun collectLines(it: InputStream): List<String> {
-	val reader = it.bufferedReader()
-	val ret = reader.lines().collect(Collectors.toList())
-	reader.close()
-	return ret
-}
+fun collectLines(it: InputStream) =
+	it.bufferedReader().`fuck kotlin! it doesn't support "use" here` {
+		lines().collect(Collectors.toList())
+	}
 
 @Suppress("FunctionName", "ConvertTryFinallyToUseCall")
 @SinceKotlin("1.2")
@@ -66,7 +64,7 @@ fun executeCommand(
 	command: String,
 	timeLimit: Long = 2000L): List<String> {
 	var processRef: Process? = null
-	var output: List<String> = emptyList()
+	var output = emptyList<String>()
 	try {
 		val process: Process = Runtime.getRuntime().exec(command)
 		processRef = process
@@ -79,8 +77,9 @@ fun executeCommand(
 	return output
 }
 
-val commitHash
-	get() = executeCommand("git', 'rev-parse', '--short', 'HEAD").joinToString("").trim()
+val commitHash by lazy {
+	executeCommand("git rev-parse --short HEAD").joinToString("").trim()
+}
 
 val pluginVersion = "0.1.6"
 val packageName = "org.ice1000.julia"
@@ -95,6 +94,6 @@ repositories {
 
 dependencies {
 	compile(kotlin("stdlib", kotlinVersion))
-	compile("", "org.eclipse.egit.github.core-2.1.5")
+	compile(files("lib/org.eclipse.egit.github.core-2.1.5"))
 	testCompile("junit", "junit", "4.12")
 }
