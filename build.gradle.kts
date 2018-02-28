@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
 import java.nio.file.*
+import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 
 buildscript {
@@ -100,10 +101,8 @@ java.sourceSets {
 }
 
 @Suppress("FunctionName", "ConvertTryFinallyToUseCall")
-@SinceKotlin("1.2")
-inline fun <reified Closable, reified Unit>
-	Closable.`fuck kotlin! it doesn't support "use" here`(block: Closable.() -> Unit): Unit
-	where Closable : Closeable, Unit : Any = try {
+inline fun <reified Closable : Closeable, reified Unit : Any>
+	Closable.`fuck kotlin! it doesn't support "use" here`(block: Closable.() -> Unit): Unit = try {
 	block()
 } finally {
 	close()
