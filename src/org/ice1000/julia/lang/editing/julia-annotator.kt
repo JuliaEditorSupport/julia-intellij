@@ -272,7 +272,8 @@ $JULIA_DOC_SURROUNDING
 		val value = BigInteger(intText, base)
 		val type = checkType(value)
 		element.type = type
-		val annotation = holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int-type", type))
+		val annotation = holder.createInfoAnnotation(element,
+			JuliaBundle.message("julia.lint.int-type", type))
 		if (base != 2) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
 			JuliaBundle.message("julia.lint.int-replace-bin")))
 		if (base != 8) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
