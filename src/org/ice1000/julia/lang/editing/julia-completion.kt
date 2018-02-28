@@ -109,7 +109,9 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 	}
 
 	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =
-		position.parent !is JuliaString && typeChar in ".([\\"
+		position.parent !is JuliaString &&
+			position.parent !is JuliaCommand &&
+			typeChar in ".([ "
 
 	init {
 		extend(CompletionType.BASIC, psiElement()
@@ -121,7 +123,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		extend(CompletionType.BASIC,
 			psiElement()
 				.inside(JuliaStatements::class.java).andNot(
-					psiElement().withParent(JuliaString::class.java)),
+				psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(statementBegin))
 		extend(CompletionType.BASIC,
 			psiElement()
