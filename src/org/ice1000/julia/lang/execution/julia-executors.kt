@@ -13,6 +13,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
+import org.ice1000.julia.lang.module.compareVersion
+import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.toYesNo
 import java.nio.charset.Charset
 
@@ -27,6 +29,7 @@ class JuliaCommandLineState(
 	override fun execute(executor: Executor, runner: ProgramRunner<*>): ExecutionResult {
 		val params = mutableListOf<String>()
 		with(configuration) {
+			val settings = project.juliaSettings.settings
 			params += juliaExecutable
 			params += "--check-bounds=${checkBoundsOption.toYesNo()}"
 			params += "--history-file=${historyOption.toYesNo()}"
@@ -35,7 +38,9 @@ class JuliaCommandLineState(
 			params += "--math-mode=${if (unsafeFloatOption) "fast" else "ieee"}"
 			params += "--handle-signals=${handleSignalOption.toYesNo()}"
 			params += "--startup-file=${startupFileOption.toYesNo()}"
-			params += "--optimize=$optimizationLevel"
+			// julia#9384, a bug of 0.4.x
+			if (compareVersion(settings.version, "0.5.0") >= 0)
+				params += "--optimize=$optimizationLevel"
 			params += "--compile=$jitCompiler"
 			params += "--depwarn=$deprecationWarning"
 			params += "--code-coverage=$codeCoverage"
@@ -49,12 +54,10 @@ class JuliaCommandLineState(
 			params += configuration.targetFile
 			params += configuration.programArgs.split(' ', '\n').filter(String::isNotBlank)
 		}
-		val handler = OSProcessHandler(GeneralCommandLine(params).apply {
-			withWorkDirectory(configuration.workingDir)
-		})
+		val handler = OSProcessHandler(GeneralCommandLine(params)
+			.withWorkDirectory(configuration.workingDir))
 		ProcessTerminatedListener.attach(handler)
 		val console = consoleBuilder.console
-		console.print("${handler.commandLine}\n", ConsoleViewContentType.NORMAL_OUTPUT)
 		console.attachToProcess(handler)
 		handler.startNotify()
 		return DefaultExecutionResult(console, handler, PauseOutputAction(console, handler))

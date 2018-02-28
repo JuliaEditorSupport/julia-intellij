@@ -77,6 +77,26 @@ fun versionOf(exePath: String, timeLimit: Long = 800L) =
 		?.dropWhile { it.isLetter() or it.isWhitespace() }
 		?: JuliaBundle.message("julia.modules.sdk.unknown-version")
 
+/**
+ * It's somewhat unsafe, need some robustness check.
+ * In Julia, all versions are like "1.1.1", so it's probably safe.
+ *
+ * @author ice1000
+ * @param version a version
+ * @param version2 another version
+ * @return 0 if equal, positive if newer, negative if lesser
+ */
+fun compareVersion(version: String, version2: String): Int {
+	if (version == version2) return 0
+	val (v0, v1, v2) = version.split('.')
+	val (v20, v21, v22) = version2.split('.')
+	return when {
+		v0 != v20 -> v0.toInt() - v20.toInt()
+		v1 != v21 -> v1.toInt() - v21.toInt()
+		else -> v2.toInt() - v22.toInt()
+	}
+}
+
 fun importPathOf(exePath: String, timeLimit: Long = 800L) =
 	executeJulia(exePath, null, timeLimit, "--print", "Pkg.dir()")
 		.first
