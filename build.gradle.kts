@@ -38,10 +38,9 @@ allprojects {
 	intellij {
 		updateSinceUntilBuild = false
 		instrumentCode = true
-		localPath = when (System.getProperty("user.name")) {
-			"ice1000" -> "/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/173.4548.28"
-			"hoshino" -> "/home/hoshino/文档/IntelliJ"
-			else -> ""
+		when (System.getProperty("user.name")) {
+			"ice1000" -> localPath = "/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/173.4548.28"
+			"hoshino" -> localPath = "/home/hoshino/文档/IntelliJ"
 		}
 	}
 }
