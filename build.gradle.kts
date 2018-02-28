@@ -1,7 +1,9 @@
 import groovy.lang.Closure
 import org.gradle.api.internal.HasConvention
+import org.gradle.language.base.internal.plugins.CleanRule
 import org.jetbrains.grammarkit.tasks.GenerateLexer
 import org.jetbrains.grammarkit.tasks.GenerateParser
+import org.jetbrains.intellij.tasks.PatchPluginXmlTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
@@ -63,7 +65,7 @@ tasks.withType<KotlinCompile> {
 	}
 }
 
-val SourceSet.kotlin: SourceDirectorySet
+val SourceSet.kotlin
 	get() = (this as HasConvention)
 		.convention
 		.getPlugin(KotlinSourceSet::class.java)
@@ -184,7 +186,6 @@ task("cleanGenerated") {
 	description = "Remove all generated codes"
 	doFirst {
 		delete("gen")
-		delete("genorg")
 	}
 }
 
@@ -194,6 +195,13 @@ getTasksByName("compileKotlin", false).forEach {
 	it.dependsOn("genDocfmtParser")
 	it.dependsOn("genDocfmtLexer")
 }
+
 getTasksByName("clean", false).forEach {
 	it.dependsOn("cleanGenerated")
+}
+
+tasks.withType<PatchPluginXmlTask> {
+	changeNotes(file("res/META-INF/change-notes.html").readText())
+	pluginDescription(file("res/META-INF/description.html").readText())
+	version(pluginVersion)
 }
