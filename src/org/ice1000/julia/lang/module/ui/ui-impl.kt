@@ -18,6 +18,7 @@ import java.nio.file.Paths
 import java.text.NumberFormat
 import javax.swing.event.DocumentEvent
 import javax.swing.table.DefaultTableModel
+import javax.swing.table.JTableHeader
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
 
@@ -173,25 +174,17 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManager() {
 
 	init {
-		val model = object : DefaultTableModel(
-			emptyArray(),
-			arrayOf("Package", "Version", "Latest")) {
-			override fun isCellEditable(row: Int, column: Int) = false
-		}
-
-		/** It takes about 10 seconds in Windows */
-		if (JuliaPackageManagerInfoList.infos.isEmpty()) {
-			val versionList = versionsList(project.juliaSettings.settings)
-			versionList.forEach { (name, version) ->
-				JuliaPackageManagerInfoList.infos += InfoData(name, version)
-				model.addRow(arrayOf(name, version, UNKNOWN_VALUE_PLACEHOLDER))
-			}
-		} else JuliaPackageManagerInfoList.infos.forEach {
-			model.addRow(arrayOf(it.name, it.version, UNKNOWN_VALUE_PLACEHOLDER))
-		}
-
-		packagesList.model = model
-		packagesList.setShowGrid(true)
+		packagesList.model = DefaultTableModel(
+			/** It takes about 10 seconds in Windows */
+			if (JuliaPackageManagerInfoList.infos.isEmpty()) {
+				val versionList = versionsList(project.juliaSettings.settings)
+				versionList.map { (name, version) ->
+					JuliaPackageManagerInfoList.infos += InfoData(name, version)
+					arrayOf(name, version, UNKNOWN_VALUE_PLACEHOLDER)
+				}.toTypedArray()
+			} else JuliaPackageManagerInfoList.infos.map {
+				arrayOf(it.name, it.version, UNKNOWN_VALUE_PLACEHOLDER)
+			}.toTypedArray(), arrayOf("Package", "Version", "Latest"))
 
 		// FIXME replace with a refresh button
 		ProgressManager.getInstance()
