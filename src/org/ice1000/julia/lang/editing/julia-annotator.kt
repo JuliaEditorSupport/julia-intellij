@@ -27,24 +27,15 @@ enum class NumeralType(
 	BigInt(0, ZERO..ZERO);
 }
 
-/**
- * 代码的高亮提示之类的
- */
 class JuliaAnnotator : Annotator {
-	/**
-	 * 主入口
-	 * @param element 接受处理的PsiElement
-	 * @param holder 接下来要高亮提示什么的都要靠这玩意
-	 */
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-		when (element) {		//根据element的类型处理
+		when (element) {
 			is JuliaFunction -> function(element, holder)
 			is JuliaCompactFunction -> compactFunction(element, holder)
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
 			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
 			is JuliaPlusLevelOp -> plusLevelOp(element, holder)
-			is JuliaMultiplyLevelOp -> multiplyLevelOp(element, holder)
 			is JuliaAssignLevelOp -> assignLevelOp(element, holder)
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
@@ -55,54 +46,49 @@ class JuliaAnnotator : Annotator {
 		}
 	}
 
-	/**
-	 * 紧凑的函数...
-	 * function a(...) = b
-	 */
 	private fun compactFunction(
 		element: JuliaCompactFunction,
 		holder: AnnotationHolder) {
-		val typeParams = element.typeParameters		//函数的参数s
-		val name = element.name		//函数名
-		val signature = element.functionSignature		//这啥
-		val functionBody = element.exprList.lastOrNull()?.text.orEmpty()		//函数主体
-		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.compact-function"))		//添加提示
-			.registerFix(JuliaReplaceWithTextIntention(		//注册修复事件, 用的是JuliaReplaceWithTextIntention, 就是替换文本
-				element,		//被替换的element
-				"""function ${element.name}${typeParams?.text.orEmpty()}${element.functionSignature.text}
-${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $functionBody\n"}end""",			//替换的文本
-				JuliaBundle.message("julia.lint.replace-ordinary-function")))		//替换事件的文名称
+		val typeParams = element.typeParameters
+		val name = element.name
+		val signature = element.functionSignature
+		val functionBody = element.exprList.lastOrNull()?.text.orEmpty()
+		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.compact-function"))
+			.registerFix(JuliaReplaceWithTextIntention(
+				element, """function $name${typeParams?.text.orEmpty()}${element.functionSignature.text}
+${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $functionBody\n"}end""",
+				JuliaBundle.message("julia.lint.replace-ordinary-function")))
 		docStringFunction(element, signature, holder, name, "", signatureText = signature
 			.typedNamedVariableList
 			.joinToString(", ") { it.exprList.firstOrNull()?.text.orEmpty() }
 			.let { "($it)" })
 	}
 
-	/**
-	 * 普通的函数
-	 * function a(...)
-	 * b
-	 * end
-	 */
 	private fun function(
 		element: JuliaFunction,
 		holder: AnnotationHolder) {
-		val statements = element.statements?.run { exprList + moduleDeclarationList + globalStatementList } ?: return		//不懂
-		val signature = element.functionSignature		//还是不懂
-		val signatureText = signature?.text ?: "()"		//QAQ仍然不懂
-		val typeParamsText = element.typeParameters?.text.orEmpty()		//参数s
-		val where = element.whereClause		//?
-		val name = element.name			//函数名
+		val statements = element.statements?.run { exprList + moduleDeclarationList + globalStatementList } ?: return
+		val signature = element.functionSignature
+		val signatureText = signature?.text ?: "()"
+		val typeParamsText = element.typeParameters?.text.orEmpty()
+		val where = element.whereClause
+		val name = element.name
 		if (where == null) when {
-			statements.isEmpty() -> holder.createWeakWarningAnnotation(element, JuliaBundle.message("julia.lint.empty-function"))
+			statements.isEmpty() -> holder.createWeakWarningAnnotation(
+				element.firstChild,
+				JuliaBundle.message("julia.lint.empty-function"))
 				.registerFix(JuliaReplaceWithTextIntention(element,
 					"$name$typeParamsText$signatureText = ()",
 					JuliaBundle.message("julia.lint.replace-compact-function")))
 			statements.size == 1 -> {
-				val statement = statements.first().let { (it as? JuliaReturnExpr)?.text?.removePrefix("return") ?: it.text }
-				holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.lonely-function"))
+				val expression = statements.first().let {
+					(it as? JuliaReturnExpr)?.exprList?.joinToString(", ") { it.text } ?: it.text
+				}
+				holder.createWeakWarningAnnotation(
+					element.firstChild,
+					JuliaBundle.message("julia.lint.lonely-function"))
 					.registerFix(JuliaReplaceWithTextIntention(element,
-						"$name$typeParamsText$signatureText = $statement",
+						"$name$typeParamsText$signatureText = $expression",
 						JuliaBundle.message("julia.lint.replace-compact-function")))
 			}
 		}
@@ -121,13 +107,14 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		typeParamsText: String,
 		signatureText: String) {
 		if (element.docString != null || element.parent !is JuliaStatements) return
+		val identifier = element.nameIdentifier ?: return
 		val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
 			"# Arguments\n\n${joinToString("\n") {
 				//                    这是一根被卡在石头里的宝剑 XD ⇊⇊⇊
 				"- `${it.exprList.firstOrNull()?.text.orEmpty()}${it.typeAnnotation?.text ?: "::Any"}`:"
 			}}"
 		}.orEmpty()
-		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.no-doc-string-function"))
+		holder.createInfoAnnotation(identifier, JuliaBundle.message("julia.lint.no-doc-string-function"))
 			.registerFix(JuliaInsertTextBeforeIntention(element, """$JULIA_DOC_SURROUNDING
     $name$typeParamsText$signatureText
 
@@ -154,11 +141,6 @@ $JULIA_DOC_SURROUNDING
 				registerFix(JuliaReplaceWithTextIntention(element, "${element.firstChild.text} \u22bb ${element.lastChild.text}",
 					JuliaBundle.message("julia.lint.xor-replace-22bb", element.firstChild.text, element.lastChild.text)))
 			}
-		}
-	}
-
-	private fun multiplyLevelOp(element: JuliaMultiplyLevelOp, holder: AnnotationHolder) {
-		when (element.multiplyLevelOperator.text.firstOrNull()) {
 		}
 	}
 
@@ -203,11 +185,6 @@ $JULIA_DOC_SURROUNDING
 		if (name is JuliaSymbol) {
 			when (name.text) {
 				"new" -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.KEYWORD
-			// TODO make sure it's not re-defined function
-				"rem",
-				"mod" -> {
-					element.children.getOrNull(1)?.children?.getOrNull(1) ?: return
-				}
 			}
 		}
 	}

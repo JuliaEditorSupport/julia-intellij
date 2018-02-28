@@ -38,15 +38,15 @@ allprojects {
 
 sourceSets {
 	main {
+		kotlin.srcDirs = ['src', 'gen']
 		java.srcDirs = ['src', 'gen']
-		kotlin.srcDirs 'src'
-		resources.srcDirs 'res'
+		resources.srcDirs = ['res']
 	}
 
 	test {
+		kotlin.srcDirs = ['test']
 		java.srcDirs = ['test']
-		kotlin.srcDirs 'test'
-		resources.srcDirs 'testData'
+		resources.srcDirs = ['testData']
 	}
 }
 
@@ -59,7 +59,7 @@ def commitHash = { ->
 	return stdout.toString().trim()
 }
 
-String pluginVersion = '0.1.5'
+String pluginVersion = '0.1.6'
 String packageName = 'org.ice1000.julia'
 
 group packageName

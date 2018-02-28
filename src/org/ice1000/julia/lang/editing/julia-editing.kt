@@ -48,6 +48,7 @@ class JuliaIconProvider : IconProvider() {
 			is JuliaAbstractTypeDeclaration,
 			is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
 			is JuliaFunction -> JuliaIcons.JULIA_FUNCTION_ICON
+			is JuliaMacro -> JuliaIcons.JULIA_MACRO_ICON
 			else -> JuliaIcons.JULIA_ICON
 		}
 	}

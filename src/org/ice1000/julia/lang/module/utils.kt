@@ -22,6 +22,7 @@ val defaultExePath by lazy {
 	if (!existPath.isEmpty() && Files.isExecutable(Paths.get(existPath))) existPath else juliaPath
 }
 
+@Suppress("DEPRECATION")
 val juliaPath by lazy {
 	PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath ?: when {
 		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
@@ -51,6 +52,7 @@ class JuliaSettings(
 	var basePath: String = "",
 	var version: String = "",
 	var unicodeEnabled: Boolean = true,
+	var showEvalHint: Boolean = false,
 	var tryEvaluateTimeLimit: Long = 2500L,
 	var tryEvaluateTextLimit: Int = 320) {
 	fun initWithExe() {
@@ -82,10 +84,8 @@ fun importPathOf(exePath: String, timeLimit: Long = 800L) =
 		.orEmpty()
 		.trim('"')
 
-fun validateJuliaExe(exePath: String) = versionOf(exePath) != JuliaBundle.message("julia.modules.sdk.unknown-version")
-fun validateJulia(settings: JuliaSettings) = settings.version
-	.let { it.isNotBlank() && it != JuliaBundle.message("julia.modules.sdk.unknown-version") }
-
+fun validateJuliaExe(exePath: String) = Files.isExecutable(Paths.get(exePath))
+fun validateJulia(settings: JuliaSettings) = validateJuliaExe(settings.exePath)
 fun installDocumentFormat(
 	project: Project,
 	settings: JuliaSettings): ActionListener = ActionListener {

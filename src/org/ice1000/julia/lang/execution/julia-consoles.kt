@@ -28,32 +28,30 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 	}
 
 	private fun default(startPoint: Int, entireLength: Int) = Filter.Result(startPoint, entireLength, null)
-	override fun applyFilter(line: String, entireLength: Int): Filter.Result? {
+	override fun applyFilter(line: String, entireLength: Int): Filter.Result {
 		val startPoint = entireLength - line.length
-		if (line.startsWith(" [")) {
-			val matcher = STACK_FRAME_LOCATION.matcher(line)
-			if (matcher.find()) {
-				val (path, lineNumber) = matcher.group().drop(3).split(':') // "at ".length
-				val resultPath = Paths.get(sdkHomeCache, path.trim('.', '/')).toAbsolutePath().toString()
-				val resultFile = project.baseDir.fileSystem.findFileByPath(resultPath)
-					?: return default(startPoint, entireLength)
-				return Filter.Result(
-					startPoint + matcher.start() + 3,
-					startPoint + matcher.end(),
-					OpenFileHyperlinkInfo(project, resultFile, lineNumber.toInt().let { if (it > 0) it - 1 else it }))
-			}
-		} else {
-			val matcher = ERROR_FILE_LOCATION.matcher(line)
-			if (matcher.find()) {
-				val resultFile = project.baseDir.fileSystem.findFileByPath(matcher.group().dropLast(1))
-					?: return default(startPoint, entireLength)
-				val lineNumber = line.split(' ').lastOrNull()?.trim()?.toIntOrNull()
-					?: return default(startPoint, entireLength)
-				return Filter.Result(
-					startPoint + matcher.start(),
-					startPoint + matcher.end() - 1,
-					OpenFileHyperlinkInfo(project, resultFile, lineNumber.let { if (it > 0) it - 1 else it }))
-			}
+		val fileSystem = project.baseDir.fileSystem
+		val matcher1 = STACK_FRAME_LOCATION.matcher(line)
+		if (matcher1.find()) {
+			val (path, lineNumber) = matcher1.group().drop(3).split(':') // "at ".length
+			val resultFile = fileSystem.findFileByPath(path)
+				?: fileSystem.findFileByPath(Paths.get(sdkHomeCache, path.trim('.', '/')).toString())
+				?: return default(startPoint, entireLength)
+			return Filter.Result(
+				startPoint + matcher1.start() + 3,
+				startPoint + matcher1.end(),
+				OpenFileHyperlinkInfo(project, resultFile, lineNumber.toInt()))
+		}
+		val matcher2 = ERROR_FILE_LOCATION.matcher(line)
+		if (matcher2.find()) {
+			val resultFile = fileSystem.findFileByPath(matcher2.group().dropLast(1))
+				?: return default(startPoint, entireLength)
+			val lineNumber = line.split(' ').lastOrNull()?.trim()?.toIntOrNull()
+				?: return default(startPoint, entireLength)
+			return Filter.Result(
+				startPoint + matcher2.start(),
+				startPoint + matcher2.end() - 1,
+				OpenFileHyperlinkInfo(project, resultFile, lineNumber))
 		}
 		return default(startPoint, entireLength)
 	}

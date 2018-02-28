@@ -11,7 +11,12 @@ import shutil
 # pre
 shutil.copy2("../CONTRIBUTING.md", ".")
 shutil.copy2("../README.md", "MainPage.md")
-shutil.copy2("../res/META-INF/description.html", "Features.md")
+feature_source = open("../res/META-INF/description.html", "r")
+feature_target = open("Features.md", "w")
+feature_target.write("# Features\n")
+feature_target.write(feature_source.read())
+feature_target.close()
+feature_source.close()
 
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.intersphinx',

@@ -66,6 +66,10 @@ abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(no
 }
 
 abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), JuliaAssignOp {
+	override var type: Type?
+		get() = exprList.lastOrNull()?.type
+		set(value) {}
+
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol }
 }
 
@@ -107,7 +111,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 	override var docString: JuliaString? = null
 	private var body: JuliaExpr? = null
 		get() {
-			if (field == null) field = lastChild as? JuliaExpr ?: return null
+			if (field == null) field = lastChild as? JuliaExpr
 			return field
 		}
 
@@ -245,13 +249,12 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 
 	final override fun getNameIdentifier() = if (isDeclaration) null else super.getNameIdentifier()
 	override var type: Type? = null
-		get() = if (isVariableName)
-			(parent as JuliaAssignOp)
-				.children
-				.lastOrNull { it is JuliaExpr }
-				?.let { it as JuliaExpr }
-				?.type
-				?.also { field = it }
+		get() = if (isVariableName) (parent as JuliaAssignOp)
+			.children
+			.lastOrNull { it is JuliaExpr }
+			?.let { it as JuliaExpr }
+			?.type
+			?.also { field = it }
 		else field
 }
 

@@ -7,7 +7,6 @@ This is a **work in progress**, some features are implemented partially, there m
 [![JetBrains plugins](https://img.shields.io/jetbrains/plugin/d/10413-julia.svg)](https://plugins.jetbrains.com/plugin/10413-julia)
 [![Join the chat at https://gitter.im/julia-intellij/Lobby](https://badges.gitter.im/julia-intellij/Lobby.svg)](https://gitter.im/julia-intellij/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-<style>td, th {border: 1px solid #e1e4e5 !important;border-collapse: collapse;}</style>
 <table>
   <tr>
     <th>CI</th>

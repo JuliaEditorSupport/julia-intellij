@@ -29,11 +29,11 @@ class JuliaApplicationComponent(private val project: Project) : ProjectComponent
 
 	/** 好想把函数名写成 hugify 。。。 */
 	private fun notify(@Nls title: String, @Nls content: String, type: NotificationType = NotificationType.INFORMATION) {
-		val group = NotificationGroup(
+		val notification = NotificationGroup(
 			JuliaBundle.message("julia.messages.notify.group"),
 			NotificationDisplayType.STICKY_BALLOON,
 			true)
-		val notification = group.createNotification(title, content, type, NotificationListener.URL_OPENING_LISTENER)
+			.createNotification(title, content, type, NotificationListener.URL_OPENING_LISTENER)
 		Notifications.Bus.notify(notification, project)
 	}
 }

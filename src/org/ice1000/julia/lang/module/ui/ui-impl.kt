@@ -13,6 +13,8 @@ import com.intellij.ui.DocumentAdapter
 import org.ice1000.julia.lang.JULIA_SDK_HOME_PATH_ID
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.module.*
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.text.NumberFormat
 import javax.swing.event.DocumentEvent
 import javax.swing.text.DefaultFormatterFactory
@@ -129,7 +131,11 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		else
 			juliaExeField.text = defaultExePath
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
-		installAutoFormatButton.addActionListener(installDocumentFormat(project, settings))
+		showEvalHintCheckBox.isSelected = settings.showEvalHint
+		if (Files.exists(Paths.get(settings.importPath, "DocumentFormat"))) {
+			installAutoFormatButton.isEnabled = false
+			installAutoFormatButton.text = JuliaBundle.message("julia.messages.doc-format.already")
+		} else installAutoFormatButton.addActionListener(installDocumentFormat(project, settings))
 	}
 
 	override fun getDisplayName() = JuliaBundle.message("julia.name")
@@ -138,8 +144,9 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		settings.basePath != basePathField.text ||
 		settings.exePath != juliaExeField.text ||
 		unicodeInputCheckBox.isSelected != settings.unicodeEnabled ||
-		settings.tryEvaluateTextLimit != textLimitField.value ||
-		settings.tryEvaluateTimeLimit != timeLimitField.value
+		showEvalHintCheckBox.isSelected != settings.showEvalHint ||
+		settings.tryEvaluateTextLimit != (textLimitField.value as Number).toInt() ||
+		settings.tryEvaluateTimeLimit != (timeLimitField.value as Number).toLong()
 
 	@Throws(ConfigurationException::class)
 	override fun apply() {
@@ -154,6 +161,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		settings.basePath = basePathField.text
 		settings.importPath = importPathField.text
 		settings.unicodeEnabled = unicodeInputCheckBox.isSelected
+		settings.showEvalHint = showEvalHintCheckBox.isSelected
 	}
 }
 
@@ -165,7 +173,7 @@ class JuliaPackageManagerImpl : JuliaPackageManager() {
 	init {
 	}
 
-	override fun getDisplayName() = JuliaBundle.message("julia.package.manager.title")
+	override fun getDisplayName() = JuliaBundle.message("julia.pkg-manager.title")
 	override fun createComponent() = mainPanel
 	override fun isModified() = false
 	override fun apply() {
