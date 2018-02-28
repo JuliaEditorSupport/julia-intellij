@@ -173,31 +173,31 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManager() {
 
 	init {
-		val title = arrayOf("Package", "Version", "Latest")
-		val model = object : DefaultTableModel(0, 3) {
+		val model = object : DefaultTableModel(
+			emptyArray(),
+			arrayOf("Package", "Version", "Latest")) {
 			override fun isCellEditable(row: Int, column: Int) = false
 		}
 
-		model.addRow(title)
-		packagesList.model = model
-		packagesList.setShowGrid(false)
+		/** It takes about 10 seconds in Windows */
+		if (JuliaPackageManagerInfoList.infos.isEmpty()) {
+			val versionList = versionsList(project.juliaSettings.settings)
+			versionList.forEach { (name, version) ->
+				JuliaPackageManagerInfoList.infos += InfoData(name, version)
+				model.addRow(arrayOf(name, version, UNKNOWN_VALUE_PLACEHOLDER))
+			}
+		} else JuliaPackageManagerInfoList.infos.forEach {
+			model.addRow(arrayOf(it.name, it.version, UNKNOWN_VALUE_PLACEHOLDER))
+		}
 
+		packagesList.model = model
+		packagesList.setShowGrid(true)
+
+		// FIXME replace with a refresh button
 		ProgressManager.getInstance()
 			.run(object : Task.Backgroundable(project,
 				JuliaBundle.message("julia.messages.doc-format.installing"), true) {
 				override fun run(indicator: ProgressIndicator) {
-					/** It takes about 10 seconds in Windows */
-					if (JuliaPackageManagerInfoList.infos.isEmpty()) {
-						val versionList = JuliaPackageManagerUtil.versionsList()
-						versionList.forEach { (name, version) ->
-							JuliaPackageManagerInfoList.infos += InfoData(name, version)
-							model.addRow(arrayOf(name, version, UNKNOWN_VALUE_PLACEHOLDER))
-						}
-					} else JuliaPackageManagerInfoList.infos.forEach {
-						model.addRow(arrayOf(it.name, it.version, UNKNOWN_VALUE_PLACEHOLDER))
-					}
-
-					packagesList.model = model
 				}
 			})
 	}
