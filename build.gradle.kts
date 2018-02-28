@@ -1,6 +1,7 @@
 import groovy.lang.Closure
 import org.gradle.api.internal.HasConvention
 import org.gradle.language.base.internal.plugins.CleanRule
+import org.jetbrains.grammarkit.tasks.BaseTask
 import org.jetbrains.grammarkit.tasks.GenerateLexer
 import org.jetbrains.grammarkit.tasks.GenerateParser
 import org.jetbrains.intellij.tasks.PatchPluginXmlTask
@@ -51,6 +52,7 @@ allprojects {
 		when (System.getProperty("user.name")) {
 			"ice1000" -> localPath = "/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/173.4548.28"
 			"hoshino" -> localPath = "/home/hoshino/文档/IntelliJ"
+			"zh" -> version = "2017.3"
 		}
 	}
 }
@@ -156,7 +158,10 @@ task("isCI") {
 	}
 }
 
-task<GenerateParser>("genParser") {
+inline fun <reified type : BaseTask> Project.genTask(name: String, noinline configuration: type.() -> Unit)
+	= task(name, type::class, configuration)
+
+genTask<GenerateParser>("genParser") {
 	group = "build setup"
 	description = "Generate the Parser and PsiElement classes"
 	source = "grammar/julia-grammar.bnf"
@@ -166,7 +171,7 @@ task<GenerateParser>("genParser") {
 	purgeOldFiles = true
 }
 
-task<GenerateLexer>("genLexer") {
+genTask<GenerateLexer>("genLexer") {
 	group = "build setup"
 	description = "Generate the Lexer"
 	source = "grammar/julia-lexer.flex"
@@ -175,7 +180,7 @@ task<GenerateLexer>("genLexer") {
 	purgeOldFiles = true
 }
 
-task<GenerateParser>("genDocfmtParser") {
+genTask<GenerateParser>("genDocfmtParser") {
 	group = "build setup"
 	description = "Generate the Parser for DocumentFormat.jl"
 	source = "grammar/docfmt-grammar.bnf"
@@ -185,7 +190,7 @@ task<GenerateParser>("genDocfmtParser") {
 	purgeOldFiles = true
 }
 
-task<GenerateLexer>("genDocfmtLexer") {
+genTask<GenerateLexer>("genDocfmtLexer") {
 	group = "build setup"
 	description = "Generate the Lexer for DocumentFormat.jl"
 	source = "grammar/docfmt-lexer.flex"

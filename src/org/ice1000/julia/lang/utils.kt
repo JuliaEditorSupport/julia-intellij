@@ -65,6 +65,35 @@ fun executeCommand(
 	return output to outputErr
 }
 
+fun executeCommandUntilResult(
+	command: String,
+	input: String?,
+	untilResult: String, timeLimit: Long = 20_000L): List<String> {
+	var processRef: Process? = null
+	var output: List<String> = emptyList()
+	try {
+		SimpleTimeLimiter().callWithTimeout({
+			val process: Process = Runtime.getRuntime().exec(command)
+			processRef = process
+			if (input != null) process.outputStream.use {
+				it.write(input.toByteArray())
+				it.flush()
+			}
+			while (true) {
+				process.waitFor(500L, TimeUnit.MILLISECONDS)
+				output = process.inputStream.use(::collectLines)
+				if (output.any{ untilResult in it }) {
+					break
+				}
+			}
+			forceRun(process::destroy)
+		}, timeLimit,TimeUnit.MILLISECONDS, true)
+	} catch (e: Exception) {
+		processRef?.destroy()
+	}
+	return output
+}
+
 private fun collectLines(it: InputStream): List<String> {
 	val reader = it.bufferedReader()
 	val ret = reader.lines().collect(Collectors.toList())
