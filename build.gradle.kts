@@ -3,6 +3,7 @@ import org.gradle.api.internal.HasConvention
 import org.jetbrains.grammarkit.tasks.GenerateLexer
 import org.jetbrains.grammarkit.tasks.GenerateParser
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
 import java.nio.file.*
 import java.util.stream.Collectors
@@ -56,6 +57,32 @@ java {
 	targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+tasks.withType<KotlinCompile> {
+	kotlinOptions {
+		jvmTarget = "1.8"
+	}
+}
+
+val SourceSet.kotlin: SourceDirectorySet
+	get() = (this as HasConvention)
+		.convention
+		.getPlugin(KotlinSourceSet::class.java)
+		.kotlin
+
+java.sourceSets {
+	getByName("main").run {
+		java.srcDirs("src", "gen")
+		kotlin.srcDirs("src", "gen")
+		resources.srcDirs("res")
+	}
+
+	getByName("test").run {
+		java.srcDirs("test")
+		kotlin.srcDirs("test")
+		resources.srcDirs("testData")
+	}
+}
+
 @Suppress("FunctionName", "ConvertTryFinallyToUseCall")
 @SinceKotlin("1.2")
 inline fun <reified Closable, reified Unit>
@@ -94,33 +121,8 @@ repositories {
 
 dependencies {
 	compile(kotlin("stdlib", kotlinVersion))
-	compile(files(Paths.get("lib", "org.eclipse.egit.github.core-2.1.5")))
+	compile(files(Paths.get("lib", "org.eclipse.egit.github.core-2.1.5.jar")))
 	testCompile("junit", "junit", "4.12")
-}
-
-val SourceSet.kotlin: SourceDirectorySet
-	get() =
-		(this as HasConvention)
-			.convention
-			.getPlugin(KotlinSourceSet::class.java)
-			.kotlin
-
-
-fun SourceSet.kotlin(action: SourceDirectorySet.() -> Unit) =
-	kotlin.action()
-
-java.sourceSets {
-	getByName("main").run {
-		java.srcDirs("src", "gen")
-		kotlin.srcDirs("src", "gen")
-		resources.srcDirs("res")
-	}
-
-	getByName("test").run {
-		java.srcDirs("test")
-		kotlin.srcDirs("test")
-		resources.srcDirs("testData")
-	}
 }
 
 task("displayCommitHash") {
@@ -139,18 +141,17 @@ task("isCI") {
 	}
 }
 
-task("genParser", GenerateParser::class) {
+task<GenerateParser>("genParser") {
 	group = "build setup"
 	description = "Generate the Parser and PsiElement classes"
 	source = "grammar/julia-grammar.bnf"
-	targetRoot = "gen"
+	targetRoot = "gen/"
 	pathToParser = "org/ice1000/julia/lang/JuliaParser.java"
 	pathToPsiRoot = "org/ice1000/julia/lang/psi"
 	purgeOldFiles = true
 }
 
-task("genLexer", GenerateLexer::class) {
-	dependsOn("genParser")
+task<GenerateLexer>("genLexer") {
 	group = "build setup"
 	description = "Generate the Lexer"
 	source = "grammar/julia-lexer.flex"
@@ -159,18 +160,17 @@ task("genLexer", GenerateLexer::class) {
 	purgeOldFiles = true
 }
 
-task("genDocfmtParser", GenerateParser::class) {
+task<GenerateParser>("genDocfmtParser") {
 	group = "build setup"
 	description = "Generate the Parser for DocumentFormat.jl"
 	source = "grammar/docfmt-grammar.bnf"
-	targetRoot = "gen"
+	targetRoot = "gen/"
 	pathToParser = "org/ice1000/julia/lang/docfmt/DocfmtParser.java"
 	pathToPsiRoot = "org/ice1000/julia/lang/docfmt/psi"
 	purgeOldFiles = true
 }
 
-task("genDocfmtLexer", GenerateLexer::class) {
-	dependsOn("genDocfmtParser")
+task<GenerateLexer>("genDocfmtLexer") {
 	group = "build setup"
 	description = "Generate the Lexer for DocumentFormat.jl"
 	source = "grammar/docfmt-lexer.flex"
@@ -180,8 +180,20 @@ task("genDocfmtLexer", GenerateLexer::class) {
 }
 
 task("cleanGenerated") {
-
+	group = "build"
+	description = "Remove all generated codes"
+	doFirst {
+		delete("gen")
+		delete("genorg")
+	}
 }
 
-getTasksByName("buildPlugin", false).first().dependsOn("genLexer")
-getTasksByName("buildPlugin", false).first().dependsOn("genDocfmtLexer")
+getTasksByName("compileKotlin", false).forEach {
+	it.dependsOn("genParser")
+	it.dependsOn("genLexer")
+	it.dependsOn("genDocfmtParser")
+	it.dependsOn("genDocfmtLexer")
+}
+getTasksByName("clean", false).forEach {
+	it.dependsOn("cleanGenerated")
+}
