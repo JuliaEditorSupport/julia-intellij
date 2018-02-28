@@ -116,7 +116,7 @@
 		</action>
 		<action
 			id="Julia.NewJuliaFile"
-			icon="JuliaIcons.JULIA_BIG_ICON"
+			icon="JuliaIcons.JULIA_ICON"
 			class="org.ice1000.julia.lang.action.NewJuliaFile">
 			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
 		</action>
@@ -142,7 +142,7 @@
 			popup="true">
 			<action
 				id="Julia.Tools.DocumentFormat"
-				icon="JuliaIcons.JULIA_BIG_ICON"
+				icon="JuliaIcons.DOCFMT_BLUE_ICON"
 				class="org.ice1000.julia.lang.action.JuliaDocumentFormatAction">
 			</action>
 			<add-to-group group-id="ToolsMenu" anchor="last"/>
