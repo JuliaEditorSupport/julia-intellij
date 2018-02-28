@@ -53,10 +53,10 @@ class JuliaCommandLineState(
 			withWorkDirectory(configuration.workingDir)
 		})
 		ProcessTerminatedListener.attach(handler)
-		handler.startNotify()
 		val console = consoleBuilder.console
 		console.print("${handler.commandLine}\n", ConsoleViewContentType.NORMAL_OUTPUT)
 		console.attachToProcess(handler)
+		handler.startNotify()
 		return DefaultExecutionResult(console, handler, PauseOutputAction(console, handler))
 	}
 
