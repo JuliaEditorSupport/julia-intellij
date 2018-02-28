@@ -15,13 +15,12 @@ object JuliaPackageManagerInfoList {
 fun versionsList(settings: JuliaSettings): List<Pair<String, String>> {
 	@Language("Julia")
 	val code = "Pkg.installed()"
-	val (ret) = executeCommand(settings.exePath, code)
+	val (ret) = executeCommand(settings.exePath, code, 20_000L)
 	return ret
 		.filter { "=>" in it }
 		.map {
 			//language=RegExp
-			val (name, version) = it.replace(Regex("v?\"|\\s"), "")
-				.split("=>")
-			name to version
+			val (name, version) = it.split("=>")
+			name.trim(' ', '"') to version.trim(' ', '"').removePrefix("v\"")
 		}
 }
