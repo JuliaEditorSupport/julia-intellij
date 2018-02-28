@@ -4,6 +4,7 @@ import org.ice1000.julia.lang.executeCommand
 import org.ice1000.julia.lang.module.*
 import org.intellij.lang.annotations.Language
 import org.junit.Test
+import java.io.File
 
 class JuliaPackageTest {
 	/**
@@ -17,7 +18,7 @@ class JuliaPackageTest {
 		return stdout
 			.firstOrNull()
 			?.trim('"')
-			?.toFile()
+			?.let(::File)
 			?.listFiles()
 			?.filter { it.isDirectory && !it.name.startsWith(".") && it.name != "METADATA" }
 			?.map { it.name }
@@ -27,13 +28,13 @@ class JuliaPackageTest {
 	@Test
 	fun testListPackages() {
 		if (!System.getenv("CI").isNullOrBlank()) return
+		println(juliaPath)
 		packagesList().forEach(::println)
 	}
 
 	@Test
 	fun testListPackageVersions() {
 		if (!System.getenv("CI").isNullOrBlank()) return
-		JuliaPackageManagerUtil.versionsList()
-			.forEach(::println)
+		versionsList(JuliaSettings()).forEach(::println)
 	}
 }

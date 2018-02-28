@@ -10,5 +10,5 @@ import javax.swing.*;
 public abstract class JuliaPackageManager implements Configurable {
 	protected @NotNull JPanel mainPanel;
 	protected @NotNull ComboboxWithBrowseButton alternativeExecutables;
-	protected JBTable packagesList;
+	protected @NotNull JBTable packagesList;
 }
