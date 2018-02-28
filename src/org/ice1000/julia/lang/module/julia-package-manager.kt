@@ -14,20 +14,6 @@ object JuliaPackageManagerInfoList {
  * FIXME @zxj5470 convert to top-level function.
  */
 object JuliaPackageManagerUtil {
-	fun packagesList(): List<String> {
-		@Language("Julia")
-		val code = "Pkg.dir()"
-		val (stdout) = executeCommand(juliaPath, code)
-		return stdout
-			.firstOrNull()
-			?.trim('"')
-			?.toFile()
-			?.listFiles()
-			?.filter { it.isDirectory && !it.name.startsWith(".") && it.name != "METADATA" }
-			?.map { it.name }
-			?: emptyList()
-	}
-
 	fun versionsList(): List<Pair<String, String>> {
 		@Language("Julia")
 		val code = "Pkg.installed()"
