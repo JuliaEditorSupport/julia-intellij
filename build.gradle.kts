@@ -1,6 +1,8 @@
 import groovy.lang.Closure
+import org.gradle.api.internal.HasConvention
 import org.jetbrains.grammarkit.tasks.GenerateLexer
 import org.jetbrains.grammarkit.tasks.GenerateParser
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.io.*
 import java.nio.file.*
 import java.util.stream.Collectors
@@ -94,6 +96,31 @@ dependencies {
 	compile(kotlin("stdlib", kotlinVersion))
 	compile(files(Paths.get("lib", "org.eclipse.egit.github.core-2.1.5")))
 	testCompile("junit", "junit", "4.12")
+}
+
+val SourceSet.kotlin: SourceDirectorySet
+	get() =
+		(this as HasConvention)
+			.convention
+			.getPlugin(KotlinSourceSet::class.java)
+			.kotlin
+
+
+fun SourceSet.kotlin(action: SourceDirectorySet.() -> Unit) =
+	kotlin.action()
+
+java.sourceSets {
+	getByName("main").run {
+		java.srcDirs("src", "gen")
+		kotlin.srcDirs("src", "gen")
+		resources.srcDirs("res")
+	}
+
+	getByName("test").run {
+		java.srcDirs("test")
+		kotlin.srcDirs("test")
+		resources.srcDirs("testData")
+	}
 }
 
 task("displayCommitHash") {
