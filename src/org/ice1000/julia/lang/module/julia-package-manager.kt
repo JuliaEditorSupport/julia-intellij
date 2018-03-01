@@ -46,6 +46,7 @@ fun versionsList(settings: JuliaSettings) =
 	executeCommand(settings.exePath, "Pkg.installed()", 20_000L)
 		.first
 		.filter { "=>" in it }
+		.sorted()
 		.map {
 			//language=RegExp
 			val (name, version) = it.split("=>")
