@@ -247,7 +247,6 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			isPrimitiveTypeName
 	}
 
-	final override fun getNameIdentifier() = if (isDeclaration) null else super.getNameIdentifier()
 	override var type: Type? = null
 		get() = if (isVariableName) (parent as JuliaAssignOp)
 			.children

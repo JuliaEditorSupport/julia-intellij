@@ -11,7 +11,7 @@ public abstract class JuliaPackageManager implements Configurable {
 	protected @NotNull JPanel mainPanel;
 	protected @NotNull ComboboxWithBrowseButton alternativeExecutables;
 	protected @NotNull JBTable packagesList;
-	protected JButton buttonAdd;
-	protected JButton buttonRemove;
-	protected JButton buttonRefresh;
+	protected @NotNull JButton buttonAdd;
+	protected @NotNull JButton buttonRemove;
+	protected @NotNull JButton buttonRefresh;
 }
