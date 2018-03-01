@@ -1,11 +1,30 @@
 package org.ice1000.julia.lang.module
 
 import org.ice1000.julia.lang.executeCommand
+import org.intellij.lang.annotations.Language
+import java.io.File
 
-data class InfoData(val name: String, val version: String)
+data class InfoData(val name: String, val version: String, val latestVersion: String = "")
 
-object JuliaPackageManagerInfoList {
-	val infos = emptyList<InfoData>().toMutableList()
+val packageInfos = emptyList<InfoData>().toMutableList()
+var packageNameFinished = false
+var packageVersionFinished = false
+/**
+ * It's needed for UE(User Experience)
+ */
+fun packageNamesList(): List<String> {
+	fun String.toFile() = File(this)
+	@Language("Julia")
+	val code = "Pkg.dir()"
+	val (stdout) = executeCommand(juliaPath, code, 5000L)
+	return stdout
+		.firstOrNull()
+		?.trim('"')
+		?.toFile()
+		?.listFiles()
+		?.filter { it.isDirectory && !it.name.startsWith(".") && it.name != "METADATA" }
+		?.map { it.name }
+		?: emptyList()
 }
 
 /**

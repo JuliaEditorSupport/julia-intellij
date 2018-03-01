@@ -3,14 +3,18 @@ package org.ice1000.julia.lang.module.ui
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.ide.util.projectWizard.SettingsStep
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectGeneratorPeer
 import com.intellij.ui.DocumentAdapter
+import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
 import java.nio.file.Files
@@ -18,14 +22,12 @@ import java.nio.file.Paths
 import java.text.NumberFormat
 import javax.swing.event.DocumentEvent
 import javax.swing.table.DefaultTableModel
-import javax.swing.table.JTableHeader
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
 import javax.swing.SortOrder
 import javax.swing.RowSorter
 import java.util.ArrayList
 import javax.swing.table.TableRowSorter
-
 
 
 class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : JuliaSetupSdkWizardStep() {
@@ -178,21 +180,68 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
  * Settings(Preference) | Language & Frameworks | Julia | Package Manager
  */
 class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManager() {
+	class JuliaPackageTableModel(data: Array<Array<String>>, columnNames: Array<String>) : DefaultTableModel(data, columnNames) {
+		override fun isCellEditable(row: Int, column: Int) = false
+	}
 
 	init {
-		packagesList.model = DefaultTableModel(
-			/** It takes about 10 seconds in Windows */
-			if (JuliaPackageManagerInfoList.infos.isEmpty()) {
-				val versionList = versionsList(project.juliaSettings.settings)
-				versionList.map { (name, version) ->
-					JuliaPackageManagerInfoList.infos += InfoData(name, version)
-					arrayOf(name, version, UNKNOWN_VALUE_PLACEHOLDER)
-				}.toTypedArray()
-			} else JuliaPackageManagerInfoList.infos.map {
-				arrayOf(it.name, it.version, UNKNOWN_VALUE_PLACEHOLDER)
-			}.toTypedArray(), arrayOf("Package", "Version", "Latest"))
+		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
 
-		packagesList.autoCreateRowSorter=true
+		buttonAdd.addActionListener {
+			Messages.showDialog("Title", "Nothing to add", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
+		}
+		buttonRemove.addActionListener {
+			Messages.showDialog("Title", "Nothing to remove", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
+		}
+
+		if (packageNameFinished) {//FIXME
+			val data = packageInfos.map { arrayOf(it.name, it.version, it.latestVersion) }.toTypedArray()
+			val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
+			packagesList.model = dataModel
+		}
+		if (packageVersionFinished) {//FIXME
+			val data = packageInfos.map { arrayOf(it.name, it.version, it.latestVersion) }.toTypedArray()
+			val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
+			packagesList.model = dataModel
+		}
+
+		buttonRefresh.addActionListener {
+			ProgressManager.getInstance()
+				.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.doc-format.installing")+"-0", true) {
+					override fun run(indicator: ProgressIndicator) {
+						indicator.text = JuliaBundle.message("julia.messages.package.loding")
+						val namesList = packageNamesList()
+						val data = namesList.map { arrayOf(it) }.toTypedArray()
+						val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
+						packagesList.model = dataModel
+						packageInfos.addAll(namesList.map { InfoData(it, "") })
+						packageNameFinished = true
+					}
+				})
+			ProgressManager.getInstance()
+				.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.doc-format.installing")+"- 1", true) {
+					override fun run(indicator: ProgressIndicator) {
+						indicator.text = JuliaBundle.message("julia.messages.package.loding")
+						val versionList = versionsList(project.juliaSettings.settings)
+						val data = versionList.map { arrayOf(it.first, it.second) }.toTypedArray()
+						val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
+						packagesList.model = dataModel
+						packageVersionFinished = true
+					}
+
+					override fun onSuccess() = ApplicationManager.getApplication().invokeLater {
+						Messages.showDialog(
+							project,
+							JuliaBundle.message("julia.messages.package.loding.ok"),
+							JuliaBundle.message("julia.messages.doc-format.installed.title"),
+							arrayOf(JuliaBundle.message("julia.yes")),
+							0,
+							JuliaIcons.JOJO_ICON)
+					}
+				})
+		}
+
+		packagesList.autoCreateRowSorter = true
 		packagesList.setShowGrid(false)
 		val sorter = TableRowSorter<DefaultTableModel>(packagesList.model as DefaultTableModel)
 		packagesList.rowSorter = sorter
