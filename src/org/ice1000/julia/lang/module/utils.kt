@@ -31,6 +31,10 @@ val juliaPath by lazy {
 	}
 }
 
+val gitPath by lazy {
+	PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath ?: "git"
+}
+
 fun findPathMac(): String {
 	val appPath = Paths.get(MAC_APPLICATIONS)
 	val result = Files.list(appPath).collect(Collectors.toList()).firstOrNull { application ->

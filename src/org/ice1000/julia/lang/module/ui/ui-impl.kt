@@ -5,19 +5,13 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.ide.util.projectWizard.SettingsStep
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.Task
+import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.ui.TextBrowseFolderListener
-import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.ui.*
 import com.intellij.platform.ProjectGeneratorPeer
 import com.intellij.ui.DocumentAdapter
 import icons.JuliaIcons
-import org.ice1000.julia.lang.JULIA_SDK_HOME_PATH_ID
-import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
-import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
 import java.io.File
 import java.nio.file.Files
@@ -179,7 +173,8 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
  * Settings(Preference) | Language & Frameworks | Julia | Package Manager
  */
 class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManager() {
-	class JuliaPackageTableModel(data: Array<Array<String>>, columnNames: Array<String>) : DefaultTableModel(data, columnNames) {
+	class JuliaPackageTableModel(data: Array<Array<String>>, columnNames: Array<String>) :
+		DefaultTableModel(data, columnNames) {
 		override fun isCellEditable(row: Int, column: Int) = false
 	}
 
@@ -192,7 +187,6 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		buttonRemove.addActionListener {
 			Messages.showDialog("Nothing to remove", "Remove Package", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
 		}
-// TODO packageInfo needs to be cached
 		if (packageInfos.isEmpty()) {
 			loadPackages()
 		} else {
@@ -230,12 +224,11 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 				}
 
 				fun fasterVersionsList(settings: JuliaSettings): List<Pair<String, String>> {
-					fun String.toFile() = File(this)
 					val sizeToDouble = namesList.size.toDouble()
 					return namesList.mapIndexed { index, it ->
-						val process = Runtime.getRuntime().exec("git describe --abbrev=0 --tags", emptyArray(), "${settings.importPath}\\$it".toFile())
+						val process = Runtime.getRuntime().exec("$gitPath describe --abbrev=0 --tags", emptyArray(), "${settings.importPath}\\$it".let(::File))
 						indicator.fraction = index / sizeToDouble
-						val second = process.inputStream.reader().readText().removePrefix("v").trim()
+						val second = process.inputStream.reader().use { it.readText().removePrefix("v").trim() }
 						tempDataModel.setValueAt(second, index, 1)
 						it to second
 					}.toList()
@@ -255,5 +248,6 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 	override fun createComponent() = mainPanel
 	override fun isModified() = false
 	override fun apply() {
+// TODO packageInfo needs to be cached
 	}
 }
