@@ -110,6 +110,7 @@ inline fun <reified Closable : Closeable, reified Unit : Any>
 	close()
 }
 
+// TODO workaround for KT-23077
 inline fun <reified TheTask : BaseTask>
 	Project.genTask(name: String, noinline configuration: TheTask.() -> Unit) =
 	task(name, TheTask::class, configuration)
