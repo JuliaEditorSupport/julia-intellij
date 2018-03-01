@@ -49,7 +49,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			LookupElementBuilder
 				.create(it)
 				.withIcon(JuliaIcons.JULIA_BIG_ICON)
-				.withTailText(JuliaBundle.message("julia.completion.keyword.tail"))
+				.withTypeText(JuliaBundle.message("julia.completion.keyword.tail"), true)
 		}
 		private val tryInside = listOf(
 			"catch ",
@@ -62,7 +62,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			LookupElementBuilder
 				.create(it)
 				.withIcon(JuliaIcons.JULIA_BIG_ICON)
-				.withTailText(JuliaBundle.message("julia.completion.jump.tail"))
+				.withTypeText(JuliaBundle.message("julia.completion.jump.tail"), true)
 		}
 		private val ifInside = listOf(
 			"elseif ",
@@ -117,7 +117,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			LookupElementBuilder
 				.create(it)
 				.withIcon(JuliaIcons.JULIA_FUNCTION_ICON)
-				.withTailText("Predefined symbol")
+				.withTypeText("Predefined symbol", true)
 		}
 
 		private val where = listOf(LookupElementBuilder.create("where").withIcon(JuliaIcons.JULIA_BIG_ICON))
