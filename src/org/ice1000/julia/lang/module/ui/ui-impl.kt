@@ -3,11 +3,11 @@ package org.ice1000.julia.lang.module.ui
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.ide.util.projectWizard.SettingsStep
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.progress.*
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TextBrowseFolderListener
@@ -15,19 +15,21 @@ import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectGeneratorPeer
 import com.intellij.ui.DocumentAdapter
 import icons.JuliaIcons
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JULIA_SDK_HOME_PATH_ID
+import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
+import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.module.*
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.NumberFormat
+import java.util.*
+import javax.swing.RowSorter
+import javax.swing.SortOrder
 import javax.swing.event.DocumentEvent
 import javax.swing.table.DefaultTableModel
+import javax.swing.table.TableRowSorter
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
-import javax.swing.SortOrder
-import javax.swing.RowSorter
-import java.util.ArrayList
-import javax.swing.table.TableRowSorter
 
 
 class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : JuliaSetupSdkWizardStep() {
@@ -188,12 +190,12 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
 
 		buttonAdd.addActionListener {
-			Messages.showDialog("Title", "Nothing to add", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
+			Messages.showDialog("Nothing to add", "Add Package", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
 		}
 		buttonRemove.addActionListener {
-			Messages.showDialog("Title", "Nothing to remove", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
+			Messages.showDialog("Nothing to remove", "Remove Package", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
 		}
-// TODO packageInfo needs to be reserved
+// TODO packageInfo needs to be cached
 		if (packageInfos.isEmpty()) {
 			loadPackages()
 		} else {
@@ -203,56 +205,50 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		}
 
 		buttonRefresh.addActionListener {
-			loadPackages()
+			loadPackages(false)
 		}
 
-		packagesList.autoCreateRowSorter = true
 		packagesList.setShowGrid(false)
-		val sorter = TableRowSorter<DefaultTableModel>(packagesList.model as DefaultTableModel)
-		packagesList.rowSorter = sorter
-		val sortKeys = ArrayList<RowSorter.SortKey>()
-		sortKeys.add(RowSorter.SortKey(0, SortOrder.ASCENDING))
-		sorter.sortKeys = sortKeys
-		sorter.sort()
-
 	}
 
-	private fun loadPackages() {
-		ProgressManager.getInstance()
-			.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.package.names.loding"), true) {
-				override fun run(indicator: ProgressIndicator) {
-					indicator.text = JuliaBundle.message("julia.messages.package.names.loding")
-					val namesList = packageNamesList()
-					val data = namesList.map { arrayOf(it) }.toTypedArray()
-					val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
-					packagesList.model = dataModel
+
+	/**
+	 * `Fill in my data parameters` INITIALIZATION
+	 * @param default Value{true is called by dialog initialization, and false is called by refresh button.}
+	 */
+	private fun loadPackages(default: Boolean = true) {
+
+		val task = object : Task.Backgroundable(project, "title", true, { true }) {
+			override fun run(indicator: ProgressIndicator) {
+				indicator.text = JuliaBundle.message("julia.messages.package.names.loading")
+				val namesList = packageNamesList(project.juliaSettings.settings.importPath)
+				val tempData = namesList.map { arrayOf(it) }.toTypedArray()
+				val tempDataModel = JuliaPackageTableModel(tempData, JULIA_TABLE_HEADER_COLUMN)
+				if (default) {
+					packagesList.model = tempDataModel
 					packageInfos.clear()
 					packageInfos.addAll(namesList.map { InfoData(it, "") })
 				}
-
-				override fun onSuccess() {
-
-				}
-			})
-
-		ProgressManager.getInstance()
-			.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.package.versions.loding"), true) {
-				override fun run(indicator: ProgressIndicator) {
-					indicator.text = JuliaBundle.message("julia.messages.package.versions.loding")
-					val versionList = versionsList(project.juliaSettings.settings)
-					val data = versionList.map { arrayOf(it.first, it.second) }.toTypedArray()
-					val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
-					packagesList.model = dataModel
-					packageInfos.clear()
-					packageInfos.addAll(versionList.map { InfoData(it.first, it.second) })
-				}
-
-				override fun onSuccess() {
-
-				}
-			})
-
+				Thread {
+					for (i in 1..250) {
+						indicator.fraction += 0.01
+						if (i >= 98 && i % 9 == 0)
+							indicator.fraction = 0.90
+						Thread.sleep(100L)
+					}
+				}.start()
+				indicator.text = JuliaBundle.message("julia.messages.package.versions.loading")
+				val versionList = versionsList(project.juliaSettings.settings)
+				val data = versionList.map { arrayOf(it.first, it.second) }.toTypedArray()
+				val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
+				packagesList.model = dataModel
+				packageInfos.clear()
+				packageInfos.addAll(versionList.map { InfoData(it.first, it.second) })
+			}
 		}
+		ProgressManager.getInstance().run(task)
+
+	}
 
 	override fun getDisplayName() = JuliaBundle.message("julia.pkg-manager.title")
 	override fun createComponent() = mainPanel
