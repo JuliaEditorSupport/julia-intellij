@@ -595,7 +595,7 @@ private infixIndexer ::= IN_KEYWORD | IN_SYM | EQ_SYM
 singleIndexer ::= symbol infixIndexer endOfLine expr
 multiIndexer ::=
  LEFT_BRACKET endOfLine
-  symbol (commaSep symbol)+ endOfLine
+  symbol (commaSep expr|symbol)+ endOfLine
  RIGHT_BRACKET
  infixIndexer endOfLine
  expr

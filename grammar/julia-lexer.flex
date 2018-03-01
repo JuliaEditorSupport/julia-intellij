@@ -269,7 +269,7 @@ OTHERWISE=[^]
 <AFTER_COLON> {SIMPLE_SYMBOL} { dehugify(); return JuliaTypes.SYM; }
 
 <INSIDE_REGEX> \" { dehugify(); return JuliaTypes.REGEX_END; }
-<INSIDE_REGEX> [^\"\\]+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
+<INSIDE_REGEX> [^\"]+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
 // TODO regex escape
 
 <YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} { hugify(AFTER_SIMPLE_LIT); return JuliaTypes.SYM; }
