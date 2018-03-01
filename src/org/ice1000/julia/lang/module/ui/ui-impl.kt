@@ -19,15 +19,12 @@ import org.ice1000.julia.lang.JULIA_SDK_HOME_PATH_ID
 import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.module.*
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.NumberFormat
-import java.util.*
-import javax.swing.RowSorter
-import javax.swing.SortOrder
 import javax.swing.event.DocumentEvent
 import javax.swing.table.DefaultTableModel
-import javax.swing.table.TableRowSorter
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
 
@@ -220,6 +217,8 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 
 		val task = object : Task.Backgroundable(project, "title", true, { true }) {
 			override fun run(indicator: ProgressIndicator) {
+
+
 				indicator.text = JuliaBundle.message("julia.messages.package.names.loading")
 				val namesList = packageNamesList(project.juliaSettings.settings.importPath)
 				val tempData = namesList.map { arrayOf(it) }.toTypedArray()
@@ -229,19 +228,21 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					packageInfos.clear()
 					packageInfos.addAll(namesList.map { InfoData(it, "") })
 				}
-				Thread {
-					for (i in 1..250) {
-						indicator.fraction += 0.01
-						if (i >= 98 && i % 9 == 0)
-							indicator.fraction = 0.90
-						Thread.sleep(100L)
-					}
-				}.start()
+
+				fun fasterVersionsList(settings: JuliaSettings): List<Pair<String, String>> {
+					fun String.toFile() = File(this)
+					val sizeToDouble = namesList.size.toDouble()
+					return namesList.mapIndexed { index, it ->
+						val process = Runtime.getRuntime().exec("git describe --abbrev=0 --tags", emptyArray(), "${settings.importPath}\\$it".toFile())
+						indicator.fraction = index / sizeToDouble
+						val second = process.inputStream.reader().readText().removePrefix("v").trim()
+						tempDataModel.setValueAt(second, index, 1)
+						it to second
+					}.toList()
+				}
 				indicator.text = JuliaBundle.message("julia.messages.package.versions.loading")
-				val versionList = versionsList(project.juliaSettings.settings)
-				val data = versionList.map { arrayOf(it.first, it.second) }.toTypedArray()
-				val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
-				packagesList.model = dataModel
+				val versionList = fasterVersionsList(project.juliaSettings.settings)
+				packagesList.model = tempDataModel
 				packageInfos.clear()
 				packageInfos.addAll(versionList.map { InfoData(it.first, it.second) })
 			}

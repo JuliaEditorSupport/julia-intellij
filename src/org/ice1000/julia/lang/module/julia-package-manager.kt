@@ -1,13 +1,8 @@
 package org.ice1000.julia.lang.module
 
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.Task
-import com.intellij.openapi.project.Project
 import org.ice1000.julia.lang.executeCommand
 import org.intellij.lang.annotations.Language
 import java.io.File
-import com.intellij.openapi.projectRoots.Sdk
-import java.util.*
 
 
 data class InfoData(val name: String, val version: String, val latestVersion: String = "")
@@ -52,3 +47,4 @@ fun versionsList(settings: JuliaSettings) =
 			val (name, version) = it.split("=>")
 			name.trim(' ', '"') to version.trim(' ', '"').removePrefix("v\"")
 		}
+
