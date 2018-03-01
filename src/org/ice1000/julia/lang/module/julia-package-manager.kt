@@ -7,8 +7,6 @@ import java.io.File
 data class InfoData(val name: String, val version: String, val latestVersion: String = "")
 
 val packageInfos = emptyList<InfoData>().toMutableList()
-var packageNameFinished = false
-var packageVersionFinished = false
 /**
  * It's needed for UE(User Experience)
  */

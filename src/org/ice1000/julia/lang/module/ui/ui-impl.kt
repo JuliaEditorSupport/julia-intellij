@@ -193,52 +193,17 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		buttonRemove.addActionListener {
 			Messages.showDialog("Title", "Nothing to remove", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
 		}
-
-		if (packageNameFinished) {//FIXME
-			val data = packageInfos.map { arrayOf(it.name, it.version, it.latestVersion) }.toTypedArray()
-			val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
-			packagesList.model = dataModel
-		}
-		if (packageVersionFinished) {//FIXME
+// TODO packageInfo needs to be reserved
+		if (packageInfos.isEmpty()) {
+			loadPackages()
+		} else {
 			val data = packageInfos.map { arrayOf(it.name, it.version, it.latestVersion) }.toTypedArray()
 			val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
 			packagesList.model = dataModel
 		}
 
 		buttonRefresh.addActionListener {
-			ProgressManager.getInstance()
-				.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.doc-format.installing")+"-0", true) {
-					override fun run(indicator: ProgressIndicator) {
-						indicator.text = JuliaBundle.message("julia.messages.package.loding")
-						val namesList = packageNamesList()
-						val data = namesList.map { arrayOf(it) }.toTypedArray()
-						val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
-						packagesList.model = dataModel
-						packageInfos.addAll(namesList.map { InfoData(it, "") })
-						packageNameFinished = true
-					}
-				})
-			ProgressManager.getInstance()
-				.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.doc-format.installing")+"- 1", true) {
-					override fun run(indicator: ProgressIndicator) {
-						indicator.text = JuliaBundle.message("julia.messages.package.loding")
-						val versionList = versionsList(project.juliaSettings.settings)
-						val data = versionList.map { arrayOf(it.first, it.second) }.toTypedArray()
-						val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
-						packagesList.model = dataModel
-						packageVersionFinished = true
-					}
-
-					override fun onSuccess() = ApplicationManager.getApplication().invokeLater {
-						Messages.showDialog(
-							project,
-							JuliaBundle.message("julia.messages.package.loding.ok"),
-							JuliaBundle.message("julia.messages.doc-format.installed.title"),
-							arrayOf(JuliaBundle.message("julia.yes")),
-							0,
-							JuliaIcons.JOJO_ICON)
-					}
-				})
+			loadPackages()
 		}
 
 		packagesList.autoCreateRowSorter = true
@@ -250,14 +215,44 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		sorter.sortKeys = sortKeys
 		sorter.sort()
 
-		// FIXME replace with a refresh button
+	}
+
+	private fun loadPackages() {
 		ProgressManager.getInstance()
-			.run(object : Task.Backgroundable(project,
-				JuliaBundle.message("julia.messages.doc-format.installing"), true) {
+			.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.package.names.loding"), true) {
 				override fun run(indicator: ProgressIndicator) {
+					indicator.text = JuliaBundle.message("julia.messages.package.names.loding")
+					val namesList = packageNamesList()
+					val data = namesList.map { arrayOf(it) }.toTypedArray()
+					val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
+					packagesList.model = dataModel
+					packageInfos.clear()
+					packageInfos.addAll(namesList.map { InfoData(it, "") })
+				}
+
+				override fun onSuccess() {
+
 				}
 			})
-	}
+
+		ProgressManager.getInstance()
+			.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.package.versions.loding"), true) {
+				override fun run(indicator: ProgressIndicator) {
+					indicator.text = JuliaBundle.message("julia.messages.package.versions.loding")
+					val versionList = versionsList(project.juliaSettings.settings)
+					val data = versionList.map { arrayOf(it.first, it.second) }.toTypedArray()
+					val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
+					packagesList.model = dataModel
+					packageInfos.clear()
+					packageInfos.addAll(versionList.map { InfoData(it.first, it.second) })
+				}
+
+				override fun onSuccess() {
+
+				}
+			})
+
+		}
 
 	override fun getDisplayName() = JuliaBundle.message("julia.pkg-manager.title")
 	override fun createComponent() = mainPanel
