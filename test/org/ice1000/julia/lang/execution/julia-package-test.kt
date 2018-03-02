@@ -22,8 +22,9 @@ class JuliaPackageTest {
 
 	@Test
 	fun testListVersionFaster(){
+		if(System.getProperty("user.name")=="zh")
 		packageNamesList("C:\\Users\\zh\\.julia\\v0.6").forEach{
-			val process=Runtime.getRuntime().exec("git describe --abbrev=0 --tags", emptyArray(),"C:\\Users\\zh\\.julia\\v0.6\\$it".toFile())
+			val process=Runtime.getRuntime().exec("git describe --abbrev=0 --tags", emptyArray(),"C:\\Users\\zh\\.julia\\v0.6\\$it".let(::File))
 			println(process.inputStream.reader().readText().removePrefix("v").trim())
 		}
 	}
@@ -34,5 +35,3 @@ class JuliaPackageTest {
 		versionsList(JuliaSettings()).forEach(::println)
 	}
 }
-
-private fun String.toFile(): File=File(this)

@@ -11,6 +11,7 @@ val packageInfos = emptyList<InfoData>().toMutableList()
 
 /**
  * It's needed for UE (User Experience)
+ * @notice Do not use list(or listFiles) with 2 parameter filter because the first param will be `let(::File)`'s dir
  */
 fun packageNamesList(importPath: String = ""): Array<out String> {
 	if (importPath.isBlank()) {
@@ -21,12 +22,16 @@ fun packageNamesList(importPath: String = ""): Array<out String> {
 			.firstOrNull()
 			?.trim('"')
 			?.let(::File)
-			?.list { dir, name -> dir.isDirectory && !name.startsWith(".") && name != "METADATA" }
+			?.listFiles { dir -> dir.isDirectory && !dir.name.startsWith(".") && dir.name != "METADATA" }
+			?.map { it.name.toString() }
+			?.toTypedArray()
 			.orEmpty()
 	} else {
 		return importPath
 			.let(::File)
-			.list { dir, name -> dir.isDirectory && !name.startsWith(".") && name != "METADATA" }
+			.listFiles { dir -> dir.isDirectory && !dir.name.startsWith(".") && dir.name != "METADATA" }
+			?.map { it.name.toString() }
+			?.toTypedArray()
 			.orEmpty()
 	}
 }
