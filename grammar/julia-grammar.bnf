@@ -585,6 +585,7 @@ elseClause ::= ELSE_KEYWORD statements
 forComprehension ::=
  LEFT_M_BRACKET endOfLine
   expr endOfLine
+  FOR_KEYWORD
   indexer
   (IF_KEYWORD expr)?
  RIGHT_M_BRACKET { extends=expr }
