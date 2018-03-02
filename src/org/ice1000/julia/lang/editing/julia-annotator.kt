@@ -34,16 +34,13 @@ class JuliaAnnotator : Annotator {
 			is JuliaCompactFunction -> compactFunction(element, holder)
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
 			is JuliaSymbol -> symbol(element, holder)
-			is JuliaKeywordsInImport -> disableKeywords(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
 			is JuliaPlusLevelOp -> plusLevelOp(element, holder)
 			is JuliaAssignLevelOp -> assignLevelOp(element, holder)
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
-			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
-				// TODO provide conversions
-			}
+			is JuliaFloatLit -> float(element, holder)
 		}
 	}
 
@@ -157,13 +154,6 @@ $JULIA_DOC_SURROUNDING
 				registerFix(JuliaReplaceWithTextIntention(element, "$left \u22bb= $right",
 					JuliaBundle.message("julia.lint.xor-is-replace-22bb", left, right)))
 			}
-		}
-	}
-
-	private fun disableKeywords(element: PsiElement, holder: AnnotationHolder) {
-		when{
-			element.parent.parent is JuliaImportExpr->		holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.DISABLED_KEYWORD
 		}
 	}
 
@@ -290,5 +280,16 @@ $JULIA_DOC_SURROUNDING
 			JuliaBundle.message("julia.lint.int-replace-dec")))
 		if (base != 16) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
 			JuliaBundle.message("julia.lint.int-replace-hex")))
+	}
+
+	private fun float(element: JuliaFloatLit, holder: AnnotationHolder) {
+		val code = element.text
+		var char = 'e'
+			if (char in code || ++ char in code) {		//TODO
+				val beReplaced = char
+				val replaceChar = if(char == 'e') 'f' else 'e'
+				holder.createInfoAnnotation(element, "可以使用${replaceChar}替换$beReplaced")
+					.registerFix(JuliaReplaceWithTextIntention(element, code.replace(beReplaced, replaceChar), "使用${replaceChar}替换$beReplaced"))
+		}
 	}
 }

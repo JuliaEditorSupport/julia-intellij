@@ -51,7 +51,7 @@ allprojects {
 		instrumentCode = true
 		when (System.getProperty("user.name")) {
 			"ice1000" -> localPath = "/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/173.4548.28"
-			"hoshino" -> localPath = "/home/hoshino/文档/IntelliJ"
+			"hoshino" -> localPath = "/home/hoshino/Documents/IntelliJ"
 			"zh" -> version = "2017.3"
 		}
 	}
