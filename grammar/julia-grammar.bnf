@@ -597,15 +597,16 @@ elseClause ::= ELSE_KEYWORD statements
 
 forComprehension ::=
  LEFT_M_BRACKET endOfLine
-  comprehensionElement
-   (commaSep comprehensionElement)?
+  comprehensionElement+
  RIGHT_M_BRACKET { extends=expr }
 
 comprehensionElement ::=
  expr endOfLine
  FOR_KEYWORD
- indexer
- (IF_KEYWORD expr)?
+ singleComprehension
+  (commaSep singleComprehension)?
+
+singleComprehension ::= indexer (IF_KEYWORD expr)?
 
 forExpr ::= FOR_KEYWORD endOfLine indexer (commaSep indexer)* statements END_KEYWORD
 private indexer ::= multiIndexer | singleIndexer
