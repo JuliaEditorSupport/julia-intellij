@@ -267,12 +267,18 @@ applyWhereOp ::= expr whereClause
 
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
-  (expressionList endOfLine)?
-  (SEMICOLON_SYM endOfLine
-    (namedParameter (commaSep namedParameter)*)?
-    endOfLine
-  )?
+  (forComprehensionImpl | arguments)
  RIGHT_BRACKET doBlock?
+
+private arguments ::=
+ (expressionList endOfLine)?
+ (SEMICOLON_SYM endOfLine
+  (
+    namedParameter
+   (commaSep namedParameter)*
+  )?
+  endOfLine
+ )?
 
 private symbolLhsInternal ::= symbol | LEFT_BRACKET symbol RIGHT_BRACKET
 symbolLhs ::=
@@ -591,11 +597,14 @@ elseClause ::= ELSE_KEYWORD statements
 
 forComprehension ::=
  LEFT_M_BRACKET endOfLine
-  expr endOfLine
-  FOR_KEYWORD
-  indexer
-  (IF_KEYWORD expr)?
+  forComprehensionImpl
  RIGHT_M_BRACKET { extends=expr }
+
+private forComprehensionImpl ::=
+ expr endOfLine
+ FOR_KEYWORD
+ indexer
+ (IF_KEYWORD expr)?
 
 forExpr ::= FOR_KEYWORD endOfLine indexer (commaSep indexer)* statements END_KEYWORD
 private indexer ::= multiIndexer | singleIndexer
