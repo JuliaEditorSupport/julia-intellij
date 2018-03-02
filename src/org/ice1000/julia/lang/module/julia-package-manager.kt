@@ -8,29 +8,26 @@ import java.io.File
 data class InfoData(val name: String, val version: String, val latestVersion: String = "")
 
 val packageInfos = emptyList<InfoData>().toMutableList()
+
 /**
- * It's needed for UE(User Experience)
+ * It's needed for UE (User Experience)
  */
-fun packageNamesList(importPath: String = ""): List<String> {
-	fun String.toFile() = File(this)
-	if (importPath == "") {
+fun packageNamesList(importPath: String = ""): Array<out String> {
+	if (importPath.isBlank()) {
 		@Language("Julia")
 		val code = "Pkg.dir()"
 		val (stdout) = executeCommand(juliaPath, code, 5000L)
 		return stdout
 			.firstOrNull()
 			?.trim('"')
-			?.toFile()
-			?.listFiles()
-			?.filter { it.isDirectory && !it.name.startsWith(".") && it.name != "METADATA" }
-			?.map { it.name }
-			?: emptyList()
+			?.let(::File)
+			?.list { dir, name -> dir.isDirectory && !name.startsWith(".") && name != "METADATA" }
+			.orEmpty()
 	} else {
-		return importPath.toFile()
-			.listFiles()
-			?.filter { it.isDirectory && !it.name.startsWith(".") && it.name != "METADATA" }
-			?.map { it.name }
-			?: emptyList()
+		return importPath
+			.let(::File)
+			.list { dir, name -> dir.isDirectory && !name.startsWith(".") && name != "METADATA" }
+			.orEmpty()
 	}
 }
 
