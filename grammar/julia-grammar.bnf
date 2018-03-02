@@ -267,7 +267,7 @@ applyWhereOp ::= expr whereClause
 
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
-  (forComprehensionImpl | arguments)
+  (comprehensionElement | arguments)
  RIGHT_BRACKET doBlock?
 
 private arguments ::=
@@ -597,10 +597,11 @@ elseClause ::= ELSE_KEYWORD statements
 
 forComprehension ::=
  LEFT_M_BRACKET endOfLine
-  forComprehensionImpl
+  comprehensionElement
+   (commaSep comprehensionElement)?
  RIGHT_M_BRACKET { extends=expr }
 
-private forComprehensionImpl ::=
+comprehensionElement ::=
  expr endOfLine
  FOR_KEYWORD
  indexer
