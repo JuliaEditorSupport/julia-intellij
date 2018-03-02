@@ -436,7 +436,6 @@ private primaryExpr ::=
  | tryCatch
  | continueExpr
  | array
- | compactArray
  | union
  | tuple
  | macro
@@ -481,13 +480,8 @@ array ::=
    (SEMICOLON_SYM endOfLine
     expr (commaSep? expr)* COMMA_SYM?)*
   )?
-  endOfLine?
-  RIGHT_M_BRACKET { extends=expr }
-
-compactArray ::=
-	LEFT_M_BRACKET endOfLine
-	expr (FOR_KEYWORD symbol IN_KEYWORD expr)*
-	RIGHT_M_BRACKET{extends=expr}
+  endOfLine
+ RIGHT_M_BRACKET { extends=expr }
 
 union ::= UNION_KEYWORD tuple { extends=expr }
 
