@@ -455,11 +455,8 @@ private primaryExpr ::=
 
 bracketedExpr ::=
  LEFT_BRACKET endOfLine
-  (
-    opAsSymbol
-  | unaryOpAsSymbol
-  | statements
-  ) endOfLine (COMMA_SYM endOfLine)?
+  (opAsSymbol | unaryOpAsSymbol)?
+   statements? endOfLine (COMMA_SYM endOfLine)?
  RIGHT_BRACKET
 
 whereClause ::= WHERE_KEYWORD afterWhere
