@@ -189,8 +189,8 @@ expr ::=
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaExprMixin'
 }
 
-memberAccessOp ::= validKeywords | opAsSymbol | (symbolAndMacroSymbol (DOT_SYM symbolAndMacroSymbol)*)
-private validKeywords::= IN_KEYWORD|UNION_KEYWORD
+memberAccessOp ::= keywordsInImport | opAsSymbol | (symbolAndMacroSymbol (DOT_SYM symbolAndMacroSymbol)*)
+keywordsInImport::= IN_KEYWORD|UNION_KEYWORD
 private access ::= (DOT_SYM|DOUBLE_DOT_SYM|SLICE_SYM)? (memberAccessOp) {pin=1}
 private symbolAndMacroSymbol ::= symbol | macroSymbol
 
