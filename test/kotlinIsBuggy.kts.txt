@@ -1,7 +1,7 @@
 interface Buggy
 
 /**
- * KT-23073
+ * renamed to txt according to KT-23073
  */
 fun `kotlin is,`(`hmmmm, some what`: Buggy) {
 	val bug = `hmmmm, some what`

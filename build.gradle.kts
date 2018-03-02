@@ -17,7 +17,7 @@ buildscript {
 	var grammarKitVersion: String by extra
 
 	grammarKitVersion = "2017.1.1"
-	kotlinVersion = "1.2.21"
+	kotlinVersion = "1.2.30"
 
 	repositories {
 		mavenCentral()
