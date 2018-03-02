@@ -128,7 +128,7 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <labelFor value="1c86f"/>
+                  <labelFor value="f3d28"/>
                   <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.run-config.jit-options"/>
                 </properties>
               </component>
