@@ -68,6 +68,7 @@ class JuliaFormattingModelBuilder : FormattingModelBuilder {
 			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.EXPRESSION_LIST).spaces(1)
 			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.ARRAY).spaces(1)
 			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.FUNCTION_SIGNATURE).spaces(1)
+			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.IMPORT_EXPR).spaces(1)
 	}
 
 	override fun getRangeAffectingIndent(file: PsiFile, offset: Int, elementAtOffset: ASTNode): TextRange? {

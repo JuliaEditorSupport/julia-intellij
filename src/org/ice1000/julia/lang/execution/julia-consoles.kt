@@ -59,9 +59,8 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 
 class JuliaConsoleFilterProvider : ConsoleFilterProviderEx {
 	override fun getDefaultFilters(project: Project, scope: GlobalSearchScope) = getDefaultFilters(project)
-	override fun getDefaultFilters(project: Project) = arrayOf(JuliaConsoleFilter(project), UrlFilter())
+	override fun getDefaultFilters(project: Project) = arrayOf(JuliaConsoleFilter(project))
 }
-
 
 /**
  * Console folding
@@ -75,26 +74,26 @@ class JuliaConsoleFilterProvider : ConsoleFilterProviderEx {
  * fold Julia interpreter Stacktrace which is useless.
  */
 class JuliaConsoleFolding : ConsoleFolding() {
-
 	override fun getPlaceholderText(lines: MutableList<String>): String {
-		for (it in lines) {
-			if (it.matchExecCommand()) {
-				val fileNameIndex = lines.firstOrNull()?.lastIndexOf("/") ?: 0
-				return "julia ${lines[0].substring(fileNameIndex + 1)}"
-			} else if (it.matchErrorStackTrace()) {
-				return "..."
+		lines.forEach {
+			when {
+				it.matchExecCommand() ->
+					return "julia ${it.substring(it.lastIndexOf("/") + 1)}"
+				it.matchErrorStackTrace() ->
+					return " <${lines.size} internal calls>"
 			}
 		}
 		return ""
 	}
 
-	override fun shouldFoldLine(output: String) = output.matchExecCommand() || output.matchErrorStackTrace()
+	override fun shouldFoldLine(output: String) =
+		output.matchExecCommand() or output.matchErrorStackTrace()
 
-	private fun String.matchErrorStackTrace() =
-		("include_from_node" in this && "loading.jl:" in this) ||
-			("include" in this && "sysimg.jl:" in this) ||
-			("process_options" in this && "client.jl:" in this) ||
-			("_start" in this && "client.jl:" in this)
+	private fun String.matchExecCommand() = "julia" in this &&
+		".jl" in this &&
+		"--check-bounds" in this
 
-	private fun String.matchExecCommand() = "julia " in this || "julia.exe" in this && ".jl" in this
+	private fun String.matchErrorStackTrace() = "loading.jl:" in this ||
+		"sysimg.jl:" in this ||
+		"client.jl:" in this
 }

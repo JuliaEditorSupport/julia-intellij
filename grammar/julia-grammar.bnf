@@ -137,7 +137,7 @@ globalStatement ::=
 typeAnnotation ::=
  DOUBLE_COLON endOfLine
  primaryExpr endOfLine
- typeParameters? { pin=1 }
+ typeParameters?
 
 typedNamedVariable ::=
  (
@@ -189,9 +189,14 @@ expr ::=
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaExprMixin'
 }
 
-memberAccessOp ::= expr DOT_SYM (symbol | macroSymbol)
-accessAllOp ::= DOT_SYM+ (symbol | macroSymbol) { pin=1 }
-private access ::= accessAllOp | memberAccessOp
+memberAccessOp ::=
+   IN_KEYWORD
+ | UNION_KEYWORD
+ | opAsSymbol
+ | symbolAndMacroSymbol (DOT_SYM symbolAndMacroSymbol)*
+
+private access ::= (DOT_SYM | DOUBLE_DOT_SYM | SLICE_SYM)? (memberAccessOp)
+private symbolAndMacroSymbol ::= symbol | macroSymbol
 
 compactFunction ::=
  symbol
@@ -212,12 +217,11 @@ private assignLevel ::=
 
 assignOp ::= expr (EQ_SYM | ASSIGN_SYM) endOfLine expr {
 	rightAssociative=true
-	pin=2
 	implements=['com.intellij.psi.PsiNameIdentifierOwner']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaAssignOpMixin'
 }
 
-assignLevelOp ::= expr assignLevelOperator endOfLine expr { rightAssociative=true pin=2 }
+assignLevelOp ::= expr assignLevelOperator endOfLine expr { rightAssociative=true }
 assignLevelOperator ::=
    COLON_ASSIGN_SYM
  | BITWISE_AND_ASSIGN_SYM
@@ -253,7 +257,11 @@ private suffixedExpr ::=
 
 type ::= expr typeParameters { extends=expr }
 
-applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expressionList? endOfLine RIGHT_M_BRACKET
+applyIndexOp ::=
+ expr LEFT_M_BRACKET endOfLine
+  expressionList? endOfLine
+  (FOR_KEYWORD symbol IN_KEYWORD expr)*
+ RIGHT_M_BRACKET (DOT_SYM expr)? // FIXME this code doesn't parse
 
 applyWhereOp ::= expr whereClause
 
@@ -317,7 +325,8 @@ private quoteLevel ::=
  | quoteOp
  | compoundQuoteOp
 
-colonOp ::= expr COLON_SYM expr
+private colonSymBegins::=COLON_BEGIN_SYM | (COLON_SYM endOfLine LEFT_BRACKET)
+colonOp ::= expr colonSymBegins expr RIGHT_BRACKET
 spliceOp ::= expr SLICE_SYM
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
 quoteOp ::= COLON_SYM endOfLine quotable
@@ -449,11 +458,8 @@ private primaryExpr ::=
 
 bracketedExpr ::=
  LEFT_BRACKET endOfLine
-  (
-    opAsSymbol
-  | unaryOpAsSymbol
-  | statements
-  ) endOfLine (COMMA_SYM endOfLine)?
+  (opAsSymbol | unaryOpAsSymbol)?
+   statements? endOfLine (COMMA_SYM endOfLine)?
  RIGHT_BRACKET
 
 whereClause ::= WHERE_KEYWORD afterWhere
@@ -474,7 +480,8 @@ array ::=
    (SEMICOLON_SYM endOfLine
     expr (commaSep? expr)* COMMA_SYM?)*
   )?
-  RIGHT_M_BRACKET { extends=expr }
+  endOfLine
+ RIGHT_M_BRACKET { extends=expr }
 
 union ::= UNION_KEYWORD tuple { extends=expr }
 
@@ -491,7 +498,7 @@ functionSignature ::=
    (typedNamedVariable (commaSep typedNamedVariable)*)?)?
   commaSep?
   (SLICE_SYM endOfLine)?
- RIGHT_BRACKET { pin=1 }
+ RIGHT_BRACKET
 
 untypedVariables ::=
  LEFT_BRACKET endOfLine
@@ -562,16 +569,11 @@ export ::=
   (commaSep memberAccessOp)* { extends=expr }
 
 importAllExpr ::=
- IMPORTALL_KEYWORD access
+ IMPORTALL_KEYWORD access {extends=expr}
 
 importExpr ::=
  IMPORT_KEYWORD endOfLine
-  access
-  (
-    COLON_SYM endOfLine
-    memberAccessOp
-   (commaSep memberAccessOp)*
-  )?
+  access (COLON_SYM symbolAndMacroSymbol)? (commaSep access)*{extends=expr}
 
 using ::=
  USING_KEYWORD endOfLine
@@ -590,6 +592,7 @@ elseClause ::= ELSE_KEYWORD statements
 forComprehension ::=
  LEFT_M_BRACKET endOfLine
   expr endOfLine
+  FOR_KEYWORD
   indexer
   (IF_KEYWORD expr)?
  RIGHT_M_BRACKET { extends=expr }
@@ -600,7 +603,7 @@ private infixIndexer ::= IN_KEYWORD | IN_SYM | EQ_SYM
 singleIndexer ::= symbol infixIndexer endOfLine expr
 multiIndexer ::=
  LEFT_BRACKET endOfLine
-  symbol (commaSep symbol)+ endOfLine
+  symbol (commaSep expr|symbol)+ endOfLine
  RIGHT_BRACKET
  infixIndexer endOfLine
  expr

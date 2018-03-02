@@ -5,20 +5,23 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.ide.util.projectWizard.SettingsStep
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
+import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.TextBrowseFolderListener
-import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.ui.*
 import com.intellij.platform.ProjectGeneratorPeer
 import com.intellij.ui.DocumentAdapter
-import org.ice1000.julia.lang.JULIA_SDK_HOME_PATH_ID
-import org.ice1000.julia.lang.JuliaBundle
+import icons.JuliaIcons
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.NumberFormat
 import javax.swing.event.DocumentEvent
+import javax.swing.table.DefaultTableModel
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
+
 
 class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : JuliaSetupSdkWizardStep() {
 	init {
@@ -169,13 +172,82 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
  * TODO PackageManager
  * Settings(Preference) | Language & Frameworks | Julia | Package Manager
  */
-class JuliaPackageManagerImpl : JuliaPackageManager() {
+class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManager() {
+	class JuliaPackageTableModel(data: Array<Array<String>>, columnNames: Array<String>) :
+		DefaultTableModel(data, columnNames) {
+		override fun isCellEditable(row: Int, column: Int) = false
+	}
+
 	init {
+		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
+
+		buttonAdd.addActionListener {
+			Messages.showDialog("Nothing to add", "Add Package", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
+		}
+		buttonRemove.addActionListener {
+			Messages.showDialog("Nothing to remove", "Remove Package", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
+		}
+		if (packageInfos.isEmpty()) {
+			loadPackages()
+		} else {
+			val data = packageInfos.map { arrayOf(it.name, it.version, it.latestVersion) }.toTypedArray()
+			val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
+			packagesList.model = dataModel
+		}
+
+		buttonRefresh.addActionListener {
+			loadPackages(false)
+		}
+
+		packagesList.setShowGrid(false)
+	}
+
+
+	/**
+	 * `Fill in my data parameters` INITIALIZATION
+	 * @param default Value{true is called by dialog initialization, and false is called by refresh button.}
+	 */
+	private fun loadPackages(default: Boolean = true) {
+
+		val task = object : Task.Backgroundable(project, "title", true, { true }) {
+			override fun run(indicator: ProgressIndicator) {
+
+
+				indicator.text = JuliaBundle.message("julia.messages.package.names.loading")
+				val namesList = packageNamesList(project.juliaSettings.settings.importPath)
+				val tempData = namesList.map { arrayOf(it) }.toTypedArray()
+				val tempDataModel = JuliaPackageTableModel(tempData, JULIA_TABLE_HEADER_COLUMN)
+				if (default) {
+					packagesList.model = tempDataModel
+					packageInfos.clear()
+					packageInfos.addAll(namesList.map { InfoData(it, "") })
+				}
+
+				fun fasterVersionsList(settings: JuliaSettings): List<Pair<String, String>> {
+					val sizeToDouble = namesList.size.toDouble()
+					return namesList.mapIndexed { index, it ->
+						val process = Runtime.getRuntime().exec("$gitPath describe --abbrev=0 --tags", emptyArray(), "${settings.importPath}\\$it".let(::File))
+						indicator.fraction = index / sizeToDouble
+						val second = process.inputStream.reader().use { it.readText().removePrefix("v").trim() }
+						tempDataModel.setValueAt(second, index, 1)
+						it to second
+					}.toList()
+				}
+				indicator.text = JuliaBundle.message("julia.messages.package.versions.loading")
+				val versionList = fasterVersionsList(project.juliaSettings.settings)
+				packagesList.model = tempDataModel
+				packageInfos.clear()
+				packageInfos.addAll(versionList.map { InfoData(it.first, it.second) })
+			}
+		}
+		ProgressManager.getInstance().run(task)
+
 	}
 
 	override fun getDisplayName() = JuliaBundle.message("julia.pkg-manager.title")
 	override fun createComponent() = mainPanel
 	override fun isModified() = false
 	override fun apply() {
+// TODO packageInfo needs to be cached
 	}
 }

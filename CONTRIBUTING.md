@@ -49,7 +49,7 @@ For more information, see [the official doc](http://www.jetbrains.org/intellij/s
 
 ## You must
 
-0. Put all Nls into the [resource bundle](src/org/ice1000/julia/lang/julia-bundle.properties)
+0. Put all Nls into the [resource bundle](res/org/ice1000/julia/lang/julia-bundle.properties)
 0. Use as much `@NotNull` and `@Nullable` as you can in Java codes except local variables
 
 ## You must not

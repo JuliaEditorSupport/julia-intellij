@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NonNls
 
 @NonNls const val MAC_APPLICATIONS = "/Applications"
 
+@NonNls val JULIA_TABLE_HEADER_COLUMN = arrayOf("Package", "Version", "Latest")
 @NonNls @Language("HTML") const val UNKNOWN_VALUE_PLACEHOLDER = "<unknown>"
 
 // ========= DocumentFormat.jl ==========

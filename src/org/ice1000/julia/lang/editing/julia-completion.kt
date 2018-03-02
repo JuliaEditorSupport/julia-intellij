@@ -44,16 +44,26 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"macro ",
 			"function ",
 			"end"
-		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }		//搞成LookupElementBuilder
-		private val tryInside = listOf(			//try块里的东西
+		).map {
+			LookupElementBuilder
+				.create(it)
+				.withIcon(JuliaIcons.JULIA_BIG_ICON)
+				.withTypeText(JuliaBundle.message("julia.completion.keyword.tail"), true)
+		}
+		private val tryInside = listOf(
 			"catch ",
 			"finally"
 		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
-		private val loopInside = listOf(		//loop块里的东西
+		private val loopInside = listOf(
 			"break",
 			"continue"
-		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
-		private val ifInside = listOf(			//if块里的东西
+		).map {
+			LookupElementBuilder
+				.create(it)
+				.withIcon(JuliaIcons.JULIA_BIG_ICON)
+				.withTypeText(JuliaBundle.message("julia.completion.jump.tail"), true)
+		}
+		private val ifInside = listOf(
 			"elseif ",
 			"else"
 		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
@@ -102,7 +112,12 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"throw",
 			"println",
 			"print"
-		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_FUNCTION_ICON) }
+		).map {
+			LookupElementBuilder
+				.create(it)
+				.withIcon(JuliaIcons.JULIA_FUNCTION_ICON)
+				.withTypeText("Predefined symbol", true)
+		}
 
 		private val where = listOf(LookupElementBuilder.create("where").withIcon(JuliaIcons.JULIA_BIG_ICON))
 
@@ -112,7 +127,9 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 	 * 什么时候需要提示呢。。。
 	 */
 	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =
-		position.parent !is JuliaString && typeChar in ".([\\"		//不是在字符串里 && char是这些字符里的其中之一...
+		position.parent !is JuliaString &&
+			position.parent !is JuliaCommand &&
+			typeChar in ".([ "
 
 	init {
 		extend(CompletionType.BASIC, psiElement()		//一堆初始化(>_<)
@@ -124,7 +141,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		extend(CompletionType.BASIC,
 			psiElement()
 				.inside(JuliaStatements::class.java).andNot(
-					psiElement().withParent(JuliaString::class.java)),
+				psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(statementBegin))
 		extend(CompletionType.BASIC,
 			psiElement()

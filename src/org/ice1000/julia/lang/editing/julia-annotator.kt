@@ -40,9 +40,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
-			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
-				// TODO provide conversions
-			}
+			is JuliaFloatLit -> float(element, holder)
 		}
 	}
 
@@ -272,7 +270,8 @@ $JULIA_DOC_SURROUNDING
 		val value = BigInteger(intText, base)
 		val type = checkType(value)
 		element.type = type
-		val annotation = holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.int-type", type))
+		val annotation = holder.createInfoAnnotation(element,
+			JuliaBundle.message("julia.lint.int-type", type))
 		if (base != 2) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
 			JuliaBundle.message("julia.lint.int-replace-bin")))
 		if (base != 8) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
@@ -281,5 +280,18 @@ $JULIA_DOC_SURROUNDING
 			JuliaBundle.message("julia.lint.int-replace-dec")))
 		if (base != 16) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
 			JuliaBundle.message("julia.lint.int-replace-hex")))
+	}
+
+	private fun float(element: JuliaFloatLit, holder: AnnotationHolder) {
+		val code = element.text
+		var state = ""
+		if ('e' in code) state = "ef"
+		if ('f' in code) state = "fe"
+		if (state.isNotEmpty()) {
+			holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.float-literal"))
+				.registerFix(JuliaReplaceWithTextIntention(element,
+					code.replace(state[0], state[1]),
+					JuliaBundle.message("julia.lint.float-literal-replace", state[1])))
+		}
 	}
 }

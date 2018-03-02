@@ -24,11 +24,13 @@ class JuliaSdkFindTest {
 
 	@Test
 	fun testFindPathWindows() {
+		@Suppress("DEPRECATION")
 		if (SystemInfo.isWindows) println(findPathWindows())
 	}
 
 	@Test
 	fun testFindPathLinux() {
+		@Suppress("DEPRECATION")
 		if (SystemInfo.isLinux) println(findPathLinux())
 	}
 
