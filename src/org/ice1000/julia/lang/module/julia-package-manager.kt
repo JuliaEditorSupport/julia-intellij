@@ -1,9 +1,11 @@
+@file:JvmName("ModuleUtils")
+@file:JvmMultifileClass
+
 package org.ice1000.julia.lang.module
 
 import org.ice1000.julia.lang.executeCommand
 import org.intellij.lang.annotations.Language
 import java.io.File
-
 
 data class InfoData(val name: String, val version: String, val latestVersion: String = "")
 
@@ -26,14 +28,12 @@ fun packageNamesList(importPath: String = ""): Array<out String> {
 			.orEmpty()
 			.map { it.name.toString() }
 			.toTypedArray()
-	} else {
-		return importPath
-			.let(::File)
-			.listFiles { dir -> dir.isDirectory && !dir.name.startsWith(".") && dir.name != "METADATA" }
-			.orEmpty()
-			.map { it.name.toString() }
-			.toTypedArray()
-	}
+	} else return importPath
+		.let(::File)
+		.listFiles { dir -> dir.isDirectory && !dir.name.startsWith(".") && dir.name != "METADATA" }
+		.orEmpty()
+		.map { it.name.toString() }
+		.toTypedArray()
 }
 
 /**

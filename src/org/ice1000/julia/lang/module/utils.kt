@@ -1,3 +1,6 @@
+@file:JvmName("ModuleUtils")
+@file:JvmMultifileClass
+
 package org.ice1000.julia.lang.module
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil
