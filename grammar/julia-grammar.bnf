@@ -257,7 +257,10 @@ private suffixedExpr ::=
 
 type ::= expr typeParameters { extends=expr }
 
-applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expressionList? endOfLine RIGHT_M_BRACKET (DOT_SYM expr)?
+applyIndexOp ::=
+ expr LEFT_M_BRACKET endOfLine
+  expressionList? endOfLine
+ RIGHT_M_BRACKET (DOT_SYM expr)? // FIXME this code doesn't parse
 
 applyWhereOp ::= expr whereClause
 
