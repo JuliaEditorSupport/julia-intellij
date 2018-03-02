@@ -284,12 +284,14 @@ $JULIA_DOC_SURROUNDING
 
 	private fun float(element: JuliaFloatLit, holder: AnnotationHolder) {
 		val code = element.text
-		var char = 'e'
-			if (char in code || ++ char in code) {		//TODO
-				val beReplaced = char
-				val replaceChar = if(char == 'e') 'f' else 'e'
-				holder.createInfoAnnotation(element, "可以使用${replaceChar}替换$beReplaced")
-					.registerFix(JuliaReplaceWithTextIntention(element, code.replace(beReplaced, replaceChar), "使用${replaceChar}替换$beReplaced"))
+		var state = ""
+		if ('e' in code) state = "ef"
+		if ('f' in code) state = "fe"
+		if (state.isNotEmpty()) {
+			holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.float-literal"))
+				.registerFix(JuliaReplaceWithTextIntention(element,
+					code.replace(state[0], state[1]),
+					JuliaBundle.message("julia.lint.float-literal-replace", state[1])))
 		}
 	}
 }

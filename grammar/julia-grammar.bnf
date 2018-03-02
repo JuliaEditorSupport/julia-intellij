@@ -256,8 +256,12 @@ private suffixedExpr ::=
  | type
 
 type ::= expr typeParameters { extends=expr }
-//FIXME: temp...should be mixed with compactArray
-applyIndexOp ::= expr LEFT_M_BRACKET endOfLine? expressionList* (FOR_KEYWORD symbol IN_KEYWORD expr)* endOfLine? RIGHT_M_BRACKET (DOT_SYM expr)?
+
+applyIndexOp ::=
+ expr LEFT_M_BRACKET endOfLine
+  expressionList? endOfLine
+  (FOR_KEYWORD symbol IN_KEYWORD expr)*
+ RIGHT_M_BRACKET (DOT_SYM expr)? // FIXME this code doesn't parse
 
 applyWhereOp ::= expr whereClause
 
