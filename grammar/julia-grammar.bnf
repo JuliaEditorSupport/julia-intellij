@@ -321,7 +321,8 @@ private quoteLevel ::=
  | quoteOp
  | compoundQuoteOp
 
-colonOp ::= expr COLON_SYM expr
+private colonSymBegins::=COLON_BEGIN_SYM | (COLON_SYM endOfLine LEFT_BRACKET)
+colonOp ::= expr colonSymBegins expr RIGHT_BRACKET
 spliceOp ::= expr SLICE_SYM
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
 quoteOp ::= COLON_SYM endOfLine quotable
