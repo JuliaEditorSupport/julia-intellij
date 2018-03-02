@@ -92,7 +92,7 @@ class JuliaConsoleFolding : ConsoleFolding() {
 	private fun String.matchExecCommand() = "julia" in this &&
 		".jl" in this
 
-	private fun String.matchErrorStackTrace() = "loading.jl:" in this ||
+	private fun String.matchErrorStackTrace() = "while loading" !in this || "loading.jl:" in this ||
 		"sysimg.jl:" in this ||
 		"client.jl:" in this
 }
