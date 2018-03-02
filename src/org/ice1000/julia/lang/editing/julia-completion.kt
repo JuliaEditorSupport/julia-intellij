@@ -7,8 +7,8 @@ import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import icons.JuliaIcons
+import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.psi.*
-import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
 open class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
 	override fun addCompletions(
