@@ -459,7 +459,7 @@ private primaryExpr ::=
 bracketedExpr ::=
  LEFT_BRACKET endOfLine
   (opAsSymbol | unaryOpAsSymbol)?
-   statements? endOfLine (COMMA_SYM endOfLine)?
+   statements? endOfLine (COMMA_SYM endOfLine)? (FOR_KEYWORD expr IN_KEYWORD expr)*
  RIGHT_BRACKET
 
 whereClause ::= WHERE_KEYWORD afterWhere
