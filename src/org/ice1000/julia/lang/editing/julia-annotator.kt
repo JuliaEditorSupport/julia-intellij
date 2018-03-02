@@ -40,9 +40,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
-			is JuliaFloatLit -> holder.createInfoAnnotation(element, null).run {
-				// TODO provide conversions
-			}
+			is JuliaFloatLit -> float(element, holder)
 		}
 	}
 
@@ -282,5 +280,16 @@ $JULIA_DOC_SURROUNDING
 			JuliaBundle.message("julia.lint.int-replace-dec")))
 		if (base != 16) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
 			JuliaBundle.message("julia.lint.int-replace-hex")))
+	}
+
+	private fun float(element: JuliaFloatLit, holder: AnnotationHolder) {
+		val code = element.text
+		var char = 'e'
+			if (char in code || ++ char in code) {		//TODO
+				val beReplaced = char
+				val replaceChar = if(char == 'e') 'f' else 'e'
+				holder.createInfoAnnotation(element, "可以使用${replaceChar}替换$beReplaced")
+					.registerFix(JuliaReplaceWithTextIntention(element, code.replace(beReplaced, replaceChar), "使用${replaceChar}替换$beReplaced"))
+		}
 	}
 }

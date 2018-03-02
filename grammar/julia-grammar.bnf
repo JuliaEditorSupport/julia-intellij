@@ -257,7 +257,7 @@ private suffixedExpr ::=
 
 type ::= expr typeParameters { extends=expr }
 
-applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expressionList? endOfLine RIGHT_M_BRACKET
+applyIndexOp ::= expr LEFT_M_BRACKET endOfLine expressionList? endOfLine RIGHT_M_BRACKET (DOT_SYM expr)?
 
 applyWhereOp ::= expr whereClause
 
@@ -321,7 +321,8 @@ private quoteLevel ::=
  | quoteOp
  | compoundQuoteOp
 
-colonOp ::= expr COLON_SYM expr
+private colonSymBegins::=COLON_BEGIN_SYM | (COLON_SYM endOfLine LEFT_BRACKET)
+colonOp ::= expr colonSymBegins expr RIGHT_BRACKET
 spliceOp ::= expr SLICE_SYM
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
 quoteOp ::= COLON_SYM endOfLine quotable
@@ -431,6 +432,7 @@ private primaryExpr ::=
  | tryCatch
  | continueExpr
  | array
+ | compactArray
  | union
  | tuple
  | macro
@@ -479,6 +481,11 @@ array ::=
     expr (commaSep? expr)* COMMA_SYM?)*
   )?
   RIGHT_M_BRACKET { extends=expr }
+
+compactArray ::=
+	LEFT_M_BRACKET endOfLine
+	expr (FOR_KEYWORD symbol IN_KEYWORD expr)*
+	RIGHT_M_BRACKET{extends=expr}
 
 union ::= UNION_KEYWORD tuple { extends=expr }
 
