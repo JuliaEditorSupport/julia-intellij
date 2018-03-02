@@ -13,6 +13,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
   private static final IntStack leftBracketStack = new IntStack();
   private static int leftBraceCount = 0;
   private static boolean noEnd = false;
+  private static boolean noInAndUnion = false;
 
   /** 虎哥化 */
   private void hugify(int state) {
@@ -128,7 +129,7 @@ OTHERWISE=[^]
   return JuliaTypes.RIGHT_BRACKET;
 }
 
-<YYINITIAL, LONG_TEMPLATE> \n+ { return JuliaTypes.EOL; }
+<YYINITIAL, LONG_TEMPLATE> \n+ { noInAndUnion = false; return JuliaTypes.EOL; }
 <YYINITIAL, LONG_TEMPLATE> {WHITE_SPACE} { return TokenType.WHITE_SPACE; }
 
 <YYINITIAL, LONG_TEMPLATE> {LINE_COMMENT} { return JuliaTypes.LINE_COMMENT; }
@@ -158,16 +159,18 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> baremodule { noEnd = false; return JuliaTypes.BAREMODULE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> export { return JuliaTypes.EXPORT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> if { noEnd = false; return JuliaTypes.IF_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> in { return JuliaTypes.IN_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> in {
+  return noInAndUnion ? JuliaTypes.SYM : JuliaTypes.IN_KEYWORD;
+}
 
-<YYINITIAL, LONG_TEMPLATE> importall { return JuliaTypes.IMPORTALL_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> import { return JuliaTypes.IMPORT_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> importall { noInAndUnion = true; return JuliaTypes.IMPORTALL_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> import { noInAndUnion = true; return JuliaTypes.IMPORT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> using { return JuliaTypes.USING_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> elseif { return JuliaTypes.ELSEIF_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> else { return JuliaTypes.ELSE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> for {
-	noEnd = false;
-	return JuliaTypes.FOR_KEYWORD;
+  noEnd = false;
+  return JuliaTypes.FOR_KEYWORD;
 }
 
 <YYINITIAL, LONG_TEMPLATE> while { noEnd = false; return JuliaTypes.WHILE_KEYWORD; }
@@ -183,7 +186,11 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> typealias { return JuliaTypes.TYPEALIAS_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> immutable { return JuliaTypes.IMMUTABLE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> mutable { return JuliaTypes.MUTABLE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> union { noEnd = false; return JuliaTypes.UNION_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> union {
+  noEnd = false;
+  return noInAndUnion ? JuliaTypes.SYM : JuliaTypes.UNION_KEYWORD;
+}
+
 <YYINITIAL, LONG_TEMPLATE> quote { noEnd = false; return JuliaTypes.QUOTE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> begin { return JuliaTypes.BEGIN_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> macro { noEnd = false; return JuliaTypes.MACRO_KEYWORD; }

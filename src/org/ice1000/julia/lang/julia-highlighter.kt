@@ -15,7 +15,7 @@ import org.intellij.lang.annotations.Language
 
 object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val KEYWORD = TextAttributesKey.createTextAttributesKey("JULIA_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD)
-	@JvmField val DISABLED_KEYWORD = TextAttributesKey.createTextAttributesKey("JULIA_DISABLED_KEYWORD", HighlighterColors.TEXT)
+	@JvmField val SYMBOL = TextAttributesKey.createTextAttributesKey("JULIA_SYMBOL", HighlighterColors.TEXT)
 	@JvmField val NUMBER = TextAttributesKey.createTextAttributesKey("JULIA_NUMBER", DefaultLanguageHighlighterColors.NUMBER)
 	@JvmField val FLOAT_LIT = TextAttributesKey.createTextAttributesKey("JULIA_FLOAT_LIT", DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL)
 	@JvmField val STRING = TextAttributesKey.createTextAttributesKey("JULIA_STRING", DefaultLanguageHighlighterColors.STRING)

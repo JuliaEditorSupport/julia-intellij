@@ -23,16 +23,16 @@ fun packageNamesList(importPath: String = ""): Array<out String> {
 			?.trim('"')
 			?.let(::File)
 			?.listFiles { dir -> dir.isDirectory && !dir.name.startsWith(".") && dir.name != "METADATA" }
-			?.map { it.name.toString() }
-			?.toTypedArray()
 			.orEmpty()
+			.map { it.name.toString() }
+			.toTypedArray()
 	} else {
 		return importPath
 			.let(::File)
 			.listFiles { dir -> dir.isDirectory && !dir.name.startsWith(".") && dir.name != "METADATA" }
-			?.map { it.name.toString() }
-			?.toTypedArray()
 			.orEmpty()
+			.map { it.name.toString() }
+			.toTypedArray()
 	}
 }
 

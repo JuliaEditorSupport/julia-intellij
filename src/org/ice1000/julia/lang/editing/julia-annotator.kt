@@ -34,7 +34,6 @@ class JuliaAnnotator : Annotator {
 			is JuliaCompactFunction -> compactFunction(element, holder)
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
 			is JuliaSymbol -> symbol(element, holder)
-			is JuliaKeywordsInImport -> disableKeywords(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
 			is JuliaPlusLevelOp -> plusLevelOp(element, holder)
 			is JuliaAssignLevelOp -> assignLevelOp(element, holder)
@@ -157,13 +156,6 @@ $JULIA_DOC_SURROUNDING
 				registerFix(JuliaReplaceWithTextIntention(element, "$left \u22bb= $right",
 					JuliaBundle.message("julia.lint.xor-is-replace-22bb", left, right)))
 			}
-		}
-	}
-
-	private fun disableKeywords(element: PsiElement, holder: AnnotationHolder) {
-		when{
-			element.parent.parent is JuliaImportExpr->		holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.DISABLED_KEYWORD
 		}
 	}
 

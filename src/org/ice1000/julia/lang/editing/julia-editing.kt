@@ -153,7 +153,7 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 		is JuliaLet -> "let"
 		is JuliaLambda -> "λ"
 		is JuliaImportExpr -> "import ${element.exprList.firstOrNull()?.text}"
-		is JuliaImportAllExpr -> "importall ${element.expr?.text}"
+		is JuliaImportAllExpr -> "importall ${element.expr.text}"
 		is JuliaUsing -> "using ${element.exprList.firstOrNull()?.text}"
 		is JuliaCompoundQuoteOp,
 		is JuliaQuoteOp -> "quote"

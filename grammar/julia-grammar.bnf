@@ -137,7 +137,7 @@ globalStatement ::=
 typeAnnotation ::=
  DOUBLE_COLON endOfLine
  primaryExpr endOfLine
- typeParameters? { pin=1 }
+ typeParameters?
 
 typedNamedVariable ::=
  (
@@ -189,9 +189,13 @@ expr ::=
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaExprMixin'
 }
 
-memberAccessOp ::= keywordsInImport | opAsSymbol | (symbolAndMacroSymbol (DOT_SYM symbolAndMacroSymbol)*)
-keywordsInImport::= IN_KEYWORD|UNION_KEYWORD
-private access ::= (DOT_SYM|DOUBLE_DOT_SYM|SLICE_SYM)? (memberAccessOp) {pin=1}
+memberAccessOp ::=
+   IN_KEYWORD
+ | UNION_KEYWORD
+ | opAsSymbol
+ | symbolAndMacroSymbol (DOT_SYM symbolAndMacroSymbol)*
+
+private access ::= (DOT_SYM | DOUBLE_DOT_SYM | SLICE_SYM)? (memberAccessOp)
 private symbolAndMacroSymbol ::= symbol | macroSymbol
 
 compactFunction ::=
@@ -213,12 +217,11 @@ private assignLevel ::=
 
 assignOp ::= expr (EQ_SYM | ASSIGN_SYM) endOfLine expr {
 	rightAssociative=true
-	pin=2
 	implements=['com.intellij.psi.PsiNameIdentifierOwner']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaAssignOpMixin'
 }
 
-assignLevelOp ::= expr assignLevelOperator endOfLine expr { rightAssociative=true pin=2 }
+assignLevelOp ::= expr assignLevelOperator endOfLine expr { rightAssociative=true }
 assignLevelOperator ::=
    COLON_ASSIGN_SYM
  | BITWISE_AND_ASSIGN_SYM
