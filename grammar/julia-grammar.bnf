@@ -133,7 +133,7 @@ moduleDeclaration ::=
 
 globalStatement ::=
  GLOBAL_KEYWORD endOfLine
- expr (COMMA_SYM endOfLine expr)*
+ symbol (COMMA_SYM endOfLine symbol)*
 
 typeAnnotation ::=
  DOUBLE_COLON endOfLine
@@ -285,7 +285,7 @@ arguments ::=
 private symbolLhsInternal ::= symbol | LEFT_BRACKET symbol RIGHT_BRACKET
 symbolLhs ::=
  ((LOCAL_KEYWORD | CONST_KEYWORD) endOfLine)
- symbolLhsInternal (COMMA_SYM endOfLine symbolLhsInternal)* { extends=expr }
+ symbolLhsInternal (commaSep symbolLhsInternal)* { extends=expr }
 
 // All reserved but unassigned
 // level 2.5

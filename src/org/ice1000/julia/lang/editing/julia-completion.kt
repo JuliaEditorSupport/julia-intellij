@@ -9,13 +9,11 @@ import com.intellij.util.ProcessingContext
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.psi.*
-import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
 open class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
 	override fun addCompletions(
-		parameters: CompletionParameters,
-		context: ProcessingContext,
-		result: CompletionResultSet) = list.forEach(result::addElement)
+		parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) =
+		list.forEach(result::addElement)
 }
 
 class JuliaBasicCompletionContributor : CompletionContributor() {
@@ -54,7 +52,11 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		private val tryInside = listOf(
 			"catch ",
 			"finally"
-		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
+		).map {
+			LookupElementBuilder
+				.create(it)
+				.withIcon(JuliaIcons.JULIA_BIG_ICON)
+		}
 		private val loopInside = listOf(
 			"break",
 			"continue"
@@ -118,10 +120,14 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 				.create(it)
 				.withIcon(JuliaIcons.JULIA_FUNCTION_ICON)
 				.withTypeText("Predefined symbol", true)
+				.let { PrioritizedLookupElement.withPriority(it, 0.1) }
 		}
 
-		private val where = listOf(LookupElementBuilder.create("where").withIcon(JuliaIcons.JULIA_BIG_ICON))
-
+		private val where = listOf(
+			LookupElementBuilder
+				.create("where")
+				.withIcon(JuliaIcons.JULIA_BIG_ICON)
+				.withTypeText("Keyword", true))
 	}
 
 	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =
@@ -139,7 +145,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		extend(CompletionType.BASIC,
 			psiElement()
 				.inside(JuliaStatements::class.java).andNot(
-				psiElement().withParent(JuliaString::class.java)),
+					psiElement().withParent(JuliaString::class.java)),
 			JuliaCompletionProvider(statementBegin))
 		extend(CompletionType.BASIC,
 			psiElement()

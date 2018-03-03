@@ -70,7 +70,9 @@ abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 		get() = exprList.lastOrNull()?.type
 		set(value) {}
 
-	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol }
+	override fun getNameIdentifier() = children
+		.firstOrNull { it is JuliaSymbol || it is JuliaSymbolLhs }
+		?.let { (it as? JuliaSymbolLhs)?.symbolList?.firstOrNull() ?: it }
 }
 
 abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaFunction {
@@ -189,6 +191,7 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	val isPrimitiveTypeName: Boolean
 	val isFunctionParameter: Boolean
 	val isVariableName: Boolean
+	val isGlobalName: Boolean
 	val isDeclaration: Boolean
 }
 
@@ -242,7 +245,10 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	final override val isAbstractTypeName by lazy { parent is JuliaAbstractTypeDeclaration }
 	final override val isPrimitiveTypeName by lazy { parent is JuliaPrimitiveTypeDeclaration }
 	final override val isFunctionParameter by lazy { parent is JuliaTypedNamedVariable && this === parent.firstChild }
-	final override val isVariableName by lazy { parent is JuliaAssignOp && this === parent.firstChild }
+	final override val isGlobalName: Boolean by lazy { parent is JuliaGlobalStatement }
+	final override val isVariableName by lazy {
+		parent is JuliaAssignOp && this === parent.firstChild || parent is JuliaSymbolLhs
+	}
 	final override val isDeclaration by lazy {
 		isFunctionName or
 			isVariableName or
@@ -251,13 +257,15 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			isModuleName or
 			isTypeName or
 			isAbstractTypeName or
+			isGlobalName or
 			isPrimitiveTypeName
 	}
 
 	override var type: Type? = null
-		get() = if (isVariableName) (parent as JuliaAssignOp)
-			.children
-			.lastOrNull { it is JuliaExpr }
+		get() = if (isVariableName) PsiTreeUtil
+			.getParentOfType(this, JuliaAssignOp::class.java, true, JuliaStatements::class.java)
+			?.children
+			?.lastOrNull { it is JuliaExpr }
 			?.let { it as JuliaExpr }
 			?.type
 			?.also { field = it }

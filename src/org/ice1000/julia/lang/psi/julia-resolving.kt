@@ -153,7 +153,14 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,
-					element.type)
+					element.type
+				)
+				element.isGlobalName -> quadOf(
+					JuliaIcons.JULIA_VARIABLE_ICON,
+					element.text,
+					null,
+					element.type
+				)
 				else -> return true
 			}
 			if (element.isDeclaration and element.hasNoError and isInScope(element)) candidateSet += LookupElementBuilder
