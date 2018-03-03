@@ -23,11 +23,10 @@ interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
  */
 abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameIdentifierOwner {
 	private var refCache: Array<PsiReference>? = null
-	override fun setName(newName: String) = nameIdentifier?.let { JuliaTokenType.fromText(newName, project).let(it::replace) }
-		.also {
-			if (it is JuliaDeclaration)
-				it.refCache = references.mapNotNull { it.handleElementRename(newName).reference }.toTypedArray()
-		}
+	override fun setName(newName: String) = also {
+		nameIdentifier?.let { JuliaTokenType.fromText(newName, project).let(it::replace) }
+		references.mapNotNull { it.handleElementRename(newName).reference }.toTypedArray()
+	}
 
 	open val startPoint: PsiElement
 	// TODO workaround for KT-22916
@@ -47,7 +46,8 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		processDeclTrivial(processor, substitutor, lastParent, place) and nameIdentifier?.let { processor.execute(it, substitutor) }.orFalse()
+		nameIdentifier?.let { processor.execute(it, substitutor) }.orFalse() and
+			processDeclTrivial(processor, substitutor, lastParent, place)
 }
 
 abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(node), JuliaTypedNamedVariable {
@@ -282,9 +282,7 @@ abstract class JuliaExprMixin(node: ASTNode) : ASTWrapperPsiElement(node), Julia
 
 interface IJuliaModuleDeclaration : PsiNameIdentifierOwner, DocStringOwner
 
-abstract class JuliaModuleDeclarationMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaModuleDeclaration {
+abstract class JuliaModuleDeclarationMixin(node: ASTNode) : JuliaDeclaration(node), JuliaModuleDeclaration {
 	override var docString: JuliaString? = null
 	override fun getNameIdentifier() = symbol
-	override fun setName(name: String) = also { symbol.replace(JuliaTokenType.fromText(name, project)) }
-	override fun getName(): String = nameIdentifier.text
 }

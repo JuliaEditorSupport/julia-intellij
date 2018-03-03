@@ -124,8 +124,8 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 				element.isModuleName -> quadOf(
 					JuliaIcons.JULIA_MODULE_ICON,
 					element.text,
-					element.containingFile.virtualFile?.name?.let { "in $it" }.orEmpty(),
-					null
+					null,
+					element.containingFile.name.let { "in $it" }
 				)
 				element.isMacroName -> quadOf(
 					JuliaIcons.JULIA_MACRO_ICON,
@@ -149,6 +149,11 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 					null,
 					null
 				)
+				element.isFunctionParameter -> quadOf(
+					JuliaIcons.JULIA_VARIABLE_ICON,
+					element.text,
+					null,
+					element.type)
 				else -> return true
 			}
 			if (element.isDeclaration and element.hasNoError and isInScope(element)) candidateSet += LookupElementBuilder
