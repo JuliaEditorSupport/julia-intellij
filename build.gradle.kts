@@ -89,13 +89,13 @@ val SourceSet.kotlin
 		.kotlin
 
 java.sourceSets {
-	getByName("main").run {
+	getByName("main").apply {
 		java.srcDirs("src", "gen")
 		kotlin.srcDirs("src", "gen")
 		resources.srcDirs("res")
 	}
 
-	getByName("test").run {
+	getByName("test").apply {
 		java.srcDirs("test")
 		kotlin.srcDirs("test")
 		resources.srcDirs("testData")

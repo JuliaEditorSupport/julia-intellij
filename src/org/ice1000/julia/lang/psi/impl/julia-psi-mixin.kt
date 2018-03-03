@@ -207,20 +207,17 @@ abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), 
  * and [JuliaSymbolMixin] (see [JuliaSymbolRef]). (for code reuse purpose)
  */
 abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), PsiNameIdentifierOwner, JuliaExpr {
-	private val referenceImpl by lazy {
-		object : JuliaSymbolRef() {
-			override fun getElement() = this@JuliaAbstractSymbol
-		}
-	}
+	private var referenceImpl: JuliaSymbolRef? = null
 
 	/** For [JuliaSymbolMixin], we cannot have a reference if it's a declaration. */
-	override fun getReference() = referenceImpl
+	override fun getReference() = referenceImpl ?: JuliaSymbolRef(this).also { referenceImpl = it }
 
 	override fun getNameIdentifier(): JuliaAbstractSymbol? = this
 	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
 	override fun getName() = text
 	override fun subtreeChanged() {
 		type = null
+		referenceImpl = null
 		super.subtreeChanged()
 	}
 }

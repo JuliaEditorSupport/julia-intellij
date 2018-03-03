@@ -10,12 +10,15 @@ import com.intellij.psi.util.PsiTreeUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
+import org.ice1000.julia.lang.psi.impl.JuliaAbstractSymbol
 
 /**
  * @author ice1000
  * element should be only [JuliaSymbol] or [JuliaMacroSymbol]
  */
-abstract class JuliaSymbolRef(private var refTo: PsiElement? = null) : PsiPolyVariantReference {
+class JuliaSymbolRef(
+	private val symbol: JuliaAbstractSymbol,
+	private var refTo: PsiElement? = null) : PsiPolyVariantReference {
 	private val range = TextRange(0, element.textLength)
 	private val isDeclaration = (element as? JuliaSymbol)?.isDeclaration.orFalse()
 	private val resolver by lazy {
@@ -24,7 +27,7 @@ abstract class JuliaSymbolRef(private var refTo: PsiElement? = null) : PsiPolyVa
 	}
 
 	override fun equals(other: Any?) = (other as? JuliaSymbolRef)?.element == element
-	abstract override fun getElement(): PsiNameIdentifierOwner
+	override fun getElement() = symbol
 	override fun hashCode() = element.hashCode()
 	override fun getRangeInElement() = range
 	override fun isSoft() = true
