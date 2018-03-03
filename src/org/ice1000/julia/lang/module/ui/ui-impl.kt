@@ -17,6 +17,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.NumberFormat
+import javax.swing.JPanel
 import javax.swing.event.DocumentEvent
 import javax.swing.table.DefaultTableModel
 import javax.swing.text.DefaultFormatterFactory
@@ -173,7 +174,9 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
  * Settings(Preference) | Language & Frameworks | Julia | Package Manager
  */
 class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManager() {
-	class JuliaPackageTableModel(data: Array<Array<String>>, columnNames: Array<String>) :
+	private val settings = project.juliaSettings.settings
+
+	private class JuliaPackageTableModel(data: Array<Array<String>>, columnNames: Array<String>) :
 		DefaultTableModel(data, columnNames) {
 		override fun isCellEditable(row: Int, column: Int) = false
 	}
@@ -187,14 +190,6 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		buttonRemove.addActionListener {
 			Messages.showDialog("Nothing to remove", "Remove Package", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
 		}
-		if (packageInfos.isEmpty()) {
-			loadPackages()
-		} else {
-			val data = packageInfos.map { arrayOf(it.name, it.version, it.latestVersion) }.toTypedArray()
-			val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
-			packagesList.model = dataModel
-		}
-
 		buttonRefresh.addActionListener {
 			loadPackages(false)
 		}
@@ -202,19 +197,15 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		packagesList.setShowGrid(false)
 	}
 
-
 	/**
 	 * `Fill in my data parameters` INITIALIZATION
 	 * @param default Value{true is called by dialog initialization, and false is called by refresh button.}
 	 */
 	private fun loadPackages(default: Boolean = true) {
-
-		val task = object : Task.Backgroundable(project, "title", true, { true }) {
+		val task = object : Task.Backgroundable(project, "title", true, null) {
 			override fun run(indicator: ProgressIndicator) {
-
-
 				indicator.text = JuliaBundle.message("julia.messages.package.names.loading")
-				val namesList = packageNamesList(project.juliaSettings.settings.importPath)
+				val namesList = packageNamesList(settings.importPath)
 				val tempData = namesList.map { arrayOf(it) }.toTypedArray()
 				val tempDataModel = JuliaPackageTableModel(tempData, JULIA_TABLE_HEADER_COLUMN)
 				if (default) {
@@ -223,18 +214,18 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					packageInfos.addAll(namesList.map { InfoData(it, "") })
 				}
 
-				fun fasterVersionsList(settings: JuliaSettings): List<Pair<String, String>> {
-					val sizeToDouble = namesList.size.toDouble()
-					return namesList.mapIndexed { index, it ->
-						val process = Runtime.getRuntime().exec("$gitPath describe --abbrev=0 --tags", emptyArray(), "${settings.importPath}\\$it".let(::File))
-						indicator.fraction = index / sizeToDouble
-						val second = process.inputStream.reader().use { it.readText().removePrefix("v").trim() }
-						tempDataModel.setValueAt(second, index, 1)
-						it to second
-					}.toList()
-				}
 				indicator.text = JuliaBundle.message("julia.messages.package.versions.loading")
-				val versionList = fasterVersionsList(project.juliaSettings.settings)
+				val sizeToDouble = namesList.size.toDouble()
+				val versionList = namesList.mapIndexed { index, it ->
+					val process = Runtime.getRuntime().exec(
+						arrayOf(gitPath, "describe", "--abbrev=0", "--tags"),
+						emptyArray(),
+						"${settings.importPath}\\$it".let(::File))
+					indicator.fraction = index / sizeToDouble
+					val second = process.inputStream.reader().use { it.readText().removePrefix("v").trim() }
+					tempDataModel.setValueAt(second, index, 1)
+					it to second
+				}.toList()
 				packagesList.model = tempDataModel
 				packageInfos.clear()
 				packageInfos.addAll(versionList.map { InfoData(it.first, it.second) })
@@ -245,7 +236,17 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 	}
 
 	override fun getDisplayName() = JuliaBundle.message("julia.pkg-manager.title")
-	override fun createComponent() = mainPanel
+	override fun createComponent(): JPanel {
+		if (packageInfos.isEmpty()) {
+			if (validateJuliaExe(settings.exePath)) loadPackages()
+		} else {
+			val data = packageInfos.map { arrayOf(it.name, it.version, it.latestVersion) }.toTypedArray()
+			val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
+			packagesList.model = dataModel
+		}
+		return mainPanel
+	}
+
 	override fun isModified() = false
 	override fun apply() {
 // TODO packageInfo needs to be cached

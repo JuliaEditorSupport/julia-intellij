@@ -51,7 +51,7 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 			return Filter.Result(
 				startPoint + matcher2.start(),
 				startPoint + matcher2.end() - 1,
-				OpenFileHyperlinkInfo(project, resultFile, lineNumber))
+				OpenFileHyperlinkInfo(project, resultFile, lineNumber - 1))
 		}
 		return default(startPoint, entireLength)
 	}

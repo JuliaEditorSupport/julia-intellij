@@ -6,6 +6,7 @@ import com.intellij.openapi.util.io.FileUtilRt
 import org.ice1000.julia.lang.shouldBe
 import org.junit.Test
 import java.io.File
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>) {
@@ -66,9 +67,13 @@ class JuliaExecutionTest {
 		val exeName="julia"
 		val params = ""
 		val cmd = "docker run --rm -v $pwd/testData:$pwd/testData -w $pwd/testData $containerName $exeName $juliaFile $params"
-		val process = Runtime.getRuntime().exec(cmd)
-		println(process.inputStream.reader().readText())
-		System.err.println(process.errorStream.reader().readText())
+		try {
+			val process = Runtime.getRuntime().exec(cmd)
+			println(process.inputStream.reader().readText())
+			System.err.println(process.errorStream.reader().readText())
+		} catch (e: IOException) {
+			println("Test system doesn't have docker, skip")
+		}
 	}
 
 }

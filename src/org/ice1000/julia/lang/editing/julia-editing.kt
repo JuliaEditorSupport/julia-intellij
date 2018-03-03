@@ -167,7 +167,7 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 			(it as? JuliaSingleIndexer)?.children?.firstOrNull()
 				?: (it as? JuliaMultiIndexer)?.children?.firstOrNull()
 		}.joinToString()}"
-		is JuliaForComprehension -> "[ ${element.exprList.firstOrNull()?.text} for |"
+		is JuliaForComprehension -> "[ for |"
 		is JuliaWhileExpr -> "while ${element.expr}"
 		else -> "??"
 	}, TEXT_MAX)
