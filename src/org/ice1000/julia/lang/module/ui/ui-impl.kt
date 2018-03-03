@@ -170,14 +170,15 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 }
 
 /**
- * TODO PackageManager
  * Settings(Preference) | Language & Frameworks | Julia | Package Manager
  */
 class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManager() {
 	private val settings = project.juliaSettings.settings
 
-	private class JuliaPackageTableModel(data: Array<Array<String>>, columnNames: Array<String>) :
-		DefaultTableModel(data, columnNames) {
+	private class JuliaPackageTableModel : DefaultTableModel {
+		constructor(data: Array<Array<String>>, columnNames: Array<String>) : super(data, columnNames)
+		constructor(row: Int, column: Int) : super(row, column)
+
 		override fun isCellEditable(row: Int, column: Int) = false
 	}
 
@@ -185,10 +186,20 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
 
 		buttonAdd.addActionListener {
-			Messages.showDialog("Nothing to add", "Add Package", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
+			Messages.showDialog(
+				"Nothing to add",
+				"Add Package",
+				arrayOf(JuliaBundle.message("julia.yes")),
+				0,
+				JuliaIcons.JOJO_ICON)
 		}
 		buttonRemove.addActionListener {
-			Messages.showDialog("Nothing to remove", "Remove Package", arrayOf("♂"), 0, JuliaIcons.JOJO_ICON)
+			Messages.showDialog(
+				"Nothing to remove",
+				"Remove Package",
+				arrayOf(JuliaBundle.message("julia.yes")),
+				0,
+				JuliaIcons.JOJO_ICON)
 		}
 		buttonRefresh.addActionListener {
 			loadPackages(false)
@@ -202,7 +213,11 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 	 * @param default Value{true is called by dialog initialization, and false is called by refresh button.}
 	 */
 	private fun loadPackages(default: Boolean = true) {
-		val task = object : Task.Backgroundable(project, "title", true, null) {
+		ProgressManager.getInstance().run(object :
+			Task.Backgroundable(
+				project,
+				JuliaBundle.message("julia.messages.package.names.loading"),
+				true) {
 			override fun run(indicator: ProgressIndicator) {
 				indicator.text = JuliaBundle.message("julia.messages.package.names.loading")
 				val namesList = packageNamesList(settings.importPath)
@@ -211,10 +226,9 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 				if (default) {
 					packagesList.model = tempDataModel
 					packageInfos.clear()
-					packageInfos.addAll(namesList.map { InfoData(it, "") })
+					namesList.mapTo(packageInfos) { InfoData(it, "") }
 				}
 
-				indicator.text = JuliaBundle.message("julia.messages.package.versions.loading")
 				val sizeToDouble = namesList.size.toDouble()
 				val versionList = namesList.mapIndexed { index, it ->
 					val process = Runtime.getRuntime().exec(
@@ -228,10 +242,9 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 				}.toList()
 				packagesList.model = tempDataModel
 				packageInfos.clear()
-				packageInfos.addAll(versionList.map { InfoData(it.first, it.second) })
+				versionList.mapTo(packageInfos) { InfoData(it.first, it.second) }
 			}
-		}
-		ProgressManager.getInstance().run(task)
+		})
 
 	}
 
@@ -240,7 +253,9 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		if (packageInfos.isEmpty()) {
 			if (validateJuliaExe(settings.exePath)) loadPackages()
 		} else {
-			val data = packageInfos.map { arrayOf(it.name, it.version, it.latestVersion) }.toTypedArray()
+			val data = packageInfos.map {
+				arrayOf(it.name, it.version, it.latestVersion)
+			}.toTypedArray()
 			val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
 			packagesList.model = dataModel
 		}
