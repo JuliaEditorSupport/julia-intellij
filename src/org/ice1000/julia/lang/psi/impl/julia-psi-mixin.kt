@@ -35,7 +35,7 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 	override fun getName() = nameIdentifier?.text.orEmpty()
 	override fun getReferences() = refCache
 		?: nameIdentifier
-			?.let { collectFrom(startPoint, it.text, nameIdentifier) }
+			?.let { collectFrom(startPoint, it.text, it) }
 			?.also { refCache = it }
 		?: emptyArray()
 

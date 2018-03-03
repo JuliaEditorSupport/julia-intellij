@@ -44,7 +44,7 @@ class JuliaSymbolRef(
 	override fun bindToElement(element: PsiElement) = element.also { refTo = element }
 	override fun multiResolve(incompleteCode: Boolean): Array<out ResolveResult> {
 		val file = element.containingFile ?: return emptyArray()
-		if (isDeclaration or element.project.isDisposed) return emptyArray()
+		if (isDeclaration or !element.isValid or element.project.isDisposed) return emptyArray()
 		return ResolveCache.getInstance(element.project)
 			.resolveWithCaching(this, resolver, true, incompleteCode, file)
 	}
@@ -59,7 +59,8 @@ class JuliaSymbolRef(
 		}
 
 		private inline fun <reified T> resolveWith(processor: ResolveProcessor<T>, ref: JuliaSymbolRef): Array<T> {
-			treeWalkUp(processor, ref.element, ref.element.containingFile)
+			val file = ref.element.containingFile ?: return emptyArray()
+			treeWalkUp(processor, ref.element, file)
 			return processor.candidateSet.toTypedArray()
 		}
 	}
