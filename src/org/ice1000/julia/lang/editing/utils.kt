@@ -38,7 +38,7 @@ val PsiElement.isFieldInTypeDeclaration: Boolean
 
 fun PsiElement.presentText(): String = when (this) {
 	is JuliaFile -> originalFile.name
-	is JuliaIfExpr -> "if ${statements.exprList.firstOrNull()?.text.orEmpty()}"
+	is JuliaIfExpr -> "if ${children.getOrNull(1)?.text.orEmpty()}"
 	is JuliaElseClause -> "else"
 	is JuliaElseIfClause -> "elseif ${statements.exprList.firstOrNull()?.text.orEmpty()}"
 	is JuliaAssignOp -> exprList.first().let { if (it is JuliaSymbolLhs) it.symbolList.last().text else it.text }

@@ -65,7 +65,7 @@ class JuliaFormattingModelBuilder : FormattingModelBuilder {
 		return SpacingBuilder(settings, JuliaLanguage.INSTANCE)
 			.around(JuliaTypes.ASSIGN_LEVEL_OPERATOR).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
 			.around(tokenSetForBinaryOp).spaces(1)
-			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.EXPRESSION_LIST).spaces(1)
+			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.ARGUMENTS).spaces(1)
 			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.ARRAY).spaces(1)
 			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.FUNCTION_SIGNATURE).spaces(1)
 			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.IMPORT_EXPR).spaces(1)

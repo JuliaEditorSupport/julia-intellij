@@ -90,6 +90,7 @@ string ::= str | rawStr {
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaString']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaStringMixin'
 }
+
 regex ::= REGEX_START (stringContent | STRING_ESCAPE)* REGEX_END {
 	extends=expr
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaRegex']
@@ -156,7 +157,7 @@ typeParameters ::=
 userType ::= primaryExpr typeParameters?
 typeAlias ::= TYPEALIAS_KEYWORD symbol typeParameters? userType { extends=expr }
 
-expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
+private expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 namedParameter ::= symbol endOfLine EQ_SYM endOfLine expr
 
 // lowest
@@ -260,17 +261,18 @@ type ::= expr typeParameters { extends=expr }
 applyIndexOp ::=
  expr LEFT_M_BRACKET endOfLine
   expressionList? endOfLine
-  (FOR_KEYWORD symbol IN_KEYWORD expr)*
+  comprehensionElement*
  RIGHT_M_BRACKET (DOT_SYM expr)? // FIXME this code doesn't parse
 
 applyWhereOp ::= expr whereClause
 
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
-  (comprehensionElement | arguments)
+  (comprehensionElement+ | arguments)
+  endOfLine
  RIGHT_BRACKET doBlock?
 
-private arguments ::=
+arguments ::=
  (expressionList endOfLine)?
  (SEMICOLON_SYM endOfLine
   (
@@ -586,13 +588,15 @@ using ::=
   access? (commaSep access)* { extends=expr }
 
 ifExpr ::=
- IF_KEYWORD
+ IF_KEYWORD expr EOL
   statements
   elseIfClause*
   elseClause?
  END_KEYWORD
 
-elseIfClause ::= ELSEIF_KEYWORD statements
+elseIfClause ::= ELSEIF_KEYWORD expr EOL
+ statements
+
 elseClause ::= ELSE_KEYWORD statements
 
 forComprehension ::=
