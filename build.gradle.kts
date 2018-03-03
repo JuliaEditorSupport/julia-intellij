@@ -80,6 +80,7 @@ tasks.withType<PatchPluginXmlTask> {
 	changeNotes(file("res/META-INF/change-notes.html").readText())
 	pluginDescription(file("res/META-INF/description.html").readText())
 	version(pluginVersion)
+	pluginId(packageName)
 }
 
 val SourceSet.kotlin
@@ -142,7 +143,7 @@ repositories {
 }
 
 dependencies {
-	compile(kotlin("stdlib", kotlinVersion))
+	compileOnly(kotlin("stdlib", kotlinVersion))
 	compile(files(Paths.get("lib", "org.eclipse.egit.github.core-2.1.5.jar")))
 	testCompile("junit", "junit", "4.12")
 }
