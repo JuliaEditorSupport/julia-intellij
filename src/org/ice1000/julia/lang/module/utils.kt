@@ -27,8 +27,8 @@ val defaultExePath by lazy {
 
 @Suppress("DEPRECATION")
 val juliaPath by lazy {
-	PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath ?: when {
-		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
+	 when {
+		SystemInfo.isWindows -> PathEnvironmentVariableUtil.findInPath("julia.exe")?.absolutePath ?: "C:\\Program Files"
 		SystemInfo.isMac -> findPathMac()
 		else -> findPathLinux() ?: "/usr/bin/julia"
 	}
