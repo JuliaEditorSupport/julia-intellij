@@ -25,7 +25,7 @@ class JuliaPackageTest {
 				val process = Runtime.getRuntime().exec("git describe --abbrev=0 --tags", emptyArray(), "C:\\Users\\zh\\.julia\\v0.6\\$it".let(::File))
 				println(process.inputStream.reader().readText().removePrefix("v").trim())
 			}
-			"ice1000" -> packageNamesList("~/.julia/v0.6").forEach {
+			"ice1000" -> packageNamesList("/home/ice1000/.julia/v0.6").forEach {
 				println(it)
 			}
 		}
