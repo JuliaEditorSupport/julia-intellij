@@ -17,6 +17,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.NumberFormat
+import java.util.stream.Collectors
 import javax.swing.JPanel
 import javax.swing.event.DocumentEvent
 import javax.swing.table.DefaultTableModel
@@ -219,7 +220,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 				true) {
 			override fun run(indicator: ProgressIndicator) {
 				indicator.text = JuliaBundle.message("julia.messages.package.names.loading")
-				val namesList = packageNamesList(settings.importPath)
+				val namesList = packageNamesList(settings.importPath).collect(Collectors.toList())
 				val tempData = namesList.map { arrayOf(it) }.toTypedArray()
 				val tempDataModel = JuliaPackageTableModel(tempData, JULIA_TABLE_HEADER_COLUMN)
 				if (default) {
