@@ -23,7 +23,6 @@ import javax.swing.table.DefaultTableModel
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
 
-
 class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : JuliaSetupSdkWizardStep() {
 	init {
 		usefulText.isVisible = false

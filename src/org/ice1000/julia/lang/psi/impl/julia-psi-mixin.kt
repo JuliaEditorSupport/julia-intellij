@@ -25,7 +25,7 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 	private var refCache: Array<PsiReference>? = null
 	override fun setName(newName: String) = also {
 		nameIdentifier?.let { JuliaTokenType.fromText(newName, project).let(it::replace) }
-		references.mapNotNull { it.handleElementRename(newName).reference }.toTypedArray()
+		references.forEach { it.handleElementRename(newName) }
 	}
 
 	open val startPoint: PsiElement
