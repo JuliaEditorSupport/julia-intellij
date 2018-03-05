@@ -13,8 +13,10 @@ import com.intellij.openapi.util.SystemInfo
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import java.awt.event.ActionListener
+import java.io.InputStreamReader
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.*
 import java.util.stream.Collectors
 
 val defaultExePath by lazy {
@@ -27,7 +29,7 @@ val defaultExePath by lazy {
 
 @Suppress("DEPRECATION")
 val juliaPath by lazy {
-	 when {
+	when {
 		SystemInfo.isWindows -> PathEnvironmentVariableUtil.findInPath("julia.exe")?.absolutePath ?: "C:\\Program Files"
 		SystemInfo.isMac -> findPathMac()
 		else -> findPathLinux() ?: "/usr/bin/julia"
@@ -135,3 +137,19 @@ fun installDocumentFormat(
 		})
 }
 
+/**
+ * @ref https://gist.github.com/DemkaAge/8999236
+ */
+object JuliaUTF8Control : ResourceBundle.Control() {
+	override fun newBundle(baseName: String?, locale: Locale?, format: String?, loader: ClassLoader?, reload: Boolean): ResourceBundle {
+		val bundleName = toBundleName(baseName, locale)
+		val connection = loader?.getResource(toResourceName(bundleName, "properties"))?.openConnection()
+		if (connection != null) {
+			connection.useCaches = false
+			connection.getInputStream()?.use {
+				return PropertyResourceBundle(InputStreamReader(it, "UTF-8"))
+			}
+		}
+		return ResourceBundle.getBundle(baseName)
+	}
+}
