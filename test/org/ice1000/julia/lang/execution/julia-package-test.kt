@@ -1,11 +1,9 @@
 package org.ice1000.julia.lang.execution
 
-import org.ice1000.julia.lang.executeCommand
+import com.intellij.util.SystemProperties
 import org.ice1000.julia.lang.module.*
-import org.intellij.lang.annotations.Language
 import org.junit.Test
 import java.io.File
-import java.util.concurrent.TimeUnit
 
 class JuliaPackageTest {
 	/**
@@ -21,11 +19,15 @@ class JuliaPackageTest {
 	}
 
 	@Test
-	fun testListVersionFaster(){
-		if(System.getProperty("user.name")=="zh")
-		packageNamesList("C:\\Users\\zh\\.julia\\v0.6").forEach{
-			val process=Runtime.getRuntime().exec("git describe --abbrev=0 --tags", emptyArray(),"C:\\Users\\zh\\.julia\\v0.6\\$it".let(::File))
-			println(process.inputStream.reader().readText().removePrefix("v").trim())
+	fun testListVersionFaster() {
+		when (SystemProperties.getUserName()) {
+			"zh" -> packageNamesList("C:\\Users\\zh\\.julia\\v0.6").forEach {
+				val process = Runtime.getRuntime().exec("git describe --abbrev=0 --tags", emptyArray(), "C:\\Users\\zh\\.julia\\v0.6\\$it".let(::File))
+				println(process.inputStream.reader().readText().removePrefix("v").trim())
+			}
+			"ice1000" -> packageNamesList("/home/ice1000/.julia/v0.6").forEach {
+				println(it)
+			}
 		}
 	}
 

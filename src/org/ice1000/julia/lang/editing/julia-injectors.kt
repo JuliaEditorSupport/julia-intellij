@@ -4,10 +4,9 @@ import com.intellij.lang.Language
 import com.intellij.openapi.fileTypes.PlainTextLanguage
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
-import org.ice1000.julia.lang.forceRun
 import org.ice1000.julia.lang.psi.JuliaRegex
 import org.ice1000.julia.lang.psi.JuliaString
-import org.ice1000.julia.lang.psi.impl.DocStringOwner
+import org.ice1000.julia.lang.psi.impl.docStringOwner
 import org.intellij.lang.regexp.RegExpLanguage
 
 /**
@@ -16,13 +15,9 @@ import org.intellij.lang.regexp.RegExpLanguage
  */
 class JuliaLanguageInjector : LanguageInjector {
 
-	private fun markdown(host: PsiLanguageInjectionHost) =
-		host.nextSibling?.let { it as? DocStringOwner ?: it.nextSibling as? DocStringOwner }
-
 	override fun getLanguagesToInject(host: PsiLanguageInjectionHost, places: InjectedLanguagePlaces) {
 		when (host) {
-			is JuliaString -> if (host.isDocString || markdown(host)?.let { it.docString = host } != null) forceRun {
-				host.isDocString = true
+			is JuliaString -> if (host.docStringOwner != null) {
 				val markdownLanguage: Language = Language.findLanguageByID("Markdown")
 					?: Language.findLanguageByID("MultiMarkdown")
 					?: PlainTextLanguage.INSTANCE

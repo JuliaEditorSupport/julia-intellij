@@ -4,8 +4,10 @@
 package org.ice1000.julia.lang.module
 
 import org.ice1000.julia.lang.executeCommand
-import org.intellij.lang.annotations.Language
 import java.io.File
+import java.nio.file.*
+import java.util.function.Predicate
+import java.util.stream.Stream
 
 data class InfoData(val name: String, val version: String, val latestVersion: String = "")
 
@@ -13,27 +15,25 @@ val packageInfos = emptyList<InfoData>().toMutableList()
 
 /**
  * It's needed for UE (User Experience)
- * @notice Do not use list(or listFiles) with 2 parameter filter because the first param will be `let(::File)`'s dir
+ * @notice Do not use [File.list] (or [File.listFiles]) with 2 parameter filter
+ *         because the first param will be `let(::File)`'s dir
  */
-fun packageNamesList(importPath: String = ""): Array<out String> {
-	if (importPath.isBlank()) {
-		@Language("Julia")
-		val code = "Pkg.dir()"
-		val (stdout) = executeCommand(juliaPath, code, 5000L)
-		return stdout
+fun packageNamesList(importPathNullable: String? = null): Stream<out String> {
+	val importPath = importPathNullable
+		?: executeCommand(juliaPath, "Pkg.dir()", 5000L)
+			.first
 			.firstOrNull()
-			?.trim('"')
-			?.let(::File)
-			?.listFiles { dir -> dir.isDirectory && !dir.name.startsWith(".") && dir.name != "METADATA" }
-			.orEmpty()
-			.map { it.name.toString() }
-			.toTypedArray()
-	} else return importPath
-		.let(::File)
-		.listFiles { dir -> dir.isDirectory && !dir.name.startsWith(".") && dir.name != "METADATA" }
-		.orEmpty()
-		.map { it.name.toString() }
-		.toTypedArray()
+			.let { it ?: return Stream.empty() }
+			.trim('"')
+	return importPath
+		.let { Files.list(Paths.get(it)) }
+		.filter(packagePredicate)
+		.map { it.fileName.toString() }
+}
+
+private val packagePredicate = Predicate { dir: Path ->
+	!dir.fileName.toString().let { it.startsWith(".") || it == "METADATA" } and
+		Files.isDirectory(dir)
 }
 
 /**

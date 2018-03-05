@@ -12,6 +12,7 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
+import org.ice1000.julia.lang.psi.impl.docString
 import java.math.BigInteger
 import java.math.BigInteger.ONE
 import java.math.BigInteger.ZERO
@@ -45,8 +46,7 @@ class JuliaAnnotator : Annotator {
 	}
 
 	private fun compactFunction(
-		element: JuliaCompactFunction,
-		holder: AnnotationHolder) {
+		element: JuliaCompactFunction, holder: AnnotationHolder) {
 		val typeParams = element.typeParameters
 		val name = element.name
 		val signature = element.functionSignature
@@ -63,8 +63,7 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 	}
 
 	private fun function(
-		element: JuliaFunction,
-		holder: AnnotationHolder) {
+		element: JuliaFunction, holder: AnnotationHolder) {
 		val statements = element.statements?.run { exprList + moduleDeclarationList + globalStatementList } ?: return
 		val signature = element.functionSignature
 		val signatureText = signature?.text ?: "()"
@@ -177,8 +176,7 @@ $JULIA_DOC_SURROUNDING
 	}
 
 	private fun applyFunction(
-		element: JuliaApplyFunctionOp,
-		holder: AnnotationHolder) {
+		element: JuliaApplyFunctionOp, holder: AnnotationHolder) {
 		val name = element.exprList.firstOrNull()
 		if (name is JuliaSymbol) {
 			when (name.text) {
@@ -199,8 +197,7 @@ $JULIA_DOC_SURROUNDING
 	}
 
 	private fun typeAlias(
-		element: JuliaTypeAlias,
-		holder: AnnotationHolder) {
+		element: JuliaTypeAlias, holder: AnnotationHolder) {
 		holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.typealias-hint")).run {
 			highlightType = ProblemHighlightType.LIKE_DEPRECATED
 			registerFix(JuliaReplaceWithTextIntention(
@@ -211,8 +208,7 @@ $JULIA_DOC_SURROUNDING
 	}
 
 	private fun char(
-		element: JuliaCharLit,
-		holder: AnnotationHolder) {
+		element: JuliaCharLit, holder: AnnotationHolder) {
 		when (element.textLength) {
 		// 0, 1, 2 are impossible, 3: 'a', no need!
 			0, 1, 2, 3 -> {
