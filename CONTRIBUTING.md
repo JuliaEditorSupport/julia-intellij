@@ -55,7 +55,7 @@ For more information, see [the official doc](http://www.jetbrains.org/intellij/s
 ## You must not
 
 0. Break the code style -- use tab indents with spaces aligns (see [.editorconfig](.editorconfig))
-0. Open pull requests just to fix code style, or use some syntax sugar (this is not SharpLang!)
+0. Open pull requests just to fix code style, or use some syntax sugar (julia-intellij is not SharpLang!)
 0. Add any kind of generated file into the git repo (including the parser!)
 0. Violate the open source license
 
@@ -66,6 +66,10 @@ For more information, see [the official doc](http://www.jetbrains.org/intellij/s
 0. Put all highly related classes into a single file
 0. Use English, but we also read Chinese so if you only know Chinese just use it
 0. Write commit message starts with `[ issue id or refactor type ]`
+
+## You'd better
+
+0. Read http://www.jetbrains.org/display/IJOS/IntelliJ+Coding+Guidelines
 
 ## You don't have to
 

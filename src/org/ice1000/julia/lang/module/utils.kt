@@ -13,7 +13,7 @@ import com.intellij.openapi.util.SystemInfo
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import java.awt.event.ActionListener
-import java.io.InputStreamReader
+import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
@@ -138,17 +138,19 @@ fun installDocumentFormat(
 }
 
 /**
- * @ref https://gist.github.com/DemkaAge/8999236
+ * @see <a href="https://gist.github.com/DemkaAge/8999236">Reference</a>
  */
 object JuliaUTF8Control : ResourceBundle.Control() {
-	override fun newBundle(baseName: String?, locale: Locale?, format: String?, loader: ClassLoader?, reload: Boolean): ResourceBundle {
+	override fun newBundle(
+		baseName: String, locale: Locale, format: String, loader: ClassLoader, reload: Boolean): ResourceBundle {
 		val bundleName = toBundleName(baseName, locale)
-		val connection = loader?.getResource(toResourceName(bundleName, "properties"))?.openConnection()
+		val connection = loader.getResource(toResourceName(bundleName, "properties"))?.openConnection()
 		if (connection != null) {
 			connection.useCaches = false
-			connection.getInputStream()?.use {
-				return PropertyResourceBundle(InputStreamReader(it, "UTF-8"))
+			val res = connection.getInputStream()?.use {
+				PropertyResourceBundle(it.reader())
 			}
+			if (null != res) return res
 		}
 		return ResourceBundle.getBundle(baseName)
 	}

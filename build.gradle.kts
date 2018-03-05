@@ -12,6 +12,28 @@ import java.nio.file.*
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 
+val isCI = !System.getenv("CI").isNullOrBlank()
+val commitHash = kotlin.run {
+	val output: String
+	val process: Process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
+	process.waitFor(2000L, TimeUnit.MILLISECONDS)
+	output = process.inputStream.`fuck kotlin! it doesn't support "use" here` {
+		bufferedReader().`fuck kotlin! it doesn't support "use" here` {
+			readText()
+		}
+	}
+	process.destroy()
+	output.trim()
+}
+
+val pluginComingVersion = "0.1.6"
+val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
+val packageName = "org.ice1000.julia"
+val kotlinVersion: String by extra
+
+group = packageName
+version = pluginVersion
+
 buildscript {
 	var kotlinVersion: String by extra
 	var grammarKitVersion: String by extra
@@ -79,7 +101,7 @@ tasks.withType<Delete> {
 tasks.withType<PatchPluginXmlTask> {
 	changeNotes(file("res/META-INF/change-notes.html").readText())
 	pluginDescription(file("res/META-INF/description.html").readText())
-	version(pluginVersion)
+	version(pluginComingVersion)
 	pluginId(packageName)
 }
 
@@ -115,28 +137,6 @@ inline fun <reified Closable : Closeable, reified Unit : Any>
 inline fun <reified TheTask : BaseTask>
 	Project.genTask(name: String, noinline configuration: TheTask.() -> Unit) =
 	task(name, TheTask::class, configuration)
-
-val commitHash by lazy {
-	val output: String
-	val process: Process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
-	process.waitFor(2000L, TimeUnit.MILLISECONDS)
-	output = process.inputStream.`fuck kotlin! it doesn't support "use" here` {
-		bufferedReader().`fuck kotlin! it doesn't support "use" here` {
-			readText()
-		}
-	}
-	process.destroy()
-	output.trim()
-}
-
-val isCI = !System.getenv("CI").isNullOrBlank()
-
-val pluginVersion = "0.1.6"
-val packageName = "org.ice1000.julia"
-val kotlinVersion: String by extra
-
-group = packageName
-version = if (isCI) "$pluginVersion-$commitHash" else pluginVersion
 
 repositories {
 	mavenCentral()
