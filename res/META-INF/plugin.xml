@@ -79,6 +79,9 @@
 		<applicationService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
+		<applicationService
+			serviceInterface="org.ice1000.julia.lang.module.JuliaGlobalSettingsService"
+			serviceImplementation="org.ice1000.julia.lang.module.JuliaGlobalSettingsServiceImpl"/>
 		<lang.elementManipulator
 			forClass="org.ice1000.julia.lang.psi.impl.JuliaStringMixin"
 			implementationClass="org.ice1000.julia.lang.psi.JuliaStringManipulator"/>
