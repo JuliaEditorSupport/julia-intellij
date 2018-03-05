@@ -6,7 +6,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import org.ice1000.julia.lang.psi.JuliaRegex
 import org.ice1000.julia.lang.psi.JuliaString
-import org.ice1000.julia.lang.psi.impl.isDocString
+import org.ice1000.julia.lang.psi.impl.docStringOwner
 import org.intellij.lang.regexp.RegExpLanguage
 
 /**
@@ -17,7 +17,7 @@ class JuliaLanguageInjector : LanguageInjector {
 
 	override fun getLanguagesToInject(host: PsiLanguageInjectionHost, places: InjectedLanguagePlaces) {
 		when (host) {
-			is JuliaString -> if (host.isDocString) {
+			is JuliaString -> if (host.docStringOwner != null) {
 				val markdownLanguage: Language = Language.findLanguageByID("Markdown")
 					?: Language.findLanguageByID("MultiMarkdown")
 					?: PlainTextLanguage.INSTANCE

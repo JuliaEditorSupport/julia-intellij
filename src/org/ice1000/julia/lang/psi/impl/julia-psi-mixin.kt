@@ -9,31 +9,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 
-val DocStringOwner.docString: JuliaString? get() = prevSiblingIgnoring<JuliaString>(JuliaTypes.EOL, TokenType.WHITE_SPACE)
-val IJuliaString.isDocString: Boolean get() = nextSiblingIgnoring<DocStringOwner>(JuliaTypes.EOL, TokenType.WHITE_SPACE) != null
-
-inline fun <reified Psi> PsiElement.nextSiblingIgnoring(vararg types: IElementType): Psi? {
-	var next: PsiElement? = nextSibling
-	while (true) {
-		val localNext = next ?: return null
-		next = localNext.nextSibling
-		return if (types.any { localNext.node.elementType == it }) continue
-		else if (localNext is Psi) localNext
-		else null
-	}
-}
-
-inline fun <reified Psi> PsiElement.prevSiblingIgnoring(vararg types: IElementType): Psi? {
-	var next: PsiElement? = prevSibling
-	while (true) {
-		val localNext = next ?: return null
-		next = localNext.prevSibling
-		return if (types.any { localNext.node.elementType == it }) continue
-		else if (localNext is Psi) localNext
-		else null
-	}
-}
-
 interface DocStringOwner : PsiElement
 
 interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {

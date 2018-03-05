@@ -4,7 +4,8 @@ package org.ice1000.julia.lang.psi.impl
 
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
-import org.ice1000.julia.lang.psi.JuliaSymbol
+import com.intellij.psi.tree.IElementType
+import org.ice1000.julia.lang.psi.*
 
 fun PsiElement.processDeclTrivial(
 	processor: PsiScopeProcessor,
@@ -27,3 +28,27 @@ fun collectFrom(startPoint: PsiElement, name: String, self: PsiElement? = null) 
 	.filter { it is JuliaSymbol && !it.isDeclaration && it.text == name && it != self }
 	.mapNotNull(PsiElement::getReference)
 	.toTypedArray()
+
+
+val DocStringOwner.docString: JuliaString? get() = prevSiblingIgnoring(JuliaTypes.EOL, TokenType.WHITE_SPACE)
+val IJuliaString.docStringOwner: DocStringOwner? get() = nextSiblingIgnoring(JuliaTypes.EOL, TokenType.WHITE_SPACE)
+
+inline fun <reified Psi : PsiElement> PsiElement.nextSiblingIgnoring(vararg types: IElementType): Psi? {
+	var next: PsiElement? = nextSibling
+	while (true) {
+		val localNext = next ?: return null
+		next = localNext.nextSibling
+		return if (types.any { localNext.node.elementType == it }) continue
+		else localNext as? Psi
+	}
+}
+
+inline fun <reified Psi : PsiElement> PsiElement.prevSiblingIgnoring(vararg types: IElementType): Psi? {
+	var next: PsiElement? = prevSibling
+	while (true) {
+		val localNext = next ?: return null
+		next = localNext.prevSibling
+		return if (types.any { localNext.node.elementType == it }) continue
+		else localNext as? Psi
+	}
+}
