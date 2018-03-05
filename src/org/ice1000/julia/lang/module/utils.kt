@@ -100,9 +100,9 @@ fun compareVersion(version: String, version2: String): Int {
 	val (v0, v1, v2) = version.split('.')
 	val (v20, v21, v22) = version2.split('.')
 	return when {
-		v0 != v20 -> v0.toInt() - v20.toInt()
-		v1 != v21 -> v1.toInt() - v21.toInt()
-		else -> v2.toInt() - v22.toInt()
+		v0 != v20 -> v0.trim('+').toInt() - v20.trim('+').toInt()
+		v1 != v21 -> v1.trim('+').toInt() - v21.trim('+').toInt()
+		else -> v2.trim('+').toInt() - v22.trim('+').toInt()
 	}
 }
 
