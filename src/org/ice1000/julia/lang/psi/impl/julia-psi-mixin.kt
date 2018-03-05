@@ -4,13 +4,37 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 
-interface DocStringOwner {
-	var docString: JuliaString?
+val DocStringOwner.docString: JuliaString? get() = prevSiblingIgnoring<JuliaString>(JuliaTypes.EOL, TokenType.WHITE_SPACE)
+val IJuliaString.isDocString: Boolean get() = nextSiblingIgnoring<DocStringOwner>(JuliaTypes.EOL, TokenType.WHITE_SPACE) != null
+
+inline fun <reified Psi> PsiElement.nextSiblingIgnoring(vararg types: IElementType): Psi? {
+	var next: PsiElement? = nextSibling
+	while (true) {
+		val localNext = next ?: return null
+		next = localNext.nextSibling
+		return if (types.any { localNext.node.elementType == it }) continue
+		else if (localNext is Psi) localNext
+		else null
+	}
 }
+
+inline fun <reified Psi> PsiElement.prevSiblingIgnoring(vararg types: IElementType): Psi? {
+	var next: PsiElement? = prevSibling
+	while (true) {
+		val localNext = next ?: return null
+		next = localNext.prevSibling
+		return if (types.any { localNext.node.elementType == it }) continue
+		else if (localNext is Psi) localNext
+		else null
+	}
+}
+
+interface DocStringOwner : PsiElement
 
 interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
 	val returnType: Type
@@ -76,7 +100,6 @@ abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 }
 
 abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaFunction {
-	override var docString: JuliaString? = null
 	private var paramsTextCache: String? = null
 	private var typeParamsTextCache: String? = null
 	override val returnType: Type get() = UNKNOWN_VALUE_PLACEHOLDER
@@ -109,7 +132,6 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 }
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
-	override var docString: JuliaString? = null
 	private var body: JuliaExpr? = null
 		get() {
 			if (field == null) field = lastChild as? JuliaExpr
@@ -141,7 +163,6 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 }
 
 abstract class JuliaMacroMixin(node: ASTNode) : JuliaDeclaration(node), JuliaMacro {
-	override var docString: JuliaString? = null
 	override var type: Type? = null
 	override fun getNameIdentifier() = symbol
 }
@@ -149,13 +170,11 @@ abstract class JuliaMacroMixin(node: ASTNode) : JuliaDeclaration(node), JuliaMac
 interface IJuliaString : PsiLanguageInjectionHost {
 	override fun createLiteralTextEscaper(): LiteralTextEscaper<out JuliaString>
 	override fun updateText(s: String): JuliaString
-	var isDocString: Boolean
 }
 
 @Suppress("HasPlatformType")
 abstract class JuliaStringMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaString {
 	override var type: Type? = "String"
-	override var isDocString = false
 	override fun isValidHost() = true
 	override fun createLiteralTextEscaper() = LiteralTextEscaper.createSimple(this)
 	override fun updateText(s: String) = ElementManipulators.handleContentChange(this, s)
@@ -198,7 +217,6 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 interface IJuliaTypeDeclaration : JuliaExpr, PsiNameIdentifierOwner, DocStringOwner
 
 abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), JuliaTypeDeclaration {
-	override var docString: JuliaString? = null
 	private var nameCache: JuliaExpr? = null
 	override fun getNameIdentifier() = nameCache ?: exprList.firstOrNull()?.also { nameCache = it }
 	override fun setName(name: String) = also { nameIdentifier?.replace(JuliaTokenType.fromText(name, project)) }
@@ -210,7 +228,6 @@ abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), 
 
 	override fun subtreeChanged() {
 		nameCache = null
-		docString = null
 		super.subtreeChanged()
 	}
 }
@@ -291,6 +308,5 @@ abstract class JuliaExprMixin(node: ASTNode) : ASTWrapperPsiElement(node), Julia
 interface IJuliaModuleDeclaration : PsiNameIdentifierOwner, DocStringOwner
 
 abstract class JuliaModuleDeclarationMixin(node: ASTNode) : JuliaDeclaration(node), JuliaModuleDeclaration {
-	override var docString: JuliaString? = null
 	override fun getNameIdentifier() = symbol
 }
