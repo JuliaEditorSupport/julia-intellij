@@ -141,12 +141,12 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 	override fun getLanguages() = arrayOf(JuliaLanguage.INSTANCE)
 	override fun getElementInfo(element: PsiElement) = cutText(when (element) {
 		is JuliaTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
-		is JuliaModuleDeclaration -> element.symbol.text
+		is JuliaModuleDeclaration -> element.name.orEmpty()
 		is IJuliaFunctionDeclaration -> element.toText
 		is JuliaAbstractTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
 		is JuliaPrimitiveTypeDeclaration -> element.exprList.firstOrNull()?.text.orEmpty()
 		is JuliaMacro -> "@${element.symbol?.text}()"
-		is JuliaIfExpr -> "if ${element.statements.exprList.firstOrNull()?.text}"
+		is JuliaIfExpr -> "if ${element.statements?.exprList?.firstOrNull()?.text}"
 		is JuliaTryCatch -> "try"
 		is JuliaFinallyClause -> "finally"
 		is JuliaCatchClause -> "catch ${element.symbol}"

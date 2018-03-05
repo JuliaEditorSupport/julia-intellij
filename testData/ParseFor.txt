@@ -11,7 +11,7 @@ FILE
         JuliaSymbolImpl(SYMBOL)
           PsiElement(SYM)('print')
         PsiElement(LEFT_BRACKET)('(')
-        JuliaExpressionListImpl(EXPRESSION_LIST)
+        JuliaArgumentsImpl(ARGUMENTS)
           JuliaIntegerImpl(INTEGER)
             PsiElement(INT_LITERAL)('1')
         PsiElement(RIGHT_BRACKET)(')')
@@ -25,6 +25,8 @@ FILE
           JuliaSymbolImpl(SYMBOL)
             PsiElement(SYM)('s')
           PsiElement(LEFT_BRACKET)('(')
+          JuliaArgumentsImpl(ARGUMENTS)
+            <empty list>
           PsiElement(RIGHT_BRACKET)(')')
         PsiElement(FOR_KEYWORD)('for')
         JuliaSingleComprehensionImpl(SINGLE_COMPREHENSION)

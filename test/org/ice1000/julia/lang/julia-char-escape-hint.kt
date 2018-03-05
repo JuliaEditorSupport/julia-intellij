@@ -10,7 +10,9 @@ import java.util.*
 class JuliaCharEscapeHintTest {
 	@Test
 	fun testSplitsOf(){
-		println("""\xe\asa\s\s""".splitsOf("\\", 2).joinToString(","))
+		println("""\xe\asa\s\s"""
+			.splitsOf("\\", 2)
+			.joinToString(","))
 	}
 
 	@Test

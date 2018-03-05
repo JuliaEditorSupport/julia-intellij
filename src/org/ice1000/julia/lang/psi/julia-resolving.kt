@@ -44,7 +44,7 @@ class JuliaSymbolRef(
 	override fun bindToElement(element: PsiElement) = element.also { refTo = element }
 	override fun multiResolve(incompleteCode: Boolean): Array<out ResolveResult> {
 		val file = element.containingFile ?: return emptyArray()
-		if (isDeclaration or element.project.isDisposed) return emptyArray()
+		if (isDeclaration or !element.isValid or element.project.isDisposed) return emptyArray()
 		return ResolveCache.getInstance(element.project)
 			.resolveWithCaching(this, resolver, true, incompleteCode, file)
 	}
@@ -59,7 +59,8 @@ class JuliaSymbolRef(
 		}
 
 		private inline fun <reified T> resolveWith(processor: ResolveProcessor<T>, ref: JuliaSymbolRef): Array<T> {
-			treeWalkUp(processor, ref.element, ref.element.containingFile)
+			val file = ref.element.containingFile ?: return emptyArray()
+			treeWalkUp(processor, ref.element, file)
 			return processor.candidateSet.toTypedArray()
 		}
 	}
@@ -124,8 +125,8 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 				element.isModuleName -> quadOf(
 					JuliaIcons.JULIA_MODULE_ICON,
 					element.text,
-					element.containingFile.virtualFile?.name?.let { "in $it" }.orEmpty(),
-					null
+					null,
+					element.containingFile.name.let { "in $it" }
 				)
 				element.isMacroName -> quadOf(
 					JuliaIcons.JULIA_MACRO_ICON,
@@ -148,6 +149,18 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 					element.text,
 					null,
 					null
+				)
+				element.isFunctionParameter -> quadOf(
+					JuliaIcons.JULIA_VARIABLE_ICON,
+					element.text,
+					null,
+					element.type
+				)
+				element.isGlobalName -> quadOf(
+					JuliaIcons.JULIA_VARIABLE_ICON,
+					element.text,
+					null,
+					element.type
 				)
 				else -> return true
 			}

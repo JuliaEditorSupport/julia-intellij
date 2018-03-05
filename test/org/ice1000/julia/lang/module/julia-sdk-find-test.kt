@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.module
 
+import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.util.SystemInfo
 import org.ice1000.julia.lang.executeJulia
 import org.junit.Test
@@ -46,6 +47,9 @@ class JuliaSdkFindTest {
 
 	@Test
 	fun testYourFiles() {
+		if(SystemInfo.isWindows)
+		println(PathEnvironmentVariableUtil.findInPath("julia.exe"))
+		//return true
 		println(Files.isExecutable(Paths.get("")))
 	}
 }

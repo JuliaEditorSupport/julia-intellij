@@ -23,11 +23,10 @@ interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
  */
 abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameIdentifierOwner {
 	private var refCache: Array<PsiReference>? = null
-	override fun setName(newName: String) = nameIdentifier?.let { JuliaTokenType.fromText(newName, project).let(it::replace) }
-		.also {
-			if (it is JuliaDeclaration)
-				it.refCache = references.mapNotNull { it.handleElementRename(newName).reference }.toTypedArray()
-		}
+	override fun setName(newName: String) = also {
+		nameIdentifier?.let { JuliaTokenType.fromText(newName, project).let(it::replace) }
+		references.mapNotNull { it.handleElementRename(newName).reference }.toTypedArray()
+	}
 
 	open val startPoint: PsiElement
 	// TODO workaround for KT-22916
@@ -36,7 +35,7 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 	override fun getName() = nameIdentifier?.text.orEmpty()
 	override fun getReferences() = refCache
 		?: nameIdentifier
-			?.let { collectFrom(startPoint, it.text, nameIdentifier) }
+			?.let { collectFrom(startPoint, it.text, it) }
 			?.also { refCache = it }
 		?: emptyArray()
 
@@ -47,7 +46,8 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		processDeclTrivial(processor, substitutor, lastParent, place) and nameIdentifier?.let { processor.execute(it, substitutor) }.orFalse()
+		nameIdentifier?.let { processor.execute(it, substitutor) }.orFalse() and
+			processDeclTrivial(processor, substitutor, lastParent, place)
 }
 
 abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(node), JuliaTypedNamedVariable {
@@ -70,7 +70,9 @@ abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 		get() = exprList.lastOrNull()?.type
 		set(value) {}
 
-	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol }
+	override fun getNameIdentifier() = children
+		.firstOrNull { it is JuliaSymbol || it is JuliaSymbolLhs }
+		?.let { (it as? JuliaSymbolLhs)?.symbolList?.firstOrNull() ?: it }
 }
 
 abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaFunction {
@@ -101,10 +103,9 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		super.processDeclarations(processor, substitutor, lastParent, place) and
-			functionSignature?.run {
-				typedNamedVariableList.all { processor.execute(it.firstChild, substitutor) }
-			}.orFalse()
+		functionSignature?.run {
+			typedNamedVariableList.all { processor.execute(it.firstChild, substitutor) }
+		}.orFalse() and super.processDeclarations(processor, substitutor, lastParent, place)
 }
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
@@ -190,6 +191,7 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	val isPrimitiveTypeName: Boolean
 	val isFunctionParameter: Boolean
 	val isVariableName: Boolean
+	val isGlobalName: Boolean
 	val isDeclaration: Boolean
 }
 
@@ -197,9 +199,20 @@ interface IJuliaTypeDeclaration : JuliaExpr, PsiNameIdentifierOwner, DocStringOw
 
 abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), JuliaTypeDeclaration {
 	override var docString: JuliaString? = null
-	override fun getNameIdentifier() = exprList.firstOrNull()
-	override fun setName(name: String) = nameIdentifier?.replace(JuliaTokenType.fromText(name, project))
+	private var nameCache: JuliaExpr? = null
+	override fun getNameIdentifier() = nameCache ?: exprList.firstOrNull()?.also { nameCache = it }
+	override fun setName(name: String) = also { nameIdentifier?.replace(JuliaTokenType.fromText(name, project)) }
 	override fun getName() = nameIdentifier?.text
+	override fun processDeclarations(
+		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+		nameIdentifier?.let { processor.execute(it, state) }.orFalse() and
+			super.processDeclarations(processor, state, lastParent, place)
+
+	override fun subtreeChanged() {
+		nameCache = null
+		docString = null
+		super.subtreeChanged()
+	}
 }
 
 /**
@@ -213,7 +226,7 @@ abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), 
 	override fun getReference() = referenceImpl ?: JuliaSymbolRef(this).also { referenceImpl = it }
 
 	override fun getNameIdentifier(): JuliaAbstractSymbol? = this
-	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
+	override fun setName(name: String) = JuliaTokenType.fromText(name, project)
 	override fun getName() = text
 	override fun subtreeChanged() {
 		type = null
@@ -232,7 +245,10 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	final override val isAbstractTypeName by lazy { parent is JuliaAbstractTypeDeclaration }
 	final override val isPrimitiveTypeName by lazy { parent is JuliaPrimitiveTypeDeclaration }
 	final override val isFunctionParameter by lazy { parent is JuliaTypedNamedVariable && this === parent.firstChild }
-	final override val isVariableName by lazy { parent is JuliaAssignOp && this === parent.firstChild }
+	final override val isGlobalName: Boolean by lazy { parent is JuliaGlobalStatement }
+	final override val isVariableName by lazy {
+		parent is JuliaAssignOp && this === parent.firstChild || parent is JuliaSymbolLhs
+	}
 	final override val isDeclaration by lazy {
 		isFunctionName or
 			isVariableName or
@@ -241,13 +257,15 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			isModuleName or
 			isTypeName or
 			isAbstractTypeName or
+			isGlobalName or
 			isPrimitiveTypeName
 	}
 
 	override var type: Type? = null
-		get() = if (isVariableName) (parent as JuliaAssignOp)
-			.children
-			.lastOrNull { it is JuliaExpr }
+		get() = if (isVariableName) PsiTreeUtil
+			.getParentOfType(this, JuliaAssignOp::class.java, true, JuliaStatements::class.java)
+			?.children
+			?.lastOrNull { it is JuliaExpr }
 			?.let { it as JuliaExpr }
 			?.type
 			?.also { field = it }
@@ -272,9 +290,7 @@ abstract class JuliaExprMixin(node: ASTNode) : ASTWrapperPsiElement(node), Julia
 
 interface IJuliaModuleDeclaration : PsiNameIdentifierOwner, DocStringOwner
 
-abstract class JuliaModuleDeclarationMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaModuleDeclaration {
+abstract class JuliaModuleDeclarationMixin(node: ASTNode) : JuliaDeclaration(node), JuliaModuleDeclaration {
 	override var docString: JuliaString? = null
 	override fun getNameIdentifier() = symbol
-	override fun setName(name: String) = symbol.replace(JuliaTokenType.fromText(name, project))
-	override fun getName(): String = nameIdentifier.text
 }

@@ -84,16 +84,11 @@ fun String.trimQuotePair() = trim('\'', '\"', '`')
  */
 fun String.indicesOf(someStr: String) = indices
 	.map { indexOf(someStr, it) }
-	.filterTo(ArrayListSet()) { it > -1 }.toIntArray()
+	.filter { it > -1 }
 
-fun String.splitsOf(someStr: String, expandSize: Int): Array<String> {
-	val ret = ArrayList<String>()
-	indices.forEach { i ->
-		if (substring(i).startsWith(someStr))
-			ret.add(substring(i, i + expandSize))
-	}
-	return ret.toTypedArray()
-}
+fun String.splitsOf(someStr: String, expandSize: Int) = indices
+	.filter { substring(it).startsWith(someStr) }
+	.map { substring(it, it + expandSize) }
 
 fun Boolean.toYesNo() = if (this) "yes" else "no"
 fun Boolean?.orFalse() = true == this
