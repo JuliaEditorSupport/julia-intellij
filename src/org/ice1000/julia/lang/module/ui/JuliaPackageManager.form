@@ -39,10 +39,6 @@
         <constraints>
           <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="7" hsize-policy="1" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties>
-          <background color="-12828863"/>
-          <foreground color="-4473925"/>
-        </properties>
         <border type="none"/>
         <children>
           <component id="2a225" class="javax.swing.JButton" binding="buttonAdd">
