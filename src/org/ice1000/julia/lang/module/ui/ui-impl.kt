@@ -128,8 +128,13 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 			tryGetBase(exePath)?.let { basePathField.text = it }
 		}
 		val currentExePath = settings.exePath
-		if (validateJuliaExe(currentExePath))
+		if (validateJuliaExe(currentExePath)) {
 			juliaExeField.comboBox.selectedItem = currentExePath
+			if (settings.importPath.isEmpty()) {
+				importPathField.text = importPathOf(currentExePath, 800L)
+				settings.importPath = importPathField.text
+			}
+		}
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
 		showEvalHintCheckBox.isSelected = settings.showEvalHint
 		if (Files.exists(Paths.get(settings.importPath, "DocumentFormat"))) {
