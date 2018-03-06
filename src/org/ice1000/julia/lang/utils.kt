@@ -2,7 +2,6 @@ package org.ice1000.julia.lang
 
 import com.google.common.util.concurrent.SimpleTimeLimiter
 import com.intellij.openapi.util.TextRange
-import com.intellij.util.containers.ArrayListSet
 import org.ice1000.julia.lang.module.validateJuliaExe
 import java.io.InputStream
 import java.nio.file.Paths
@@ -52,7 +51,7 @@ fun executeCommand(
 				it.write(input.toByteArray())
 				it.flush()
 			}
-			process.waitFor(timeLimit, TimeUnit.MILLISECONDS)
+			process.waitFor()
 			output = process.inputStream.use(::collectLines)
 			outputErr = process.errorStream.use(::collectLines)
 			forceRun(process::destroy)
