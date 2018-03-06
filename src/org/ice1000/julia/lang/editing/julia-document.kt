@@ -12,20 +12,24 @@ import org.ice1000.julia.lang.module.ui.JuliaDocumentWindow
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 import org.ice1000.julia.lang.psi.impl.docString
 import com.intellij.ui.content.ContentFactory
+import org.ice1000.julia.lang.psi.JuliaSymbol
 
 
 class JuliaDocumentProvider : AbstractDocumentationProvider() {
 	override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
-		val parent = element?.parent
-		if (parent is IJuliaFunctionDeclaration) {
-			return "function ${parent.toText}\n${parent.docString?.text?.let {
-				//because GoLand has no Markdown4j but MarkdownJ
-				if (PlatformUtils.isGoIde())
-					MarkdownProcessor().markdown(it)
-				else Processor.process(it)
-			}}"
+		val symbol = element as? JuliaSymbol ?: return null
+		if (symbol.isFunctionName) {
+			(symbol.parent as IJuliaFunctionDeclaration).let { parent ->
+				parent.docString?.text?.let {
+					return "function $parent${
+					if (PlatformUtils.isGoIde())
+						MarkdownProcessor().markdown(it)
+					else Processor.process(it)
+					}"
+				}
+			}
 		}
-		return "$element,${element?.text}"
+		return null
 	}
 }
 
