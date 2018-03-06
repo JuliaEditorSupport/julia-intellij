@@ -31,12 +31,12 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 		juliaExeField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor()))
 		juliaExeField.textField.document.addDocumentListener(object : DocumentAdapter() {
 			override fun textChanged(e: DocumentEvent) {
-				importPathField.text = importPathOf(juliaExeField.text, 500L)
+				importPathField.text = importPathOf(juliaExeField.text, 1500L)
 			}
 		})
 		if (validateJuliaExe(defaultExePath)) juliaExeField.text = defaultExePath
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor()))
-		importPathField.text = importPathOf(defaultExePath, 800L)
+		importPathField.text = importPathOf(defaultExePath, 1800L)
 	}
 
 	@Throws(ConfigurationException::class)
@@ -46,7 +46,7 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 			throw ConfigurationException(JuliaBundle.message("julia.modules.invalid"))
 		}
 		usefulText.isVisible = false
-		PropertiesComponent.getInstance().setValue(JULIA_SDK_HOME_PATH_ID, juliaExeField.text)
+		juliaGlobalSettings.knownJuliaExes += juliaExeField.text
 		return super.validate()
 	}
 

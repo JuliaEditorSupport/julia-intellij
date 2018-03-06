@@ -20,8 +20,8 @@ interface JuliaGlobalSettingsService {
 val Project.juliaSettings: JuliaProjectSettingsService
 	get() = ServiceManager.getService(this, JuliaProjectSettingsService::class.java)
 
-val Project.juliaGlobalSettings: JuliaGlobalSettingsService
-	get() = ServiceManager.getService(this, JuliaGlobalSettingsService::class.java)
+val juliaGlobalSettings: JuliaGlobalSettingsService
+	get() = ServiceManager.getService(JuliaGlobalSettingsService::class.java)
 
 @State(
 	name = "JuliaProjectSettings",

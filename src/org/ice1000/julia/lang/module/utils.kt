@@ -63,7 +63,7 @@ fun findPathLinux() =
 class JuliaGlobalSettings(
 	var allJuliaExePath: String = "")
 
-class JuliaSettings(
+class JuliaSettings constructor(
 	var importPath: String = "",
 	var exePath: String = "",
 	var basePath: String = "",
