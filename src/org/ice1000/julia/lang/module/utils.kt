@@ -6,16 +6,20 @@ package org.ice1000.julia.lang.module
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.TextComponentAccessor
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.ui.ComboboxWithBrowseButton
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import java.awt.event.ActionListener
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
+import javax.swing.JComboBox
 
 /**
  * Only can be used in IntelliJ IDEA runtime, not in test cases.
@@ -38,7 +42,7 @@ val juliaPath by lazy {
 }
 
 val gitPath by lazy {
-	PathEnvironmentVariableUtil.findInPath(if(SystemInfo.isWindows)"git.exe" else "git")?.canonicalPath ?: "git"
+	PathEnvironmentVariableUtil.findInPath(if (SystemInfo.isWindows) "git.exe" else "git")?.canonicalPath ?: "git"
 }
 
 fun findPathMac(): String {
@@ -143,6 +147,24 @@ fun installDocumentFormat(
 					JuliaIcons.JOJO_ICON)
 			}
 		})
+}
+
+inline fun initExeComboBox(
+	juliaExeField: ComboboxWithBrowseButton,
+	project: Project? = null,
+	crossinline addListener: (ComboboxWithBrowseButton) -> Unit = {}) {
+	juliaExeField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-compiler"),
+		JuliaBundle.message("julia.messages.run.select-compiler.description"),
+		project,
+		FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor(),
+		object : TextComponentAccessor<JComboBox<Any>> {
+			override fun getText(component: JComboBox<Any>) = component.selectedItem as? String ?: ""
+			override fun setText(component: JComboBox<Any>, text: String) {
+				component.addItem(text)
+				addListener(juliaExeField)
+			}
+		})
+	juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
 }
 
 /**
