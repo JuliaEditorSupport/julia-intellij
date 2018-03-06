@@ -76,6 +76,9 @@
 		<lang.formatter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFormattingModelBuilder"/>
+		<lang.documentationProvider
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaDocumentProvider"/>
 		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
