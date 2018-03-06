@@ -3,6 +3,7 @@ package org.ice1000.julia.lang.execution
 import com.google.common.io.Files
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtilRt
+import org.ice1000.julia.lang.executeCommand
 import org.ice1000.julia.lang.shouldBe
 import org.junit.Test
 import java.io.File
@@ -37,6 +38,13 @@ fun main(args: Array<String>) {
 	println("1")
 	reader.readText().let(::println)
 	println("2")
+}
+
+class ExecutionTest {
+	@Test
+	fun testTimeout() {
+		println(executeCommand("git status", timeLimit = 10000000L))
+	}
 }
 
 class JuliaExecutionTest {
