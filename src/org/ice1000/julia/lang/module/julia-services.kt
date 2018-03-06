@@ -32,6 +32,9 @@ class JuliaProjectSettingsServiceImpl :
 	override fun getState(): JuliaSettings? = XmlSerializerUtil.createCopy(settings)
 	override fun loadState(state: JuliaSettings) {
 		XmlSerializerUtil.copyBean(state, settings)
+		settings.exePath.let {
+			if (validateJuliaExe(it)) juliaGlobalSettings.knownJuliaExes += it
+		}
 	}
 }
 
