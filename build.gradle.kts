@@ -144,6 +144,7 @@ repositories {
 
 dependencies {
 	compileOnly(kotlin("stdlib", kotlinVersion))
+	compileOnly("org.commonjava.googlecode.markdown4j:markdown4j:2.2-cj-1.1")
 	compile(files(Paths.get("lib", "org.eclipse.egit.github.core-2.1.5.jar")))
 	testCompile(kotlin("test-junit", kotlinVersion))
 	testCompile("junit", "junit", "4.12")
