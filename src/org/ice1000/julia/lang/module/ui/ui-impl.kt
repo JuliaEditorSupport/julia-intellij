@@ -124,9 +124,8 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project))
 		basePathField.text = settings.basePath
 		basePathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project))
-		initExeComboBox(juliaExeField)
-		juliaExeField.comboBox.addPropertyChangeListener {
-			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@addPropertyChangeListener
+		initExeComboBox(juliaExeField) {
+			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@initExeComboBox
 			importPathField.text = importPathOf(exePath, 800L)
 			version.text = versionOf(exePath, 800L)
 			tryGetBase(exePath)?.let { basePathField.text = it }

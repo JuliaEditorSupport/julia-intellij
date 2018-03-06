@@ -149,7 +149,10 @@ fun installDocumentFormat(
 		})
 }
 
-fun initExeComboBox(juliaExeField: ComboboxWithBrowseButton, project: Project? = null) {
+inline fun initExeComboBox(
+	juliaExeField: ComboboxWithBrowseButton,
+	project: Project? = null,
+	crossinline addListener: (ComboboxWithBrowseButton) -> Unit = {}) {
 	juliaExeField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-compiler"),
 		JuliaBundle.message("julia.messages.run.select-compiler.description"),
 		project,
@@ -158,6 +161,7 @@ fun initExeComboBox(juliaExeField: ComboboxWithBrowseButton, project: Project? =
 			override fun getText(component: JComboBox<Any>) = component.selectedItem as? String ?: ""
 			override fun setText(component: JComboBox<Any>, text: String) {
 				component.addItem(text)
+				addListener(juliaExeField)
 			}
 		})
 	juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
