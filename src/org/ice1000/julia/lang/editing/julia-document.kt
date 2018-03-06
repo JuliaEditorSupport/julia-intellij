@@ -2,19 +2,23 @@ package org.ice1000.julia.lang.editing
 
 import com.github.rjeschke.txtmark.Processor
 import com.intellij.lang.documentation.AbstractDocumentationProvider
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.ToolWindow
+import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.psi.PsiElement
 import com.intellij.util.PlatformUtils
 import com.petebevin.markdown.MarkdownProcessor
+import org.ice1000.julia.lang.module.ui.JuliaDocumentWindow
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 import org.ice1000.julia.lang.psi.impl.docString
+import com.intellij.ui.content.ContentFactory
 
 
 class JuliaDocumentProvider : AbstractDocumentationProvider() {
-
 	override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
 		val parent = element?.parent
 		if (parent is IJuliaFunctionDeclaration) {
-			return "function ${parent.toText}\n${parent.docString?.text?.let{
+			return "function ${parent.toText}\n${parent.docString?.text?.let {
 				//because GoLand has no Markdown4j but MarkdownJ
 				if (PlatformUtils.isGoIde())
 					MarkdownProcessor().markdown(it)
@@ -22,5 +26,19 @@ class JuliaDocumentProvider : AbstractDocumentationProvider() {
 			}}"
 		}
 		return "$element,${element?.text}"
+	}
+}
+
+class JuliaDocumentWindowImpl : JuliaDocumentWindow(), ToolWindowFactory {
+	init {
+		textPane.text = "Nothing to show"
+	}
+
+	//TODO: change its content like PyCharm Document
+
+	override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+		val contentFactory = ContentFactory.SERVICE.getInstance()
+		val content = contentFactory.createContent(documentWindowPanel, "", false)
+		toolWindow.contentManager.addContent(content)
 	}
 }
