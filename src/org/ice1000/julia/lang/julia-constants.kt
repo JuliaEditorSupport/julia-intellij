@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NonNls
 @NonNls const val JULIA_BLOCK_COMMENT_BEGIN = "#="
 @NonNls const val JULIA_BLOCK_COMMENT_END = "=#"
 @NonNls const val JULIA_STRING_DOLLAR = '\$'
-@NonNls const val JULIA_SDK_HOME_PATH_ID = "JULIA_SDK_HOME_PATH_ID"
 @NonNls const val JULIA_MODULE_ID = "JULIA_MODULE_TYPE"
 @NonNls const val JULIA_RUN_CONFIG_ID = "JULIA_RUN_CONFIG_ID"
 @NonNls const val JULIA_PLUGIN_ID = "org.ice1000.julia"
@@ -38,8 +37,3 @@ Pkg.build("DocumentFormat")"""
 
 @NonNls const val DOCFMT_EXTENSION = "julia-config"
 @NonNls const val DOCFMT_LANGUAGE_NAME = "DocumentFormat"
-
-// ========= Unicode support ==========
-
-@NonNls const val JULIA_UNICODE_LANGUAGE_NAME = "Julia LaTeX unicode"
-
