@@ -1,2 +1,3 @@
 AlignAfterOpenBracket=AlwaysBreak
 NewLineEOF=true
+IndentWidth=2

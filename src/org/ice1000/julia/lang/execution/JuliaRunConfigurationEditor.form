@@ -214,14 +214,9 @@
                   </grid>
                 </constraints>
                 <properties>
+                  <labelFor value="ebd18"/>
                   <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.run-config.exe"/>
                 </properties>
-              </component>
-              <component id="4cb8b" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="juliaExeField">
-                <constraints>
-                  <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
               </component>
               <component id="186d8" class="javax.swing.JCheckBox" binding="launchReplCheckBox">
                 <constraints>
@@ -259,6 +254,12 @@
               <component id="ef32a" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="systemImageField">
                 <constraints>
                   <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="ebd18" class="com.intellij.ui.ComboboxWithBrowseButton" binding="juliaExeField">
+                <constraints>
+                  <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
               </component>

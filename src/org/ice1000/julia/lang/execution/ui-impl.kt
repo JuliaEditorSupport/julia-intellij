@@ -5,6 +5,7 @@ import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.project.Project
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.JuliaFileType
+import org.ice1000.julia.lang.module.initExeComboBox
 import org.jetbrains.annotations.Contract
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -13,10 +14,6 @@ import java.util.*
 class JuliaRunConfigurationEditorImpl(configuration: JuliaRunConfiguration, project: Project) :
 	JuliaRunConfigurationEditor() {
 	init {
-		juliaExeField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-compiler"),
-			JuliaBundle.message("julia.messages.run.select-compiler.description"),
-			project,
-			FileChooserDescriptorFactory.createSingleFileDescriptor())
 		workingDirField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-working-dir"),
 			JuliaBundle.message("julia.messages.run.select-working-dir.description"),
 			project,
@@ -35,11 +32,12 @@ class JuliaRunConfigurationEditorImpl(configuration: JuliaRunConfiguration, proj
 			noneUserAll.forEach(codeCovOptions::addItem)
 			noneUserAll.forEach(trackAllocOptions::addItem)
 		}
+		initExeComboBox(juliaExeField, project)
 		resetEditorFrom(configuration)
 	}
 
 	override fun resetEditorFrom(configuration: JuliaRunConfiguration) {
-		juliaExeField.text = configuration.juliaExecutable
+		juliaExeField.comboBox.selectedItem = configuration.juliaExecutable
 		targetFileField.text = configuration.targetFile
 		workingDirField.text = configuration.workingDir
 		inlineCheckBox.isSelected = configuration.inlineOption
@@ -64,9 +62,10 @@ class JuliaRunConfigurationEditorImpl(configuration: JuliaRunConfiguration, proj
 
 	@Throws(ConfigurationException::class)
 	override fun applyEditorTo(configuration: JuliaRunConfiguration) {
-		val juliaExecutable = juliaExeField.text
-		if (Files.isExecutable(Paths.get(juliaExecutable))) configuration.juliaExecutable = juliaExecutable
-		else reportInvalidPath(juliaExecutable)
+		val juliaExecutable = juliaExeField.comboBox.selectedItem as? String
+		if (juliaExecutable != null && Files.isExecutable(Paths.get(juliaExecutable)))
+			configuration.juliaExecutable = juliaExecutable
+		else reportInvalidPath(juliaExecutable.toString())
 		val targetFile = targetFileField.text
 		if (Files.isReadable(Paths.get(targetFile))) configuration.targetFile = targetFile
 		else reportInvalidPath(targetFile)

@@ -20,12 +20,13 @@ class JuliaPackageTest {
 
 	@Test
 	fun testListVersionFaster() {
+		if (!validateJuliaExe(juliaPath)) return
 		when (SystemProperties.getUserName()) {
-			"zh" -> packageNamesList("C:\\Users\\zh\\.julia\\v0.6").forEach {
+			"zh" -> packageNamesList(importPathOf(juliaPath)).forEach {
 				val process = Runtime.getRuntime().exec("git describe --abbrev=0 --tags", emptyArray(), "C:\\Users\\zh\\.julia\\v0.6\\$it".let(::File))
 				println(process.inputStream.reader().readText().removePrefix("v").trim())
 			}
-			"ice1000" -> packageNamesList("/home/ice1000/.julia/v0.6").forEach {
+			"ice1000" -> packageNamesList(importPathOf(juliaPath)).forEach {
 				println(it)
 			}
 		}

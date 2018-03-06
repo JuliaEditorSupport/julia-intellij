@@ -38,7 +38,7 @@ class JuliaSdkFindTest {
 	companion object {
 		@JvmStatic
 		fun main(args: Array<String>) {
-			val (stdout, _) = executeJulia(defaultExePath, null, 1000L, "--print", "Pkg.dir()")
+			val (stdout, _) = executeJulia(juliaPath, null, 1000L, "--print", "Pkg.dir()")
 			println(stdout)
 			println(stdout.first())
 			println(Files.exists(Paths.get(stdout.first())))

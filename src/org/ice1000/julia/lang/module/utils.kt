@@ -6,56 +6,59 @@ package org.ice1000.julia.lang.module
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.TextComponentAccessor
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.ui.ComboboxWithBrowseButton
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import java.awt.event.ActionListener
-import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
-import java.util.stream.Collectors
+import javax.swing.JComboBox
 
-val defaultExePath by lazy {
-	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID, "")
-	// Notice:
-	// Files.isExecutable(Paths.get("")) == true
-	// And the isExecutable is used to check whether you have permission to access the file.
-	if (!existPath.isEmpty() && Files.isExecutable(Paths.get(existPath))) existPath else juliaPath
-}
-
-@Suppress("DEPRECATION")
+/**
+ * Can be used in test cases.
+ */
 val juliaPath by lazy {
 	when {
-		SystemInfo.isWindows -> PathEnvironmentVariableUtil.findInPath("julia.exe")?.absolutePath ?: "C:\\Program Files"
+		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
 		SystemInfo.isMac -> findPathMac()
 		else -> findPathLinux() ?: "/usr/bin/julia"
 	}
 }
 
 val gitPath by lazy {
-	PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath ?: "git"
+	PathEnvironmentVariableUtil.findInPath(if (SystemInfo.isWindows) "git.exe" else "git")?.canonicalPath ?: "git"
 }
 
 fun findPathMac(): String {
+	val default = PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath
+	if (default != null) return default
 	val appPath = Paths.get(MAC_APPLICATIONS)
-	val result = Files.list(appPath).collect(Collectors.toList()).firstOrNull { application ->
-		application.toString().contains("julia", true)
-	} ?: appPath
+	val result = Files.list(appPath).filter { application ->
+		"$application".contains("julia", true)
+	}.findFirst().orElse(appPath)
 	val folderAfterPath = "/Contents/Resources/julia/bin/julia"
-	return result.toAbsolutePath().toString() + folderAfterPath
+	return "${result.toAbsolutePath()}$folderAfterPath"
 }
 
-@Deprecated("", ReplaceWith("PathEnvironmentVariableUtil.findInPath"))
-fun findPathWindows() = executeCommandToFindPath("where julia")
+fun findPathWindows() =
+	PathEnvironmentVariableUtil.findInPath("julia.exe")?.absolutePath
+		?: executeCommandToFindPath("where julia")
 
-@Deprecated("", ReplaceWith("PathEnvironmentVariableUtil.findInPath"))
-fun findPathLinux() = executeCommandToFindPath("whereis julia")
+fun findPathLinux() =
+	PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath
+		?: executeCommandToFindPath("whereis julia")
 
-class JuliaSettings(
+class JuliaGlobalSettings(
+	var allJuliaExePath: String = "")
+
+class JuliaSettings constructor(
 	var importPath: String = "",
 	var exePath: String = "",
 	var basePath: String = "",
@@ -115,9 +118,9 @@ fun importPathOf(exePath: String, timeLimit: Long = 800L) =
 
 fun validateJuliaExe(exePath: String) = Files.isExecutable(Paths.get(exePath))
 fun validateJulia(settings: JuliaSettings) = validateJuliaExe(settings.exePath)
+
 fun installDocumentFormat(
-	project: Project,
-	settings: JuliaSettings): ActionListener = ActionListener {
+	project: Project, settings: JuliaSettings): ActionListener = ActionListener {
 	ProgressManager.getInstance()
 		.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.doc-format.installing"), true) {
 			override fun run(indicator: ProgressIndicator) {
@@ -137,8 +140,28 @@ fun installDocumentFormat(
 		})
 }
 
+inline fun initExeComboBox(
+	juliaExeField: ComboboxWithBrowseButton,
+	project: Project? = null,
+	crossinline addListener: (ComboboxWithBrowseButton) -> Unit = {}) {
+	juliaExeField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-compiler"),
+		JuliaBundle.message("julia.messages.run.select-compiler.description"),
+		project,
+		FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor(),
+		object : TextComponentAccessor<JComboBox<Any>> {
+			override fun getText(component: JComboBox<Any>) = component.selectedItem as? String ?: ""
+			override fun setText(component: JComboBox<Any>, text: String) {
+				component.addItem(text)
+				addListener(juliaExeField)
+			}
+		})
+	juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
+}
+
 /**
  * @see <a href="https://gist.github.com/DemkaAge/8999236">Reference</a>
+ * @usage julia-infos.kt:
+ * 				private val bundle: ResourceBundle by lazy { ResourceBundle.getBundle(BUNDLE,JuliaUTF8Control) }
  */
 object JuliaUTF8Control : ResourceBundle.Control() {
 	override fun newBundle(

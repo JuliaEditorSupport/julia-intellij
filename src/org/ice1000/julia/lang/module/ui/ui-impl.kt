@@ -1,7 +1,6 @@
 package org.ice1000.julia.lang.module.ui
 
 import com.intellij.ide.browsers.BrowserLauncher
-import com.intellij.ide.util.PropertiesComponent
 import com.intellij.ide.util.projectWizard.SettingsStep
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
@@ -9,9 +8,9 @@ import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.*
 import com.intellij.platform.ProjectGeneratorPeer
-import com.intellij.ui.DocumentAdapter
 import icons.JuliaIcons
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
+import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.module.*
 import java.io.File
 import java.nio.file.Files
@@ -19,7 +18,6 @@ import java.nio.file.Paths
 import java.text.NumberFormat
 import java.util.stream.Collectors
 import javax.swing.JPanel
-import javax.swing.event.DocumentEvent
 import javax.swing.table.DefaultTableModel
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
@@ -28,42 +26,42 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 	init {
 		usefulText.isVisible = false
 		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
-		juliaExeField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor()))
-		juliaExeField.textField.document.addDocumentListener(object : DocumentAdapter() {
-			override fun textChanged(e: DocumentEvent) {
-				importPathField.text = importPathOf(juliaExeField.text, 500L)
-			}
-		})
-		if (validateJuliaExe(defaultExePath)) juliaExeField.text = defaultExePath
+		initExeComboBox(juliaExeField) {
+			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@initExeComboBox
+			if (validateJuliaExe(exePath)) importPathField.text = importPathOf(exePath, 1500L)
+		}
+		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor()))
-		importPathField.text = importPathOf(defaultExePath, 800L)
 	}
 
 	@Throws(ConfigurationException::class)
 	override fun validate(): Boolean {
-		if (!validateJuliaExe(juliaExeField.text)) {
+		val selected = juliaExeField.comboBox.selectedItem as? String
+		if (selected == null || !validateJuliaExe(selected)) {
 			usefulText.isVisible = true
 			throw ConfigurationException(JuliaBundle.message("julia.modules.invalid"))
 		}
 		usefulText.isVisible = false
-		PropertiesComponent.getInstance().setValue(JULIA_SDK_HOME_PATH_ID, juliaExeField.text)
+		juliaGlobalSettings.knownJuliaExes += selected
 		return super.validate()
 	}
 
 	override fun getComponent() = mainPanel
 	override fun updateDataModel() {
 		val settings = JuliaSettings()
-		settings.exePath = juliaExeField.text
+		settings.exePath = juliaExeField.comboBox.selectedItem.toString()
 		settings.initWithExe()
 		builder.settings = settings
 	}
 }
 
-class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : JuliaProjectGeneratorPeer() {
+class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
+	private val settings = JuliaSettings()
+	private val listeners = emptyList<ProjectGeneratorPeer.SettingsListener>().toMutableList()
+
 	init {
 		setupLaterRadioButton.addChangeListener {
 			juliaExeField.isEnabled = false
-			juliaExeField.text = defaultExePath
 			selectJuliaExecutableRadioButton.isSelected = !setupLaterRadioButton.isSelected
 		}
 		selectJuliaExecutableRadioButton.addChangeListener {
@@ -72,32 +70,34 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 		}
 		usefulText.isVisible = false
 		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
-		juliaExeField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor()))
-//		default
-		if (validateJuliaExe(defaultExePath)) {
-			juliaExeField.text = defaultExePath
-			settings.exePath = juliaExeField.text
-		}
+		initExeComboBox(juliaExeField)
 		selectJuliaExecutableRadioButton.isSelected = true
 	}
 
-	override fun getSettings() = settings
+	override fun getSettings() = settings.apply { initWithExe() }
 	override fun buildUI(settingsStep: SettingsStep) = settingsStep.addExpertPanel(component)
 	override fun isBackgroundJobRunning() = false
-	override fun addSettingsListener(listener: ProjectGeneratorPeer.SettingsListener) = Unit
+	override fun addSettingsListener(listener: ProjectGeneratorPeer.SettingsListener) {
+		listeners += listener
+	}
+
 	/** Deprecated in 2017.3 But We must override it. */
-	@Deprecated("", ReplaceWith("addSettingsListener"))
+	@Deprecated("", ReplaceWith("addSettingsListener"), level = DeprecationLevel.ERROR)
 	override fun addSettingsStateListener(@Suppress("DEPRECATION") listener: com.intellij.platform.WebProjectGenerator.SettingsStateListener) = Unit
 
 	override fun getComponent() = mainPanel
 	override fun validate(): ValidationInfo? {
 		if (setupLaterRadioButton.isSelected) return null
-		settings.exePath = juliaExeField.text
-		settings.initWithExe()
-		val validate = validateJulia(settings)
-		if (validate) PropertiesComponent.getInstance().setValue(JULIA_SDK_HOME_PATH_ID, juliaExeField.text)
-		else usefulText.isVisible = true
-		return if (validate) null else ValidationInfo(JuliaBundle.message("julia.modules.invalid"))
+		val selected = juliaExeField.comboBox.selectedItem as? String
+		return if (selected != null && validateJuliaExe(selected)) {
+			listeners.forEach { it.stateChanged(true) }
+			settings.exePath = selected
+			juliaGlobalSettings.knownJuliaExes += selected
+			null
+		} else {
+			usefulText.isVisible = true
+			ValidationInfo(JuliaBundle.message("julia.modules.invalid"))
+		}
 	}
 }
 
@@ -121,19 +121,20 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project))
 		basePathField.text = settings.basePath
 		basePathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project))
-		juliaExeField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor(), project))
-		juliaExeField.textField.document.addDocumentListener(object : DocumentAdapter() {
-			override fun textChanged(e: DocumentEvent) {
-				val exePath = juliaExeField.text
-				importPathField.text = importPathOf(exePath, 800L)
-				version.text = versionOf(exePath, 800L)
-				tryGetBase(exePath)?.let { basePathField.text = it }
+		initExeComboBox(juliaExeField) {
+			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@initExeComboBox
+			importPathField.text = importPathOf(exePath, 800L)
+			version.text = versionOf(exePath, 800L)
+			tryGetBase(exePath)?.let { basePathField.text = it }
+		}
+		val currentExePath = settings.exePath
+		if (validateJuliaExe(currentExePath)) {
+			juliaExeField.comboBox.selectedItem = currentExePath
+			if (settings.importPath.isEmpty()) {
+				importPathField.text = importPathOf(currentExePath, 800L)
+				settings.importPath = importPathField.text
 			}
-		})
-		if (settings.exePath.isNotBlank())
-			juliaExeField.text = settings.exePath
-		else
-			juliaExeField.text = defaultExePath
+		}
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
 		showEvalHintCheckBox.isSelected = settings.showEvalHint
 		if (Files.exists(Paths.get(settings.importPath, "DocumentFormat"))) {
@@ -146,7 +147,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 	override fun createComponent() = mainPanel
 	override fun isModified() = settings.importPath != importPathField.text ||
 		settings.basePath != basePathField.text ||
-		settings.exePath != juliaExeField.text ||
+		settings.exePath != juliaExeField.comboBox.selectedItem ||
 		unicodeInputCheckBox.isSelected != settings.unicodeEnabled ||
 		showEvalHintCheckBox.isSelected != settings.showEvalHint ||
 		settings.tryEvaluateTextLimit != (textLimitField.value as Number).toInt() ||
@@ -158,9 +159,11 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 			?: throw ConfigurationException(JuliaBundle.message("julia.modules.try-eval.invalid"))).toInt()
 		settings.tryEvaluateTimeLimit = (timeLimitField.value as? Number
 			?: throw ConfigurationException(JuliaBundle.message("julia.modules.try-eval.invalid"))).toLong()
-		if (!validateJuliaExe(juliaExeField.text)) throw ConfigurationException(JuliaBundle.message("julia.modules.invalid"))
-		PropertiesComponent.getInstance().setValue(JULIA_SDK_HOME_PATH_ID, juliaExeField.text)
-		settings.exePath = juliaExeField.text
+		val exePath = juliaExeField.comboBox.selectedItem as? String
+		if (exePath == null || !validateJuliaExe(exePath))
+			throw ConfigurationException(JuliaBundle.message("julia.modules.invalid"))
+		juliaGlobalSettings.knownJuliaExes += exePath
+		settings.exePath = exePath
 		settings.version = version.text
 		settings.basePath = basePathField.text
 		settings.importPath = importPathField.text
@@ -186,12 +189,18 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
 
 		buttonAdd.addActionListener {
-			Messages.showDialog(
-				"Nothing to add",
+			Messages.showInputDialog(
+				project,
+				"Package name",
 				"Add Package",
-				arrayOf(JuliaBundle.message("julia.yes")),
-				0,
-				JuliaIcons.JOJO_ICON)
+				JuliaIcons.JOJO_ICON,
+				"",
+				null
+			)?.let {
+				/**
+				 * TODO install, see [installDocumentFormat]
+				 */
+			}
 		}
 		buttonRemove.addActionListener {
 			Messages.showDialog(
@@ -205,6 +214,8 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 			loadPackages(false)
 		}
 
+		initExeComboBox(alternativeExecutables)
+		alternativeExecutables.comboBox.selectedItem = settings.exePath
 		packagesList.setShowGrid(false)
 	}
 
@@ -234,7 +245,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					val process = Runtime.getRuntime().exec(
 						arrayOf(gitPath, "describe", "--abbrev=0", "--tags"),
 						emptyArray(),
-						"${settings.importPath}\\$it".let(::File))
+						"${settings.importPath}${File.separator}$it".let(::File))
 					indicator.fraction = index / sizeToDouble
 					val second = process.inputStream.reader().use { it.readText().removePrefix("v").trim() }
 					tempDataModel.setValueAt(second, index, 1)
@@ -264,6 +275,10 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 
 	override fun isModified() = false
 	override fun apply() {
-// TODO packageInfo needs to be cached
+		val selected = alternativeExecutables.comboBox.selectedItem.toString()
+		juliaGlobalSettings.knownJuliaExes += selected
+		/**
+		 * TODO packageInfo needs to be cached, see [juliaGlobalSettings]
+		 */
 	}
 }

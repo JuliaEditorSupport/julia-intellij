@@ -3,11 +3,14 @@ package org.ice1000.julia.lang.execution
 import com.google.common.io.Files
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtilRt
+import org.ice1000.julia.lang.executeCommand
 import org.ice1000.julia.lang.shouldBe
 import org.junit.Test
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import kotlin.system.measureTimeMillis
+import kotlin.test.assertTrue
 
 fun main(args: Array<String>) {
 	val process = Runtime.getRuntime().exec("/home/ice1000/SDK/julia-6.2/bin/julia -q").also {
@@ -39,6 +42,27 @@ fun main(args: Array<String>) {
 	println("2")
 }
 
+class ExecutionTest {
+	@Test
+	fun testTerminate() {
+		println(executeCommand("git status", timeLimit = 10000000L))
+	}
+
+	/**
+	 * Must be longer than 100ms, shorter than 250ms
+	 * Or test will fail
+	 */
+	@Test(timeout = 250L)
+	fun testTimeout() {
+		measureTimeMillis {
+			// just test if it will throw exceptions
+			executeCommand("watch \"git status\"", timeLimit = 100L)
+		}.let {
+			assertTrue(it >= 100L)
+		}
+	}
+}
+
 class JuliaExecutionTest {
 	@Test
 	fun testDocker() {
@@ -60,11 +84,11 @@ class JuliaExecutionTest {
 	}
 
 	@Test
-	fun testUnixDocker(){
-		val pwd= File(".").absolutePath
+	fun testUnixDocker() {
+		val pwd = File(".").absolutePath
 		val juliaFile = "ParseFunctions.jl"
-		val containerName="julia"
-		val exeName="julia"
+		val containerName = "julia"
+		val exeName = "julia"
 		val params = ""
 		val cmd = "docker run --rm -v $pwd/testData:$pwd/testData -w $pwd/testData $containerName $exeName $juliaFile $params"
 		try {
