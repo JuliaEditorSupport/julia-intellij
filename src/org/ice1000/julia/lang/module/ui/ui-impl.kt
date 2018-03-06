@@ -184,12 +184,18 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
 
 		buttonAdd.addActionListener {
-			Messages.showDialog(
-				"Nothing to add",
+			Messages.showInputDialog(
+				project,
+				"Package name",
 				"Add Package",
-				arrayOf(JuliaBundle.message("julia.yes")),
-				0,
-				JuliaIcons.JOJO_ICON)
+				JuliaIcons.JOJO_ICON,
+				"",
+				null
+			)?.let {
+				/**
+				 * TODO install, see [installDocumentFormat]
+				 */
+			}
 		}
 		buttonRemove.addActionListener {
 			Messages.showDialog(
