@@ -243,7 +243,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					val process = Runtime.getRuntime().exec(
 						arrayOf(gitPath, "describe", "--abbrev=0", "--tags"),
 						emptyArray(),
-						"${settings.importPath}\\$it".let(::File))
+						"${settings.importPath}${File.separator}$it".let(::File))
 					indicator.fraction = index / sizeToDouble
 					val second = process.inputStream.reader().use { it.readText().removePrefix("v").trim() }
 					tempDataModel.setValueAt(second, index, 1)
