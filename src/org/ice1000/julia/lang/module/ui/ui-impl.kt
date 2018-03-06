@@ -30,7 +30,8 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 			null,
 			FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor())
 		juliaExeField.comboBox.addPropertyChangeListener {
-			importPathField.text = importPathOf(juliaExeField.comboBox.selectedItem.toString(), 1500L)
+			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@addPropertyChangeListener
+			if (validateJuliaExe(exePath)) importPathField.text = importPathOf(exePath, 1500L)
 		}
 		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor()))
@@ -38,8 +39,8 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 
 	@Throws(ConfigurationException::class)
 	override fun validate(): Boolean {
-		val selected = juliaExeField.comboBox.selectedItem.toString()
-		if (!validateJuliaExe(selected)) {
+		val selected = juliaExeField.comboBox.selectedItem as? String
+		if (selected == null || !validateJuliaExe(selected)) {
 			usefulText.isVisible = true
 			throw ConfigurationException(JuliaBundle.message("julia.modules.invalid"))
 		}
@@ -93,11 +94,10 @@ class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
 	override fun getComponent() = mainPanel
 	override fun validate(): ValidationInfo? {
 		if (setupLaterRadioButton.isSelected) return null
-		val selected = juliaExeField.comboBox.selectedItem.toString()
-		settings.exePath = selected
-		val valid = validateJulia(settings)
-		listeners.forEach { it.stateChanged(valid) }
-		return if (valid) {
+		val selected = juliaExeField.comboBox.selectedItem as? String
+		return if (selected != null && validateJuliaExe(selected)) {
+			listeners.forEach { it.stateChanged(true) }
+			settings.exePath = selected
 			juliaGlobalSettings.knownJuliaExes += selected
 			null
 		} else {
@@ -132,7 +132,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 			FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor())
 		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
 		juliaExeField.comboBox.addPropertyChangeListener {
-			val exePath = juliaExeField.comboBox.selectedItem.toString()
+			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@addPropertyChangeListener
 			importPathField.text = importPathOf(exePath, 800L)
 			version.text = versionOf(exePath, 800L)
 			tryGetBase(exePath)?.let { basePathField.text = it }
@@ -164,8 +164,9 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 			?: throw ConfigurationException(JuliaBundle.message("julia.modules.try-eval.invalid"))).toInt()
 		settings.tryEvaluateTimeLimit = (timeLimitField.value as? Number
 			?: throw ConfigurationException(JuliaBundle.message("julia.modules.try-eval.invalid"))).toLong()
-		val exePath = juliaExeField.comboBox.selectedItem.toString()
-		if (!validateJuliaExe(exePath)) throw ConfigurationException(JuliaBundle.message("julia.modules.invalid"))
+		val exePath = juliaExeField.comboBox.selectedItem as? String
+		if (exePath == null || !validateJuliaExe(exePath))
+			throw ConfigurationException(JuliaBundle.message("julia.modules.invalid"))
 		juliaGlobalSettings.knownJuliaExes += exePath
 		settings.exePath = exePath
 		settings.version = version.text

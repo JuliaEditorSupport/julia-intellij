@@ -68,9 +68,10 @@ class JuliaRunConfigurationEditorImpl(configuration: JuliaRunConfiguration, proj
 
 	@Throws(ConfigurationException::class)
 	override fun applyEditorTo(configuration: JuliaRunConfiguration) {
-		val juliaExecutable = juliaExeField.comboBox.selectedItem.toString()
-		if (Files.isExecutable(Paths.get(juliaExecutable))) configuration.juliaExecutable = juliaExecutable
-		else reportInvalidPath(juliaExecutable)
+		val juliaExecutable = juliaExeField.comboBox.selectedItem as? String
+		if (juliaExecutable != null && Files.isExecutable(Paths.get(juliaExecutable)))
+			configuration.juliaExecutable = juliaExecutable
+		else reportInvalidPath(juliaExecutable.toString())
 		val targetFile = targetFileField.text
 		if (Files.isReadable(Paths.get(targetFile))) configuration.targetFile = targetFile
 		else reportInvalidPath(targetFile)
