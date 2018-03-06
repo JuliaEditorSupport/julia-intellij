@@ -28,32 +28,33 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 	init {
 		usefulText.isVisible = false
 		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
-		juliaExeField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor()))
-		juliaExeField.textField.document.addDocumentListener(object : DocumentAdapter() {
-			override fun textChanged(e: DocumentEvent) {
-				importPathField.text = importPathOf(juliaExeField.text, 1500L)
-			}
-		})
-		if (validateJuliaExe(defaultExePath)) juliaExeField.text = defaultExePath
+		juliaExeField.addBrowseFolderListener(
+			null,
+			FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor())
+		juliaExeField.comboBox.addPropertyChangeListener {
+			importPathField.text = importPathOf(juliaExeField.comboBox.selectedItem.toString(), 1500L)
+		}
+		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
+		juliaExeField.comboBox.selectedIndex = 0
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor()))
-		importPathField.text = importPathOf(defaultExePath, 1800L)
 	}
 
 	@Throws(ConfigurationException::class)
 	override fun validate(): Boolean {
-		if (!validateJuliaExe(juliaExeField.text)) {
+		val selected=  juliaExeField.comboBox.selectedItem.toString()
+		if (!validateJuliaExe(selected)) {
 			usefulText.isVisible = true
 			throw ConfigurationException(JuliaBundle.message("julia.modules.invalid"))
 		}
 		usefulText.isVisible = false
-		juliaGlobalSettings.knownJuliaExes += juliaExeField.text
+		juliaGlobalSettings.knownJuliaExes += selected
 		return super.validate()
 	}
 
 	override fun getComponent() = mainPanel
 	override fun updateDataModel() {
 		val settings = JuliaSettings()
-		settings.exePath = juliaExeField.text
+		settings.exePath = juliaExeField.comboBox.selectedItem.toString()
 		settings.initWithExe()
 		builder.settings = settings
 	}
@@ -63,7 +64,6 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 	init {
 		setupLaterRadioButton.addChangeListener {
 			juliaExeField.isEnabled = false
-			juliaExeField.text = defaultExePath
 			selectJuliaExecutableRadioButton.isSelected = !setupLaterRadioButton.isSelected
 		}
 		selectJuliaExecutableRadioButton.addChangeListener {
