@@ -23,7 +23,7 @@ import org.ice1000.julia.lang.docfmt.psi.DocfmtTypes;
 %eof}
 
 LINE_COMMENT=#[^\r\n]*
-WHITE_SPACE_CHAR=[\ \n\r\t\f]
+WHITE_SPACE_CHAR=[ \n\r\t\f]
 
 %%
 

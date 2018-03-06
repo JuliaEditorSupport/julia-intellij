@@ -19,14 +19,21 @@ import java.nio.file.Paths
 import java.util.*
 import java.util.stream.Collectors
 
+/**
+ * Only can be used in IntelliJ IDEA runtime, not in test cases.
+ */
 val defaultExePath by lazy {
 	val existPath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID, "")
 	// Notice:
 	// Files.isExecutable(Paths.get("")) == true
 	// And the isExecutable is used to check whether you have permission to access the file.
-	if (!existPath.isEmpty() && Files.isExecutable(Paths.get(existPath))) existPath else juliaPath
+	if (existPath.isNotBlank() and Files.isExecutable(Paths.get(existPath)))
+		existPath else juliaPath
 }
 
+/**
+ * Can be used in test cases.
+ */
 @Suppress("DEPRECATION")
 val juliaPath by lazy {
 	when {
