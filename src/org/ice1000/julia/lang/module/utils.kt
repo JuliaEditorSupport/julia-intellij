@@ -127,9 +127,9 @@ fun importPathOf(exePath: String, timeLimit: Long = 800L) =
 
 fun validateJuliaExe(exePath: String) = Files.isExecutable(Paths.get(exePath))
 fun validateJulia(settings: JuliaSettings) = validateJuliaExe(settings.exePath)
+
 fun installDocumentFormat(
-	project: Project,
-	settings: JuliaSettings): ActionListener = ActionListener {
+	project: Project, settings: JuliaSettings): ActionListener = ActionListener {
 	ProgressManager.getInstance()
 		.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.doc-format.installing"), true) {
 			override fun run(indicator: ProgressIndicator) {
