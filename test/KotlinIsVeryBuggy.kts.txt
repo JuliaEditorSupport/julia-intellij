@@ -1,0 +1,16 @@
+import java.util.concurrent.TimeUnit
+
+kotlin.run {
+	System.out.println(commitHash)
+}
+
+val commitHash = kotlin.run {
+	val output: String
+	val process: Process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
+	process.waitFor(2000L, TimeUnit.MILLISECONDS)
+	output = process.inputStream.use {
+		it.bufferedReader().use { it.readText() }
+	}
+	process.destroy()
+	output.trim()
+}
