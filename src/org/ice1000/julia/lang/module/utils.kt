@@ -13,11 +13,9 @@ import com.intellij.openapi.util.SystemInfo
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import java.awt.event.ActionListener
-import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
-import java.util.stream.Collectors
 
 /**
  * Only can be used in IntelliJ IDEA runtime, not in test cases.
@@ -34,33 +32,39 @@ val defaultExePath by lazy {
 /**
  * Can be used in test cases.
  */
-@Suppress("DEPRECATION")
 val juliaPath by lazy {
 	when {
-		SystemInfo.isWindows -> PathEnvironmentVariableUtil.findInPath("julia.exe")?.absolutePath ?: "C:\\Program Files"
+		SystemInfo.isWindows -> findPathWindows() ?: "C:\\Program Files"
 		SystemInfo.isMac -> findPathMac()
 		else -> findPathLinux() ?: "/usr/bin/julia"
 	}
 }
 
 val gitPath by lazy {
-	PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath ?: "git"
+	PathEnvironmentVariableUtil.findInPath("git")?.absolutePath ?: "git"
 }
 
 fun findPathMac(): String {
+	val default = PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath
+	if (default != null) return default
 	val appPath = Paths.get(MAC_APPLICATIONS)
-	val result = Files.list(appPath).collect(Collectors.toList()).firstOrNull { application ->
-		application.toString().contains("julia", true)
-	} ?: appPath
+	val result = Files.list(appPath).filter { application ->
+		"$application".contains("julia", true)
+	}.findFirst().orElse(appPath)
 	val folderAfterPath = "/Contents/Resources/julia/bin/julia"
-	return result.toAbsolutePath().toString() + folderAfterPath
+	return "${result.toAbsolutePath()}$folderAfterPath"
 }
 
-@Deprecated("", ReplaceWith("PathEnvironmentVariableUtil.findInPath"))
-fun findPathWindows() = executeCommandToFindPath("where julia")
+fun findPathWindows() =
+	PathEnvironmentVariableUtil.findInPath("julia.exe")?.absolutePath
+		?: executeCommandToFindPath("where julia")
 
-@Deprecated("", ReplaceWith("PathEnvironmentVariableUtil.findInPath"))
-fun findPathLinux() = executeCommandToFindPath("whereis julia")
+fun findPathLinux() =
+	PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath
+		?: executeCommandToFindPath("whereis julia")
+
+class JuliaGlobalSettings(
+	var allJuliaExePath: String = "")
 
 class JuliaSettings(
 	var importPath: String = "",

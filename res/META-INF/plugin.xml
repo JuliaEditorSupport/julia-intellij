@@ -76,7 +76,7 @@
 		<lang.formatter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFormattingModelBuilder"/>
-		<applicationService
+		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
 		<applicationService
@@ -91,16 +91,16 @@
 		<lang.findUsagesProvider
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFindUsagesProvider"/>
-		<projectConfigurable
-			groupId="language"
-			id="Julia.LanguageConfigurationRoot"
-			instance="org.ice1000.julia.lang.module.ui.JuliaProjectConfigurableImpl"/>
-		<projectConfigurable
-			parentId="Julia.LanguageConfigurationRoot"
-			instance="org.ice1000.julia.lang.module.ui.JuliaPackageManagerImpl"/>
 		<codeInsight.parameterNameHints
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaInlayParameterHintsProvider"/>
+		<projectConfigurable
+			groupId="language"
+			id="Julia.Configuration"
+			instance="org.ice1000.julia.lang.module.ui.JuliaProjectConfigurableImpl"/>
+		<projectConfigurable
+			parentId="Julia.Configuration"
+			instance="org.ice1000.julia.lang.module.ui.JuliaPackageManagerImpl"/>
 		<moduleType
 			id="JULIA_MODULE_TYPE"
 			implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>
