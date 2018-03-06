@@ -3,6 +3,7 @@ package org.ice1000.julia.lang.module
 import com.intellij.openapi.components.*
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.XmlSerializerUtil
+import java.io.File
 
 /**
  * @author zxj5470, ice1000
@@ -13,7 +14,7 @@ interface JuliaProjectSettingsService {
 }
 
 interface JuliaGlobalSettingsService {
-	var settings: JuliaSettings
+	val knownJuliaExes: MutableSet<String>
 }
 
 val Project.juliaSettings: JuliaProjectSettingsService
@@ -38,11 +39,16 @@ class JuliaProjectSettingsServiceImpl :
 	name = "JuliaGlobalSettings",
 	storages = [Storage(file = "juliaGlobalConfig.xml", scheme = StorageScheme.DIRECTORY_BASED)])
 class JuliaGlobalSettingsServiceImpl :
-	JuliaGlobalSettingsService, PersistentStateComponent<JuliaSettings> {
+	JuliaGlobalSettingsService, PersistentStateComponent<JuliaGlobalSettings> {
+	override val knownJuliaExes: MutableSet<String> = hashSetOf()
+	private fun invalidate() = knownJuliaExes.removeAll { !validateJuliaExe(it) }
+	override fun getState(): JuliaGlobalSettings {
+		invalidate()
+		return JuliaGlobalSettings(knownJuliaExes.joinToString(File.pathSeparator))
+	}
 
-	override var settings = JuliaSettings()
-	override fun getState(): JuliaSettings? = XmlSerializerUtil.createCopy(settings)
-	override fun loadState(state: JuliaSettings) {
-		XmlSerializerUtil.copyBean(state, settings)
+	override fun loadState(state: JuliaGlobalSettings) {
+		invalidate()
+		knownJuliaExes += state.allJuliaExePath.split(File.pathSeparatorChar)
 	}
 }

@@ -8,10 +8,10 @@ import com.intellij.openapi.project.Project
 import org.ice1000.julia.lang.*
 import org.jetbrains.annotations.Nls
 
-class JuliaApplicationComponent(private val project: Project) : ProjectComponent {
+class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 	var isNightlyNotificationShown = false
 
-	override fun getComponentName() = "JuliaApplicationComponent"
+	override fun getComponentName() = "JuliaProjectComponent"
 	override fun projectOpened() {
 		super.projectOpened()
 		val isNightly = PluginManager.getPlugin(PluginId.getId(JULIA_PLUGIN_ID))?.run { '-' in version }.orFalse()

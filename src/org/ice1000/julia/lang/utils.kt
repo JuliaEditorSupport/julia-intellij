@@ -28,8 +28,7 @@ fun executeJulia(
 	executeCommand(
 		"${Paths.get(exePath).toAbsolutePath()} ${params.joinToString(" ")}",
 		code?.let { "$it\nquit()" },
-		timeLimit
-	)
+		timeLimit)
 
 fun executeCommandToFindPath(command: String) = executeCommand(command, null, 500L)
 	.first
