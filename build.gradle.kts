@@ -145,6 +145,7 @@ repositories {
 dependencies {
 	compileOnly(kotlin("stdlib", kotlinVersion))
 	compile(files(Paths.get("lib", "org.eclipse.egit.github.core-2.1.5.jar")))
+	testCompile(kotlin("test-junit", kotlinVersion))
 	testCompile("junit", "junit", "4.12")
 }
 
