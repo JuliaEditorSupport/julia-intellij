@@ -1,7 +1,6 @@
 package org.ice1000.julia.lang.module.ui
 
 import com.intellij.ide.browsers.BrowserLauncher
-import com.intellij.ide.util.PropertiesComponent
 import com.intellij.ide.util.projectWizard.SettingsStep
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
@@ -10,7 +9,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.*
 import com.intellij.platform.ProjectGeneratorPeer
 import icons.JuliaIcons
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
+import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.module.*
 import java.io.File
 import java.nio.file.Files
@@ -33,7 +33,6 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 			importPathField.text = importPathOf(juliaExeField.comboBox.selectedItem.toString(), 1500L)
 		}
 		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
-		juliaExeField.comboBox.selectedIndex = 0
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor()))
 	}
 
@@ -77,7 +76,6 @@ class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
 			null,
 			FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor())
 		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
-		juliaExeField.comboBox.selectedIndex = 0
 		selectJuliaExecutableRadioButton.isSelected = true
 	}
 
@@ -142,8 +140,6 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		val currentExePath = settings.exePath
 		if (validateJuliaExe(currentExePath))
 			juliaExeField.comboBox.selectedItem = currentExePath
-		else
-			juliaExeField.comboBox.selectedIndex = 0
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
 		showEvalHintCheckBox.isSelected = settings.showEvalHint
 		if (Files.exists(Paths.get(settings.importPath, "DocumentFormat"))) {
