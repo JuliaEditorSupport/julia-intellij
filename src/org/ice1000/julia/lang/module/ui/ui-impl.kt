@@ -41,7 +41,7 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 
 	@Throws(ConfigurationException::class)
 	override fun validate(): Boolean {
-		val selected=  juliaExeField.comboBox.selectedItem.toString()
+		val selected = juliaExeField.comboBox.selectedItem.toString()
 		if (!validateJuliaExe(selected)) {
 			usefulText.isVisible = true
 			throw ConfigurationException(JuliaBundle.message("julia.modules.invalid"))
@@ -60,7 +60,9 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 	}
 }
 
-class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : JuliaProjectGeneratorPeer() {
+class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
+	private val settings = JuliaSettings()
+
 	init {
 		setupLaterRadioButton.addChangeListener {
 			juliaExeField.isEnabled = false
@@ -72,16 +74,15 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 		}
 		usefulText.isVisible = false
 		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
-		juliaExeField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor()))
-//		default
-		if (validateJuliaExe(defaultExePath)) {
-			juliaExeField.text = defaultExePath
-			settings.exePath = juliaExeField.text
-		}
+		juliaExeField.addBrowseFolderListener(
+			null,
+			FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor())
+		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
+		juliaExeField.comboBox.selectedIndex = 0
 		selectJuliaExecutableRadioButton.isSelected = true
 	}
 
-	override fun getSettings() = settings
+	override fun getSettings() = settings.apply { initWithExe() }
 	override fun buildUI(settingsStep: SettingsStep) = settingsStep.addExpertPanel(component)
 	override fun isBackgroundJobRunning() = false
 	override fun addSettingsListener(listener: ProjectGeneratorPeer.SettingsListener) = Unit
@@ -92,11 +93,9 @@ class JuliaProjectGeneratorPeerImpl(private val settings: JuliaSettings) : Julia
 	override fun getComponent() = mainPanel
 	override fun validate(): ValidationInfo? {
 		if (setupLaterRadioButton.isSelected) return null
-		settings.exePath = juliaExeField.text
-		settings.initWithExe()
+		val selected = juliaExeField.comboBox.selectedItem.toString()
 		val validate = validateJulia(settings)
-		if (validate) PropertiesComponent.getInstance().setValue(JULIA_SDK_HOME_PATH_ID, juliaExeField.text)
-		else usefulText.isVisible = true
+		if (validate) settings.exePath = selected else usefulText.isVisible = true
 		return if (validate) null else ValidationInfo(JuliaBundle.message("julia.modules.invalid"))
 	}
 }
