@@ -26,11 +26,8 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 	init {
 		usefulText.isVisible = false
 		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
-		juliaExeField.addBrowseFolderListener(
-			null,
-			FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor())
-		juliaExeField.comboBox.addPropertyChangeListener {
-			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@addPropertyChangeListener
+		initExeComboBox(juliaExeField) {
+			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@initExeComboBox
 			if (validateJuliaExe(exePath)) importPathField.text = importPathOf(exePath, 1500L)
 		}
 		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
