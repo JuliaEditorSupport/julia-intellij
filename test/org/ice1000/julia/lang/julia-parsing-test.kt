@@ -1,6 +1,7 @@
 package org.ice1000.julia.lang
 
 import com.intellij.testFramework.ParsingTestCase
+import org.ice1000.julia.lang.docfmt.DocfmtParserDefinition
 import org.junit.Test
 
 class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinition()) {
@@ -48,5 +49,13 @@ class JuliaLexerTest {
 		JuliaLexer().let {
 			// Star platinum the world!
 		}
+	}
+}
+
+class DocfmtParsingTest : ParsingTestCase("", DOCFMT_EXTENSION, DocfmtParserDefinition()) {
+	override fun getTestDataPath() = "testData"
+	override fun skipSpaces() = true
+	fun test() {
+		doTest(true)
 	}
 }

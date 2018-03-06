@@ -1,6 +1,6 @@
 <idea-plugin>
 	<name>Julia</name>
-	<version>0.1.6</version>
+	<version>0.1.7</version>
 	<id>org.ice1000.julia</id>
 	<vendor email="ice1000kotlin@foxmail.com" url="http://ice1000.org">ice1000</vendor>
 	<idea-version since-build="162.0"/>
@@ -76,7 +76,7 @@
 		<lang.formatter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFormattingModelBuilder"/>
-		<applicationService
+		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
 		<applicationService
@@ -91,16 +91,16 @@
 		<lang.findUsagesProvider
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFindUsagesProvider"/>
-		<projectConfigurable
-			groupId="language"
-			id="Julia.LanguageConfigurationRoot"
-			instance="org.ice1000.julia.lang.module.ui.JuliaProjectConfigurableImpl"/>
-		<projectConfigurable
-			parentId="Julia.LanguageConfigurationRoot"
-			instance="org.ice1000.julia.lang.module.ui.JuliaPackageManagerImpl"/>
 		<codeInsight.parameterNameHints
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaInlayParameterHintsProvider"/>
+		<projectConfigurable
+			groupId="language"
+			id="Julia.Configuration"
+			instance="org.ice1000.julia.lang.module.ui.JuliaProjectConfigurableImpl"/>
+		<projectConfigurable
+			parentId="Julia.Configuration"
+			instance="org.ice1000.julia.lang.module.ui.JuliaPackageManagerImpl"/>
 		<moduleType
 			id="JULIA_MODULE_TYPE"
 			implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>
@@ -108,7 +108,7 @@
 
 	<project-components>
 		<component>
-			<implementation-class>org.ice1000.julia.lang.module.JuliaApplicationComponent</implementation-class>
+			<implementation-class>org.ice1000.julia.lang.module.JuliaProjectComponent</implementation-class>
 		</component>
 	</project-components>
 

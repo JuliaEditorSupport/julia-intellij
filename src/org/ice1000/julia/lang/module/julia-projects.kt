@@ -33,7 +33,7 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 
 	override fun getLogo() = JuliaIcons.JULIA_BIG_ICON
 	override fun getName() = JuliaBundle.message("julia.name")
-	override fun createPeer() = JuliaProjectGeneratorPeerImpl(JuliaSettings())
+	override fun createPeer() = JuliaProjectGeneratorPeerImpl()
 
 	override fun generateProject(project: Project, baseDir: VirtualFile, settings: JuliaSettings, module: Module) {
 		ApplicationManager.getApplication().runWriteAction {

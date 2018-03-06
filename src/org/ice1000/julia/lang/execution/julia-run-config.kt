@@ -14,8 +14,7 @@ import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiElement
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.module.juliaSettings
-import org.ice1000.julia.lang.module.validateJuliaExe
+import org.ice1000.julia.lang.module.*
 import org.jdom.Element
 import com.google.common.io.Files as GoogleFiles
 
@@ -129,7 +128,7 @@ class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfigura
 			.exePath
 		if (validateJuliaExe(existPath)) configuration.juliaExecutable = existPath
 		else {
-			val exePath = PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID, "")
+			val exePath = juliaGlobalSettings.knownJuliaExes.firstOrNull() ?: return true
 			if (validateJuliaExe(exePath)) configuration.juliaExecutable = exePath
 		}
 		return true

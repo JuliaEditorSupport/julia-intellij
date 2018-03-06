@@ -23,12 +23,12 @@ import org.ice1000.julia.lang.docfmt.psi.DocfmtTypes;
 %eof}
 
 LINE_COMMENT=#[^\r\n]*
-WHITE_SPACE_CHAR=[\ \n\r\t\f]
+WHITE_SPACE_CHAR=[ \n\r\t\f]
 
 %%
 
 \n { return DocfmtTypes.EOL; }
-[a-zA-Z\d+\-\*/&!@#$%\^:;'\"]+ { return DocfmtTypes.SYM; }
+[a-zA-Z\+\-\*/&!@#$%\^:;'\"]+ { return DocfmtTypes.SYM; }
 \d+ { return DocfmtTypes.INT; }
 = { return DocfmtTypes.EQ_SYM; }
 {LINE_COMMENT} { return DocfmtTypes.LINE_COMMENT; }
