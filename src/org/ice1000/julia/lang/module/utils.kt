@@ -38,7 +38,7 @@ val juliaPath by lazy {
 }
 
 val gitPath by lazy {
-	PathEnvironmentVariableUtil.findInPath("git")?.absolutePath ?: "git"
+	PathEnvironmentVariableUtil.findInPath(if(SystemInfo.isWindows)"git.exe" else "git")?.canonicalPath ?: "git"
 }
 
 fun findPathMac(): String {
@@ -147,6 +147,8 @@ fun installDocumentFormat(
 
 /**
  * @see <a href="https://gist.github.com/DemkaAge/8999236">Reference</a>
+ * @usage julia-infos.kt:
+ * 				private val bundle: ResourceBundle by lazy { ResourceBundle.getBundle(BUNDLE,JuliaUTF8Control) }
  */
 object JuliaUTF8Control : ResourceBundle.Control() {
 	override fun newBundle(
