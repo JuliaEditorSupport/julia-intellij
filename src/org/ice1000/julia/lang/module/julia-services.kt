@@ -17,12 +17,15 @@ interface JuliaGlobalSettingsService {
 	val knownJuliaExes: MutableSet<String>
 }
 
+//Project的Settings
 val Project.juliaSettings: JuliaProjectSettingsService
 	get() = ServiceManager.getService(this, JuliaProjectSettingsService::class.java)
 
+//全局的Julia解释器目录
 val juliaGlobalSettings: JuliaGlobalSettingsService
 	get() = ServiceManager.getService(JuliaGlobalSettingsService::class.java)
 
+//Service的实现, 基本也就这个样子
 @State(
 	name = "JuliaProjectSettings",
 	storages = [Storage(file = "juliaConfig.xml", scheme = StorageScheme.DIRECTORY_BASED)])

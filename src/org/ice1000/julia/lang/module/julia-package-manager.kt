@@ -5,7 +5,9 @@ package org.ice1000.julia.lang.module
 
 import org.ice1000.julia.lang.executeCommand
 import java.io.File
-import java.nio.file.*
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.function.Predicate
 import java.util.stream.Stream
 
@@ -14,6 +16,7 @@ data class InfoData(val name: String, val version: String, val latestVersion: St
 val packageInfos = emptyList<InfoData>().toMutableList()
 
 /**
+ * 获取已安装的Package列表
  * It's needed for UE (User Experience)
  * @notice Do not use [File.list] (or [File.listFiles]) with 2 parameter filter
  *         because the first param will be `let(::File)`'s dir
@@ -38,6 +41,7 @@ private val packagePredicate = Predicate { dir: Path ->
 
 /**
  * very slow.
+ * 版本列表(已安装)
  */
 fun versionsList(settings: JuliaSettings) =
 	executeCommand(settings.exePath, "Pkg.installed()", 20_000L)

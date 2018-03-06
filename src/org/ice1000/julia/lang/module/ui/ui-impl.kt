@@ -4,9 +4,13 @@ import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.ide.util.projectWizard.SettingsStep
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.progress.*
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.*
+import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.TextBrowseFolderListener
+import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectGeneratorPeer
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
@@ -21,6 +25,10 @@ import javax.swing.JPanel
 import javax.swing.table.DefaultTableModel
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
+
+/**
+ * 这里放所有ui的子类实现
+ */
 
 class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : JuliaSetupSdkWizardStep() {
 	init {

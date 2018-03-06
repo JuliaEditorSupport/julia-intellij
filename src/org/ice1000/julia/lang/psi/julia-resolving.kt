@@ -8,11 +8,16 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import icons.JuliaIcons
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JuliaTokenType
+import org.ice1000.julia.lang.UNKNOWN_VALUE_PLACEHOLDER
+import org.ice1000.julia.lang.orFalse
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 import org.ice1000.julia.lang.psi.impl.JuliaAbstractSymbol
 
 /**
+ * 这不是我们这些鼠辈能碰的!!!
+ * resolving的核心代码
+ * 你要是搞懂了就能吊打我了		--ice1000
  * @author ice1000
  * element should be only [JuliaSymbol] or [JuliaMacroSymbol]
  */
