@@ -22,15 +22,6 @@ import java.util.*
 import javax.swing.JComboBox
 
 /**
- * Only can be used in IntelliJ IDEA runtime, not in test cases.
- */
-val defaultExePath by lazy {
-	PropertiesComponent.getInstance().getValue(JULIA_SDK_HOME_PATH_ID, "")
-		.takeIf { it.isNotBlank() and validateJuliaExe(it) }
-		?: juliaPath
-}
-
-/**
  * Can be used in test cases.
  */
 val juliaPath by lazy {

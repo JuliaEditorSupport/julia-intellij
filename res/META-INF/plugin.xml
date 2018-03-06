@@ -1,6 +1,6 @@
 <idea-plugin>
 	<name>Julia</name>
-	<version>0.1.6</version>
+	<version>0.1.7</version>
 	<id>org.ice1000.julia</id>
 	<vendor email="ice1000kotlin@foxmail.com" url="http://ice1000.org">ice1000</vendor>
 	<idea-version since-build="162.0"/>

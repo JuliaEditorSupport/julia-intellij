@@ -277,6 +277,8 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 	override fun apply() {
 		val selected = alternativeExecutables.comboBox.selectedItem.toString()
 		juliaGlobalSettings.knownJuliaExes += selected
-// TODO packageInfo needs to be cached
+		/**
+		 * TODO packageInfo needs to be cached, see [juliaGlobalSettings]
+		 */
 	}
 }

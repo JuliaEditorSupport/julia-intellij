@@ -6,6 +6,6 @@ fun main(args: Array<String>) {
 	if (!System.getenv("CI").isNullOrBlank()) return
 	println(executeCommand("ls", null, 100L).first)
 	println(executeCommand("whereis julia", null, 500L).first)
-	println(defaultExePath)
+	println(juliaPath)
 	println("" in arrayOf(""))
 }
