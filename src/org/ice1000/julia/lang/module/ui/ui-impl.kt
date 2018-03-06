@@ -73,10 +73,7 @@ class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
 		}
 		usefulText.isVisible = false
 		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
-		juliaExeField.addBrowseFolderListener(
-			null,
-			FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor())
-		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
+		initExeComboBox(juliaExeField)
 		selectJuliaExecutableRadioButton.isSelected = true
 	}
 
@@ -127,10 +124,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project))
 		basePathField.text = settings.basePath
 		basePathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project))
-		juliaExeField.addBrowseFolderListener(
-			null,
-			FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor())
-		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
+		initExeComboBox(juliaExeField)
 		juliaExeField.comboBox.addPropertyChangeListener {
 			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@addPropertyChangeListener
 			importPathField.text = importPathOf(exePath, 800L)
@@ -213,7 +207,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 			loadPackages(false)
 		}
 
-		juliaGlobalSettings.knownJuliaExes.forEach(alternativeExecutables.comboBox::addItem)
+		initExeComboBox(alternativeExecutables)
 		alternativeExecutables.comboBox.selectedItem = settings.exePath
 		packagesList.setShowGrid(false)
 	}

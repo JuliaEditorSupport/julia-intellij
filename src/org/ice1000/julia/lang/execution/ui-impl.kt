@@ -3,10 +3,9 @@ package org.ice1000.julia.lang.execution
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.TextComponentAccessor
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.JuliaFileType
-import org.ice1000.julia.lang.module.juliaGlobalSettings
+import org.ice1000.julia.lang.module.initExeComboBox
 import org.jetbrains.annotations.Contract
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -15,11 +14,6 @@ import java.util.*
 class JuliaRunConfigurationEditorImpl(configuration: JuliaRunConfiguration, project: Project) :
 	JuliaRunConfigurationEditor() {
 	init {
-		juliaExeField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-compiler"),
-			JuliaBundle.message("julia.messages.run.select-compiler.description"),
-			project,
-			FileChooserDescriptorFactory.createSingleFileDescriptor(),
-			TextComponentAccessor.STRING_COMBOBOX_WHOLE_TEXT)
 		workingDirField.addBrowseFolderListener(JuliaBundle.message("julia.messages.run.select-working-dir"),
 			JuliaBundle.message("julia.messages.run.select-working-dir.description"),
 			project,
@@ -38,7 +32,7 @@ class JuliaRunConfigurationEditorImpl(configuration: JuliaRunConfiguration, proj
 			noneUserAll.forEach(codeCovOptions::addItem)
 			noneUserAll.forEach(trackAllocOptions::addItem)
 		}
-		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
+		initExeComboBox(juliaExeField, project)
 		resetEditorFrom(configuration)
 	}
 
