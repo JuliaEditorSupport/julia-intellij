@@ -1,26 +1,18 @@
 package org.ice1000.julia.lang.module.ui
 
-import com.intellij.execution.configurations.GeneralCommandLine
-import com.intellij.execution.process.CapturingProcessHandler
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.ide.util.projectWizard.SettingsStep
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.Task
+import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.ui.TextBrowseFolderListener
-import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.ui.*
 import com.intellij.platform.ProjectGeneratorPeer
 import icons.JuliaIcons
-import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
-import org.ice1000.julia.lang.JuliaBundle
-import org.ice1000.julia.lang.executeJulia
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
+import org.intellij.lang.annotations.Language
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -211,9 +203,14 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 				 * FIXME: it cannot show result(cannot be terminated until time limit)
 				 */
 				ProgressManager.getInstance()
-					.run(object : Task.Backgroundable(project, JuliaBundle.message("julia.messages.package.installing-string.head") + it, true) {
+					.run(object :
+						Task.Backgroundable(
+							project,
+							JuliaBundle.message("julia.messages.package.installing-string.head") + it,
+							true) {
 						override fun run(indicator: ProgressIndicator) {
 							indicator.text = "${JuliaBundle.message("julia.messages.package.installing-string.head")} $it ..."
+							//language=Julia
 							executeJulia(settings.exePath, """Pkg.add("$it")""", 1000000L)
 						}
 
@@ -230,25 +227,25 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 			}
 		}
 		buttonRemove.addActionListener {
-			// FIXME: it cannot show result(cannot be terminated until time limit)
+			// FIXME: it cannot show result (cannot be terminated until time limit)
 			val removePackageName = packagesList.getValueAt(packagesList.selectedRow, 0).toString()
 			ProgressManager.getInstance()
 				.run(object : Task.Backgroundable(
 					project,
 					JuliaBundle.message("julia.messages.package.remove"),
 					true) {
-				override fun run(indicator: ProgressIndicator) {
-					indicator.text = JuliaBundle.message("julia.messages.package.remove") + removePackageName
-					executeJulia(settings.exePath,"""Pkg.rm("$removePackageName")""", 20_000L)
-					Messages.showDialog(
-						project,
-						removePackageName + JuliaBundle.message("julia.messages.doc-format.installed"),
-						JuliaBundle.message("julia.messages.doc-format.installed.title"),
-						arrayOf(JuliaBundle.message("julia.yes")),
-						0,
-						JuliaIcons.JOJO_ICON)
-				}
-			})
+					override fun run(indicator: ProgressIndicator) {
+						indicator.text = JuliaBundle.message("julia.messages.package.remove") + removePackageName
+						executeJulia(settings.exePath, """Pkg.rm("$removePackageName")""", 20_000L)
+						Messages.showDialog(
+							project,
+							removePackageName + JuliaBundle.message("julia.messages.doc-format.installed"),
+							JuliaBundle.message("julia.messages.doc-format.installed.title"),
+							arrayOf(JuliaBundle.message("julia.yes")),
+							0,
+							JuliaIcons.JOJO_ICON)
+					}
+				})
 		}
 
 		buttonRefresh.addActionListener {
