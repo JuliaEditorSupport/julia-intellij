@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 import kotlin.test.assertTrue
 
-fun main(args: Array<String>) {
+private fun main(args: Array<String>) {
 	val process = Runtime.getRuntime().exec("/home/ice1000/SDK/julia-6.2/bin/julia -q").also {
 		//language=Julia
 		it.outputStream.let {
