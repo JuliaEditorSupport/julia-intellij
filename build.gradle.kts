@@ -14,12 +14,13 @@ import java.util.stream.Collectors
 
 val isCI = !System.getenv("CI").isNullOrBlank()
 val commitHash = kotlin.run {
-	val output: String
 	val process: Process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
 	process.waitFor(2000L, TimeUnit.MILLISECONDS)
-	output = process.inputStream.`fuck kotlin! it doesn't support "use" here` {
-		bufferedReader().`fuck kotlin! it doesn't support "use" here` {
-			readText()
+	@Suppress("RemoveExplicitTypeArguments")
+	val output = process.inputStream.use {
+		process.inputStream.use {
+			// TODO workaround for KT-23156
+			it.readBytes().let<ByteArray, String>(::String)
 		}
 	}
 	process.destroy()
@@ -85,10 +86,14 @@ java {
 }
 
 tasks.withType<KotlinCompile> {
-	dependsOn("genParser")
-	dependsOn("genLexer")
-	dependsOn("genDocfmtParser")
-	dependsOn("genDocfmtLexer")
+	listOf(
+		"genParser",
+		"genLexer",
+		"genDocfmtParser",
+		"genDocfmtLexer"
+	).forEach {
+		dependsOn(it)
+	}
 	kotlinOptions {
 		jvmTarget = "1.8"
 	}
@@ -125,14 +130,6 @@ java.sourceSets {
 	}
 }
 
-@Suppress("FunctionName", "ConvertTryFinallyToUseCall")
-inline fun <reified Closable : Closeable, reified Unit : Any>
-	Closable.`fuck kotlin! it doesn't support "use" here`(block: Closable.() -> Unit): Unit = try {
-	block()
-} finally {
-	close()
-}
-
 // TODO workaround for KT-23077
 inline fun <reified TheTask : BaseTask>
 	Project.genTask(name: String, noinline configuration: TheTask.() -> Unit) =
@@ -144,8 +141,8 @@ repositories {
 
 dependencies {
 	compileOnly(kotlin("stdlib", kotlinVersion))
-	compileOnly("org.commonjava.googlecode.markdown4j:markdown4j:2.2-cj-1.1")
-	compile(files(Paths.get("lib", "org.eclipse.egit.github.core-2.1.5.jar")))
+	compileOnly("org.commonjava.googlecode.markdown4j", "markdown4j", "2.2-cj-1.1")
+	compile(files(*Files.list(Paths.get("lib")).filter { !Files.isDirectory(it) }.toArray()))
 	testCompile(kotlin("test-junit", kotlinVersion))
 	testCompile("junit", "junit", "4.12")
 }
