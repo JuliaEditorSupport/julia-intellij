@@ -223,7 +223,7 @@ class GitHubErrorReporter : ErrorReportSubmitter() {
  *
  * @author patrick (17.06.17).
  */
-class GitHubErrorBean(throwable: Throwable, lastAction: String) : ErrorBean(throwable, lastAction) {
+class GitHubErrorBean(throwable: Throwable, lastAction: String?) : ErrorBean(throwable, lastAction) {
 	val exceptionHash = Arrays.hashCode(throwable.stackTrace).toString()
 }
 

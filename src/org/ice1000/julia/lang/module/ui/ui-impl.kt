@@ -12,7 +12,6 @@ import com.intellij.platform.ProjectGeneratorPeer
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.NumberFormat
@@ -221,7 +220,15 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 			}
 		}
 		buttonRemove.addActionListener {
-			val removePackageName = packagesList.getValueAt(packagesList.selectedRow, 0).toString()
+			val index = packagesList.selectedRow
+			if (index < 0) {
+				Messages.showInfoMessage(
+					project,
+					JuliaBundle.message("julia.messages.package.not-selected"),
+					JuliaBundle.message("julia.messages.package.not-selected.title"))
+				return@addActionListener
+			}
+			val removePackageName = packagesList.getValueAt(index, 0).toString()
 			ProgressManager.getInstance().run(object :
 				Task.Backgroundable(
 					project,
@@ -229,6 +236,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					true) {
 				override fun run(indicator: ProgressIndicator) {
 					indicator.text = JuliaBundle.message("julia.messages.package.remove", removePackageName)
+					//language=Julia
 					printJulia(settings.exePath, 20_000L, """Pkg.rm("$removePackageName")""")
 					Messages.showDialog(
 						project,
@@ -271,14 +279,14 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					namesList.mapTo(packageInfos) { InfoData(it, "") }
 				}
 
-				val sizeToDouble = namesList.size.toDouble()
+				val sizeToDouble = namesList.size.coerceAtLeast(1).toDouble()
 				val versionList = namesList.mapIndexed { index, it ->
 					val process = Runtime.getRuntime().exec(
 						arrayOf(gitPath, "describe", "--abbrev=0", "--tags"),
 						emptyArray(),
 						Paths.get(settings.importPath, it).toFile())
 					indicator.fraction = index / sizeToDouble
-					val second = process.inputStream.reader().use { it.readText().removePrefix("v").trim() }
+					val second = process.inputStream.use { it.reader().use { it.readText().trim() } }
 					tempDataModel.setValueAt(second, index, 1)
 					it to second
 				}.toList()
