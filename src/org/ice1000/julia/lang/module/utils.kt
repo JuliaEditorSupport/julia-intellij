@@ -130,8 +130,8 @@ fun installDocumentFormat(
 			override fun onSuccess() = ApplicationManager.getApplication().invokeLater {
 				Messages.showDialog(
 					project,
-					JuliaBundle.message("julia.messages.doc-format.installed"),
-					JuliaBundle.message("julia.messages.package.installed.title"),
+					JuliaBundle.message("julia.messages.package.installed", DOCFMT_LANGUAGE_NAME),
+					JuliaBundle.message("julia.messages.package.success"),
 					arrayOf(JuliaBundle.message("julia.yes")),
 					0,
 					JuliaIcons.JOJO_ICON)

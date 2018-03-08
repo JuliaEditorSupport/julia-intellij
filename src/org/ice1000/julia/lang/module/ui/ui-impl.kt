@@ -2,16 +2,21 @@ package org.ice1000.julia.lang.module.ui
 
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.ide.util.projectWizard.SettingsStep
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.*
+import com.intellij.openapi.ui.TextBrowseFolderListener
+import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectGeneratorPeer
 import icons.JuliaIcons
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
+import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.action.JuliaAddPkgAction
+import org.ice1000.julia.lang.action.JuliaRemovePkgAction
 import org.ice1000.julia.lang.module.*
+import java.awt.BorderLayout
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.NumberFormat
@@ -187,71 +192,18 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 
 	init {
 		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
-
-		buttonAdd.addActionListener {
-			Messages.showInputDialog(
-				project,
-				JuliaBundle.message("julia.messages.package.add"),
-				JuliaBundle.message("julia.messages.package.add.title"),
-				JuliaIcons.JOJO_ICON,
-				"",
-				null)?.let {
-				ProgressManager.getInstance().run(object :
-					Task.Backgroundable(
-						project,
-						JuliaBundle.message("julia.messages.package.installing", it),
-						true) {
-					override fun run(indicator: ProgressIndicator) {
-						indicator.text = JuliaBundle.message("julia.messages.package.installing", it)
-						//language=Julia
-						printJulia(settings.exePath, 10_000L, """Pkg.add("$it")""")
-					}
-
-					override fun onSuccess() = ApplicationManager.getApplication().invokeLater {
-						Messages.showDialog(
-							project,
-							JuliaBundle.message("julia.messages.package.installed", it),
-							JuliaBundle.message("julia.messages.package.installed.title"),
-							arrayOf(JuliaBundle.message("julia.yes")),
-							0,
-							JuliaIcons.JOJO_ICON)
-					}
-				})
-			}
-		}
-		buttonRemove.addActionListener {
-			val index = packagesList.selectedRow
-			if (index < 0) {
-				Messages.showInfoMessage(
-					project,
-					JuliaBundle.message("julia.messages.package.not-selected"),
-					JuliaBundle.message("julia.messages.package.not-selected.title"))
-				return@addActionListener
-			}
-			val removePackageName = packagesList.getValueAt(index, 0).toString()
-			ProgressManager.getInstance().run(object :
-				Task.Backgroundable(
-					project,
-					JuliaBundle.message("julia.messages.package.remove", removePackageName),
-					true) {
-				override fun run(indicator: ProgressIndicator) {
-					indicator.text = JuliaBundle.message("julia.messages.package.remove", removePackageName)
-					//language=Julia
-					printJulia(settings.exePath, 20_000L, """Pkg.rm("$removePackageName")""")
-					Messages.showDialog(
-						project,
-						JuliaBundle.message("julia.messages.package.removed", removePackageName),
-						JuliaBundle.message("julia.messages.package.installed.title"),
-						arrayOf(JuliaBundle.message("julia.yes")),
-						0,
-						JuliaIcons.JOJO_ICON)
+		val actions = DefaultActionGroup(
+			JuliaAddPkgAction(alternativeExecutables),
+			JuliaRemovePkgAction(alternativeExecutables, packagesList),
+			object : AnAction(JuliaIcons.REFRESH_ICON) {
+				override fun actionPerformed(e: AnActionEvent?) {
+					loadPackages(false)
 				}
 			})
-		}
-
-		buttonRefresh.addActionListener {
-			loadPackages(false)
-		}
+		actionsPanel.add(ActionManager
+			.getInstance()
+			.createActionToolbar(ActionPlaces.MAIN_TOOLBAR, actions, false)
+			.component, BorderLayout.CENTER)
 
 		initExeComboBox(alternativeExecutables)
 		alternativeExecutables.comboBox.selectedItem = settings.exePath
@@ -262,7 +214,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 	 * `Fill in my data parameters` INITIALIZATION
 	 * @param default Value (true is called by dialog initialization, and false is called by refresh button.)
 	 */
-	private fun loadPackages(default: Boolean = true) {
+	fun loadPackages(default: Boolean = true) {
 		ProgressManager.getInstance().run(object :
 			Task.Backgroundable(
 				project,
