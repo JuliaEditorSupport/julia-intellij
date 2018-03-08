@@ -3,7 +3,7 @@
 
 package org.ice1000.julia.lang.module
 
-import org.ice1000.julia.lang.executeCommand
+import org.ice1000.julia.lang.*
 import java.io.File
 import java.nio.file.*
 import java.util.function.Predicate
@@ -20,7 +20,7 @@ val packageInfos = emptyList<InfoData>().toMutableList()
  */
 fun packageNamesList(importPathNullable: String? = null): Stream<String> {
 	val importPath = importPathNullable
-		?: executeCommand(juliaPath, "Pkg.dir()", 5000L)
+		?: printJulia(juliaPath, timeLimit = 5000L, expr = "Pkg.dir()")
 			.first
 			.firstOrNull()
 			.let { it ?: return Stream.empty() }

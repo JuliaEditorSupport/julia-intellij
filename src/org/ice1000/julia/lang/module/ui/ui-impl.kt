@@ -12,7 +12,6 @@ import com.intellij.platform.ProjectGeneratorPeer
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
-import org.intellij.lang.annotations.Language
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -206,19 +205,19 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					.run(object :
 						Task.Backgroundable(
 							project,
-							JuliaBundle.message("julia.messages.package.installing-string.head") + it,
+							JuliaBundle.message("julia.messages.package.installing", it),
 							true) {
 						override fun run(indicator: ProgressIndicator) {
-							indicator.text = "${JuliaBundle.message("julia.messages.package.installing-string.head")} $it ..."
+							indicator.text = JuliaBundle.message("julia.messages.package.installing", it)
 							//language=Julia
-							executeJulia(settings.exePath, """Pkg.add("$it")""", 1000000L)
+							printJulia(settings.exePath, 10_000L, """Pkg.add("$it")""")
 						}
 
 						override fun onSuccess() = ApplicationManager.getApplication().invokeLater {
 							Messages.showDialog(
 								project,
-								it + JuliaBundle.message("julia.messages.doc-format.installed"),
-								JuliaBundle.message("julia.messages.doc-format.installed.title"),
+								JuliaBundle.message("julia.messages.package.installed", it),
+								JuliaBundle.message("julia.messages.package.installed.title"),
 								arrayOf(JuliaBundle.message("julia.yes")),
 								0,
 								JuliaIcons.JOJO_ICON)
@@ -227,7 +226,6 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 			}
 		}
 		buttonRemove.addActionListener {
-			// FIXME: it cannot show result (cannot be terminated until time limit)
 			val removePackageName = packagesList.getValueAt(packagesList.selectedRow, 0).toString()
 			ProgressManager.getInstance()
 				.run(object : Task.Backgroundable(
@@ -236,11 +234,11 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					true) {
 					override fun run(indicator: ProgressIndicator) {
 						indicator.text = JuliaBundle.message("julia.messages.package.remove") + removePackageName
-						executeJulia(settings.exePath, """Pkg.rm("$removePackageName")""", 20_000L)
+						printJulia(settings.exePath, 20_000L, """Pkg.rm("$removePackageName")""")
 						Messages.showDialog(
 							project,
-							removePackageName + JuliaBundle.message("julia.messages.doc-format.installed"),
-							JuliaBundle.message("julia.messages.doc-format.installed.title"),
+							removePackageName + JuliaBundle.message("julia.messages.package.removed", removePackageName),
+							JuliaBundle.message("julia.messages.package.installed.title"),
 							arrayOf(JuliaBundle.message("julia.yes")),
 							0,
 							JuliaIcons.JOJO_ICON)

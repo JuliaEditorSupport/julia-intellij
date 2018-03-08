@@ -1,7 +1,9 @@
 package org.ice1000.julia.lang.execution
 
 import com.intellij.util.SystemProperties
+import org.ice1000.julia.lang.executeJulia
 import org.ice1000.julia.lang.module.*
+import org.ice1000.julia.lang.printJulia
 import org.junit.Test
 import java.io.File
 
@@ -16,6 +18,13 @@ class JuliaPackageTest {
 		if (!System.getenv("CI").isNullOrBlank()) return
 		println(juliaPath)
 		packageNamesList().forEach(::println)
+	}
+
+	@Test
+	fun testCheckPackageInstallation() {
+		if (!System.getenv("CI").isNullOrBlank()) return
+		printJulia(juliaPath, expr = "Pkg.installed(\"DocumentFormat\")")
+			.let(::println)
 	}
 
 	@Test

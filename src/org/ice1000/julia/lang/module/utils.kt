@@ -4,7 +4,6 @@
 package org.ice1000.julia.lang.module
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil
-import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.progress.*
@@ -132,7 +131,7 @@ fun installDocumentFormat(
 				Messages.showDialog(
 					project,
 					JuliaBundle.message("julia.messages.doc-format.installed"),
-					JuliaBundle.message("julia.messages.doc-format.installed.title"),
+					JuliaBundle.message("julia.messages.package.installed.title"),
 					arrayOf(JuliaBundle.message("julia.yes")),
 					0,
 					JuliaIcons.JOJO_ICON)
