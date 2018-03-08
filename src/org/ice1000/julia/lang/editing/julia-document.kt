@@ -41,8 +41,10 @@ class JuliaDocumentWindowImpl : JuliaDocumentWindow(), ToolWindowFactory {
 	//TODO: change its content like PyCharm Document
 
 	override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-		val contentFactory = ContentFactory.SERVICE.getInstance()
-		val content = contentFactory.createContent(documentWindowPanel, "", false)
+		val content = ContentFactory
+			.SERVICE
+			.getInstance()
+			.createContent(mainPanel, "", false)
 		toolWindow.contentManager.addContent(content)
 	}
 }
