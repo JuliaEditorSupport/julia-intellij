@@ -134,7 +134,9 @@ dependencies {
 		exclude(module = "kotlin-reflect")
 	}
 	compileOnly("org.commonjava.googlecode.markdown4j", "markdown4j", "2.2-cj-1.1")
-	compile("org.eclipse.mylyn.github","org.eclipse.egit.github.core","2.1.5")
+	implementation("org.eclipse.mylyn.github","org.eclipse.egit.github.core","2.1.5"){
+		exclude(module = "gson")
+	}
 	testCompile(kotlin("test-junit", kotlinVersion))
 	testCompile("junit", "junit", "4.12")
 }
