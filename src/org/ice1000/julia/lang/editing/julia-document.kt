@@ -14,19 +14,17 @@ import org.ice1000.julia.lang.psi.impl.docString
 import com.intellij.ui.content.ContentFactory
 import org.ice1000.julia.lang.psi.JuliaSymbol
 
-
 class JuliaDocumentProvider : AbstractDocumentationProvider() {
 	override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
 		val symbol = element as? JuliaSymbol ?: return null
 		if (symbol.isFunctionName) {
-			(symbol.parent as IJuliaFunctionDeclaration).let { parent ->
-				parent.docString?.text?.let {
-					return "function $parent${
-					if (PlatformUtils.isGoIde())
-						MarkdownProcessor().markdown(it)
-					else Processor.process(it)
-					}"
-				}
+			val parent = symbol.parent as? IJuliaFunctionDeclaration ?: return null
+			parent.docString?.text?.let {
+				return "function $parent${
+				if (PlatformUtils.isGoIde())
+					MarkdownProcessor().markdown(it)
+				else Processor.process(it)
+				}"
 			}
 		}
 		return null
