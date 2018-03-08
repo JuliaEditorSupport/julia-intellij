@@ -192,58 +192,53 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		buttonAdd.addActionListener {
 			Messages.showInputDialog(
 				project,
-				"Package name",
-				"Add Package",
+				JuliaBundle.message("julia.messages.package.add"),
+				JuliaBundle.message("julia.messages.package.add.title"),
 				JuliaIcons.JOJO_ICON,
 				"",
-				null
-			)?.let {
-				/**
-				 * FIXME: it cannot show result(cannot be terminated until time limit)
-				 */
-				ProgressManager.getInstance()
-					.run(object :
-						Task.Backgroundable(
-							project,
-							JuliaBundle.message("julia.messages.package.installing", it),
-							true) {
-						override fun run(indicator: ProgressIndicator) {
-							indicator.text = JuliaBundle.message("julia.messages.package.installing", it)
-							//language=Julia
-							printJulia(settings.exePath, 10_000L, """Pkg.add("$it")""")
-						}
-
-						override fun onSuccess() = ApplicationManager.getApplication().invokeLater {
-							Messages.showDialog(
-								project,
-								JuliaBundle.message("julia.messages.package.installed", it),
-								JuliaBundle.message("julia.messages.package.installed.title"),
-								arrayOf(JuliaBundle.message("julia.yes")),
-								0,
-								JuliaIcons.JOJO_ICON)
-						}
-					})
-			}
-		}
-		buttonRemove.addActionListener {
-			val removePackageName = packagesList.getValueAt(packagesList.selectedRow, 0).toString()
-			ProgressManager.getInstance()
-				.run(object : Task.Backgroundable(
-					project,
-					JuliaBundle.message("julia.messages.package.remove"),
-					true) {
+				null)?.let {
+				ProgressManager.getInstance().run(object :
+					Task.Backgroundable(
+						project,
+						JuliaBundle.message("julia.messages.package.installing", it),
+						true) {
 					override fun run(indicator: ProgressIndicator) {
-						indicator.text = JuliaBundle.message("julia.messages.package.remove") + removePackageName
-						printJulia(settings.exePath, 20_000L, """Pkg.rm("$removePackageName")""")
+						indicator.text = JuliaBundle.message("julia.messages.package.installing", it)
+						//language=Julia
+						printJulia(settings.exePath, 10_000L, """Pkg.add("$it")""")
+					}
+
+					override fun onSuccess() = ApplicationManager.getApplication().invokeLater {
 						Messages.showDialog(
 							project,
-							removePackageName + JuliaBundle.message("julia.messages.package.removed", removePackageName),
+							JuliaBundle.message("julia.messages.package.installed", it),
 							JuliaBundle.message("julia.messages.package.installed.title"),
 							arrayOf(JuliaBundle.message("julia.yes")),
 							0,
 							JuliaIcons.JOJO_ICON)
 					}
 				})
+			}
+		}
+		buttonRemove.addActionListener {
+			val removePackageName = packagesList.getValueAt(packagesList.selectedRow, 0).toString()
+			ProgressManager.getInstance().run(object :
+				Task.Backgroundable(
+					project,
+					JuliaBundle.message("julia.messages.package.remove", removePackageName),
+					true) {
+				override fun run(indicator: ProgressIndicator) {
+					indicator.text = JuliaBundle.message("julia.messages.package.remove", removePackageName)
+					printJulia(settings.exePath, 20_000L, """Pkg.rm("$removePackageName")""")
+					Messages.showDialog(
+						project,
+						JuliaBundle.message("julia.messages.package.removed", removePackageName),
+						JuliaBundle.message("julia.messages.package.installed.title"),
+						arrayOf(JuliaBundle.message("julia.yes")),
+						0,
+						JuliaIcons.JOJO_ICON)
+				}
+			})
 		}
 
 		buttonRefresh.addActionListener {
@@ -257,7 +252,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 
 	/**
 	 * `Fill in my data parameters` INITIALIZATION
-	 * @param default Value{true is called by dialog initialization, and false is called by refresh button.}
+	 * @param default Value (true is called by dialog initialization, and false is called by refresh button.)
 	 */
 	private fun loadPackages(default: Boolean = true) {
 		ProgressManager.getInstance().run(object :
@@ -281,7 +276,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					val process = Runtime.getRuntime().exec(
 						arrayOf(gitPath, "describe", "--abbrev=0", "--tags"),
 						emptyArray(),
-						"${settings.importPath}${File.separator}$it".let(::File))
+						Paths.get(settings.importPath, it).toFile())
 					indicator.fraction = index / sizeToDouble
 					val second = process.inputStream.reader().use { it.readText().removePrefix("v").trim() }
 					tempDataModel.setValueAt(second, index, 1)
