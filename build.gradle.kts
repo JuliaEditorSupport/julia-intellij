@@ -134,7 +134,7 @@ dependencies {
 		exclude(module = "kotlin-reflect")
 	}
 	compileOnly("org.commonjava.googlecode.markdown4j", "markdown4j", "2.2-cj-1.1")
-	compile(files(*Files.list(Paths.get("lib")).filter { !Files.isDirectory(it) }.toArray()))
+	compile("org.eclipse.mylyn.github","org.eclipse.egit.github.core","2.1.5")
 	testCompile(kotlin("test-junit", kotlinVersion))
 	testCompile("junit", "junit", "4.12")
 }
