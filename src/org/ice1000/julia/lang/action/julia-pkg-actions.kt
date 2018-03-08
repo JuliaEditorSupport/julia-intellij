@@ -7,14 +7,13 @@ import com.intellij.openapi.progress.*
 import com.intellij.openapi.ui.Messages
 import com.intellij.ui.ComboboxWithBrowseButton
 import com.intellij.ui.table.JBTable
-import com.intellij.util.PlatformIcons
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.printJulia
 
 class JuliaRemovePkgAction(
 	private val box: ComboboxWithBrowseButton,
-	private val packagesList: JBTable) : AnAction(PlatformIcons.DELETE_ICON) {
+	private val packagesList: JBTable) : AnAction(JuliaIcons.REMOVE_ICON) {
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.project ?: return
 		val index = packagesList.selectedRow
@@ -47,7 +46,7 @@ class JuliaRemovePkgAction(
 	}
 }
 
-class JuliaAddPkgAction(private val box: ComboboxWithBrowseButton) : AnAction(PlatformIcons.ADD_ICON) {
+class JuliaAddPkgAction(private val box: ComboboxWithBrowseButton) : AnAction(JuliaIcons.ADD_ICON) {
 	private var out: Pair<List<String>, List<String>>? = null
 	private var packageName = ""
 	override fun actionPerformed(e: AnActionEvent) {
