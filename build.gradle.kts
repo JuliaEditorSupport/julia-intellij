@@ -104,14 +104,14 @@ val SourceSet.kotlin
 		.kotlin
 
 java.sourceSets {
-	getByName("main").apply {
+	"main" {
 		listOf(java, kotlin).forEach {
 			it.srcDirs("src", "gen")
 		}
 		resources.srcDirs("res")
 	}
 
-	getByName("test").apply {
+	"test" {
 		listOf(java, kotlin).forEach {
 			it.srcDirs("test")
 		}
