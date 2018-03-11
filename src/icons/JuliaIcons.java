@@ -26,4 +26,7 @@ public interface JuliaIcons {
 
 	@NotNull Icon JULIA_IF_ICON = IconLoader.getIcon("/icons/structure-view/if.png");
 	@NotNull Icon JULIA_WHILE_ICON = IconLoader.getIcon("/icons/structure-view/while.png");
+	@NotNull Icon REFRESH_ICON = IconLoader.getIcon("/actions/refresh.png");
+	@NotNull Icon ADD_ICON = IconLoader.getIcon("/general/add.png");
+	@NotNull Icon REMOVE_ICON = IconLoader.getIcon("/general/remove.png");
 }

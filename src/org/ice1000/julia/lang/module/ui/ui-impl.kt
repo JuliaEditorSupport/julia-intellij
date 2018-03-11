@@ -2,21 +2,21 @@ package org.ice1000.julia.lang.module.ui
 
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.ide.util.projectWizard.SettingsStep
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.Task
+import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectGeneratorPeer
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
 import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.action.JuliaAddPkgAction
+import org.ice1000.julia.lang.action.JuliaRemovePkgAction
 import org.ice1000.julia.lang.module.*
-import java.io.File
+import java.awt.BorderLayout
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.NumberFormat
@@ -26,9 +26,6 @@ import javax.swing.table.DefaultTableModel
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
 
-/**
- * 这里放所有ui的子类实现
- */
 
 class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : JuliaSetupSdkWizardStep() {
 	init {
@@ -195,32 +192,18 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 
 	init {
 		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
-
-		buttonAdd.addActionListener {
-			Messages.showInputDialog(
-				project,
-				"Package name",
-				"Add Package",
-				JuliaIcons.JOJO_ICON,
-				"",
-				null
-			)?.let {
-				/**
-				 * TODO install, see [installDocumentFormat]
-				 */
-			}
-		}
-		buttonRemove.addActionListener {
-			Messages.showDialog(
-				"Nothing to remove",
-				"Remove Package",
-				arrayOf(JuliaBundle.message("julia.yes")),
-				0,
-				JuliaIcons.JOJO_ICON)
-		}
-		buttonRefresh.addActionListener {
-			loadPackages(false)
-		}
+		val actions = DefaultActionGroup(
+			JuliaAddPkgAction(alternativeExecutables),
+			JuliaRemovePkgAction(alternativeExecutables, packagesList),
+			object : AnAction(JuliaIcons.REFRESH_ICON) {
+				override fun actionPerformed(e: AnActionEvent?) {
+					loadPackages(false)
+				}
+			})
+		actionsPanel.add(ActionManager
+			.getInstance()
+			.createActionToolbar(ActionPlaces.MAIN_TOOLBAR, actions, false)
+			.component, BorderLayout.CENTER)
 
 		initExeComboBox(alternativeExecutables)
 		alternativeExecutables.comboBox.selectedItem = settings.exePath
@@ -229,9 +212,9 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 
 	/**
 	 * `Fill in my data parameters` INITIALIZATION
-	 * @param default Value{true is called by dialog initialization, and false is called by refresh button.}
+	 * @param default Value (true is called by dialog initialization, and false is called by refresh button.)
 	 */
-	private fun loadPackages(default: Boolean = true) {
+	fun loadPackages(default: Boolean = true) {
 		ProgressManager.getInstance().run(object :
 			Task.Backgroundable(
 				project,
@@ -248,14 +231,14 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					namesList.mapTo(packageInfos) { InfoData(it, "") }
 				}
 
-				val sizeToDouble = namesList.size.toDouble()
+				val sizeToDouble = namesList.size.coerceAtLeast(1).toDouble()
 				val versionList = namesList.mapIndexed { index, it ->
 					val process = Runtime.getRuntime().exec(
 						arrayOf(gitPath, "describe", "--abbrev=0", "--tags"),
 						emptyArray(),
-						"${settings.importPath}${File.separator}$it".let(::File))
+						Paths.get(settings.importPath, it).toFile())
 					indicator.fraction = index / sizeToDouble
-					val second = process.inputStream.reader().use { it.readText().removePrefix("v").trim() }
+					val second = process.inputStream.use { it.reader().use { it.readText().trim() } }
 					tempDataModel.setValueAt(second, index, 1)
 					it to second
 				}.toList()

@@ -7,26 +7,29 @@ import org.jetbrains.grammarkit.tasks.GenerateParser
 import org.jetbrains.intellij.tasks.PatchPluginXmlTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.utils.sure
 import java.io.*
 import java.nio.file.*
+import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 
 val isCI = !System.getenv("CI").isNullOrBlank()
 val commitHash = kotlin.run {
-	val output: String
 	val process: Process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
 	process.waitFor(2000L, TimeUnit.MILLISECONDS)
-	output = process.inputStream.`fuck kotlin! it doesn't support "use" here` {
-		bufferedReader().`fuck kotlin! it doesn't support "use" here` {
-			readText()
+	@Suppress("RemoveExplicitTypeArguments")
+	val output = process.inputStream.use {
+		process.inputStream.use {
+			// TODO workaround for KT-23156
+			it.readBytes().let<ByteArray, String>(::String)
 		}
 	}
 	process.destroy()
 	output.trim()
 }
 
-val pluginComingVersion = "0.1.7"
+val pluginComingVersion = "0.1.8"
 val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
 val packageName = "org.ice1000.julia"
 val kotlinVersion: String by extra
@@ -53,19 +56,22 @@ buildscript {
 }
 
 plugins {
+	idea
+	java
 	id("org.jetbrains.intellij") version "0.2.18"
+	kotlin("jvm") version "1.2.30"
+}
+
+idea {
+	module {
+		// https://github.com/gradle/kotlin-dsl/issues/537/
+		excludeDirs.add(file("pinpoint-piggy"))
+	}
 }
 
 allprojects {
 	apply {
-		listOf(
-			"kotlin",
-			"java",
-			"org.jetbrains.grammarkit",
-			"org.jetbrains.intellij"
-		).forEach {
-			plugin(it)
-		}
+		plugin("org.jetbrains.grammarkit")
 	}
 
 	intellij {
@@ -84,20 +90,6 @@ java {
 	targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-tasks.withType<KotlinCompile> {
-	dependsOn("genParser")
-	dependsOn("genLexer")
-	dependsOn("genDocfmtParser")
-	dependsOn("genDocfmtLexer")
-	kotlinOptions {
-		jvmTarget = "1.8"
-	}
-}
-
-tasks.withType<Delete> {
-	dependsOn("cleanGenerated")
-}
-
 tasks.withType<PatchPluginXmlTask> {
 	changeNotes(file("res/META-INF/change-notes.html").readText())
 	pluginDescription(file("res/META-INF/description.html").readText())
@@ -112,25 +104,19 @@ val SourceSet.kotlin
 		.kotlin
 
 java.sourceSets {
-	getByName("main").apply {
-		java.srcDirs("src", "gen")
-		kotlin.srcDirs("src", "gen")
+	"main" {
+		listOf(java, kotlin).forEach {
+			it.srcDirs("src", "gen")
+		}
 		resources.srcDirs("res")
 	}
 
-	getByName("test").apply {
-		java.srcDirs("test")
-		kotlin.srcDirs("test")
+	"test" {
+		listOf(java, kotlin).forEach {
+			it.srcDirs("test")
+		}
 		resources.srcDirs("testData")
 	}
-}
-
-@Suppress("FunctionName", "ConvertTryFinallyToUseCall")
-inline fun <reified Closable : Closeable, reified Unit : Any>
-	Closable.`fuck kotlin! it doesn't support "use" here`(block: Closable.() -> Unit): Unit = try {
-	block()
-} finally {
-	close()
 }
 
 // TODO workaround for KT-23077
@@ -144,7 +130,15 @@ repositories {
 
 dependencies {
 	compileOnly(kotlin("stdlib", kotlinVersion))
-	compile(files(Paths.get("lib", "org.eclipse.egit.github.core-2.1.5.jar")))
+	compile(kotlin("stdlib-jdk8", kotlinVersion).toString()) {
+		exclude(module = "kotlin-runtime")
+		exclude(module = "kotlin-reflect")
+		exclude(module = "kotlin-stdlib")
+	}
+	compileOnly("org.commonjava.googlecode.markdown4j", "markdown4j", "2.2-cj-1.1")
+	implementation("org.eclipse.mylyn.github","org.eclipse.egit.github.core","2.1.5"){
+		exclude(module = "gson")
+	}
 	testCompile(kotlin("test-junit", kotlinVersion))
 	testCompile("junit", "junit", "4.12")
 }
@@ -165,48 +159,73 @@ task("isCI") {
 	}
 }
 
-genTask<GenerateParser>("genParser") {
+val parserRoot: Path = Paths.get("org", "ice1000", "julia", "lang")
+val lexerRoot: Path = Paths.get("gen", "org", "ice1000", "julia", "lang")
+fun path(more: Iterable<*>) = more.joinToString(File.separator)
+fun bnf(name: String) = Paths.get("grammar", "$name-grammar.bnf").toString()
+fun flex(name: String) = Paths.get("grammar", "$name-lexer.flex").toString()
+
+val genParser = genTask<GenerateParser>("genParser") {
 	group = "build setup"
 	description = "Generate the Parser and PsiElement classes"
-	source = "grammar/julia-grammar.bnf"
+	source = bnf("julia")
 	targetRoot = "gen/"
-	pathToParser = "org/ice1000/julia/lang/JuliaParser.java"
-	pathToPsiRoot = "org/ice1000/julia/lang/psi"
+	pathToParser = path(parserRoot + "JuliaParser.java")
+	pathToPsiRoot = path(parserRoot + "psi")
 	purgeOldFiles = true
 }
 
-genTask<GenerateLexer>("genLexer") {
+val genLexer = genTask<GenerateLexer>("genLexer") {
 	group = "build setup"
 	description = "Generate the Lexer"
-	source = "grammar/julia-lexer.flex"
-	targetDir = "gen/org/ice1000/julia/lang"
+	source = flex("julia")
+	targetDir = path(lexerRoot)
 	targetClass = "JuliaLexer"
 	purgeOldFiles = true
 }
 
-genTask<GenerateParser>("genDocfmtParser") {
+val genDocfmtParser = genTask<GenerateParser>("genDocfmtParser") {
 	group = "build setup"
 	description = "Generate the Parser for DocumentFormat.jl"
-	source = "grammar/docfmt-grammar.bnf"
+	source = bnf("docfmt")
 	targetRoot = "gen/"
-	pathToParser = "org/ice1000/julia/lang/docfmt/DocfmtParser.java"
-	pathToPsiRoot = "org/ice1000/julia/lang/docfmt/psi"
+	val root = parserRoot + "docfmt"
+	pathToParser = path(root + "DocfmtParser.java")
+	pathToPsiRoot = path(root + "psi")
 	purgeOldFiles = true
 }
 
-genTask<GenerateLexer>("genDocfmtLexer") {
+val genDocfmtLexer = genTask<GenerateLexer>("genDocfmtLexer") {
 	group = "build setup"
 	description = "Generate the Lexer for DocumentFormat.jl"
-	source = "grammar/docfmt-lexer.flex"
-	targetDir = "gen/org/ice1000/julia/lang/docfmt"
+	source = flex("docfmt")
+	targetDir = path(lexerRoot + "docfmt")
 	targetClass = "DocfmtLexer"
 	purgeOldFiles = true
 }
 
-task("cleanGenerated") {
+val cleanGenerated = task("cleanGenerated") {
 	group = "build"
 	description = "Remove all generated codes"
 	doFirst {
-		delete("gen")
+		delete("gen", "pinpoint-piggy")
 	}
+}
+
+tasks.withType<KotlinCompile> {
+	dependsOn(
+		genParser,
+		genLexer,
+		genDocfmtParser,
+		genDocfmtLexer
+	)
+	kotlinOptions {
+		jvmTarget = "1.8"
+		languageVersion = "1.2"
+		apiVersion = "1.2"
+	}
+}
+
+tasks.withType<Delete> {
+	dependsOn(cleanGenerated)
 }

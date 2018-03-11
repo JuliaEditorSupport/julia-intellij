@@ -10,7 +10,7 @@
 	<depends optional="true" config-file="plugin-goland.xml">com.intellij.modules.go</depends>
 	<extensions defaultExtensionNs="com.intellij">
 		<internalFileTemplate name="Julia Module"/>
-		<gotoClassContributor implementation="org.ice1000.julia.lang.psi.JuliaModuleNavigationContributor"/>
+		<!--<gotoClassContributor implementation="org.ice1000.julia.lang.psi.JuliaModuleNavigationContributor"/>-->
 		<additionalTextAttributes scheme="Darcula" file="/colorSchemes/Julia.xml"/>
 		<additionalTextAttributes scheme="Default" file="/colorSchemes/Julia.xml"/>
 		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>
@@ -76,6 +76,13 @@
 		<lang.formatter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFormattingModelBuilder"/>
+		<lang.documentationProvider
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaDocumentProvider"/>
+		<toolWindow
+			id="Julia Document"
+			secondary="true" icon="/icons/julia.png" anchor="left"
+			factoryClass="org.ice1000.julia.lang.editing.JuliaDocumentWindowImpl"/>
 		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>

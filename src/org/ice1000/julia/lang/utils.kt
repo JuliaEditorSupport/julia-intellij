@@ -4,7 +4,6 @@ import com.google.common.util.concurrent.SimpleTimeLimiter
 import com.intellij.openapi.util.TextRange
 import org.ice1000.julia.lang.module.validateJuliaExe
 import java.io.InputStream
-import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 
@@ -15,6 +14,10 @@ inline fun forceRun(lambda: () -> Unit) {
 	}
 }
 
+fun printJulia(
+	exePath: String, timeLimit: Long = 2000L, expr: String) =
+	executeJulia(exePath, null, timeLimit, "--print", expr)
+
 /**
  * @param exePath the home path of the Julia SDK currently used
  * @param code doesn't need to `quit()`, because this function will automatically add one if code != null
@@ -23,9 +26,9 @@ inline fun forceRun(lambda: () -> Unit) {
  * @return (stdout, stderr)
  */
 fun executeJulia(
-	exePath: String, code: String?, timeLimit: Long, vararg params: String) =
+	exePath: String, code: String? = null, timeLimit: Long = 2000L, vararg params: String) =
 	executeCommand(
-		"${Paths.get(exePath).toAbsolutePath()} ${params.joinToString(" ")}",
+		"$exePath ${params.joinToString(" ")}",
 		code?.let { "$it\nquit()" },
 		timeLimit)
 
@@ -47,8 +50,8 @@ fun executeCommand(
 		SimpleTimeLimiter().callWithTimeout({
 			val process: Process = Runtime.getRuntime().exec(command)
 			processRef = process
-			if (input != null) process.outputStream.use {
-				it.write(input.toByteArray())
+			process.outputStream.use {
+				if (input != null) it.write(input.toByteArray())
 				it.flush()
 			}
 			process.waitFor()
@@ -70,8 +73,6 @@ private fun collectLines(it: InputStream): List<String> {
 }
 
 fun TextRange.narrow(fromStart: Int, toEnd: Int) = TextRange(startOffset + fromStart, endOffset - toEnd)
-fun TextRange.subRangeBeginOffsetAndLength(beginOffset: Int, textLength: Int) =
-	TextRange(startOffset + beginOffset, startOffset + beginOffset + textLength)
 
 fun String.trimQuotePair() = trim('\'', '\"', '`')
 

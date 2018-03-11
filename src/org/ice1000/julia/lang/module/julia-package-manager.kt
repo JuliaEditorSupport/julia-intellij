@@ -3,7 +3,7 @@
 
 package org.ice1000.julia.lang.module
 
-import org.ice1000.julia.lang.executeCommand
+import org.ice1000.julia.lang.*
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -21,9 +21,9 @@ val packageInfos = emptyList<InfoData>().toMutableList()
  * @notice Do not use [File.list] (or [File.listFiles]) with 2 parameter filter
  *         because the first param will be `let(::File)`'s dir
  */
-fun packageNamesList(importPathNullable: String? = null): Stream<out String> {
+fun packageNamesList(importPathNullable: String? = null): Stream<String> {
 	val importPath = importPathNullable
-		?: executeCommand(juliaPath, "Pkg.dir()", 5000L)
+		?: printJulia(juliaPath, timeLimit = 5000L, expr = "Pkg.dir()")
 			.first
 			.firstOrNull()
 			.let { it ?: return Stream.empty() }

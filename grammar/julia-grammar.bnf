@@ -585,7 +585,7 @@ importExpr ::=
 
 using ::=
  USING_KEYWORD endOfLine
-  access? (commaSep access)* { extends=expr }
+  access? (COLON_SYM symbolAndMacroSymbol)? (commaSep access)* { extends=expr }
 
 ifExpr ::=
  IF_KEYWORD expr EOL
