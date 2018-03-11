@@ -129,9 +129,11 @@ repositories {
 }
 
 dependencies {
+	compileOnly(kotlin("stdlib", kotlinVersion))
 	compile(kotlin("stdlib-jdk8", kotlinVersion).toString()) {
 		exclude(module = "kotlin-runtime")
 		exclude(module = "kotlin-reflect")
+		exclude(module = "kotlin-stdlib")
 	}
 	compileOnly("org.commonjava.googlecode.markdown4j", "markdown4j", "2.2-cj-1.1")
 	implementation("org.eclipse.mylyn.github","org.eclipse.egit.github.core","2.1.5"){
@@ -226,12 +228,4 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Delete> {
 	dependsOn(cleanGenerated)
-}
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-	jvmTarget = "1.8"
-}
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-	jvmTarget = "1.8"
 }
