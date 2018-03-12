@@ -604,10 +604,10 @@ forComprehension ::=
  RIGHT_M_BRACKET { extends=expr }
 
 comprehensionElement ::=
- expr endOfLine
+ endOfLine expr endOfLine
  (FOR_KEYWORD
  singleComprehension
-  (commaSep singleComprehension)?)*
+  (commaSep singleComprehension)?)* endOfLine
 
 singleComprehension ::= indexer (IF_KEYWORD expr)?
 

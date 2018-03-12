@@ -7,14 +7,12 @@ value_names = Symbol[genvar(t) for t in tokens]
 value_defaults = Tuple(CONVERSION_DEFAULTS[t] for t in tokens)
 R = typeof(value_defaults)
 
-# ①
-
-# assign_defaults = Expr[
-#     quote
-#         $name = $default
-#     end
-#     for (name, default) in zip(value_names, value_defaults)
-# ]
+assign_defaults = Expr[
+    quote
+        $name = $default
+    end
+    for (name, default) in zip(value_names, value_defaults)
+]
 
 
 ($op)(X::StridedArray{<:GeneralPeriod}, Y::StridedArray{<:GeneralPeriod}) =
