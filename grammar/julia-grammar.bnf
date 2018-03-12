@@ -161,7 +161,7 @@ private expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 namedParameter ::= symbol endOfLine EQ_SYM endOfLine expr
 
 // lowest
-applyMacroOp ::= macroSymbol expr*
+applyMacroOp ::= macroSymbol expr
 
 // naming: level+number or type+level or type+levelOp
 expr ::=
