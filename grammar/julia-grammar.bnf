@@ -250,8 +250,8 @@ ternaryOp ::= expr QUESTION_SYM endOfLine rangeOp { pin=2 }
 
 // level 16
 private suffixedExpr ::=
-   applyIndexOp
- | applyFunctionOp
+   applyFunctionOp
+ | applyIndexOp
  | memberAccessOp
  | applyWhereOp
  | type
@@ -259,9 +259,8 @@ private suffixedExpr ::=
 type ::= expr typeParameters { extends=expr }
 
 applyIndexOp ::=
- expr LEFT_M_BRACKET endOfLine
-  expressionList? endOfLine
-  comprehensionElement*
+ expr LEFT_M_BRACKET
+ comprehensionElement
  RIGHT_M_BRACKET (DOT_SYM expr)? // FIXME this code doesn't parse
 
 applyWhereOp ::= expr whereClause
@@ -303,7 +302,7 @@ andOp ::= expr AND_SYM endOfLine expr
 // level 5
 lambda ::=
  (symbol | tuple | LEFT_BRACKET RIGHT_BRACKET)
-  LAMBDA_ABSTRACTION endOfLine expr {
+  LAMBDA_ABSTRACTION endOfLine? expr {
 	rightAssociative=true
 	extends=expr
 }
@@ -495,7 +494,7 @@ union ::= UNION_KEYWORD tuple { extends=expr }
 
 tuple ::=
  LEFT_BRACKET endOfLine
-  expr (commaSep expr)+ endOfLine COMMA_SYM? endOfLine
+  expr (commaSep expr)*
  RIGHT_BRACKET { extends=expr }
 
 private commaSep ::= endOfLine COMMA_SYM endOfLine
@@ -588,7 +587,7 @@ using ::=
   access? (COLON_SYM symbolAndMacroSymbol)? (commaSep access)* { extends=expr }
 
 ifExpr ::=
- IF_KEYWORD expr EOL
+ IF_KEYWORD expr EOL?
   statements
   elseIfClause*
   elseClause?
