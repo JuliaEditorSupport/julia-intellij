@@ -151,7 +151,7 @@ typedNamedVariable ::=
 
 typeParameters ::=
  LEFT_B_BRACKET endOfLine
-  expr (commaSep expr?)* endOfLine
+  expr? (commaSep expr?)* endOfLine
  RIGHT_B_BRACKET
 
 userType ::= primaryExpr typeParameters?
@@ -302,7 +302,7 @@ andOp ::= expr AND_SYM endOfLine expr
 // level 5
 lambda ::=
  (symbol | tuple | LEFT_BRACKET RIGHT_BRACKET)
-  LAMBDA_ABSTRACTION endOfLine? expr {
+  LAMBDA_ABSTRACTION expr {
 	rightAssociative=true
 	extends=expr
 }
@@ -494,7 +494,7 @@ union ::= UNION_KEYWORD tuple { extends=expr }
 
 tuple ::=
  LEFT_BRACKET endOfLine
-  expr (commaSep expr)*
+  expr (commaSep expr)* endOfLine COMMA_SYM? endOfLine
  RIGHT_BRACKET { extends=expr }
 
 private commaSep ::= endOfLine COMMA_SYM endOfLine
@@ -605,9 +605,9 @@ forComprehension ::=
 
 comprehensionElement ::=
  expr endOfLine
- FOR_KEYWORD
+ (FOR_KEYWORD
  singleComprehension
-  (commaSep singleComprehension)?
+  (commaSep singleComprehension)?)*
 
 singleComprehension ::= indexer (IF_KEYWORD expr)?
 
