@@ -260,7 +260,7 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			.getParentOfType(this, JuliaAssignOp::class.java, true, JuliaStatements::class.java)
 			?.children
 			?.lastOrNull { it is JuliaExpr }
-			?.let { it as JuliaExpr }
+			?.let { it as? JuliaExpr }
 			?.type
 			?.also { field = it }
 		else field

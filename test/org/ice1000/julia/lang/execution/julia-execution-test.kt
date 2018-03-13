@@ -56,7 +56,7 @@ class ExecutionTest {
 	fun testTimeout() {
 		measureTimeMillis {
 			// just test if it will throw exceptions
-			executeCommand("watch \"git status\"", timeLimit = 100L)
+			executeCommand("wget www.google.com", timeLimit = 100L)
 		}.let {
 			assertTrue(it >= 100L)
 		}
