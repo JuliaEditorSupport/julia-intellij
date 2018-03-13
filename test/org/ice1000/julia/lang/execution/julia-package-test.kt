@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.execution
 
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.SystemProperties
 import org.ice1000.julia.lang.executeJulia
 import org.ice1000.julia.lang.module.*
@@ -31,7 +32,7 @@ class JuliaPackageTest {
 	fun testListVersionFaster() {
 		if (!validateJuliaExe(juliaPath)) return
 		when (SystemProperties.getUserName()) {
-			"zh" -> packageNamesList(importPathOf(juliaPath)).forEach {
+			"zh" -> if (SystemInfo.isWindows) packageNamesList(importPathOf(juliaPath)).forEach {
 				val process = Runtime.getRuntime().exec("git describe --abbrev=0 --tags", emptyArray(), "C:\\Users\\zh\\.julia\\v0.6\\$it".let(::File))
 				println(process.inputStream.reader().readText().removePrefix("v").trim())
 			}
