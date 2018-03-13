@@ -13,6 +13,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
+import org.ice1000.julia.lang.forceRun
 import org.ice1000.julia.lang.module.compareVersion
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.toYesNo
@@ -39,8 +40,10 @@ class JuliaCommandLineState(
 			params += "--handle-signals=${handleSignalOption.toYesNo()}"
 			params += "--startup-file=${startupFileOption.toYesNo()}"
 			// julia#9384, a bug of 0.4.x
-			if (compareVersion(settings.version, "0.5.0") >= 0)
-				params += "--optimize=$optimizationLevel"
+			forceRun {
+				if (compareVersion(settings.version, "0.5.0") >= 0)
+					params += "--optimize=$optimizationLevel"
+			}
 			params += "--compile=$jitCompiler"
 			params += "--depwarn=$deprecationWarning"
 			params += "--code-coverage=$codeCoverage"
