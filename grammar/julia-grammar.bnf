@@ -634,7 +634,9 @@ tryCatch ::=
 
 catchClause ::=
  CATCH_KEYWORD symbol? endOfLine
- statements
+ statements {
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaCatchDeclarationMixin'
+}
 
 finallyClause ::=
  FINALLY_KEYWORD statements
