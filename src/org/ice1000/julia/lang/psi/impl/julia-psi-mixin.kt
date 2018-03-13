@@ -5,9 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import org.ice1000.julia.lang.JuliaTokenType
-import org.ice1000.julia.lang.UNKNOWN_VALUE_PLACEHOLDER
-import org.ice1000.julia.lang.orFalse
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 
 interface DocStringOwner : PsiElement
@@ -292,11 +290,4 @@ abstract class JuliaModuleDeclarationMixin(node: ASTNode) : JuliaDeclaration(nod
 
 abstract class JuliaCatchDeclarationMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCatchClause {
 	override fun getNameIdentifier() = symbol
-
-	override fun processDeclarations(
-		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		nameIdentifier
-			?.takeIf { it != place }
-			?.let { processor.execute(it, substitutor) }
-			.orFalse() and super.processDeclarations(processor, substitutor, lastParent, place)
 }

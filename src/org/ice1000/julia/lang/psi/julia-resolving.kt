@@ -75,6 +75,8 @@ abstract class ResolveProcessor<ResolveResult>(private val place: PsiElement) : 
 	fun isInScope(element: PsiElement) = if (element is JuliaSymbol) when {
 		element.isFunctionParameter -> PsiTreeUtil.isAncestor(
 			PsiTreeUtil.getParentOfType(element, IJuliaFunctionDeclaration::class.java), place, true)
+		element.isCatchSymbol -> PsiTreeUtil.isAncestor(
+			PsiTreeUtil.getParentOfType(element, JuliaCatchClause::class.java), place, true)
 		element.isDeclaration -> PsiTreeUtil.isAncestor(
 			PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), place, false)
 		else -> false
@@ -116,7 +118,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
 		if (element is JuliaSymbol) {
 			val (icon, value, tail, type) = when {
-				element.isVariableName -> quadOf(
+				element.isVariableName or element.isCatchSymbol -> quadOf(
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,
