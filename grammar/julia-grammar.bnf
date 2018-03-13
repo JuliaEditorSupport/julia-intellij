@@ -151,7 +151,7 @@ typedNamedVariable ::=
 
 typeParameters ::=
  LEFT_B_BRACKET endOfLine
-  expr (commaSep expr?)* endOfLine
+  expr? (commaSep expr?)* endOfLine
  RIGHT_B_BRACKET
 
 userType ::= primaryExpr typeParameters?
@@ -161,7 +161,7 @@ private expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 namedParameter ::= symbol endOfLine EQ_SYM endOfLine expr
 
 // lowest
-applyMacroOp ::= macroSymbol expr*
+applyMacroOp ::= macroSymbol expr
 
 // naming: level+number or type+level or type+levelOp
 expr ::=
@@ -250,8 +250,8 @@ ternaryOp ::= expr QUESTION_SYM endOfLine rangeOp { pin=2 }
 
 // level 16
 private suffixedExpr ::=
-   applyIndexOp
- | applyFunctionOp
+   applyFunctionOp
+ | applyIndexOp
  | memberAccessOp
  | applyWhereOp
  | type
@@ -259,9 +259,8 @@ private suffixedExpr ::=
 type ::= expr typeParameters { extends=expr }
 
 applyIndexOp ::=
- expr LEFT_M_BRACKET endOfLine
-  expressionList? endOfLine
-  comprehensionElement*
+ expr LEFT_M_BRACKET
+ comprehensionElement
  RIGHT_M_BRACKET (DOT_SYM expr)? // FIXME this code doesn't parse
 
 applyWhereOp ::= expr whereClause
@@ -303,7 +302,7 @@ andOp ::= expr AND_SYM endOfLine expr
 // level 5
 lambda ::=
  (symbol | tuple | LEFT_BRACKET RIGHT_BRACKET)
-  LAMBDA_ABSTRACTION endOfLine expr {
+  LAMBDA_ABSTRACTION expr {
 	rightAssociative=true
 	extends=expr
 }
@@ -495,7 +494,7 @@ union ::= UNION_KEYWORD tuple { extends=expr }
 
 tuple ::=
  LEFT_BRACKET endOfLine
-  expr (commaSep expr)+ endOfLine COMMA_SYM? endOfLine
+  expr (commaSep expr)* endOfLine COMMA_SYM? endOfLine
  RIGHT_BRACKET { extends=expr }
 
 private commaSep ::= endOfLine COMMA_SYM endOfLine
@@ -588,7 +587,7 @@ using ::=
   access? (COLON_SYM symbolAndMacroSymbol)? (commaSep access)* { extends=expr }
 
 ifExpr ::=
- IF_KEYWORD expr EOL
+ IF_KEYWORD expr EOL?
   statements
   elseIfClause*
   elseClause?
@@ -605,10 +604,10 @@ forComprehension ::=
  RIGHT_M_BRACKET { extends=expr }
 
 comprehensionElement ::=
- expr endOfLine
- FOR_KEYWORD
+ endOfLine expr endOfLine
+ (FOR_KEYWORD
  singleComprehension
-  (commaSep singleComprehension)?
+  (commaSep singleComprehension)?)* endOfLine
 
 singleComprehension ::= indexer (IF_KEYWORD expr)?
 

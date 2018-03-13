@@ -10,7 +10,7 @@ FILE
           JuliaSymbolImpl(SYMBOL)
             PsiElement(SYM)('include')
           PsiElement(LEFT_BRACKET)('(')
-          JuliaArgumentsImpl(ARGUMENTS)
+          JuliaComprehensionElementImpl(COMPREHENSION_ELEMENT)
             JuliaStringImpl(STRING)
               PsiElement(QUOTE_START)('"')
               JuliaStringContentImpl(STRING_CONTENT)
