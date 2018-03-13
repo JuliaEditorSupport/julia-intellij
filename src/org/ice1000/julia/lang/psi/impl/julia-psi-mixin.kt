@@ -4,9 +4,10 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JuliaTokenType
+import org.ice1000.julia.lang.UNKNOWN_VALUE_PLACEHOLDER
+import org.ice1000.julia.lang.orFalse
 import org.ice1000.julia.lang.psi.*
 
 interface DocStringOwner : PsiElement
@@ -99,11 +100,22 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 		super.subtreeChanged()
 	}
 
+	/**
+	 * 查找定义的玩意
+	 * @param processor 处理器, 不知道干什么的
+	 * @param substitutor 处理状态?不知道干什么的
+	 * @param lastParent 这个也不知道, 待会再试试
+	 * @param place 要查找的PsiElement
+	 */
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
 		functionSignature?.run {
+			//函数本体
+			//这execute。。。反正返回fasle就得停止解析
+			//typedNamedVariableList 大概是函数的参数集合
 			typedNamedVariableList.all { processor.execute(it.firstChild, substitutor) }
 		}.orFalse() and super.processDeclarations(processor, substitutor, lastParent, place)
+	//如果还是没找到定义, 就找让爸爸妈妈去找
 }
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
