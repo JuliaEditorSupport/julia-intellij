@@ -36,7 +36,6 @@ unaryOpAsSymbol ::=
 
 opAsSymbol ::=
    SEMICOLON_SYM
- | COMMA_SYM
  | QUESTION_SYM
  | SUBTYPE_SYM
  | INVERSE_DIV_SYM
@@ -267,12 +266,12 @@ applyWhereOp ::= expr whereClause
 
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
-  (comprehensionElement+ | arguments)
+  (arguments | comprehensionElement+)?
   endOfLine
  RIGHT_BRACKET doBlock?
 
 arguments ::=
- (expressionList endOfLine)?
+ (expressionList endOfLine)
  (SEMICOLON_SYM endOfLine
   (
     namedParameter
