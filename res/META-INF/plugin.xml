@@ -8,7 +8,10 @@
 	<depends optional="true" config-file="plugin-goland.xml">com.intellij.modules.go</depends>
 	<extensions defaultExtensionNs="com.intellij">
 		<internalFileTemplate name="Julia Module"/>
-		<!--<gotoClassContributor implementation="org.ice1000.julia.lang.psi.JuliaModuleNavigationContributor"/>-->
+		<internalFileTemplate name="Julia Function"/>
+		<internalFileTemplate name="Julia Type"/>
+		<internalFileTemplate name="Julia File"/>
+<!--<gotoClassContributor implementation="org.ice1000.julia.lang.psi.JuliaModuleNavigationContributor"/>-->
 		<additionalTextAttributes scheme="Darcula" file="/colorSchemes/Julia.xml"/>
 		<additionalTextAttributes scheme="Default" file="/colorSchemes/Julia.xml"/>
 		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>

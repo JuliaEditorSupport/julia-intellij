@@ -237,7 +237,7 @@ FILE
                   JuliaSymbolImpl(SYMBOL)
                     PsiElement(SYM)('value_defaults')
                 PsiElement(RIGHT_BRACKET)(')')
-          PsiElement(EOL)('\n')
+        PsiElement(EOL)('\n')
         PsiElement(RIGHT_M_BRACKET)(']')
     PsiElement(EOL)('\n\n\n')
     JuliaAssignOpImpl(ASSIGN_OP)

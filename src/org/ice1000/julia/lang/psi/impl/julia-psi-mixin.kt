@@ -4,7 +4,6 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
@@ -186,6 +185,7 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	val isFunctionParameter: Boolean
 	val isVariableName: Boolean
 	val isGlobalName: Boolean
+	val isCatchSymbol: Boolean
 	val isDeclaration: Boolean
 }
 
@@ -238,6 +238,7 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	final override val isPrimitiveTypeName by lazy { parent is JuliaPrimitiveTypeDeclaration }
 	final override val isFunctionParameter by lazy { parent is JuliaTypedNamedVariable && this === parent.firstChild }
 	final override val isGlobalName: Boolean by lazy { parent is JuliaGlobalStatement }
+	final override val isCatchSymbol: Boolean by lazy { parent is JuliaCatchClause }
 	final override val isVariableName by lazy {
 		parent is JuliaAssignOp && this === parent.firstChild || parent is JuliaSymbolLhs
 	}
@@ -250,7 +251,8 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			isTypeName or
 			isAbstractTypeName or
 			isGlobalName or
-			isPrimitiveTypeName
+			isPrimitiveTypeName or
+			isCatchSymbol
 	}
 
 	override var type: Type? = null
@@ -258,7 +260,7 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			.getParentOfType(this, JuliaAssignOp::class.java, true, JuliaStatements::class.java)
 			?.children
 			?.lastOrNull { it is JuliaExpr }
-			?.let { it as JuliaExpr }
+			?.let { it as? JuliaExpr }
 			?.type
 			?.also { field = it }
 		else field
@@ -283,5 +285,9 @@ abstract class JuliaExprMixin(node: ASTNode) : ASTWrapperPsiElement(node), Julia
 interface IJuliaModuleDeclaration : PsiNameIdentifierOwner, DocStringOwner
 
 abstract class JuliaModuleDeclarationMixin(node: ASTNode) : JuliaDeclaration(node), JuliaModuleDeclaration {
+	override fun getNameIdentifier() = symbol
+}
+
+abstract class JuliaCatchDeclarationMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCatchClause {
 	override fun getNameIdentifier() = symbol
 }

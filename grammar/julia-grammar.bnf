@@ -161,7 +161,7 @@ private expressionList ::= expr (COMMA_SYM endOfLine expr)* COMMA_SYM?
 namedParameter ::= symbol endOfLine EQ_SYM endOfLine expr
 
 // lowest
-applyMacroOp ::= macroSymbol expr
+applyMacroOp ::= macroSymbol expr expr*// BUG: `expr+` is useless, and I don't know why~
 
 // naming: level+number or type+level or type+levelOp
 expr ::=
@@ -260,7 +260,7 @@ type ::= expr typeParameters { extends=expr }
 
 applyIndexOp ::=
  expr LEFT_M_BRACKET
- comprehensionElement
+ (comprehensionElement (COMMA_SYM comprehensionElement)*)? endOfLine
  RIGHT_M_BRACKET (DOT_SYM expr)? // FIXME this code doesn't parse
 
 applyWhereOp ::= expr whereClause
@@ -576,15 +576,12 @@ export ::=
   (commaSep memberAccessOp)* { extends=expr }
 
 importAllExpr ::=
- IMPORTALL_KEYWORD access {extends=expr}
+ IMPORTALL_KEYWORD access { extends=expr }
 
-importExpr ::=
- IMPORT_KEYWORD endOfLine
-  access (COLON_SYM symbolAndMacroSymbol)? (commaSep access)*{extends=expr}
+private imported ::= access (COLON_SYM symbolAndMacroSymbol)? (commaSep access)*
 
-using ::=
- USING_KEYWORD endOfLine
-  access? (COLON_SYM symbolAndMacroSymbol)? (commaSep access)* { extends=expr }
+importExpr ::= IMPORT_KEYWORD endOfLine imported { extends=expr }
+using ::= USING_KEYWORD endOfLine imported { extends=expr }
 
 ifExpr ::=
  IF_KEYWORD expr EOL?
@@ -600,14 +597,14 @@ elseClause ::= ELSE_KEYWORD statements
 
 forComprehension ::=
  LEFT_M_BRACKET endOfLine
-  comprehensionElement+
+  comprehensionElement+ endOfLine
  RIGHT_M_BRACKET { extends=expr }
 
 comprehensionElement ::=
  endOfLine expr endOfLine
  (FOR_KEYWORD
  singleComprehension
-  (commaSep singleComprehension)?)* endOfLine
+  (commaSep singleComprehension)?)*
 
 singleComprehension ::= indexer (IF_KEYWORD expr)?
 
@@ -634,7 +631,10 @@ tryCatch ::=
 
 catchClause ::=
  CATCH_KEYWORD symbol? endOfLine
- statements
+ statements {
+	implements=['com.intellij.psi.PsiNameIdentifierOwner']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaCatchDeclarationMixin'
+}
 
 finallyClause ::=
  FINALLY_KEYWORD statements

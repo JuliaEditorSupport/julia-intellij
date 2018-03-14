@@ -78,7 +78,10 @@ allprojects {
 		updateSinceUntilBuild = false
 		instrumentCode = true
 		when (System.getProperty("user.name")) {
-			"ice1000" -> localPath = "/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/173.4548.28"
+			"ice1000" -> {
+				localPath = "/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/173.4548.28"
+				alternativeIdePath = "/home/ice1000/.local/share/JetBrains/Toolbox/apps/PyCharm-C/ch-0/173.4674.37"
+			}
 			"hoshino" -> localPath = "/home/hoshino/Documents/IntelliJ"
 			"zh" -> version = "2017.3"
 		}
@@ -136,7 +139,7 @@ dependencies {
 		exclude(module = "kotlin-stdlib")
 	}
 	compileOnly("org.commonjava.googlecode.markdown4j", "markdown4j", "2.2-cj-1.1")
-	implementation("org.eclipse.mylyn.github","org.eclipse.egit.github.core","2.1.5"){
+	compile("org.eclipse.mylyn.github", "org.eclipse.egit.github.core", "2.1.5") {
 		exclude(module = "gson")
 	}
 	testCompile(kotlin("test-junit", kotlinVersion))
