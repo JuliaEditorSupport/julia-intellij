@@ -260,7 +260,7 @@ type ::= expr typeParameters { extends=expr }
 
 applyIndexOp ::=
  expr LEFT_M_BRACKET
- comprehensionElement? endOfLine
+ (comprehensionElement (COMMA_SYM comprehensionElement)*)? endOfLine
  RIGHT_M_BRACKET (DOT_SYM expr)? // FIXME this code doesn't parse
 
 applyWhereOp ::= expr whereClause
