@@ -266,19 +266,21 @@ applyWhereOp ::= expr whereClause
 
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
-  (arguments | comprehensionElement+)?
+  (
+     comprehensionElement+
+   | arguments
+   | (expressionList endOfLine)
+  )?
   endOfLine
  RIGHT_BRACKET doBlock?
 
 arguments ::=
- (expressionList endOfLine)
- (SEMICOLON_SYM endOfLine
-  (
-    namedParameter
-   (commaSep namedParameter)*
-  )?
-  endOfLine
+ SEMICOLON_SYM endOfLine
+ (
+   namedParameter
+  (commaSep namedParameter)*
  )?
+ endOfLine
 
 private symbolLhsInternal ::= symbol | LEFT_BRACKET symbol RIGHT_BRACKET
 symbolLhs ::=
@@ -601,9 +603,10 @@ forComprehension ::=
 
 comprehensionElement ::=
  endOfLine expr endOfLine
- (FOR_KEYWORD
- singleComprehension
-  (commaSep singleComprehension)?)*
+ (
+  FOR_KEYWORD
+  singleComprehension
+   (commaSep singleComprehension)?)+
 
 singleComprehension ::= indexer (IF_KEYWORD expr)?
 
