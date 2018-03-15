@@ -12,6 +12,7 @@ class JuliaExperimentalParsingTest : ParsingTestCase(
 	fun testComment() {
 		doTest(true)
 	}
+
 	fun testBlockComment() {
 		doTest(true)
 	}
@@ -57,6 +58,11 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 
 	fun testParseIssue135() {
 		println(name)
+		doTest(true)
+	}
+
+	fun testComment() {
+		println("我永远喜欢结城明日奈")
 		doTest(true)
 	}
 

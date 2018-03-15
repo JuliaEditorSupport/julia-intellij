@@ -18,7 +18,7 @@ class JuliaParserExperimental : PsiParser, LightPsiParser {
 	}
 
 	override fun parseLight(root: IElementType, builder: PsiBuilder) {
-		val mark = builder.markAndAdvance()
+		val mark = builder.mark()
 		builder.parse(root)
 		mark.done(root)
 	}
@@ -27,11 +27,14 @@ class JuliaParserExperimental : PsiParser, LightPsiParser {
 		fun PsiBuilder.markAndAdvance() = mark().also { advanceLexer() }
 
 		fun PsiBuilder.parse(root: IElementType) {
-			println(root)
 			while (!eof()) {
 				println(tokenType)
-				advanceLexer()
-				if (tokenType == JuliaTypes.LINE_COMMENT) {
+				when (tokenType) {
+					JuliaTypes.SYM -> {
+						val mark = markAndAdvance()
+						mark.done(JuliaTypes.SYMBOL)
+					}
+					else -> advanceLexer()
 				}
 				// TODO 太难了，太难了
 				// TODO 没有金刚钻，别揽瓷器活。。。
