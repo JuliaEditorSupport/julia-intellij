@@ -4,6 +4,7 @@ import com.intellij.lang.*
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.IElementType
 import org.ice1000.julia.lang.JuliaParserDefinition
+import org.ice1000.julia.lang.psi.JuliaTypes
 
 /**
  * !!!In progress!!!
@@ -28,6 +29,10 @@ class JuliaParserExperimental : PsiParser, LightPsiParser {
 		fun PsiBuilder.parse(root: IElementType) {
 			println(root)
 			while (!eof()) {
+				println(tokenType)
+				advanceLexer()
+				if (tokenType == JuliaTypes.LINE_COMMENT) {
+				}
 				// TODO 太难了，太难了
 				// TODO 没有金刚钻，别揽瓷器活。。。
 			}

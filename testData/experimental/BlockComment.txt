@@ -1,0 +1,4 @@
+FILE
+  PsiComment(BLOCK_COMMENT_START)('#=')
+  PsiComment(BLOCK_COMMENT_BODY)('\nBlockComment:\n- Julia version: \n- Author: ice1000\n- Date: 2018-03-15\n')
+  PsiComment(BLOCK_COMMENT_END)('=#')

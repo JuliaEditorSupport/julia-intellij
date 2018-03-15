@@ -1,0 +1,2 @@
+FILE
+  PsiComment(LINE_COMMENT)('# ass we can')

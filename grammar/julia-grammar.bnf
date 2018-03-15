@@ -265,7 +265,7 @@ applyIndexOp ::=
   (comprehensionElement | expr)
   (COMMA_SYM (comprehensionElement | expr))*
  )? endOfLine
- RIGHT_M_BRACKET (DOT_SYM expr)? // FIXME this code doesn't parse
+ RIGHT_M_BRACKET
 
 applyWhereOp ::= expr whereClause
 
@@ -590,13 +590,13 @@ importExpr ::= IMPORT_KEYWORD endOfLine imported { extends=expr }
 using ::= USING_KEYWORD endOfLine imported { extends=expr }
 
 ifExpr ::=
- IF_KEYWORD expr endOfLineImpl
+ IF_KEYWORD expr endOfLine
   statements
   elseIfClause*
   elseClause?
  END_KEYWORD
 
-elseIfClause ::= ELSEIF_KEYWORD expr endOfLineImpl
+elseIfClause ::= ELSEIF_KEYWORD expr endOfLine
  statements
 
 elseClause ::= ELSE_KEYWORD statements
