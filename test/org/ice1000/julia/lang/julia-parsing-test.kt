@@ -5,18 +5,18 @@ import org.ice1000.julia.lang.docfmt.DocfmtParserDefinition
 import org.ice1000.julia.lang.parsing.JuliaParserDefinitionExperimental
 import org.junit.Test
 
-class JuliaExperimentalParsingTest : ParsingTestCase(
-	"", JULIA_EXTENSION, JuliaParserDefinitionExperimental()) {
-	override fun getTestDataPath() = "testData/experimental"
-	override fun skipSpaces() = true
-	fun testComment() {
-		doTest(true)
-	}
-
-	fun testBlockComment() {
-		doTest(true)
-	}
-}
+//class JuliaExperimentalParsingTest : ParsingTestCase(
+//	"", JULIA_EXTENSION, JuliaParserDefinitionExperimental()) {
+//	override fun getTestDataPath() = "testData/experimental"
+//	override fun skipSpaces() = true
+//	fun testComment() {
+//		doTest(true)
+//	}
+//
+//	fun testBlockComment() {
+//		doTest(true)
+//	}
+//}
 
 class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinition()) {
 	override fun getTestDataPath() = "testData"
