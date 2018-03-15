@@ -189,13 +189,15 @@ expr ::=
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaExprMixin'
 }
 
-memberAccessOp ::=
+memberAccessOp ::= expr DOT_SYM expr
+
+memberAccess ::=
    IN_KEYWORD
  | UNION_KEYWORD
  | opAsSymbol
  | symbolAndMacroSymbol (DOT_SYM symbolAndMacroSymbol)*
 
-private access ::= (DOT_SYM | DOUBLE_DOT_SYM | SLICE_SYM)? (memberAccessOp)
+private access ::= (DOT_SYM | DOUBLE_DOT_SYM | SLICE_SYM)? memberAccess
 private symbolAndMacroSymbol ::= symbol | macroSymbol
 
 compactFunction ::=
@@ -576,8 +578,8 @@ continueExpr ::= CONTINUE_KEYWORD
 
 export ::=
  EXPORT_KEYWORD endOfLine
-  memberAccessOp
-  (commaSep memberAccessOp)* { extends=expr }
+  memberAccess
+  (commaSep memberAccess)* { extends=expr }
 
 importAllExpr ::=
  IMPORTALL_KEYWORD access { extends=expr }

@@ -33,6 +33,6 @@ function DateTime(Y::AbstractArray{<:AbstractString}, df::DateFormat=ISODateTime
 end
 
 # ②
-# if (x.id::Int) == id && (isa(x, LocalProcess) || (x::Worker).state == W_CONNECTED)
-#     return true
-# end
+if (x.id::Int) == id && (isa(x, LocalProcess) || (x::Worker).state == W_CONNECTED)
+    return true
+end
