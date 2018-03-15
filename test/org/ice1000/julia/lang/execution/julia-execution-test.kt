@@ -52,13 +52,14 @@ class ExecutionTest {
 	 * Must be longer than 100ms, shorter than 250ms
 	 * Or test will fail
 	 */
-	@Test(timeout = 250L)
+	@Test(timeout = 1000L)
 	fun testTimeout() {
 		measureTimeMillis {
 			// just test if it will throw exceptions
-			executeCommand("wget www.google.com", timeLimit = 100L)
+			executeCommand("git clone https://github.com/jetbrains/intellij-community", timeLimit = 500L)
 		}.let {
-			assertTrue(it >= 100L)
+			println(it)
+			assertTrue(it >= 500L)
 		}
 	}
 }

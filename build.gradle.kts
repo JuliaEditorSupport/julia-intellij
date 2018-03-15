@@ -1,16 +1,13 @@
 import groovy.lang.Closure
 import org.gradle.api.internal.HasConvention
 import org.gradle.language.base.internal.plugins.CleanRule
-import org.jetbrains.grammarkit.tasks.BaseTask
-import org.jetbrains.grammarkit.tasks.GenerateLexer
-import org.jetbrains.grammarkit.tasks.GenerateParser
+import org.jetbrains.grammarkit.tasks.*
 import org.jetbrains.intellij.tasks.PatchPluginXmlTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.utils.sure
 import java.io.*
 import java.nio.file.*
-import java.nio.file.Path
+import java.net.URL
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 
@@ -162,8 +159,31 @@ task("isCI") {
 	}
 }
 
-val parserRoot: Path = Paths.get("org", "ice1000", "julia", "lang")
-val lexerRoot: Path = Paths.get("gen", "org", "ice1000", "julia", "lang")
+task("downloadJuliaParser") {
+	group = "help"
+	description = "Download julia-parser.scm"
+	doFirst {
+		val path = Paths.get("grammar", "julia-parser.scm")
+		if (!Files.exists(path)) Files.createFile(path)
+		Files.write(path,
+			URL("https://raw.githubusercontent.com/JuliaLang/julia/master/src/julia-parser.scm").readBytes())
+	}
+}
+
+task("downloadJuliaSyntax") {
+	group = "help"
+	description = "Download julia-syntax.scm"
+	doFirst {
+		val path = Paths.get("grammar", "julia-syntax.scm")
+		if (!Files.exists(path)) Files.createFile(path)
+		Files.write(path,
+			URL("https://raw.githubusercontent.com/JuliaLang/julia/master/src/julia-syntax.scm").readBytes())
+	}
+}
+
+// Don't specify type explicitly. Will be incorrectly recognized
+val parserRoot = Paths.get("org", "ice1000", "julia", "lang")!!
+val lexerRoot = Paths.get("gen", "org", "ice1000", "julia", "lang")!!
 fun path(more: Iterable<*>) = more.joinToString(File.separator)
 fun bnf(name: String) = Paths.get("grammar", "$name-grammar.bnf").toString()
 fun flex(name: String) = Paths.get("grammar", "$name-lexer.flex").toString()
