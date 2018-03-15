@@ -37,9 +37,9 @@ Install IntelliJ IDEA (or other JetBrains IDEs),
 open `Settings | Plugins | Browse repositories`,
 install Julia plugin, and create a Julia project.
 
-For detailed use instruction, visit: https://julia-intellij.readthedocs.io/en/latest/
-
-To download a nightly build (buggy!), visit https://ci.appveyor.com/project/ice1000/julia-intellij/build/artifacts/.
+For detailed use instruction, visit: https://julia-intellij.readthedocs.io/en/latest/<br/>
+To download a nightly build (buggy!), visit https://ci.appveyor.com/project/ice1000/julia-intellij/build/artifacts/ .<br/>
+To learn about the test summery, visit https://circleci.com/build-insights/gh/ice1000/julia-intellij/master .
 
 ## Screenshots
 
