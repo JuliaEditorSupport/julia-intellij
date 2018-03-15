@@ -2,7 +2,16 @@ package org.ice1000.julia.lang
 
 import com.intellij.testFramework.ParsingTestCase
 import org.ice1000.julia.lang.docfmt.DocfmtParserDefinition
+import org.ice1000.julia.lang.parsing.JuliaParserDefinitionExperimental
 import org.junit.Test
+
+class JuliaExperimentalParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinitionExperimental()) {
+	override fun getTestDataPath() = "testData/experimental"
+	override fun skipSpaces() = true
+	fun testEmpty() {
+		doTest(true)
+	}
+}
 
 class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinition()) {
 	override fun getTestDataPath() = "testData"
@@ -43,6 +52,11 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 	}
 
 	fun testParseIssue135() {
+		println(name)
+		doTest(true)
+	}
+
+	fun testlearn_julia_in_Y_minutes() {
 		println(name)
 		doTest(true)
 	}

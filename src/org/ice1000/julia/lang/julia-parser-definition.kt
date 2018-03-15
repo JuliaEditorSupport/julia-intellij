@@ -1,7 +1,6 @@
 package org.ice1000.julia.lang
 
-import com.intellij.lang.ASTNode
-import com.intellij.lang.ParserDefinition
+import com.intellij.lang.*
 import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
@@ -10,20 +9,20 @@ import org.ice1000.julia.lang.psi.JuliaTypes
 
 class JuliaLexerAdapter : FlexAdapter(JuliaLexer())
 
-class JuliaParserDefinition : ParserDefinition {
+open class JuliaParserDefinition : ParserDefinition {
 	private companion object {
 		private val FILE = IFileElementType(JuliaLanguage.INSTANCE)
 	}
 
-	override fun createParser(project: Project?) = JuliaParser()
-	override fun createFile(viewProvider: FileViewProvider) = JuliaFile(viewProvider)
-	override fun spaceExistanceTypeBetweenTokens(left: ASTNode?, right: ASTNode?) = ParserDefinition.SpaceRequirements.MAY
-	override fun getStringLiteralElements() = JuliaTokenType.STRINGS
-	override fun getFileNodeType() = FILE
-	override fun createLexer(project: Project?) = JuliaLexerAdapter()
-	override fun createElement(node: ASTNode?): PsiElement = JuliaTypes.Factory.createElement(node)
-	override fun getCommentTokens() = JuliaTokenType.COMMENTS
-	override fun getWhitespaceTokens() = JuliaTokenType.WHITE_SPACES
+	override fun createParser(project: Project?): PsiParser = JuliaParser()
+	final override fun createFile(viewProvider: FileViewProvider) = JuliaFile(viewProvider)
+	final override fun spaceExistanceTypeBetweenTokens(left: ASTNode?, right: ASTNode?) = ParserDefinition.SpaceRequirements.MAY
+	final override fun getStringLiteralElements() = JuliaTokenType.STRINGS
+	final override fun getFileNodeType() = FILE
+	final override fun createLexer(project: Project?) = JuliaLexerAdapter()
+	final override fun createElement(node: ASTNode?): PsiElement = JuliaTypes.Factory.createElement(node)
+	final override fun getCommentTokens() = JuliaTokenType.COMMENTS
+	final override fun getWhitespaceTokens() = JuliaTokenType.WHITE_SPACES
 }
 
 class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE) {

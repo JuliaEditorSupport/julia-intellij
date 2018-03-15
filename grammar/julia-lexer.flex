@@ -200,7 +200,6 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> const { return JuliaTypes.CONST_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> let { noEnd = false; return JuliaTypes.LET_KEYWORD; }
 
-<YYINITIAL, LONG_TEMPLATE> :\( { return JuliaTypes.COLON_BEGIN_SYM; }
 <YYINITIAL, LONG_TEMPLATE> :: { return JuliaTypes.DOUBLE_COLON; }
 <YYINITIAL, LONG_TEMPLATE> : { hugify(AFTER_COLON); return JuliaTypes.COLON_SYM; }
 <YYINITIAL, LONG_TEMPLATE> := { return JuliaTypes.COLON_ASSIGN_SYM; }
