@@ -615,10 +615,9 @@ comprehensionElement ::=
 
 singleComprehension ::= indexer (IF_KEYWORD expr)?
 
-forExpr ::= FOR_KEYWORD endOfLine loopIndexers statements END_KEYWORD {
+forExpr ::= FOR_KEYWORD endOfLine indexer (commaSep indexer)* statements END_KEYWORD {
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaLoopDeclarationMixin'
 }
-loopIndexers ::= indexer (commaSep indexer)*
 private indexer ::= multiIndexer | singleIndexer
 private infixIndexer ::= IN_KEYWORD | IN_SYM | EQ_SYM
 singleIndexer ::= symbol infixIndexer endOfLine expr

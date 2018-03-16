@@ -242,7 +242,10 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	final override val isFunctionParameter by lazy { parent is JuliaTypedNamedVariable && this === parent.firstChild }
 	final override val isGlobalName: Boolean by lazy { parent is JuliaGlobalStatement }
 	final override val isCatchSymbol: Boolean by lazy { parent is JuliaCatchClause }
-	final override val isLoopParameter: Boolean by lazy { (parent as? JuliaSingleIndexer)?.children?.firstOrNull() == this  /*|| parent is JuliaMultiIndexer*/ }
+	final override val isLoopParameter: Boolean by lazy {
+		(parent as? JuliaSingleIndexer)?.firstChild == this
+			|| (parent as? JuliaTuple)?.children?.any { it == this }.orFalse()
+	}
 	final override val isVariableName by lazy {
 		parent is JuliaAssignOp && this === parent.firstChild || parent is JuliaSymbolLhs
 	}
@@ -298,9 +301,15 @@ abstract class JuliaCatchDeclarationMixin(node: ASTNode) : JuliaDeclaration(node
 }
 
 abstract class JuliaLoopDeclarationMixin(node: ASTNode) : JuliaDeclaration(node), JuliaForExpr {
-	override fun getNameIdentifier(): PsiElement? = loopIndexers
+	override fun getNameIdentifier(): PsiElement? =
+		singleIndexerList.firstOrNull()?.firstChild
+			?: multiIndexerList.firstOrNull()?.firstChild
 
-	override fun processDeclarations(processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement): Boolean {
-		return loopIndexers.singleIndexerList.all { processor.execute(it.firstChild, substitutor) } and super.processDeclarations(processor, substitutor, lastParent, place)
-	}
+	override fun processDeclarations(
+		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+		singleIndexerList.all { processor.execute(it.firstChild, substitutor) }
+			&& multiIndexerList.all {
+			it.firstChild.children//.filter { it is JuliaSymbol } stupid code
+				.all { processor.execute(it, substitutor) }
+		} && super.processDeclarations(processor, substitutor, lastParent, place)
 }
