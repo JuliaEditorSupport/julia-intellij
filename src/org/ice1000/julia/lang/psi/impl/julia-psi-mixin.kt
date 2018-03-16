@@ -190,6 +190,7 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	val isCatchSymbol: Boolean
 	val isDeclaration: Boolean
 	val isLoopParameter: Boolean
+	val isLambdaParameter: Boolean
 }
 
 interface IJuliaTypeDeclaration : JuliaExpr, PsiNameIdentifierOwner, DocStringOwner
@@ -242,6 +243,9 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	final override val isFunctionParameter by lazy { parent is JuliaTypedNamedVariable && this === parent.firstChild }
 	final override val isGlobalName: Boolean by lazy { parent is JuliaGlobalStatement }
 	final override val isCatchSymbol: Boolean by lazy { parent is JuliaCatchClause }
+	final override val isLambdaParameter: Boolean by lazy {
+		parent is JuliaLambda || parent.parent is JuliaLambda
+	}
 	final override val isLoopParameter: Boolean by lazy {
 		(parent as? JuliaSingleIndexer)?.firstChild == this
 			|| (parent as? JuliaTuple)?.children?.any { it == this }.orFalse()
@@ -304,12 +308,4 @@ abstract class JuliaLoopDeclarationMixin(node: ASTNode) : JuliaDeclaration(node)
 	override fun getNameIdentifier(): PsiElement? =
 		singleIndexerList.firstOrNull()?.firstChild
 			?: multiIndexerList.firstOrNull()?.firstChild
-
-	override fun processDeclarations(
-		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		singleIndexerList.all { processor.execute(it.firstChild, substitutor) }
-			&& multiIndexerList.all {
-			it.firstChild.children//.filter { it is JuliaSymbol } stupid code
-				.all { processor.execute(it, substitutor) }
-		} && super.processDeclarations(processor, substitutor, lastParent, place)
 }

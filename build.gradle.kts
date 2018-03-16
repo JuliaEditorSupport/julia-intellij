@@ -79,7 +79,7 @@ allprojects {
 				localPath = "/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/173.4548.28"
 				alternativeIdePath = "/home/ice1000/.local/share/JetBrains/Toolbox/apps/PyCharm-C/ch-0/173.4674.37"
 			}
-			"hoshino" -> localPath = "/home/hoshino/Documents/IntelliJ"
+			"hoshino" -> localPath = ext["ideaC_path"].toString()
 			"zh" -> version = "2017.3"
 		}
 	}
