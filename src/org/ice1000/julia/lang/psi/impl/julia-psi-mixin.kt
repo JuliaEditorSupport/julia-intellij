@@ -5,7 +5,9 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JuliaTokenType
+import org.ice1000.julia.lang.UNKNOWN_VALUE_PLACEHOLDER
+import org.ice1000.julia.lang.orFalse
 import org.ice1000.julia.lang.psi.*
 
 interface DocStringOwner : PsiElement
@@ -187,6 +189,7 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	val isGlobalName: Boolean
 	val isCatchSymbol: Boolean
 	val isDeclaration: Boolean
+	val isLoopParameter: Boolean
 }
 
 interface IJuliaTypeDeclaration : JuliaExpr, PsiNameIdentifierOwner, DocStringOwner
@@ -239,6 +242,7 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	final override val isFunctionParameter by lazy { parent is JuliaTypedNamedVariable && this === parent.firstChild }
 	final override val isGlobalName: Boolean by lazy { parent is JuliaGlobalStatement }
 	final override val isCatchSymbol: Boolean by lazy { parent is JuliaCatchClause }
+	final override val isLoopParameter: Boolean by lazy { (parent as? JuliaSingleIndexer)?.children?.firstOrNull() == this  /*|| parent is JuliaMultiIndexer*/ }
 	final override val isVariableName by lazy {
 		parent is JuliaAssignOp && this === parent.firstChild || parent is JuliaSymbolLhs
 	}
@@ -252,7 +256,8 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			isAbstractTypeName or
 			isGlobalName or
 			isPrimitiveTypeName or
-			isCatchSymbol
+			isCatchSymbol or
+			isLoopParameter
 	}
 
 	override var type: Type? = null
@@ -290,4 +295,12 @@ abstract class JuliaModuleDeclarationMixin(node: ASTNode) : JuliaDeclaration(nod
 
 abstract class JuliaCatchDeclarationMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCatchClause {
 	override fun getNameIdentifier() = symbol
+}
+
+abstract class JuliaLoopDeclarationMixin(node: ASTNode) : JuliaDeclaration(node), JuliaForExpr {
+	override fun getNameIdentifier(): PsiElement? = loopIndexers
+
+	override fun processDeclarations(processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement): Boolean {
+		return loopIndexers.singleIndexerList.all { processor.execute(it.firstChild, substitutor) } and super.processDeclarations(processor, substitutor, lastParent, place)
+	}
 }
