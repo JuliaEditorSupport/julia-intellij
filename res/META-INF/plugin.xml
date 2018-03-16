@@ -81,7 +81,7 @@
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaDocumentProvider"/>
 		<toolWindow
-			id="Julia.View.Document"
+			id="Julia Document"
 			secondary="true"
 			icon="/icons/julia.png"
 			anchor="left"

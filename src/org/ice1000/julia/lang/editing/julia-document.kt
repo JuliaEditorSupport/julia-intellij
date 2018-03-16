@@ -10,7 +10,9 @@ import com.intellij.ui.content.ContentFactory
 import com.intellij.util.PlatformUtils
 import com.petebevin.markdown.MarkdownProcessor
 import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.module.ui.JuliaDocumentWindow
+import org.ice1000.julia.lang.module.validateJulia
 import org.ice1000.julia.lang.psi.JuliaSymbol
 import org.ice1000.julia.lang.psi.impl.DocStringOwner
 import org.ice1000.julia.lang.psi.impl.docString
@@ -30,9 +32,14 @@ class JuliaDocumentProvider : AbstractDocumentationProvider() {
 }
 
 class JuliaDocumentWindowImpl : JuliaDocumentWindow(), ToolWindowFactory {
-	init {
-		textPane.text = "Nothing to show"
+	override fun init(window: ToolWindow) {
+		textPane.text = JuliaBundle.message("julia.tool-window.empty")
+		// window.title = JuliaBundle.message("julia.tool-window.title")
+		super.init(window)
 	}
+
+	override fun shouldBeAvailable(project: Project) =
+		validateJulia(project.juliaSettings.settings) and super.shouldBeAvailable(project)
 
 	// TODO: change its content like PyCharm Document
 	override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
