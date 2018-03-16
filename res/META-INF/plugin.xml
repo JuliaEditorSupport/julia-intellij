@@ -81,8 +81,10 @@
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaDocumentProvider"/>
 		<toolWindow
-			id="Julia Document"
-			secondary="true" icon="/icons/julia.png" anchor="left"
+			id="Julia.View.Document"
+			secondary="true"
+			icon="/icons/julia.png"
+			anchor="left"
 			factoryClass="org.ice1000.julia.lang.editing.JuliaDocumentWindowImpl"/>
 		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
@@ -149,7 +151,7 @@
 			<add-to-group group-id="EditorPopupMenu1" anchor="first"/>
 		</action>
 		<group
-			id="JuliaToolsMenu"
+			id="Julia.View.ToolsMenu"
 			text="Julia Tools"
 			icon="JuliaIcons.JULIA_BIG_ICON"
 			popup="true">
