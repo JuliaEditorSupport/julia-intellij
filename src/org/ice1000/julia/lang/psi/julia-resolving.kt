@@ -77,6 +77,8 @@ abstract class ResolveProcessor<ResolveResult>(private val place: PsiElement) : 
 			PsiTreeUtil.getParentOfType(element, IJuliaFunctionDeclaration::class.java), place, true)
 		element.isCatchSymbol -> PsiTreeUtil.isAncestor(
 			PsiTreeUtil.getParentOfType(element, JuliaCatchClause::class.java), place, true)
+		element.isLoopParameter -> PsiTreeUtil.isAncestor(
+			PsiTreeUtil.getParentOfType(element, JuliaForExpr::class.java), place, true)
 		element.isDeclaration -> PsiTreeUtil.isAncestor(
 			PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), place, false)
 		else -> false
