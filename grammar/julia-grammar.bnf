@@ -17,7 +17,7 @@
 
 juliaFile ::= endOfLine statements
 
-symbol ::= SYM {
+symbol ::= SYM | INDEX_END {
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaSymbol']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin'
 }

@@ -66,6 +66,7 @@ class JuliaBraceMatcher : PairedBraceMatcher {
 			BracePair(JuliaTypes.MODULE_KEYWORD, JuliaTypes.END_KEYWORD, false),
 			BracePair(JuliaTypes.FUNCTION_KEYWORD, JuliaTypes.END_KEYWORD, false),
 			BracePair(JuliaTypes.IF_KEYWORD, JuliaTypes.END_KEYWORD, false),
+			BracePair(JuliaTypes.FOR_KEYWORD, JuliaTypes.END_KEYWORD, false),
 			BracePair(JuliaTypes.WHILE_KEYWORD, JuliaTypes.END_KEYWORD, false),
 			BracePair(JuliaTypes.DO_KEYWORD, JuliaTypes.END_KEYWORD, false),
 			BracePair(JuliaTypes.BEGIN_KEYWORD, JuliaTypes.END_KEYWORD, false),

@@ -3,7 +3,7 @@ package org.ice1000.julia.lang;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.TokenType;
-import com.intellij.util.containers.IntStack;
+import com.intellij.util.containers.*;
 import org.ice1000.julia.lang.psi.JuliaTypes;
 
 %%
@@ -11,8 +11,8 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %{
   private static final IntStack stateStack = new IntStack();
   private static final IntStack leftBracketStack = new IntStack();
+  private static BooleanStack comprehensionStack = new BooleanStack();
   private static int leftBraceCount = 0;
-  private static boolean noEnd = false;
   private static boolean noInAndUnion = false;
 
   /** 虎哥化 */
@@ -37,8 +37,8 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 
   private static void init() {
     leftBraceCount = 0;
-    noEnd = false;
     noInAndUnion = false;
+    comprehensionStack.clear();
     stateStack.clear();
     leftBracketStack.clear();
   }
@@ -114,8 +114,8 @@ OTHERWISE=[^]
 
 %%
 
-<YYINITIAL, LONG_TEMPLATE> \[ { noEnd = true; return JuliaTypes.LEFT_M_BRACKET; }
-<YYINITIAL, LONG_TEMPLATE> \] { noEnd = false; return JuliaTypes.RIGHT_M_BRACKET; }
+<YYINITIAL, LONG_TEMPLATE> \[ { comprehensionStack.push(true); return JuliaTypes.LEFT_M_BRACKET; }
+<YYINITIAL, LONG_TEMPLATE> \] { comprehensionStack.pop(); return JuliaTypes.RIGHT_M_BRACKET; }
 <YYINITIAL, LONG_TEMPLATE> \{ { return JuliaTypes.LEFT_B_BRACKET; }
 <YYINITIAL, LONG_TEMPLATE> \} { return JuliaTypes.RIGHT_B_BRACKET; }
 <YYINITIAL> \( { return JuliaTypes.LEFT_BRACKET; }
@@ -149,17 +149,17 @@ OTHERWISE=[^]
 
 <YYINITIAL, LONG_TEMPLATE> r\" { hugify(INSIDE_REGEX); return JuliaTypes.REGEX_START; }
 
-<YYINITIAL, LONG_TEMPLATE> end { return noEnd ? JuliaTypes.SYM : JuliaTypes.END_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> end { return comprehensionStack.pop() ? JuliaTypes.INDEX_END : JuliaTypes.END_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> break { return JuliaTypes.BREAK_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> where { return JuliaTypes.WHERE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> do { noEnd = false; return JuliaTypes.DO_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> do { comprehensionStack.push(false); return JuliaTypes.DO_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> continue { return JuliaTypes.CONTINUE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> true { return JuliaTypes.TRUE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> false { return JuliaTypes.FALSE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> module { noEnd = false; return JuliaTypes.MODULE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> baremodule { noEnd = false; return JuliaTypes.BAREMODULE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> module { comprehensionStack.push(false); return JuliaTypes.MODULE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> baremodule { comprehensionStack.push(false); return JuliaTypes.BAREMODULE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> export { return JuliaTypes.EXPORT_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> if { noEnd = false; return JuliaTypes.IF_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> if { comprehensionStack.push(false); return JuliaTypes.IF_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> in {
   return noInAndUnion ? JuliaTypes.SYM : JuliaTypes.IN_KEYWORD;
 }
@@ -170,35 +170,37 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> elseif { return JuliaTypes.ELSEIF_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> else { return JuliaTypes.ELSE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> for {
-  noEnd = false;
-  return JuliaTypes.FOR_KEYWORD;
+  if (comprehensionStack.pop()) {
+    comprehensionStack.push(false);
+    return JuliaTypes.FOR_KEYWORD;
+  } else comprehensionStack.push(false);
 }
 
-<YYINITIAL, LONG_TEMPLATE> while { noEnd = false; return JuliaTypes.WHILE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> while { comprehensionStack.push(false); return JuliaTypes.WHILE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> return { return JuliaTypes.RETURN_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> try { noEnd = false; return JuliaTypes.TRY_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> try { comprehensionStack.push(false); return JuliaTypes.TRY_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> catch { return JuliaTypes.CATCH_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> finally { return JuliaTypes.FINALLY_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> function { noEnd = false; return JuliaTypes.FUNCTION_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> type { noEnd = false; return JuliaTypes.TYPE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> function { comprehensionStack.push(false); return JuliaTypes.FUNCTION_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> type { comprehensionStack.push(false); return JuliaTypes.TYPE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> abstract { return JuliaTypes.ABSTRACT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> primitive { return JuliaTypes.PRIMITIVE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> struct { noEnd = false; return JuliaTypes.STRUCT_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> struct { comprehensionStack.push(false); return JuliaTypes.STRUCT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> typealias { return JuliaTypes.TYPEALIAS_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> immutable { return JuliaTypes.IMMUTABLE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> mutable { return JuliaTypes.MUTABLE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> union {
-  noEnd = false;
+  comprehensionStack.push(false);
   return noInAndUnion ? JuliaTypes.SYM : JuliaTypes.UNION_KEYWORD;
 }
 
-<YYINITIAL, LONG_TEMPLATE> quote { noEnd = false; return JuliaTypes.QUOTE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> begin { return JuliaTypes.BEGIN_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> macro { noEnd = false; return JuliaTypes.MACRO_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> quote { comprehensionStack.push(false); return JuliaTypes.QUOTE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> begin { comprehensionStack.push(false); return JuliaTypes.BEGIN_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> macro { comprehensionStack.push(false); return JuliaTypes.MACRO_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> global { return JuliaTypes.GLOBAL_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> local { return JuliaTypes.LOCAL_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> const { return JuliaTypes.CONST_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> let { noEnd = false; return JuliaTypes.LET_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> let { comprehensionStack.push(false); return JuliaTypes.LET_KEYWORD; }
 
 <YYINITIAL, LONG_TEMPLATE> :: { return JuliaTypes.DOUBLE_COLON; }
 <YYINITIAL, LONG_TEMPLATE> : { hugify(AFTER_COLON); return JuliaTypes.COLON_SYM; }
