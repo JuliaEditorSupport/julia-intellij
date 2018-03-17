@@ -273,9 +273,8 @@ applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
   (
      comprehensionElement+
-   | arguments
    | (expressionList endOfLine)
-  )?
+  )? arguments?
   endOfLine
  RIGHT_BRACKET doBlock?
 
