@@ -310,6 +310,7 @@ lambda ::=
   LAMBDA_ABSTRACTION expr {
 	rightAssociative=true
 	extends=expr
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaLambdaMixin'
 }
 
 // level 6

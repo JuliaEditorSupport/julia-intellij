@@ -10,6 +10,10 @@ import org.ice1000.julia.lang.UNKNOWN_VALUE_PLACEHOLDER
 import org.ice1000.julia.lang.orFalse
 import org.ice1000.julia.lang.psi.*
 
+fun PsiElement.printDescription() = apply {
+	println(toString() + text)
+}
+
 interface DocStringOwner : PsiElement
 
 interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
@@ -247,8 +251,7 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 		parent is JuliaLambda || parent.parent is JuliaLambda
 	}
 	final override val isLoopParameter: Boolean by lazy {
-		(parent as? JuliaSingleIndexer)?.firstChild == this
-			|| (parent as? JuliaTuple)?.children?.any { it == this }.orFalse()
+		parent.parent is JuliaForExpr || parent.parent.parent is JuliaForExpr
 	}
 	final override val isVariableName by lazy {
 		parent is JuliaAssignOp && this === parent.firstChild || parent is JuliaSymbolLhs
@@ -264,7 +267,8 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			isGlobalName or
 			isPrimitiveTypeName or
 			isCatchSymbol or
-			isLoopParameter
+			isLoopParameter or
+			isLambdaParameter
 	}
 
 	override var type: Type? = null
@@ -311,5 +315,25 @@ abstract class JuliaLoopDeclarationMixin(node: ASTNode) : JuliaDeclaration(node)
 
 	override fun processDeclarations(processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement): Boolean =
 		singleIndexerList.all { processor.execute(it.firstChild, substitutor) } and
-			multiIndexerList.all { it.children.all { processor.execute(it, substitutor) } }
+			multiIndexerList.all { it.children.all { processor.execute(it, substitutor) } } and
+			super.processDeclarations(processor, substitutor, lastParent, place)
+}
+
+abstract class JuliaLambdaMixin(node: ASTNode) : JuliaDeclaration(node), JuliaLambda {
+	private val parameters get() = exprList.getOrNull(0)
+
+	override fun getNameIdentifier() =
+		parameters
+			?.let {
+				it as? JuliaSymbol
+					?: (it as? JuliaTuple)?.children?.firstOrNull { it is JuliaSymbol }
+			}?.apply(::println)
+
+	override fun processDeclarations(processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement): Boolean {
+		return parameters
+			?.let {
+				(it as? JuliaSymbol)?.let { processor.execute(it.printDescription(), substitutor) }
+					?: (it as? JuliaTuple)?.children?.all { processor.execute(it.printDescription(), substitutor) }
+			}.orFalse() and super.processDeclarations(processor, substitutor, lastParent, place)
+	}
 }
