@@ -158,8 +158,6 @@ $JULIA_DOC_SURROUNDING
 
 	private fun symbol(element: JuliaSymbol, holder: AnnotationHolder) {
 		when {
-			element.text == "end" -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.KEYWORD
 			element.isModuleName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
 			element.isMacroName -> definition(element, holder, JuliaHighlighter.MACRO_NAME)

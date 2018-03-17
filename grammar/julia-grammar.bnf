@@ -471,7 +471,7 @@ private primaryExpr ::=
 bracketedExpr ::=
  LEFT_BRACKET endOfLine
   (opAsSymbol | unaryOpAsSymbol)?
-   statements? endOfLine (COMMA_SYM endOfLine)? (FOR_KEYWORD expr IN_KEYWORD expr)*
+   statements? endOfLine (COMMA_SYM endOfLine)? (COMPREHENSION_FOR expr IN_KEYWORD expr)*
  RIGHT_BRACKET
 
 whereClause ::= WHERE_KEYWORD afterWhere
@@ -608,7 +608,7 @@ forComprehension ::=
 comprehensionElement ::=
  endOfLine expr endOfLine
  (
-  FOR_KEYWORD
+  COMPREHENSION_FOR
   singleComprehension
    (commaSep singleComprehension)?)+
 

@@ -118,8 +118,8 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> \] { comprehensionStack.pop(); return JuliaTypes.RIGHT_M_BRACKET; }
 <YYINITIAL, LONG_TEMPLATE> \{ { return JuliaTypes.LEFT_B_BRACKET; }
 <YYINITIAL, LONG_TEMPLATE> \} { return JuliaTypes.RIGHT_B_BRACKET; }
-<YYINITIAL> \( { return JuliaTypes.LEFT_BRACKET; }
-<YYINITIAL> \) { return JuliaTypes.RIGHT_BRACKET; }
+<YYINITIAL> \( { comprehensionStack.push(true); return JuliaTypes.LEFT_BRACKET; }
+<YYINITIAL> \) { comprehensionStack.pop(); return JuliaTypes.RIGHT_BRACKET; }
 <LONG_TEMPLATE> \( { leftBraceCount++; return JuliaTypes.LEFT_BRACKET; }
 <LONG_TEMPLATE> \) {
   if (leftBraceCount == 0) {
@@ -173,7 +173,10 @@ OTHERWISE=[^]
   if (comprehensionStack.pop()) {
     comprehensionStack.push(false);
     return JuliaTypes.FOR_KEYWORD;
-  } else comprehensionStack.push(false);
+  } else {
+    comprehensionStack.push(false);
+    return JuliaTypes.COMPREHENSION_FOR;
+  }
 }
 
 <YYINITIAL, LONG_TEMPLATE> while { comprehensionStack.push(false); return JuliaTypes.WHILE_KEYWORD; }

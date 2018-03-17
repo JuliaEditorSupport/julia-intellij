@@ -74,6 +74,8 @@ object JuliaHighlighter : SyntaxHighlighter {
 
 	private val KEYWORDS_LIST = listOf(
 		JuliaTypes.END_KEYWORD,
+		JuliaTypes.INDEX_END,
+		JuliaTypes.COMPREHENSION_FOR,
 		JuliaTypes.MODULE_KEYWORD,
 		JuliaTypes.BAREMODULE_KEYWORD,
 		JuliaTypes.BREAK_KEYWORD,
