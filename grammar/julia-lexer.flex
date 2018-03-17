@@ -39,6 +39,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
     leftBraceCount = 0;
     noInAndUnion = false;
     comprehensionStack.clear();
+    comprehensionStack.push(false);
     stateStack.clear();
     leftBracketStack.clear();
   }
