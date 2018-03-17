@@ -123,6 +123,7 @@ OTHERWISE=[^]
 <YYINITIAL> \) { comprehensionStack.pop(); return JuliaTypes.RIGHT_BRACKET; }
 <LONG_TEMPLATE> \( { leftBraceCount++; return JuliaTypes.LEFT_BRACKET; }
 <LONG_TEMPLATE> \) {
+  comprehensionStack.push(false);
   if (leftBraceCount == 0) {
     dehugify();
     return JuliaTypes.STRING_INTERPOLATE_END;
@@ -356,6 +357,7 @@ OTHERWISE=[^]
 
 <STRING_TEMPLATE, CMD_STRING_TEMPLATE, RAW_STRING_TEMPLATE> {LONG_TEMPLATE_START} {
   hugify(LONG_TEMPLATE);
+  comprehensionStack.push(false);
   return JuliaTypes.STRING_INTERPOLATE_START;
 }
 
