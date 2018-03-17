@@ -308,4 +308,8 @@ abstract class JuliaLoopDeclarationMixin(node: ASTNode) : JuliaDeclaration(node)
 	override fun getNameIdentifier(): PsiElement? =
 		singleIndexerList.firstOrNull()?.firstChild
 			?: multiIndexerList.firstOrNull()?.firstChild
+
+	override fun processDeclarations(processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement): Boolean =
+		singleIndexerList.all { processor.execute(it.firstChild, substitutor) } and
+			multiIndexerList.all { it.children.all { processor.execute(it, substitutor) } }
 }
