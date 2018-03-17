@@ -150,7 +150,15 @@ OTHERWISE=[^]
 
 <YYINITIAL, LONG_TEMPLATE> r\" { hugify(INSIDE_REGEX); return JuliaTypes.REGEX_START; }
 
-<YYINITIAL, LONG_TEMPLATE> end { return comprehensionStack.pop() ? JuliaTypes.INDEX_END : JuliaTypes.END_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> end {
+  if (comprehensionStack.peek()) {
+    return JuliaTypes.INDEX_END;
+  } else {
+    comprehensionStack.pop();
+    return JuliaTypes.END_KEYWORD;
+  }
+}
+
 <YYINITIAL, LONG_TEMPLATE> break { return JuliaTypes.BREAK_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> where { return JuliaTypes.WHERE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> do { comprehensionStack.push(false); return JuliaTypes.DO_KEYWORD; }
@@ -171,12 +179,11 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> elseif { return JuliaTypes.ELSEIF_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> else { return JuliaTypes.ELSE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> for {
-  if (comprehensionStack.pop()) {
-    comprehensionStack.push(false);
-    return JuliaTypes.FOR_KEYWORD;
+  if (comprehensionStack.peek()) {
+    return JuliaTypes.COMPREHENSION_FOR;
   } else {
     comprehensionStack.push(false);
-    return JuliaTypes.COMPREHENSION_FOR;
+    return JuliaTypes.FOR_KEYWORD;
   }
 }
 

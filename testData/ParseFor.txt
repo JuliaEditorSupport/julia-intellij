@@ -25,7 +25,7 @@ FILE
             PsiElement(SYM)('s')
           PsiElement(LEFT_BRACKET)('(')
           PsiElement(RIGHT_BRACKET)(')')
-        PsiElement(FOR_KEYWORD)('for')
+        PsiElement(COMPREHENSION_FOR)('for')
         JuliaSingleComprehensionImpl(SINGLE_COMPREHENSION)
           JuliaSingleIndexerImpl(SINGLE_INDEXER)
             JuliaSymbolImpl(SYMBOL)
