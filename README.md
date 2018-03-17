@@ -47,7 +47,9 @@ To learn about the test summery, visit https://circleci.com/build-insights/gh/ic
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17879.png)
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17881.png)
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17891.png)
+![](https://plugins.jetbrains.com/files/10413/screenshot_17932.png)
 ![](https://github.com/zxj5470/julia-intellij-docs-cn/blob/master/screenshots/pkg-manager.gif?raw=true)
+
 ## Compatible IDEs
 
 The plugin is compatible with any IntelliJ based IDE starting from 2016.1.
