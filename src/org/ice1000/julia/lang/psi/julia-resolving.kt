@@ -72,20 +72,18 @@ abstract class ResolveProcessor<ResolveResult>(private val place: PsiElement) : 
 	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
 	// TODO add definitions
-	fun isInScope(element: PsiElement) = place.inScope(element as? JuliaSymbol)
-}
-
-private fun PsiElement.inScope(element: JuliaSymbol?) = when {
-	element == null -> false
-	element.isFunctionParameter -> PsiTreeUtil.isAncestor(
-		PsiTreeUtil.getParentOfType(element, IJuliaFunctionDeclaration::class.java), this, true)
-	element.isCatchSymbol -> PsiTreeUtil.isAncestor(
-		PsiTreeUtil.getParentOfType(element, JuliaCatchClause::class.java), this, true)
-	element.isLoopParameter -> PsiTreeUtil.isAncestor(
-		PsiTreeUtil.getParentOfType(element, JuliaForExpr::class.java), this, true)
-	element.isDeclaration -> PsiTreeUtil.isAncestor(
-		PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), this, false)
-	else -> false
+	fun isInScope(element: PsiElement) = when {
+		element !is JuliaSymbol -> false
+		element.isFunctionParameter -> PsiTreeUtil.isAncestor(
+			PsiTreeUtil.getParentOfType(element, IJuliaFunctionDeclaration::class.java), place, true)
+		element.isCatchSymbol -> PsiTreeUtil.isAncestor(
+			PsiTreeUtil.getParentOfType(element, JuliaCatchClause::class.java), place, true)
+		element.isLoopParameter -> PsiTreeUtil.isAncestor(
+			PsiTreeUtil.getParentOfType(element, JuliaForExpr::class.java), place, true)
+		element.isDeclaration -> PsiTreeUtil.isAncestor(
+			PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), place, false)
+		else -> false
+	}
 }
 
 open class SymbolResolveProcessor(
