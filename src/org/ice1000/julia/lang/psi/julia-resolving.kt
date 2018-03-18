@@ -8,9 +8,7 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import icons.JuliaIcons
-import org.ice1000.julia.lang.JuliaTokenType
-import org.ice1000.julia.lang.UNKNOWN_VALUE_PLACEHOLDER
-import org.ice1000.julia.lang.orFalse
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 import org.ice1000.julia.lang.psi.impl.JuliaAbstractSymbol
 
@@ -73,7 +71,6 @@ abstract class ResolveProcessor<ResolveResult>(private val place: PsiElement) : 
 	override fun handleEvent(event: PsiScopeProcessor.Event, o: Any?) = Unit
 	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
-	// TODO add definitions
 	fun isInScope(element: PsiElement) = when {
 		element !is JuliaSymbol -> false
 		element.isFunctionParameter -> PsiTreeUtil.isAncestor(
@@ -125,7 +122,9 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
 		if (element is JuliaSymbol) {
 			val (icon, value, tail, type) = when {
-				element.isVariableName or element.isCatchSymbol or element.isLambdaParameter or element.isLoopParameter -> quadOf(
+				element.isVariableName or
+					element.isCatchSymbol or
+					element.isLoopParameter -> quadOf(
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,
@@ -159,7 +158,8 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 					null,
 					null
 				)
-				element.isFunctionParameter -> quadOf(
+				element.isFunctionParameter or
+					element.isLambdaParameter -> quadOf(
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,

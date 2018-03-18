@@ -5,9 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import org.ice1000.julia.lang.JuliaTokenType
-import org.ice1000.julia.lang.UNKNOWN_VALUE_PLACEHOLDER
-import org.ice1000.julia.lang.orFalse
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 
 fun PsiElement.printDescription() = apply {
@@ -236,25 +234,37 @@ abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), 
 }
 
 abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaSymbol {
-	final override val isField: Boolean
-		get() = parent is JuliaTypeDeclaration && this !== parent.children.firstOrNull { it is JuliaSymbol }
-	final override val isFunctionName by lazy { parent is JuliaFunction || (parent is JuliaCompactFunction && this === parent.firstChild) }
-	final override val isMacroName by lazy { parent is JuliaMacro }
-	final override val isModuleName by lazy { parent is JuliaModuleDeclaration }
-	final override val isTypeName by lazy { (parent is JuliaTypeDeclaration && this === parent.children.firstOrNull { it is JuliaSymbol }) || parent is JuliaTypeAlias }
-	final override val isAbstractTypeName by lazy { parent is JuliaAbstractTypeDeclaration }
-	final override val isPrimitiveTypeName by lazy { parent is JuliaPrimitiveTypeDeclaration }
-	final override val isFunctionParameter by lazy { parent is JuliaTypedNamedVariable && this === parent.firstChild }
+	final override val isField: Boolean by lazy {
+		this !== parent.children.firstOrNull { it is JuliaSymbol } &&
+			parent is JuliaTypeDeclaration
+	}
+	final override val isFunctionName by lazy {
+		(parent is JuliaCompactFunction && this === parent.firstChild) ||
+			parent is JuliaFunction
+	}
+	final override val isMacroName get() = parent is JuliaMacro
+	final override val isModuleName get() = parent is JuliaModuleDeclaration
+	final override val isTypeName by lazy {
+		(parent is JuliaTypeDeclaration && this === parent.children.firstOrNull { it is JuliaSymbol }) ||
+			parent is JuliaTypeAlias
+	}
+	final override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
+	final override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
+	final override val isFunctionParameter by lazy {
+		parent is JuliaTypedNamedVariable && this === parent.firstChild
+	}
 	final override val isGlobalName: Boolean by lazy { parent is JuliaGlobalStatement }
 	final override val isCatchSymbol: Boolean by lazy { parent is JuliaCatchClause }
 	final override val isLambdaParameter: Boolean by lazy {
-		parent is JuliaLambda || parent.parent is JuliaLambda
+		parent is JuliaLambda || (parent is JuliaTuple && parent.parent is JuliaLambda)
 	}
 	final override val isLoopParameter: Boolean by lazy {
-		parent.parent is JuliaForExpr || parent.parent.parent is JuliaForExpr
+		(parent is JuliaSingleIndexer && parent.parent is JuliaForExpr) ||
+			(parent.parent is JuliaMultiIndexer && parent.parent.parent is JuliaForExpr)
 	}
 	final override val isVariableName by lazy {
-		parent is JuliaAssignOp && this === parent.firstChild || parent is JuliaSymbolLhs
+		parent is JuliaAssignOp && this === parent.firstChild ||
+			parent is JuliaSymbolLhs
 	}
 	final override val isDeclaration by lazy {
 		isFunctionName or
@@ -313,7 +323,11 @@ abstract class JuliaLoopDeclarationMixin(node: ASTNode) : JuliaDeclaration(node)
 		singleIndexerList.firstOrNull()?.firstChild
 			?: multiIndexerList.firstOrNull()?.firstChild
 
-	override fun processDeclarations(processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement): Boolean =
+	override fun processDeclarations(
+		processor: PsiScopeProcessor,
+		substitutor: ResolveState,
+		lastParent: PsiElement?,
+		place: PsiElement): Boolean =
 		singleIndexerList.all { processor.execute(it.firstChild, substitutor) } and
 			multiIndexerList.all { it.children.all { processor.execute(it, substitutor) } } and
 			super.processDeclarations(processor, substitutor, lastParent, place)
@@ -329,7 +343,11 @@ abstract class JuliaLambdaMixin(node: ASTNode) : JuliaDeclaration(node), JuliaLa
 					?: (it as? JuliaTuple)?.children?.firstOrNull { it is JuliaSymbol }
 			}?.apply(::println)
 
-	override fun processDeclarations(processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement): Boolean {
+	override fun processDeclarations(
+		processor: PsiScopeProcessor,
+		substitutor: ResolveState,
+		lastParent: PsiElement?,
+		place: PsiElement): Boolean {
 		return parameters
 			?.let {
 				(it as? JuliaSymbol)?.let { processor.execute(it.printDescription(), substitutor) }
