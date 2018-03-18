@@ -259,19 +259,22 @@ private suffixedExpr ::=
 
 type ::= expr typeParameters { extends=expr }
 
-end ::= END_KEYWORD
-exprOrEnd ::= end | expr
-indexing ::= exprOrEnd
- (
-   COLON_SYM indexing
- | plusLevelOperator exprOrEnd
- )?
 
-applyIndexOp ::=
- expr LEFT_M_BRACKET
+exprOrEnd ::=
+   plusIndexing
+ | indexing
+ | end
+ | exprWrapper
+
+end ::= END_KEYWORD { extends=exprOrEnd }
+exprWrapper ::= expr { extends=exprOrEnd }
+indexing ::= exprOrEnd COLON_SYM exprOrEnd { extends=exprOrEnd }
+plusIndexing ::= exprOrEnd plusLevelOperator exprOrEnd { extends=exprOrEnd }
+
+applyIndexOp ::= expr LEFT_M_BRACKET
  (
    comprehensionElement
- | indexing (COMMA_SYM indexing)*
+ | exprOrEnd (COMMA_SYM exprOrEnd)*
  )? endOfLine
  RIGHT_M_BRACKET
 
@@ -346,7 +349,7 @@ private quoteLevel ::=
  | quoteOp
  | compoundQuoteOp
 
-private colonSymBegins::= COLON_SYM endOfLine LEFT_BRACKET
+colonSymBegins::= COLON_SYM endOfLine LEFT_BRACKET
 colonOp ::= expr colonSymBegins expr RIGHT_BRACKET
 spliceOp ::= expr SLICE_SYM
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
