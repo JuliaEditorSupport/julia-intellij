@@ -7,8 +7,12 @@ ParseEnd:
 
 a=[1, 2, 3]
 a[1:end]
+a[end:1]
 a[end-1]
+a[1-end]
+a[-1-end]
 a[1]
 a[end]
-a[1+end-1]
 a[1-end+1]
+a[1+end-1]
+a[2*end]

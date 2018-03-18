@@ -259,36 +259,21 @@ private suffixedExpr ::=
 
 type ::= expr typeParameters { extends=expr }
 
-exprForIndex ::=
-   compactFunction
- | applyMacroOp
- | assignLevel
- | arrowOp
- | ternaryOp
- | lambda
- | miscArrowsOp
- | orOp
- | andOp
- | comparisonLevelOp
- | pipeLevelOp
- | quoteLevel
- | plusLevelOp
- | bitwiseLevel
- | multiplyLevel
- | fractionLevel
- | exponentLevel
- | typeOp
- | unaryLevel
- | suffixedExpr
+exprOrEnd ::=
+   plusIndexing
+ | rangeIndexing
  | end
- | primaryExpr
+ | exprWrapper
 
-end ::= END_KEYWORD { extends=exprForIndex }
+end ::= END_KEYWORD { extends=exprOrEnd }
+exprWrapper ::= primaryExpr { extends=exprOrEnd }
+rangeIndexing ::= exprOrEnd COLON_SYM exprOrEnd { extends=exprOrEnd }
+plusIndexing ::= exprOrEnd plusLevelOperator exprOrEnd { extends=exprOrEnd }
 
 applyIndexOp ::= expr LEFT_M_BRACKET
  (
    comprehensionElement
- | exprForIndex (COMMA_SYM exprForIndex)*
+ | exprOrEnd (COMMA_SYM exprOrEnd)*
  )? endOfLine
  RIGHT_M_BRACKET
 
