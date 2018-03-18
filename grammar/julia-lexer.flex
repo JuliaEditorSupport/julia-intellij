@@ -11,7 +11,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %{
   private static final IntStack stateStack = new IntStack();
   private static final IntStack leftBracketStack = new IntStack();
-  private static BooleanStack comprehensionStack = new BooleanStack();
+  private static final BooleanStack comprehensionStack = new BooleanStack();
   private static int leftBraceCount = 0;
   private static boolean noInAndUnion = false;
 
@@ -152,7 +152,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> r\" { hugify(INSIDE_REGEX); return JuliaTypes.REGEX_START; }
 
 <YYINITIAL, LONG_TEMPLATE> end {
-  if (comprehensionStack.peek()) {
+  if (comprehensionStack.empty() || comprehensionStack.peek()) {
     return JuliaTypes.INDEX_END;
   } else {
     comprehensionStack.pop();
@@ -180,7 +180,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> elseif { return JuliaTypes.ELSEIF_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> else { return JuliaTypes.ELSE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> for {
-  if (comprehensionStack.peek()) {
+  if (comprehensionStack.empty() || comprehensionStack.peek()) {
     return JuliaTypes.COMPREHENSION_FOR;
   } else {
     comprehensionStack.push(false);
