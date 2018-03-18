@@ -261,6 +261,7 @@ type ::= expr typeParameters { extends=expr }
 
 exprOrEnd ::=
    plusIndexing
+ | multiplyIndexing
  | rangeIndexing
  | end
  | exprWrapper
@@ -269,6 +270,7 @@ end ::= END_KEYWORD { extends=exprOrEnd }
 exprWrapper ::= primaryExpr { extends=exprOrEnd }
 rangeIndexing ::= exprOrEnd COLON_SYM exprOrEnd { extends=exprOrEnd }
 plusIndexing ::= exprOrEnd plusLevelOperator exprOrEnd { extends=exprOrEnd }
+multiplyIndexing ::= exprOrEnd multiplyLevelOperator exprOrEnd { extends=exprOrEnd }
 
 applyIndexOp ::= expr LEFT_M_BRACKET
  (
