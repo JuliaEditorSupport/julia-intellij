@@ -259,10 +259,13 @@ private suffixedExpr ::=
 
 type ::= expr typeParameters { extends=expr }
 
-endExpr ::= END_KEYWORD
-indexing ::=
-   expr COLON_SYM indexing
- | expr plusLevelOperator endExpr
+end ::= END_KEYWORD
+exprOrEnd ::= end | expr
+indexing ::= exprOrEnd
+ (
+   COLON_SYM indexing
+ | plusLevelOperator exprOrEnd
+ )?
 
 applyIndexOp ::=
  expr LEFT_M_BRACKET
