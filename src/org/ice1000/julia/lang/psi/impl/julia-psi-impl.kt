@@ -53,3 +53,13 @@ inline fun <reified Psi : PsiElement> PsiElement.prevSiblingIgnoring(vararg type
 		else localNext as? Psi
 	}
 }
+
+fun PsiElement.childrenBefore(type: IElementType): List<PsiElement> {
+	val ret = ArrayList<PsiElement>()
+	var next: PsiElement? = firstChild
+	while (true) {
+		next = next?.nextSibling ?: return ret
+		if (next.node.elementType == type) return ret
+		ret += next
+	}
+}
