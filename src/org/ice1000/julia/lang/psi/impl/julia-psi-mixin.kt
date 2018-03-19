@@ -336,22 +336,17 @@ abstract class JuliaLoopDeclarationMixin(node: ASTNode) : JuliaDeclaration(node)
 abstract class JuliaLambdaMixin(node: ASTNode) : JuliaDeclaration(node), JuliaLambda {
 	private val parameters get() = exprList.getOrNull(0)
 
-	override fun getNameIdentifier() =
-		parameters
-			?.let {
-				it as? JuliaSymbol
-					?: (it as? JuliaTuple)?.children?.firstOrNull { it is JuliaSymbol }
-			}?.apply(::println)
+	override fun getNameIdentifier() = parameters?.let {
+		it as? JuliaSymbol
+			?: (it as? JuliaTuple)?.children?.firstOrNull { it is JuliaSymbol }
+	}
 
 	override fun processDeclarations(
 		processor: PsiScopeProcessor,
 		substitutor: ResolveState,
 		lastParent: PsiElement?,
-		place: PsiElement): Boolean {
-		return parameters
-			?.let {
-				(it as? JuliaSymbol)?.let { processor.execute(it.printDescription(), substitutor) }
-					?: (it as? JuliaTuple)?.children?.all { processor.execute(it.printDescription(), substitutor) }
-			}.orFalse() and super.processDeclarations(processor, substitutor, lastParent, place)
-	}
+		place: PsiElement) = parameters?.let {
+		(it as? JuliaSymbol)?.processDeclarations(processor, substitutor, lastParent, place)
+			?: (it as? JuliaTuple)?.children?.all { it.processDeclarations(processor, substitutor, lastParent, place) }
+	}.orFalse() and super.processDeclarations(processor, substitutor, lastParent, place)
 }
