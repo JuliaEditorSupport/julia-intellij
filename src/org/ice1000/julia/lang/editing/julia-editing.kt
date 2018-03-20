@@ -61,20 +61,7 @@ class JuliaBraceMatcher : PairedBraceMatcher {
 			BracePair(JuliaTypes.CMD_QUOTE_START, JuliaTypes.CMD_QUOTE_END, false),
 			BracePair(JuliaTypes.TRIPLE_QUOTE_START, JuliaTypes.TRIPLE_QUOTE_END, false),
 			BracePair(JuliaTypes.LEFT_B_BRACKET, JuliaTypes.RIGHT_B_BRACKET, false),
-			BracePair(JuliaTypes.LEFT_M_BRACKET, JuliaTypes.RIGHT_M_BRACKET, false),
-			BracePair(JuliaTypes.TRY_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.MODULE_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.FUNCTION_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.IF_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.FOR_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.WHILE_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.DO_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.BEGIN_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.LET_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.MACRO_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.TYPE_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.QUOTE_KEYWORD, JuliaTypes.END_KEYWORD, false),
-			BracePair(JuliaTypes.STRUCT_KEYWORD, JuliaTypes.END_KEYWORD, false)
+			BracePair(JuliaTypes.LEFT_M_BRACKET, JuliaTypes.RIGHT_M_BRACKET, false)
 		)
 	}
 
