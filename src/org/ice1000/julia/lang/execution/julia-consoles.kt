@@ -27,8 +27,9 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 		private val ERROR_FILE_LOCATION = Pattern.compile(JULIA_ERROR_FILE_LOCATION_REGEX)
 	}
 
-	private fun default(startPoint: Int, entireLength: Int) = Filter.Result(startPoint, entireLength, null)
-	override fun applyFilter(line: String, entireLength: Int): Filter.Result {
+	private fun default(startPoint: Int, entireLength: Int): Filter.Result? = null
+		// Filter.Result(startPoint, entireLength, null)
+	override fun applyFilter(line: String, entireLength: Int): Filter.Result? {
 		val startPoint = entireLength - line.length
 		val fileSystem = project.baseDir.fileSystem
 		val matcher1 = STACK_FRAME_LOCATION.matcher(line)
@@ -80,7 +81,7 @@ class JuliaConsoleFolding : ConsoleFolding() {
 				it.matchExecCommand() ->
 					return "julia ${it.substring(it.lastIndexOf("/") + 1)}"
 				it.matchErrorStackTrace() ->
-					return " <${lines.size} internal calls>"
+					return " <${lines.size} stace frames>"
 			}
 		}
 		return ""
