@@ -53,9 +53,9 @@ class JuliaCommandLineState(
 				params += "--sysimage"
 				params += systemImage
 			}
-			params += configuration.additionalOptions.split(' ', '\n').filter(String::isNotBlank)
-			params += configuration.targetFile
-			params += configuration.programArgs.split(' ', '\n').filter(String::isNotBlank)
+			params += additionalOptions.split(' ', '\n').filter(String::isNotBlank)
+			params += targetFile
+			params += programArgs.split(' ', '\n').filter(String::isNotBlank)
 		}
 		val handler = OSProcessHandler(GeneralCommandLine(params)
 			.withWorkDirectory(configuration.workingDir))
