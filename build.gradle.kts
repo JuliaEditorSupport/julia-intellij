@@ -1,6 +1,7 @@
 import groovy.lang.Closure
 import org.gradle.api.internal.HasConvention
 import org.gradle.language.base.internal.plugins.CleanRule
+import org.jetbrains.grammarkit.GrammarKitPluginExtension
 import org.jetbrains.grammarkit.tasks.*
 import org.jetbrains.intellij.tasks.PatchPluginXmlTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
@@ -179,6 +180,11 @@ task("downloadJuliaSyntax") {
 		Files.write(path,
 			URL("https://raw.githubusercontent.com/JuliaLang/julia/master/src/julia-syntax.scm").readBytes())
 	}
+}
+
+configure<GrammarKitPluginExtension> {
+	jflexRelease = "c779429" // 1.7.0
+	grammarKitRelease = "2017.1.2"
 }
 
 // Don't specify type explicitly. Will be incorrectly recognized
