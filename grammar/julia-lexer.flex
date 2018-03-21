@@ -90,7 +90,7 @@ LONG_TEMPLATE_START=\$\(
 //SYMBOL=[a-zA-Z_]([a-zA-Z\d_\!])+
 //SYMBOL=[^\x00-\x20+\-*/\\$#\{\}()\[\]<>|&?~;\"\'\`@]+
 SIMPLE_SYMBOL={VALID_CHAR}({VALID_CHAR}|[\d\!])*
-VALID_CHAR=[a-zA-Z_\U000100-\U01ffff]
+VALID_CHAR=[a-zA-Z_\U000100-\U10ffff]
 
 STRING_UNICODE=\\((u{HEXDIGIT}{4})|(x{HEXDIGIT}{2}))
 CHAR_LITERAL='([^\\\'\x00-\x1F\x7F]|\\[^\'\x00-\x1F\x7F]+)'
