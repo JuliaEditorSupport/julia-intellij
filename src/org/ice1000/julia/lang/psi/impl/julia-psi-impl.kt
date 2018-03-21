@@ -30,7 +30,6 @@ fun collectFrom(startPoint: PsiElement, name: String, self: PsiElement? = null) 
 	.let { if (self != null) it.filter { it.isReferenceTo(self) } else it }
 	.toTypedArray()
 
-
 val DocStringOwner.docString: JuliaString? get() = prevSiblingIgnoring(JuliaTypes.EOL, TokenType.WHITE_SPACE)
 val IJuliaString.docStringOwner: DocStringOwner? get() = nextSiblingIgnoring(JuliaTypes.EOL, TokenType.WHITE_SPACE)
 
