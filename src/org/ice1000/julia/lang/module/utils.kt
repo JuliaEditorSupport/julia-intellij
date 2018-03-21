@@ -164,16 +164,14 @@ inline fun initExeComboBox(
  */
 object JuliaUTF8Control : ResourceBundle.Control() {
 	override fun newBundle(
-		baseName: String, locale: Locale, format: String, loader: ClassLoader, reload: Boolean): ResourceBundle {
-		val bundleName = toBundleName(baseName, locale)
-		val connection = loader.getResource(toResourceName(bundleName, "properties"))?.openConnection()
-		if (connection != null) {
-			connection.useCaches = false
-			val res = connection.getInputStream()?.use {
-				PropertyResourceBundle(it.reader())
+		baseName: String, locale: Locale, format: String, loader: ClassLoader, reload: Boolean): ResourceBundle =
+		loader.getResource(toResourceName(toBundleName(baseName, locale), "properties"))
+			// DO NOT USE `?.openStream` directly otherwise it'll make messy codes.
+			?.openConnection()?.getInputStream()?.reader()?.let(::PropertyResourceBundle)
+			?: let {
+				// Do not attempt to change codes which seems stupid...
+				val origin = Locale.getDefault()
+				Locale.setDefault(Locale.ENGLISH)
+				ResourceBundle.getBundle(baseName, Locale.ENGLISH).apply { Locale.setDefault(origin) }
 			}
-			if (null != res) return res
-		}
-		return ResourceBundle.getBundle(baseName)
-	}
 }

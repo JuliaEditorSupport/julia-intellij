@@ -9,6 +9,7 @@ import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
 import icons.JuliaIcons
 import org.ice1000.julia.lang.docfmt.DocfmtFileType
+import org.ice1000.julia.lang.module.JuliaUTF8Control
 import org.ice1000.julia.lang.psi.impl.processDeclTrivial
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
@@ -52,7 +53,7 @@ class JuliaLiveTemplateProvider : DefaultLiveTemplatesProvider {
 
 object JuliaBundle {
 	@NonNls private const val BUNDLE = "org.ice1000.julia.lang.julia-bundle"
-	private val bundle: ResourceBundle by lazy { ResourceBundle.getBundle(BUNDLE) }
+	private val bundle: ResourceBundle by lazy { ResourceBundle.getBundle(BUNDLE, JuliaUTF8Control) }
 
 	@JvmStatic
 	fun message(@PropertyKey(resourceBundle = BUNDLE) key: String, vararg params: Any) =
