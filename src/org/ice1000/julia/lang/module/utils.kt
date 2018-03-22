@@ -167,11 +167,14 @@ object JuliaUTF8Control : ResourceBundle.Control() {
 		baseName: String, locale: Locale, format: String, loader: ClassLoader, reload: Boolean): ResourceBundle =
 		loader.getResource(toResourceName(toBundleName(baseName, locale), "properties"))
 			// DO NOT USE `?.openStream` directly otherwise it'll make messy codes.
-			?.openConnection()?.getInputStream()?.reader()?.let(::PropertyResourceBundle)
+			?.openConnection()
+			?.inputStream
+			?.reader()
+			?.let(::PropertyResourceBundle)
 			?: let {
-				// Do not attempt to change codes which seems stupid...
-				val origin = Locale.getDefault()
+				// val origin = Locale.getDefault()
+				// Locale.setDefault(origin)
 				Locale.setDefault(Locale.ENGLISH)
-				ResourceBundle.getBundle(baseName, Locale.ENGLISH).apply { Locale.setDefault(origin) }
+				ResourceBundle.getBundle(baseName, Locale.ENGLISH)
 			}
 }
