@@ -182,11 +182,6 @@ task("downloadJuliaSyntax") {
 	}
 }
 
-configure<GrammarKitPluginExtension> {
-	jflexRelease = "c779429" // 1.7.0
-	grammarKitRelease = "2017.1.2"
-}
-
 // Don't specify type explicitly. Will be incorrectly recognized
 val parserRoot = Paths.get("org", "ice1000", "julia", "lang")!!
 val lexerRoot = Paths.get("gen", "org", "ice1000", "julia", "lang")!!
