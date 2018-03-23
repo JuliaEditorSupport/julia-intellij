@@ -38,7 +38,7 @@ buildscript {
 	var kotlinVersion: String by extra
 	var grammarKitVersion: String by extra
 
-	grammarKitVersion = "2017.1.1"
+	grammarKitVersion = "2018.1.1"
 	kotlinVersion = "1.2.30"
 
 	repositories {
@@ -48,7 +48,7 @@ buildscript {
 
 	dependencies {
 		classpath(kotlin("gradle-plugin", kotlinVersion))
-		classpath("com.github.hurricup:gradle-grammar-kit-plugin:$grammarKitVersion")
+		classpath("com.github.JetBrains:gradle-grammar-kit-plugin:$grammarKitVersion")
 	}
 }
 
