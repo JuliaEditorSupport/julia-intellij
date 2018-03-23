@@ -3,18 +3,20 @@ package org.ice1000.julia.lang.module
 import com.intellij.ide.util.projectWizard.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.*
+import com.intellij.openapi.project.rootManager
 import com.intellij.openapi.projectRoots.SdkTypeId
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ui.configuration.*
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.util.PlatformUtils
+import com.intellij.openapi.vfs.VirtualFile
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.ui.JuliaSetupSdkWizardStepImpl
-import java.nio.file.*
 
-class JuliaModuleBuilder : ModuleBuilder() {
+class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
+	init {
+		addListener(this)
+	}
+
 	lateinit var settings: JuliaSettings
 	override fun isSuitableSdkType(sdkType: SdkTypeId?) = true
 	override fun getWeight() = 98
@@ -30,14 +32,10 @@ class JuliaModuleBuilder : ModuleBuilder() {
 	override fun setupRootModel(model: ModifiableRootModel) {
 		if (::settings.isInitialized)
 			(model.project.juliaSettings as JuliaProjectSettingsServiceImpl).loadState(settings)
-		val srcPath = createSourceDirectory(model, contentEntryPath)
-		if (PlatformUtils.isIntelliJ()) {
-			val sourceRoot = LocalFileSystem
-				.getInstance()
-				.refreshAndFindFileByPath(FileUtil.toSystemIndependentName(srcPath.toString()))
-				?: return
-			doAddContentEntry(model)?.addSourceFolder(sourceRoot, false)
-		}
+	}
+
+	override fun moduleCreated(module: Module) {
+		createDir(module, module.project.baseDir, "src")
 	}
 }
 
@@ -76,9 +74,12 @@ class JuliaCompileOutputEditor(state: ModuleConfigurationState) : ModuleElements
 	override fun getHelpTopic() = editor.helpTopic
 }
 
-fun createSourceDirectory(model: ModifiableRootModel, entryPath: String?): Path {
-	model.inheritSdk()
-	val srcPath = Paths.get(entryPath, "src").toAbsolutePath()
-	Files.createDirectories(srcPath)
-	return srcPath
+fun createDir(module: Module, baseDir: VirtualFile, vararg dirs: String) {
+	module.rootManager.modifiableModel.apply {
+		inheritSdk()
+		contentEntries.firstOrNull()?.apply {
+			dirs.forEach { addExcludeFolder(baseDir.findOrCreateChildData(module, it)) }
+		}
+		commit()
+	}
 }
