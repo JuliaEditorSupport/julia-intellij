@@ -30,7 +30,6 @@ fun collectFrom(startPoint: PsiElement, name: String, self: PsiElement? = null) 
 	.let { if (self != null) it.filter { it.isReferenceTo(self) } else it }
 	.toTypedArray()
 
-
 val DocStringOwner.docString: JuliaString? get() = prevSiblingIgnoring(JuliaTypes.EOL, TokenType.WHITE_SPACE)
 val IJuliaString.docStringOwner: DocStringOwner? get() = nextSiblingIgnoring(JuliaTypes.EOL, TokenType.WHITE_SPACE)
 
@@ -51,5 +50,15 @@ inline fun <reified Psi : PsiElement> PsiElement.prevSiblingIgnoring(vararg type
 		next = localNext.prevSibling
 		return if (types.any { localNext.node.elementType == it }) continue
 		else localNext as? Psi
+	}
+}
+
+fun PsiElement.childrenBefore(type: IElementType): List<PsiElement> {
+	val ret = ArrayList<PsiElement>()
+	var next: PsiElement? = firstChild
+	while (true) {
+		next = next?.nextSibling ?: return ret
+		if (next.node.elementType == type) return ret
+		ret += next
 	}
 }

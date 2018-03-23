@@ -4,7 +4,7 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.*
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 
@@ -324,34 +324,29 @@ abstract class JuliaLoopDeclarationMixin(node: ASTNode) : JuliaDeclaration(node)
 			?: multiIndexerList.firstOrNull()?.firstChild
 
 	override fun processDeclarations(
-		processor: PsiScopeProcessor,
-		substitutor: ResolveState,
-		lastParent: PsiElement?,
-		place: PsiElement): Boolean =
+		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
 		singleIndexerList.all { processor.execute(it.firstChild, substitutor) } and
 			multiIndexerList.all { it.children.all { processor.execute(it, substitutor) } } and
 			super.processDeclarations(processor, substitutor, lastParent, place)
 }
 
 abstract class JuliaLambdaMixin(node: ASTNode) : JuliaDeclaration(node), JuliaLambda {
-	private val parameters get() = exprList.getOrNull(0)
-
-	override fun getNameIdentifier() =
-		parameters
-			?.let {
-				it as? JuliaSymbol
-					?: (it as? JuliaTuple)?.children?.firstOrNull { it is JuliaSymbol }
-			}?.apply(::println)
+	private val paramCandidates get() = childrenBefore(JuliaTypes.LAMBDA_ABSTRACTION)
+	override fun getNameIdentifier() = children.firstOrNull { it is JuliaExpr }?.let {
+		it as? JuliaSymbol ?: (it as? JuliaTuple)?.children?.firstOrNull { it is JuliaSymbol }
+	}
 
 	override fun processDeclarations(
 		processor: PsiScopeProcessor,
 		substitutor: ResolveState,
 		lastParent: PsiElement?,
-		place: PsiElement): Boolean {
-		return parameters
-			?.let {
-				(it as? JuliaSymbol)?.let { processor.execute(it.printDescription(), substitutor) }
-					?: (it as? JuliaTuple)?.children?.all { processor.execute(it.printDescription(), substitutor) }
-			}.orFalse() and super.processDeclarations(processor, substitutor, lastParent, place)
-	}
+		place: PsiElement) = paramCandidates.let {
+		(it as? JuliaSymbol)?.processDeclarations(processor, substitutor, lastParent, place)
+			?: (it as? JuliaTuple)?.run {
+				children
+					.toList()
+					.asReversed()
+					.all { it.processDeclarations(processor, substitutor, lastParent, place) }
+			}
+	}.orFalse() and super.processDeclarations(processor, substitutor, lastParent, place)
 }

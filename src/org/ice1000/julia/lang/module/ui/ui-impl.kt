@@ -62,7 +62,7 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 
 class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
 	private val settings = JuliaSettings()
-	private val listeners = emptyList<ProjectGeneratorPeer.SettingsListener>().toMutableList()
+	private val listeners = ArrayList<ProjectGeneratorPeer.SettingsListener>()
 
 	init {
 		setupLaterRadioButton.addChangeListener {
