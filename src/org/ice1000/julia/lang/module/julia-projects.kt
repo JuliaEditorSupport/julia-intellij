@@ -43,7 +43,7 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 				inheritSdk()
 				contentEntries.firstOrNull()?.apply {
 					addSourceFolder(baseDir.findChild("src")
-						?: baseDir.findOrCreateChildData(module, "src"), false)
+						?: baseDir.createChildDirectory(module, "src"), false)
 				}
 				commit()
 			}
