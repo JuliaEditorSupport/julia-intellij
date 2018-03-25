@@ -7,7 +7,6 @@ import com.intellij.openapi.project.rootManager
 import com.intellij.openapi.projectRoots.SdkTypeId
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ui.configuration.*
-import com.intellij.openapi.vfs.VirtualFile
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.ui.JuliaSetupSdkWizardStepImpl
@@ -35,7 +34,13 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	}
 
 	override fun moduleCreated(module: Module) {
-		createDir(module, module.project.baseDir, "src")
+		module.rootManager.modifiableModel.apply {
+			inheritSdk()
+			contentEntries.firstOrNull()?.apply {
+				arrayOf("src").forEach { addSourceFolder(module.project.baseDir.findOrCreateChildData(module, it), false) }
+			}
+			commit()
+		}
 	}
 }
 
@@ -74,12 +79,3 @@ class JuliaCompileOutputEditor(state: ModuleConfigurationState) : ModuleElements
 	override fun getHelpTopic() = editor.helpTopic
 }
 
-fun createDir(module: Module, baseDir: VirtualFile, vararg dirs: String) {
-	module.rootManager.modifiableModel.apply {
-		inheritSdk()
-		contentEntries.firstOrNull()?.apply {
-			dirs.forEach { addExcludeFolder(baseDir.findOrCreateChildData(module, it)) }
-		}
-		commit()
-	}
-}

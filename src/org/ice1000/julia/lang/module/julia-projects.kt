@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.rootManager
 import com.intellij.openapi.roots.ModifiableModelsProvider
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.vfs.VfsUtil
@@ -38,7 +39,14 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 	override fun generateProject(project: Project, baseDir: VirtualFile, settings: JuliaSettings, module: Module) {
 		ApplicationManager.getApplication().runWriteAction {
 			val modifiableModel: ModifiableRootModel = ModifiableModelsProvider.SERVICE.getInstance().getModuleModifiableModel(module)
-			createDir(module, baseDir, "src")
+			module.rootManager.modifiableModel.apply {
+				inheritSdk()
+				contentEntries.firstOrNull()?.apply {
+					addSourceFolder(baseDir.findChild("src")
+						?: baseDir.createChildDirectory(module, "src"), false)
+				}
+				commit()
+			}
 			ModifiableModelsProvider.SERVICE.getInstance().commitModuleModifiableModel(modifiableModel)
 			project.forCLion()
 		}
