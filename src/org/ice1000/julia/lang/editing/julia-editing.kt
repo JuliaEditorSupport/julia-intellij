@@ -177,8 +177,8 @@ class JuliaFindUsagesProvider : FindUsagesProvider {
 	override fun getHelpId(psiElement: PsiElement): String? = null
 	override fun getDescriptiveName(element: PsiElement) = if (element.canBeNamed) element.presentText() else ""
 	override fun getType(element: PsiElement) = if (element.canBeNamed) element.text else ""
-	override fun canFindUsagesFor(element: PsiElement) = (element as? JuliaSymbol)?.isDeclaration
-		?: element is PsiNamedElement
+	override fun canFindUsagesFor(element: PsiElement) =
+		element.let { it as? PsiNameIdentifierOwner }?.run { nameIdentifier as? JuliaSymbol }?.isDeclaration.orFalse()
 }
 
 class JuliaRefactoringSupportProvider : RefactoringSupportProvider() {

@@ -63,7 +63,7 @@ plugins {
 idea {
 	module {
 		// https://github.com/gradle/kotlin-dsl/issues/537/
-		excludeDirs.add(file("pinpoint-piggy"))
+		excludeDirs = excludeDirs + file("pinpoint-piggy")
 	}
 }
 
