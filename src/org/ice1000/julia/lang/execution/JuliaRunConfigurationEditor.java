@@ -1,6 +1,7 @@
 package org.ice1000.julia.lang.execution;
 
 import com.intellij.openapi.options.SettingsEditor;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.ComboboxWithBrowseButton;
 import com.intellij.ui.RawCommandLineEditor;
@@ -25,9 +26,9 @@ public abstract class JuliaRunConfigurationEditor extends SettingsEditor<JuliaRu
 	protected @NotNull JCheckBox systemImageCheckBox;
 	protected @NotNull RawCommandLineEditor programArgumentsField;
 	protected @NotNull RawCommandLineEditor additionalOptionsField;
-	protected @NotNull JComboBox<String> optimizationLevelComboBox; // --optimize
-	protected @NotNull JComboBox<String> jitCompilerOptions; // --compile
-	protected @NotNull JComboBox<String> depWarnOptions;
-	protected @NotNull JComboBox<String> codeCovOptions;
-	protected @NotNull JComboBox<String> trackAllocOptions;
+	protected @NotNull ComboBox<String> optimizationLevelComboBox; // --optimize
+	protected @NotNull ComboBox<String> jitCompilerOptions; // --compile
+	protected @NotNull ComboBox<String> depWarnOptions;
+	protected @NotNull ComboBox<String> codeCovOptions;
+	protected @NotNull ComboBox<String> trackAllocOptions;
 }
