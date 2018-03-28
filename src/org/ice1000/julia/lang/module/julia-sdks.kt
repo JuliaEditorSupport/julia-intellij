@@ -1,7 +1,7 @@
 package org.ice1000.julia.lang.module
 
 import com.intellij.openapi.projectRoots.*
-import icons.JuliaIcons.JULIA_BIG_ICON
+import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.jdom.Element
 import java.nio.file.Files
@@ -12,8 +12,8 @@ import java.nio.file.Paths
  */
 class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun getPresentableName() = JuliaBundle.message("julia.modules.sdk.name")
-	override fun getIcon() = JULIA_BIG_ICON
-	override fun getIconForAddAction() = icon
+	override fun getIcon() = JuliaIcons.JULIA_BIG_ICON
+	override fun getIconForAddAction() = JuliaIcons.ADD_SDK_ICON
 	override fun isValidSdkHome(sdkHome: String?) = validateJuliaSDK(sdkHome.orEmpty())
 	override fun suggestSdkName(s: String?, p1: String?) = JuliaBundle.message("julia.modules.sdk.name")
 	override fun suggestHomePath() = Paths.get(juliaPath).parent?.parent?.toString()
