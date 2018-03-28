@@ -175,6 +175,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		if (exePath == null || !validateJuliaExe(exePath))
 			throw ConfigurationException(JuliaBundle.message("julia.modules.invalid"))
 		globalSettings.knownJuliaExes += exePath
+		globalSettings.globalUnicodeInput = globalUnicodeCheckBox.isSelected
 		settings.exePath = exePath
 		settings.version = version.text
 		settings.basePath = basePathField.text

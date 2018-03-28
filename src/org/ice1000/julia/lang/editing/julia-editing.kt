@@ -161,7 +161,7 @@ object JuliaNameValidator : InputValidatorEx {
 	override fun canClose(inputString: String?) = checkInput(inputString)
 	override fun getErrorText(inputString: String?) = JuliaBundle.message("julia.actions.new-file.invalid", inputString.orEmpty())
 	override fun checkInput(inputString: String?) = inputString?.run {
-		all { it.isLetterOrDigit() || it in "_!" || it in '\u0100'..'\u9999' } && firstOrNull() != '!'
+		all { it.isLetterOrDigit() || it in "_!" || it in '\u0100'..'\uFFFF' } && firstOrNull() != '!'
 	}.orFalse()
 }
 

@@ -20,8 +20,7 @@ import com.intellij.util.textCompletion.TextFieldWithCompletion
 import com.intellij.util.ui.JBUI
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.module.JuliaSettings
-import org.ice1000.julia.lang.module.juliaSettings
+import org.ice1000.julia.lang.module.*
 import java.awt.event.KeyEvent
 import javax.swing.JLabel
 
@@ -75,7 +74,7 @@ class JuliaUnicodeInputAction : JuliaAction(
 			}
 		}
 
-		fun actionInvoke(editor: Editor, project: Project) {
+		fun actionInvoke(editor: Editor?, project: Project) {
 			val field = TextFieldWithCompletion(project, UnicodeCompletionProvider, "", true, true, true)
 			var popup: JBPopup? = null
 			popup = JBPopupFactory.getInstance()
@@ -92,26 +91,28 @@ class JuliaUnicodeInputAction : JuliaAction(
 			popup.addListener(object : JBPopupListener.Adapter() {
 				override fun onClosed(event: LightweightWindowEvent?) {
 					CommandProcessor.getInstance().executeCommand(project, {
-						ApplicationManager.getApplication().runWriteAction {
+						if (null != editor) ApplicationManager.getApplication().runWriteAction {
 							editor.document.insertString(editor.caretModel.offset, field.text)
 							editor.caretModel.moveCaretRelatively(field.text.length, 0, false, false, true)
 						}
 					}, null, null)
 				}
 			})
-			popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor))
+			if (editor != null) popup.show(JBPopupFactory.getInstance().guessBestPopupLocation(editor))
+			else popup.showInFocusCenter()
 			field.requestFocus()
 		}
 	}
 
 	override fun actionPerformed(e: AnActionEvent) {
-		val editor = e.getData(CommonDataKeys.EDITOR) ?: return
+		val editor = CommonDataKeys.EDITOR.getData(e.dataContext)
 		val project = e.project ?: return
 		actionInvoke(editor, project)
 	}
 
 	override fun update(e: AnActionEvent) {
-		e.presentation.isEnabledAndVisible = fileType(e) and e.project?.run { juliaSettings.settings.unicodeEnabled }.orFalse()
+		e.presentation.isEnabledAndVisible = juliaGlobalSettings.globalUnicodeInput ||
+			(fileType(e) && e.project?.run { juliaSettings.settings.unicodeEnabled }.orFalse())
 	}
 }
 
