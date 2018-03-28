@@ -1,10 +1,10 @@
 package org.ice1000.julia.lang
 
-import com.google.common.util.concurrent.*
 import com.intellij.openapi.util.TextRange
 import org.ice1000.julia.lang.module.validateJuliaExe
 import java.io.InputStream
-import java.util.concurrent.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 
 inline fun forceRun(lambda: () -> Unit) {

@@ -49,10 +49,10 @@ class JuliaFormattingModelBuilder : FormattingModelBuilder {
 	private fun createSpaceBuilder(settings: CodeStyleSettings): SpacingBuilder {
 		//TODO by settings
 //		val codeStyleSettings = settings.getCustomSettings(JuliaCodeStyleSettings::class.java)
-//		val commonSettings = settings.getCommonSettings(JsonLanguage.INSTANCE)
+		val commonSettings = settings.getCommonSettings(JuliaLanguage.INSTANCE)
 //		val spacesAroundAssign = if (commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS) 1 else 0
-		val tokenSetForCommaAndSemi=TokenSet.create(JuliaTypes.COMMA_SYM,JuliaTypes.SEMICOLON_SYM)
-		val tokenSetForBinaryOp=TokenSet.create(
+		val tokenSetForCommaAndSemi = TokenSet.create(JuliaTypes.COMMA_SYM, JuliaTypes.SEMICOLON_SYM)
+		val tokenSetForBinaryOp = TokenSet.create(
 			JuliaTypes.SUBTYPE_SYM,
 			JuliaTypes.ARROW_SYM,
 			JuliaTypes.COMPARISON_LEVEL_OPERATOR,
@@ -62,7 +62,7 @@ class JuliaFormattingModelBuilder : FormattingModelBuilder {
 			JuliaTypes.MULTIPLY_LEVEL_OPERATOR
 		)
 		return SpacingBuilder(settings, JuliaLanguage.INSTANCE)
-			.around(JuliaTypes.ASSIGN_LEVEL_OPERATOR).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+			.around(JuliaTypes.ASSIGN_LEVEL_OPERATOR).spaceIf(commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
 			.around(tokenSetForBinaryOp).spaces(1)
 			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.ARGUMENTS).spaces(1)
 			.afterInside(tokenSetForCommaAndSemi, JuliaTypes.ARRAY).spaces(1)

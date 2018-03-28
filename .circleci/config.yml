@@ -33,7 +33,9 @@ jobs:
       - store_artifacts:
           path: build/distributions
 
-      - run: gradle test
+      - run: gradle test --info
+
+      - run: gradle verifyPlugin --info
 
       - run:
           name: Save test results

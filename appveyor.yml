@@ -4,7 +4,8 @@ environment:
 
 build_script:
   - gradlew displayCommitHash
-  - gradlew buildPlugin
+  - gradlew buildPlugin --info
+  - gradlew verifyPlugin --info
 #
 
 artifacts:
