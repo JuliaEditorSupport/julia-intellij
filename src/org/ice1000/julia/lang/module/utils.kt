@@ -115,7 +115,12 @@ fun importPathOf(exePath: String, timeLimit: Long = 800L) =
 		.orEmpty()
 		.trim('"')
 
-fun validateJuliaExe(exePath: String) = Files.isExecutable(Paths.get(exePath))
+fun validateJuliaExe(exePath: String) = try {
+	Files.isExecutable(Paths.get(exePath))
+} catch (e: Exception) {
+	false
+}
+
 fun validateJulia(settings: JuliaSettings) = validateJuliaExe(settings.exePath)
 
 fun installDocumentFormat(
