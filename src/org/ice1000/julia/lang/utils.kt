@@ -1,10 +1,10 @@
 package org.ice1000.julia.lang
 
-import com.google.common.util.concurrent.SimpleTimeLimiter
+import com.google.common.util.concurrent.*
 import com.intellij.openapi.util.TextRange
 import org.ice1000.julia.lang.module.validateJuliaExe
 import java.io.InputStream
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 import java.util.stream.Collectors
 
 inline fun forceRun(lambda: () -> Unit) {
@@ -46,20 +46,22 @@ fun executeCommand(
 	var processRef: Process? = null
 	var output: List<String> = emptyList()
 	var outputErr: List<String> = emptyList()
+	val executor = Executors.newCachedThreadPool()
+	val future = executor.submit {
+		val process: Process = Runtime.getRuntime().exec(command)
+		processRef = process
+		process.outputStream.use {
+			if (input != null) it.write(input.toByteArray())
+			it.flush()
+		}
+		process.waitFor()
+		output = process.inputStream.use(::collectLines)
+		outputErr = process.errorStream.use(::collectLines)
+		forceRun(process::destroy)
+	}
 	try {
-		SimpleTimeLimiter().callWithTimeout({
-			val process: Process = Runtime.getRuntime().exec(command)
-			processRef = process
-			process.outputStream.use {
-				if (input != null) it.write(input.toByteArray())
-				it.flush()
-			}
-			process.waitFor()
-			output = process.inputStream.use(::collectLines)
-			outputErr = process.errorStream.use(::collectLines)
-			forceRun(process::destroy)
-		}, timeLimit + 100, TimeUnit.MILLISECONDS, true)
-	} catch (e: Throwable) {
+		future.get(timeLimit, TimeUnit.MILLISECONDS)
+	} finally {
 		processRef?.destroy()
 	}
 	return output to outputErr
