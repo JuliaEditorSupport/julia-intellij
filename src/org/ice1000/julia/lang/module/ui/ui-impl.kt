@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectGeneratorPeer
+import com.intellij.ui.components.labels.LinkListener
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
 import org.ice1000.julia.lang.JuliaBundle
@@ -110,7 +111,8 @@ class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
  * Settings(Preference) | Language & Frameworks | Julia
  */
 class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable() {
-	private var settings = project.juliaSettings.settings
+	private val settings = project.juliaSettings.settings
+	private val globalSettings = juliaGlobalSettings
 
 	init {
 		version.text = settings.version
@@ -121,7 +123,9 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		timeLimitField.value = settings.tryEvaluateTimeLimit
 		textLimitField.formatterFactory = factory
 		textLimitField.value = settings.tryEvaluateTextLimit.toLong()
-		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
+		// TODO workaround for KT-23421
+		val listener = LinkListener<Any> { _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }
+		juliaWebsite.setListener(listener, null)
 		importPathField.text = settings.importPath
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project))
 		basePathField.text = settings.basePath
@@ -140,6 +144,8 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 				settings.importPath = importPathField.text
 			}
 		}
+		unicodeInputCheckBox.addActionListener { globalUnicodeCheckBox.isEnabled = unicodeInputCheckBox.isSelected }
+		globalUnicodeCheckBox.isSelected = globalSettings.globalUnicodeInput
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
 		showEvalHintCheckBox.isSelected = settings.showEvalHint
 		if (Files.exists(Paths.get(settings.importPath, "DocumentFormat"))) {
@@ -153,6 +159,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 	override fun isModified() = settings.importPath != importPathField.text ||
 		settings.basePath != basePathField.text ||
 		settings.exePath != juliaExeField.comboBox.selectedItem ||
+		globalUnicodeCheckBox.isSelected != globalSettings.globalUnicodeInput ||
 		unicodeInputCheckBox.isSelected != settings.unicodeEnabled ||
 		showEvalHintCheckBox.isSelected != settings.showEvalHint ||
 		settings.tryEvaluateTextLimit != (textLimitField.value as Number).toInt() ||
@@ -167,7 +174,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		val exePath = juliaExeField.comboBox.selectedItem as? String
 		if (exePath == null || !validateJuliaExe(exePath))
 			throw ConfigurationException(JuliaBundle.message("julia.modules.invalid"))
-		juliaGlobalSettings.knownJuliaExes += exePath
+		globalSettings.knownJuliaExes += exePath
 		settings.exePath = exePath
 		settings.version = version.text
 		settings.basePath = basePathField.text

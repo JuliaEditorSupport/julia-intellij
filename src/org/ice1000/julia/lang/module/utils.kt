@@ -55,6 +55,7 @@ fun findPathLinux() =
 		?: executeCommandToFindPath("whereis julia")
 
 class JuliaGlobalSettings(
+	var globalUnicodeInput: Boolean = false,
 	var allJuliaExePath: String = "")
 
 class JuliaSettings constructor(

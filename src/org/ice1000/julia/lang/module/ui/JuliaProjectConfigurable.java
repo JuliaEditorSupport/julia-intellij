@@ -3,6 +3,7 @@ package org.ice1000.julia.lang.module.ui;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.ComboboxWithBrowseButton;
+import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.labels.LinkLabel;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,6 +19,7 @@ public abstract class JuliaProjectConfigurable implements Configurable {
 	protected @NotNull JLabel version;
 	protected @NotNull TextFieldWithBrowseButton basePathField;
 	protected @NotNull JButton installAutoFormatButton;
-	protected @NotNull JCheckBox unicodeInputCheckBox;
-	protected @NotNull JCheckBox showEvalHintCheckBox;
+	protected @NotNull JBCheckBox unicodeInputCheckBox;
+	protected @NotNull JBCheckBox showEvalHintCheckBox;
+	protected @NotNull JBCheckBox globalUnicodeCheckBox;
 }

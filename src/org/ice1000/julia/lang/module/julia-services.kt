@@ -15,6 +15,7 @@ interface JuliaProjectSettingsService {
 
 interface JuliaGlobalSettingsService {
 	val knownJuliaExes: MutableSet<String>
+	var globalUnicodeInput: Boolean
 }
 
 val Project.juliaSettings: JuliaProjectSettingsService
@@ -44,14 +45,16 @@ class JuliaProjectSettingsServiceImpl :
 class JuliaGlobalSettingsServiceImpl :
 	JuliaGlobalSettingsService, PersistentStateComponent<JuliaGlobalSettings> {
 	override val knownJuliaExes: MutableSet<String> = hashSetOf()
+	override var globalUnicodeInput: Boolean = false
 	private fun invalidate() = knownJuliaExes.removeAll { !validateJuliaExe(it) }
 	override fun getState(): JuliaGlobalSettings {
 		invalidate()
-		return JuliaGlobalSettings(knownJuliaExes.joinToString(File.pathSeparator))
+		return JuliaGlobalSettings(globalUnicodeInput, knownJuliaExes.joinToString(File.pathSeparator))
 	}
 
 	override fun loadState(state: JuliaGlobalSettings) {
 		invalidate()
+		globalUnicodeInput = state.globalUnicodeInput
 		knownJuliaExes += state.allJuliaExePath.split(File.pathSeparatorChar)
 	}
 }
