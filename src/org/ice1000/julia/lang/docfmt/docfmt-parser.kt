@@ -23,7 +23,7 @@ class DocfmtParserDefinition : ParserDefinition {
 	override fun createElement(node: ASTNode?): PsiElement = DocfmtTypes.Factory.createElement(node)
 	override fun getCommentTokens() = DocfmtTokenType.COMMENTS
 	override fun createLexer(project: Project?) = DocfmtLexerAdapter()
-	override fun getWhitespaceTokens() = DocfmtTokenType.WHITE_SPACE
+	override fun getWhitespaceTokens() = TokenSet.WHITE_SPACE
 	override fun getStringLiteralElements(): TokenSet = TokenSet.EMPTY
 	override fun getFileNodeType() = FILE
 }
@@ -31,7 +31,6 @@ class DocfmtParserDefinition : ParserDefinition {
 class DocfmtTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE) {
 	companion object TokenHolder {
 		@JvmField val COMMENTS = TokenSet.create(DocfmtTypes.LINE_COMMENT)
-		@JvmField val WHITE_SPACE: TokenSet = TokenSet.WHITE_SPACE
 	}
 }
 

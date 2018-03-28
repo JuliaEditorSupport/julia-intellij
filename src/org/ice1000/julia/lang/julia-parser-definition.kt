@@ -22,7 +22,7 @@ open class JuliaParserDefinition : ParserDefinition {
 	final override fun createLexer(project: Project?) = JuliaLexerAdapter()
 	final override fun createElement(node: ASTNode?): PsiElement = JuliaTypes.Factory.createElement(node)
 	final override fun getCommentTokens() = JuliaTokenType.COMMENTS
-	final override fun getWhitespaceTokens() = JuliaTokenType.WHITE_SPACES
+	final override fun getWhitespaceTokens() = TokenSet.WHITE_SPACE
 }
 
 class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE) {
@@ -100,7 +100,6 @@ class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.
 			JuliaTypes.REMAINDER_ASSIGN_SYM
 		)
 
-		@JvmField val WHITE_SPACES: TokenSet = TokenSet.WHITE_SPACE
 		@JvmField val CONCATENATABLE_TOKENS = TokenSet.orSet(COMMENTS, STRINGS)
 		fun fromText(code: String, project: Project): PsiElement = PsiFileFactory
 			.getInstance(project)
