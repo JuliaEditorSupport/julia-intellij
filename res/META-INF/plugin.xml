@@ -12,7 +12,7 @@
 		<internalFileTemplate name="Julia Type"/>
 		<internalFileTemplate name="Julia File"/>
 <!--<gotoClassContributor implementation="org.ice1000.julia.lang.psi.JuliaModuleNavigationContributor"/>-->
-		<additionalTextAttributes scheme="Darcula" file="/colorSchemes/Julia.xml"/>
+		<additionalTextAttributes scheme="Darcula" file="/colorSchemes/JuliaDark.xml"/>
 		<additionalTextAttributes scheme="Default" file="/colorSchemes/Julia.xml"/>
 		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>
 		<colorSettingsPage implementation="org.ice1000.julia.lang.JuliaColorSettingsPage"/>

@@ -27,8 +27,7 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 		private val ERROR_FILE_LOCATION = Pattern.compile(JULIA_ERROR_FILE_LOCATION_REGEX)
 	}
 
-	private fun default(startPoint: Int, entireLength: Int): Filter.Result? = null
-		// Filter.Result(startPoint, entireLength, null)
+	// Filter.Result(startPoint, entireLength, null)
 	override fun applyFilter(line: String, entireLength: Int): Filter.Result? {
 		val startPoint = entireLength - line.length
 		val fileSystem = project.baseDir.fileSystem
@@ -37,7 +36,7 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 			val (path, lineNumber) = matcher1.group().drop(3).split(':') // "at ".length
 			val resultFile = fileSystem.findFileByPath(path)
 				?: fileSystem.findFileByPath(Paths.get(sdkHomeCache, path.trim('.', '/')).toString())
-				?: return default(startPoint, entireLength)
+				?: return null
 			return Filter.Result(
 				startPoint + matcher1.start() + 3,
 				startPoint + matcher1.end(),
@@ -46,15 +45,15 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 		val matcher2 = ERROR_FILE_LOCATION.matcher(line)
 		if (matcher2.find()) {
 			val resultFile = fileSystem.findFileByPath(matcher2.group().dropLast(1))
-				?: return default(startPoint, entireLength)
+				?: return null
 			val lineNumber = line.split(' ').lastOrNull()?.trim()?.toIntOrNull()
-				?: return default(startPoint, entireLength)
+				?: return null
 			return Filter.Result(
 				startPoint + matcher2.start(),
 				startPoint + matcher2.end() - 1,
 				OpenFileHyperlinkInfo(project, resultFile, lineNumber - 1))
 		}
-		return default(startPoint, entireLength)
+		return null
 	}
 }
 
