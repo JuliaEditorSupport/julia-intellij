@@ -4,6 +4,8 @@ import com.google.common.io.Files
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtilRt
 import org.ice1000.julia.lang.executeCommand
+import org.ice1000.julia.lang.module.juliaPath
+import org.ice1000.julia.lang.module.versionOf
 import org.ice1000.julia.lang.shouldBe
 import org.junit.Test
 import java.io.File
@@ -13,7 +15,7 @@ import kotlin.system.measureTimeMillis
 import kotlin.test.assertTrue
 
 private fun main(args: Array<String>) {
-	val process = Runtime.getRuntime().exec("/home/ice1000/SDK/julia-6.2/bin/julia -q").also {
+	val process = Runtime.getRuntime().exec("$juliaPath -q").also {
 		//language=Julia
 		it.outputStream.let {
 			it.write("using DocumentFormat: format\n".toByteArray())
@@ -46,6 +48,11 @@ class ExecutionTest {
 	@Test
 	fun testTerminate() {
 		println(executeCommand("git status", timeLimit = 10000000L))
+	}
+
+	@Test
+	fun testVersion() {
+		println(versionOf(juliaPath))
 	}
 
 	/**
