@@ -6,11 +6,13 @@ package org.ice1000.julia.lang.module
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TextComponentAccessor
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.ComboboxWithBrowseButton
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
@@ -53,6 +55,9 @@ fun findPathWindows() =
 fun findPathLinux() =
 	PathEnvironmentVariableUtil.findInPath("julia")?.absolutePath
 		?: executeCommandToFindPath("whereis julia")
+
+fun findOrCreate(baseDir: VirtualFile, dir: String, module: Module) =
+	baseDir.findChild(dir) ?: baseDir.createChildDirectory(module, dir)
 
 class JuliaGlobalSettings(
 	var globalUnicodeInput: Boolean = false,

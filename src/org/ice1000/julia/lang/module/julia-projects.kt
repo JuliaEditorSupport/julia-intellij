@@ -42,8 +42,8 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 			module.rootManager.modifiableModel.apply {
 				inheritSdk()
 				contentEntries.firstOrNull()?.apply {
-					addSourceFolder(baseDir.findChild("src")
-						?: baseDir.createChildDirectory(module, "src"), false)
+					addExcludeFolder(findOrCreate(baseDir, "out", module))
+					addSourceFolder(findOrCreate(baseDir, "src", module), false)
 				}
 				commit()
 			}

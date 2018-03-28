@@ -51,9 +51,6 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 			ModifiableModelsProvider.SERVICE.getInstance().commitModuleModifiableModel(modifiableModel)
 		}
 	}
-
-	private fun findOrCreate(baseDir: VirtualFile, dir: String, module: Module) =
-		baseDir.findChild(dir) ?: baseDir.createChildDirectory(module, dir)
 }
 
 class JuliaModuleType : ModuleType<JuliaModuleBuilder>(JULIA_MODULE_ID) {
