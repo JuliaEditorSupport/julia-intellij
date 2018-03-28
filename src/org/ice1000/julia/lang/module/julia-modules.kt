@@ -2,11 +2,14 @@ package org.ice1000.julia.lang.module
 
 import com.intellij.ide.util.projectWizard.*
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.*
 import com.intellij.openapi.project.rootManager
 import com.intellij.openapi.projectRoots.SdkTypeId
+import com.intellij.openapi.roots.ModifiableModelsProvider
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ui.configuration.*
+import com.intellij.openapi.vfs.VirtualFile
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.ui.JuliaSetupSdkWizardStepImpl
@@ -34,14 +37,23 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	}
 
 	override fun moduleCreated(module: Module) {
-		module.rootManager.modifiableModel.apply {
-			inheritSdk()
-			contentEntries.firstOrNull()?.apply {
-				arrayOf("src").forEach { addSourceFolder(module.project.baseDir.findOrCreateChildData(module, it), false) }
+		ApplicationManager.getApplication().runWriteAction {
+			val modifiableModel: ModifiableRootModel = ModifiableModelsProvider.SERVICE.getInstance().getModuleModifiableModel(module)
+			module.rootManager.modifiableModel.apply {
+				inheritSdk()
+				contentEntries.firstOrNull()?.apply {
+					val baseDir = module.project.baseDir
+					addExcludeFolder(findOrCreate(baseDir, "out", module))
+					addSourceFolder(findOrCreate(baseDir, "src", module), false)
+				}
+				commit()
 			}
-			commit()
+			ModifiableModelsProvider.SERVICE.getInstance().commitModuleModifiableModel(modifiableModel)
 		}
 	}
+
+	private fun findOrCreate(baseDir: VirtualFile, dir: String, module: Module) =
+		baseDir.findChild(dir) ?: baseDir.createChildDirectory(module, dir)
 }
 
 class JuliaModuleType : ModuleType<JuliaModuleBuilder>(JULIA_MODULE_ID) {
