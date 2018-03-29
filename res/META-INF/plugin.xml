@@ -140,7 +140,7 @@
 			icon="JuliaIcons.JULIA_BIG_ICON"
 			class="org.ice1000.julia.lang.action.NewJuliaProject"
 			text="New Julia Project"
-			description="Create a new Julia file">
+			description="Create a new Julia project">
 			<add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewProject"/>
 		</action>
 		<action
