@@ -10,7 +10,7 @@
     <children>
       <component id="2a2a7" class="com.intellij.ui.components.labels.LinkLabel" binding="juliaWebsite">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false">
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="276" height="20"/>
           </grid>
         </constraints>
@@ -41,20 +41,17 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="1585d" class="javax.swing.JRadioButton" binding="selectJuliaExecutableRadioButton" default-binding="true">
+          <component id="2b01" class="javax.swing.JLabel" binding="selectJuliaExecutableLabel" default-binding="true">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="1" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <preferred-size width="250" height="28"/>
-              </grid>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="1" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <selected value="true"/>
               <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.modules.selection.exe-label"/>
             </properties>
           </component>
-          <component id="f8022" class="javax.swing.JRadioButton" binding="setupLaterRadioButton">
+          <component id="d0e5e" class="com.intellij.ui.components.JBCheckBox" binding="setupLaterCheckBox">
             <constraints>
-              <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="1" hsize-policy="1" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="1" hsize-policy="1" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.modules.selection.later-label"/>

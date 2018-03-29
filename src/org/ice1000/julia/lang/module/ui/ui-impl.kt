@@ -66,18 +66,12 @@ class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
 	private val listeners = ArrayList<ProjectGeneratorPeer.SettingsListener>()
 
 	init {
-		setupLaterRadioButton.addChangeListener {
-			juliaExeField.isEnabled = false
-			selectJuliaExecutableRadioButton.isSelected = !setupLaterRadioButton.isSelected
-		}
-		selectJuliaExecutableRadioButton.addChangeListener {
-			juliaExeField.isEnabled = true
-			setupLaterRadioButton.isSelected = !selectJuliaExecutableRadioButton.isSelected
+		setupLaterCheckBox.addChangeListener {
+			juliaExeField.isEnabled = setupLaterCheckBox.isSelected
 		}
 		usefulText.isVisible = false
 		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
 		initExeComboBox(juliaExeField)
-		selectJuliaExecutableRadioButton.isSelected = true
 	}
 
 	override fun getSettings() = settings.apply { initWithExe() }
@@ -93,7 +87,7 @@ class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
 
 	override fun getComponent() = mainPanel
 	override fun validate(): ValidationInfo? {
-		if (setupLaterRadioButton.isSelected) return null
+		if (setupLaterCheckBox.isSelected) return null
 		val selected = juliaExeField.comboBox.selectedItem as? String
 		return if (selected != null && validateJuliaExe(selected)) {
 			listeners.forEach { it.stateChanged(true) }

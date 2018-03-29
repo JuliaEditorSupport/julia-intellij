@@ -77,8 +77,9 @@ allprojects {
 		instrumentCode = true
 		when (System.getProperty("user.name")) {
 			"ice1000" -> {
-				localPath = "/home/ice1000/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/181.4203.550"
-				alternativeIdePath = "/home/ice1000/.local/share/JetBrains/Toolbox/apps/PyCharm-C/ch-0/173.4674.37"
+				val root = "/home/ice1000/.local/share/JetBrains/Toolbox/apps"
+				localPath = "$root/IDEA-U/ch-0/181.4203.550"
+				alternativeIdePath = "$root/CLion/ch-0/181.4203.549"
 			}
 			"hoshino" -> localPath = ext["ideaC_path"].toString()
 			"zh" -> version = "2018.1"
