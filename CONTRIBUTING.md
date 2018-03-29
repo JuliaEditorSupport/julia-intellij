@@ -7,8 +7,9 @@ $ chmod a+x gradlew
 $ ./gradlew buildPlugin
 ```
 
-It's not recommended to use gradle because it will
-include unnecessary dependencies and it's slow.
+It's now recommended to use gradle because it can be used under command line.
+
+But anyway you're gonna edit this project code with IDEA.
 
 ## Use Idea build
 
@@ -21,10 +22,7 @@ First install required plugins in your IntelliJ IDEA:
 + Plugin DevKit (built-in, just make sure you've enabled it)
 + Kotlin [![JetBrains Plugins](https://img.shields.io/jetbrains/plugin/v/6954-kotlin.svg)](https://plugins.jetbrains.com/plugin/6954-kotlin)
 
-I've compiled a Grammar-Kit which supports completing Java codes in the jflex code fragment which can be found
-[here](https://github.com/ice1000/julia-intellij/releases/download/0.0.2/grammar-kit-2017.1.1.zip).
-
-For debugging purpose, it's recommended to install a plugin called PsiViewer [![JetBrains Plugins](https://plugins.jetbrains.com/plugin/227-psiviewer)](https://plugins.jetbrains.com/plugin/227-psiviewer).
+For debugging purpose, it's recommended to install a plugin called PsiViewer in the plugin sandbox [![JetBrains Plugins](https://plugins.jetbrains.com/plugin/227-psiviewer)](https://plugins.jetbrains.com/plugin/227-psiviewer).
 
 ### Build
 
@@ -34,14 +32,9 @@ Clone this repo:
 $ git clone https://github.com/ice1000/julia-intellij.git
 ```
 
-Create a plugin project from your cloned source, and use Grammar-Kit
-to generate the Parser and Lexer.
+Create a plugin project from your cloned source, and use `gradle buildPlugin` to do code generation.
 
-Then, click `File | Settings | Build, Execution, Deployment | Compiler | Kotlin Compiler`,
-make sure "Target Kotlin version" is "1.8".
-
-Then, click `Build | Prepare Plugin Module 'julia-intellij' for deployment`, and you'll see a jar
-appears at the project root.
+To debug, run `gradle runIde` in the debugger. Break points works like a charm.
 
 For more information, see [the official doc](http://www.jetbrains.org/intellij/sdk/docs/basics.html).
 
@@ -49,7 +42,7 @@ For more information, see [the official doc](http://www.jetbrains.org/intellij/s
 
 ## You must
 
-0. Put all Nls into the [resource bundle](res/org/ice1000/julia/lang/julia-bundle.properties)
+0. Put all natrual language strings into the [resource bundle](res/org/ice1000/julia/lang/julia-bundle.properties)
 0. Use as much `@NotNull` and `@Nullable` as you can in Java codes except local variables
 
 ## You must not
