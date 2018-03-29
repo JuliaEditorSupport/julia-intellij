@@ -67,7 +67,7 @@ class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
 
 	init {
 		setupLaterCheckBox.addChangeListener {
-			juliaExeField.isEnabled = setupLaterCheckBox.isSelected
+			juliaExeField.isEnabled = !setupLaterCheckBox.isSelected
 		}
 		usefulText.isVisible = false
 		juliaWebsite.setListener({ _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }, null)
@@ -124,12 +124,10 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project))
 		basePathField.text = settings.basePath
 		basePathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project))
-		initExeComboBox(juliaExeField) {
-			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@initExeComboBox
-			importPathField.text = importPathOf(exePath, 800L)
-			version.text = versionOf(exePath, 800L)
-			tryGetBase(exePath)?.let { basePathField.text = it }
-		}
+		initExeComboBox(juliaExeField) { reinit() }
+		// TODO workaround for KT-23421
+		val yetAnotherListener = LinkListener<Any> { _, _ -> reinit() }
+		refreshButton.setListener(yetAnotherListener, null)
 		val currentExePath = settings.exePath
 		if (validateJuliaExe(currentExePath)) {
 			juliaExeField.comboBox.selectedItem = currentExePath
@@ -138,7 +136,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 				settings.importPath = importPathField.text
 			}
 		}
-		unicodeInputCheckBox.addActionListener { globalUnicodeCheckBox.isEnabled = unicodeInputCheckBox.isSelected }
+		unicodeInputCheckBox.addChangeListener { globalUnicodeCheckBox.isEnabled = unicodeInputCheckBox.isSelected }
 		globalUnicodeCheckBox.isSelected = globalSettings.globalUnicodeInput
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
 		showEvalHintCheckBox.isSelected = settings.showEvalHint
@@ -146,6 +144,13 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 			installAutoFormatButton.isEnabled = false
 			installAutoFormatButton.text = JuliaBundle.message("julia.messages.doc-format.already")
 		} else installAutoFormatButton.addActionListener(installDocumentFormat(project, settings))
+	}
+
+	private fun reinit() {
+		val exePath = juliaExeField.comboBox.selectedItem as? String ?: return
+		importPathField.text = importPathOf(exePath, 800L)
+		version.text = versionOf(exePath, 800L)
+		tryGetBase(exePath)?.let { basePathField.text = it }
 	}
 
 	override fun getDisplayName() = JuliaBundle.message("julia.name")
