@@ -9,6 +9,7 @@ import java.nio.file.Paths
 class UtilsKtTest {
 	@Test
 	fun executeJuliaTest() {
+		if (!System.getenv("CI").isNullOrBlank()) return
 		println(juliaPath)
 		val (stdout, stderr) = executeJulia(juliaPath, null, 1000L, "--print",
 			"""1+1
@@ -22,6 +23,7 @@ class UtilsKtTest {
 
 	@Test
 	fun versionTest() {
+		if (!System.getenv("CI").isNullOrBlank()) return
 		println(versionOf(juliaPath))
 	}
 
@@ -52,6 +54,7 @@ class UtilsKtTest {
 
 	@Test
 	fun executeJuliaCode() {
+		if (!System.getenv("CI").isNullOrBlank()) return
 		println(executeJulia("/home/hoshino/文档/Compiler/Julia/juliac/bin/julia", "println(1)", 1000))
 	}
 
