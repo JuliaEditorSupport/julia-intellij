@@ -61,6 +61,8 @@ fun executeCommand(
 	}
 	try {
 		future.get(timeLimit, TimeUnit.MILLISECONDS)
+	} catch (ignored: Throwable) {
+		// timeout? catch it and give up anyway
 	} finally {
 		processRef?.destroy()
 	}
@@ -76,7 +78,7 @@ private fun collectLines(it: InputStream): List<String> {
 
 fun TextRange.narrow(fromStart: Int, toEnd: Int) = TextRange(startOffset + fromStart, endOffset - toEnd)
 
-fun String.trimQuotePair() = trim('\'', '\"', '`')
+fun String.trimQuotePair() = trim('\'', '"', '`')
 
 /**
  * its effect needs to profit.
