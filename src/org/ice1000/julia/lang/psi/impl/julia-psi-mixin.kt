@@ -58,6 +58,8 @@ abstract class JuliaForComprehensionMixin(node: ASTNode) : ASTWrapperPsiElement(
 		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
 		comprehensionElementList.all { it.processDeclarations(processor, state, lastParent, place) } and
 			super.processDeclarations(processor, state, lastParent, place)
+
+	override var type: Type? = null
 }
 
 abstract class JuliaComprehensionElementMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaComprehensionElement {
