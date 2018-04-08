@@ -64,6 +64,7 @@ import org.ice1000.julia.lang.psi.JuliaTypes;
 %state LONG_TEMPLATE
 %state CMD_STRING_TEMPLATE
 %state INSIDE_REGEX
+%state INSIDE_RAW_STR
 %state AFTER_SIMPLE_LIT
 %state AFTER_COLON
 
@@ -146,6 +147,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> @{SIMPLE_SYMBOL} { return JuliaTypes.MACRO_SYM; }
 
 <YYINITIAL, LONG_TEMPLATE> r\" { hugify(INSIDE_REGEX); return JuliaTypes.REGEX_START; }
+<YYINITIAL, LONG_TEMPLATE> raw\" { hugify(INSIDE_RAW_STR); return JuliaTypes.RAW_STR_START; }
 
 <YYINITIAL, LONG_TEMPLATE> end {
   return JuliaTypes.END_KEYWORD;
@@ -276,7 +278,8 @@ OTHERWISE=[^]
 <AFTER_COLON> {SIMPLE_SYMBOL} { dehugify(); return JuliaTypes.SYM; }
 
 <INSIDE_REGEX> \" { dehugify(); return JuliaTypes.REGEX_END; }
-<INSIDE_REGEX> [^\"]+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
+<INSIDE_RAW_STR> \" { dehugify(); return JuliaTypes.RAW_STR_END; }
+<INSIDE_REGEX, INSIDE_RAW_STR> ([^\"]|(\\.))* { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
 // TODO regex escape
 
 <YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} { hugify(AFTER_SIMPLE_LIT); return JuliaTypes.SYM; }
