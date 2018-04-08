@@ -87,6 +87,7 @@ class JuliaUnicodeInputAction : JuliaAction(
 					false
 				}
 				.setAdText(JuliaBundle.message("julia.actions.unicode-input.popup.ad"))
+				.setRequestFocus(true)
 				.createPopup()
 			popup.addListener(object : JBPopupListener.Adapter() {
 				override fun onClosed(event: LightweightWindowEvent?) {
