@@ -7,6 +7,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.*
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
+import org.ice1000.julia.lang.psi.JuliaForComprehension
 
 fun PsiElement.printDescription() = apply {
 	println(toString() + text)
@@ -50,6 +51,31 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
 		nameIdentifier?.let { processor.execute(it, substitutor) }.orFalse() and
 			processDeclTrivial(processor, substitutor, lastParent, place)
+}
+
+abstract class JuliaForComprehensionMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaForComprehension {
+	override fun processDeclarations(
+		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+		comprehensionElementList.all { it.processDeclarations(processor, state, lastParent, place) } and
+			super.processDeclarations(processor, state, lastParent, place)
+}
+
+abstract class JuliaComprehensionElementMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaComprehensionElement {
+	override fun processDeclarations(
+		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+		singleComprehensionList.all { it.processDeclarations(processor, state, lastParent, place) } and
+			super.processDeclarations(processor, state, lastParent, place)
+}
+
+abstract class JuliaSingleComprehensionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaSingleComprehension {
+	override fun getNameIdentifier(): PsiElement? = singleIndexer?.firstChild
+		?: multiIndexer?.firstChild
+
+	override fun processDeclarations(
+		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+		singleIndexer?.let { processor.execute(it.firstChild, substitutor) }.orFalse() and
+			multiIndexer?.let { it.children.all { processor.execute(it, substitutor) } }.orFalse() and
+			super.processDeclarations(processor, substitutor, lastParent, place)
 }
 
 abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(node), JuliaTypedNamedVariable {
