@@ -219,7 +219,7 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	val isGlobalName: Boolean
 	val isCatchSymbol: Boolean
 	val isDeclaration: Boolean
-	val isLoopParameter: Boolean
+	val isIndexParameter: Boolean
 	val isLambdaParameter: Boolean
 }
 
@@ -286,9 +286,9 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	final override val isLambdaParameter: Boolean by lazy {
 		parent is JuliaLambda || (parent is JuliaTuple && parent.parent is JuliaLambda)
 	}
-	final override val isLoopParameter: Boolean by lazy {
-		(parent is JuliaSingleIndexer && parent.parent is JuliaForExpr) ||
-			(parent.parent is JuliaMultiIndexer && parent.parent.parent is JuliaForExpr)
+	final override val isIndexParameter: Boolean by lazy {
+		parent is JuliaSingleIndexer ||
+			parent.parent is JuliaMultiIndexer
 	}
 	final override val isVariableName by lazy {
 		parent is JuliaAssignOp && this === parent.firstChild ||
@@ -305,7 +305,7 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			isGlobalName or
 			isPrimitiveTypeName or
 			isCatchSymbol or
-			isLoopParameter or
+			isIndexParameter or
 			isLambdaParameter
 	}
 
