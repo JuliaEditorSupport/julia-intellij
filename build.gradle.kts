@@ -1,5 +1,4 @@
 import groovy.lang.Closure
-import org.gradle.api.internal.HasConvention
 import org.gradle.language.base.internal.plugins.CleanRule
 import org.jetbrains.grammarkit.GrammarKitPluginExtension
 import org.jetbrains.grammarkit.tasks.*
@@ -9,13 +8,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
 import java.nio.file.*
 import java.net.URL
-import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 
 val isCI = !System.getenv("CI").isNullOrBlank()
 val commitHash = kotlin.run {
 	val process: Process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
-	process.waitFor(2000L, TimeUnit.MILLISECONDS)
+	process.waitFor()
 	@Suppress("RemoveExplicitTypeArguments")
 	val output = process.inputStream.use {
 		process.inputStream.use {
@@ -99,23 +97,21 @@ tasks.withType<PatchPluginXmlTask> {
 	pluginId(packageName)
 }
 
-val SourceSet.kotlin
-	get() = (this as HasConvention)
-		.convention
-		.getPlugin(KotlinSourceSet::class.java)
-		.kotlin
-
 java.sourceSets {
 	"main" {
-		listOf(java, kotlin).forEach {
-			it.srcDirs("src", "gen")
+		withConvention(KotlinSourceSet::class) {
+			listOf(java, kotlin).forEach {
+				it.srcDirs("src", "gen")
+			}
 		}
 		resources.srcDirs("res")
 	}
 
 	"test" {
-		listOf(java, kotlin).forEach {
-			it.srcDirs("test")
+		withConvention(KotlinSourceSet::class) {
+			listOf(java, kotlin).forEach {
+				it.srcDirs("test")
+			}
 		}
 		resources.srcDirs("testData")
 	}
@@ -191,7 +187,7 @@ fun bnf(name: String) = Paths.get("grammar", "$name-grammar.bnf").toString()
 fun flex(name: String) = Paths.get("grammar", "$name-lexer.flex").toString()
 
 val genParser = genTask<GenerateParser>("genParser") {
-	group = "build setup"
+	group = tasks["init"].group
 	description = "Generate the Parser and PsiElement classes"
 	source = bnf("julia")
 	targetRoot = "gen/"
@@ -201,7 +197,7 @@ val genParser = genTask<GenerateParser>("genParser") {
 }
 
 val genLexer = genTask<GenerateLexer>("genLexer") {
-	group = "build setup"
+	group = genParser.group
 	description = "Generate the Lexer"
 	source = flex("julia")
 	targetDir = path(lexerRoot)
@@ -210,7 +206,7 @@ val genLexer = genTask<GenerateLexer>("genLexer") {
 }
 
 val genDocfmtParser = genTask<GenerateParser>("genDocfmtParser") {
-	group = "build setup"
+	group = genParser.group
 	description = "Generate the Parser for DocumentFormat.jl"
 	source = bnf("docfmt")
 	targetRoot = "gen/"
@@ -221,7 +217,7 @@ val genDocfmtParser = genTask<GenerateParser>("genDocfmtParser") {
 }
 
 val genDocfmtLexer = genTask<GenerateLexer>("genDocfmtLexer") {
-	group = "build setup"
+	group = genParser.group
 	description = "Generate the Lexer for DocumentFormat.jl"
 	source = flex("docfmt")
 	targetDir = path(lexerRoot + "docfmt")
@@ -230,7 +226,7 @@ val genDocfmtLexer = genTask<GenerateLexer>("genDocfmtLexer") {
 }
 
 val cleanGenerated = task("cleanGenerated") {
-	group = "build"
+	group = tasks["clean"].group
 	description = "Remove all generated codes"
 	doFirst {
 		delete("gen", "pinpoint-piggy")
