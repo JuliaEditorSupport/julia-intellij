@@ -117,11 +117,6 @@ java.sourceSets {
 	}
 }
 
-// TODO workaround for KT-23077
-inline fun <reified TheTask : BaseTask>
-	Project.genTask(name: String, noinline configuration: TheTask.() -> Unit) =
-	task(name, TheTask::class, configuration)
-
 repositories {
 	mavenCentral()
 }
@@ -186,7 +181,7 @@ fun path(more: Iterable<*>) = more.joinToString(File.separator)
 fun bnf(name: String) = Paths.get("grammar", "$name-grammar.bnf").toString()
 fun flex(name: String) = Paths.get("grammar", "$name-lexer.flex").toString()
 
-val genParser = genTask<GenerateParser>("genParser") {
+val genParser = task<GenerateParser>("genParser") {
 	group = tasks["init"].group
 	description = "Generate the Parser and PsiElement classes"
 	source = bnf("julia")
@@ -196,7 +191,7 @@ val genParser = genTask<GenerateParser>("genParser") {
 	purgeOldFiles = true
 }
 
-val genLexer = genTask<GenerateLexer>("genLexer") {
+val genLexer = task<GenerateLexer>("genLexer") {
 	group = genParser.group
 	description = "Generate the Lexer"
 	source = flex("julia")
@@ -205,7 +200,7 @@ val genLexer = genTask<GenerateLexer>("genLexer") {
 	purgeOldFiles = true
 }
 
-val genDocfmtParser = genTask<GenerateParser>("genDocfmtParser") {
+val genDocfmtParser = task<GenerateParser>("genDocfmtParser") {
 	group = genParser.group
 	description = "Generate the Parser for DocumentFormat.jl"
 	source = bnf("docfmt")
@@ -216,7 +211,7 @@ val genDocfmtParser = genTask<GenerateParser>("genDocfmtParser") {
 	purgeOldFiles = true
 }
 
-val genDocfmtLexer = genTask<GenerateLexer>("genDocfmtLexer") {
+val genDocfmtLexer = task<GenerateLexer>("genDocfmtLexer") {
 	group = genParser.group
 	description = "Generate the Lexer for DocumentFormat.jl"
 	source = flex("docfmt")
