@@ -133,6 +133,8 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.REGEX_END,
 		JuliaTypes.VERSION_START,
 		JuliaTypes.VERSION_END,
+		JuliaTypes.BYTE_ARRAY_START,
+		JuliaTypes.BYTE_ARRAY_END,
 		JuliaTypes.RAW_STR_START,
 		JuliaTypes.RAW_STR_END,
 		JuliaTypes.REGULAR_STRING_PART_LITERAL -> STRING_KEY
@@ -220,11 +222,12 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		      BLOCK COMMENT
 		   =#
 		   module <moduleName>ice1000</moduleName>
-		   NaN32 # NaN32 (Float32)
+		   NaN32 # (Float32)
 		   (1 + 3.2)::Float64
+			 raw"$$$!", v"1.0", b"\xff"
 		   IntOrString = Union{Int, AbstractString}
 		   div(5, 2) # => 2 # for a truncated result, use div
-		   @printf "%d is less than %f" 4.5 5.3 # 5 is less than 5.300000
+		   @printf "%d is less than %f" 4.5 5.3
 		   ismatch(r"1 \+ 2 = 3", "1 + 2 = $(1 + 2)")
 		   [1, 2, 3][2:end] # => 2, index start from 1
 		   try
