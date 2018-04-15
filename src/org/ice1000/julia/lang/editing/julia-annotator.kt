@@ -254,7 +254,7 @@ $JULIA_DOC_SURROUNDING
 
 	private fun integer(element: JuliaInteger, holder: AnnotationHolder) {
 		val code = element.text
-		if ('p' in code || 'e' in code) return
+		if (code.any { !it.isLetterOrDigit() }) return
 		val (base, intText) = when {
 			code.startsWith("0x") -> 16 to code.drop(2)
 			code.startsWith("0b") -> 2 to code.drop(2)

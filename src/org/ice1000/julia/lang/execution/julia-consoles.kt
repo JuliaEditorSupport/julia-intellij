@@ -75,7 +75,9 @@ class JuliaConsoleFilterProvider : ConsoleFilterProviderEx {
  * fold Julia interpreter Stacktrace which is useless.
  */
 class JuliaConsoleFolding : ConsoleFolding() {
-	override fun getPlaceholderText(lines: MutableList<String>): String {
+	// TODO remove after giving up 2017.*
+	@Suppress("OverridingDeprecatedMember")
+	override fun getPlaceholderText(lines: MutableList<String>): String? {
 		lines.forEach {
 			when {
 				it.matchExecCommand() ->
@@ -84,9 +86,19 @@ class JuliaConsoleFolding : ConsoleFolding() {
 					return " <${lines.size} stace frames>"
 			}
 		}
-		return ""
+		return null
 	}
 
+	@Suppress("DEPRECATION")
+	override fun getPlaceholderText(project: Project, lines: MutableList<String>) =
+		getPlaceholderText(lines)
+
+	@Suppress("DEPRECATION")
+	override fun shouldFoldLine(project: Project, output: String) =
+		shouldFoldLine(output)
+
+	// TODO remove after giving up 2017.*
+	@Suppress("OverridingDeprecatedMember")
 	override fun shouldFoldLine(output: String) =
 		output.matchExecCommand() or output.matchErrorStackTrace()
 
