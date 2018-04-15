@@ -3,8 +3,10 @@ package org.ice1000.julia.lang
 import com.intellij.lang.*
 import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.SystemInfoRt
 import com.intellij.psi.*
 import com.intellij.psi.tree.*
+import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.psi.JuliaTypes
 
 class JuliaLexerAdapter : FlexAdapter(JuliaLexer())
@@ -16,13 +18,16 @@ open class JuliaParserDefinition : ParserDefinition {
 
 	override fun createParser(project: Project?): PsiParser = JuliaParser()
 	final override fun createFile(viewProvider: FileViewProvider) = JuliaFile(viewProvider)
-	final override fun spaceExistanceTypeBetweenTokens(left: ASTNode?, right: ASTNode?) = ParserDefinition.SpaceRequirements.MAY
+	final override fun spaceExistanceTypeBetweenTokens(
+		left: ASTNode?,
+		right: ASTNode?) = ParserDefinition.SpaceRequirements.MAY
+
 	final override fun getStringLiteralElements() = JuliaTokenType.STRINGS
 	final override fun getFileNodeType() = FILE
 	final override fun createLexer(project: Project?) = JuliaLexerAdapter()
 	final override fun createElement(node: ASTNode?): PsiElement = JuliaTypes.Factory.createElement(node)
 	final override fun getCommentTokens() = JuliaTokenType.COMMENTS
-	final override fun getWhitespaceTokens() = TokenSet.WHITE_SPACE
+	final override fun getWhitespaceTokens() = JuliaTokenType.WHITE_SPACE
 }
 
 class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE) {
@@ -101,6 +106,8 @@ class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.
 		)
 
 		@JvmField val CONCATENATABLE_TOKENS = TokenSet.orSet(COMMENTS, STRINGS)
+		// Cannot use TokenSet.WHITE_SPACE since PhpStorm doesn't have such field
+		@JvmField val WHITE_SPACE = TokenSet.create(TokenType.WHITE_SPACE)
 		fun fromText(code: String, project: Project): PsiElement = PsiFileFactory
 			.getInstance(project)
 			.createFileFromText(JuliaLanguage.INSTANCE, code)

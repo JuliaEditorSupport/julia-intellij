@@ -77,8 +77,9 @@ abstract class ResolveProcessor<ResolveResult>(private val place: PsiElement) : 
 			PsiTreeUtil.getParentOfType(element, IJuliaFunctionDeclaration::class.java), place, true)
 		element.isCatchSymbol -> PsiTreeUtil.isAncestor(
 			PsiTreeUtil.getParentOfType(element, JuliaCatchClause::class.java), place, true)
-		element.isLoopParameter -> PsiTreeUtil.isAncestor(
-			PsiTreeUtil.getParentOfType(element, JuliaForExpr::class.java), place, true)
+		element.isIndexParameter -> PsiTreeUtil.isAncestor(
+			PsiTreeUtil.getParentOfType(element, JuliaForExpr::class.java)
+				?: PsiTreeUtil.getParentOfType(element, JuliaForComprehension::class.java), place, true)
 		element.isLambdaParameter -> PsiTreeUtil.isAncestor(
 			PsiTreeUtil.getParentOfType(element, JuliaLambda::class.java), place, false)
 		element.isDeclaration -> PsiTreeUtil.isAncestor(
@@ -124,7 +125,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 			val (icon, value, tail, type) = when {
 				element.isVariableName or
 					element.isCatchSymbol or
-					element.isLoopParameter -> quadOf(
+					element.isIndexParameter -> quadOf(
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,

@@ -27,7 +27,8 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	override fun getCustomOptionsStep(context: WizardContext, parentDisposable: Disposable): ModuleWizardStep? {
 		parentDisposable.dispose()
 		context.projectName = JULIA_DEFAULT_MODULE_NAME
-		context.defaultModuleName = JULIA_DEFAULT_MODULE_NAME
+		// doesn't work under 2017.2
+		// context.defaultModuleName = JULIA_DEFAULT_MODULE_NAME
 		return JuliaSetupSdkWizardStepImpl(this)
 	}
 

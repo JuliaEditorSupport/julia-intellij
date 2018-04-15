@@ -87,6 +87,7 @@ class JuliaUnicodeInputAction : JuliaAction(
 					false
 				}
 				.setAdText(JuliaBundle.message("julia.actions.unicode-input.popup.ad"))
+				.setRequestFocus(true)
 				.createPopup()
 			popup.addListener(object : JBPopupListener.Adapter() {
 				override fun onClosed(event: LightweightWindowEvent?) {
@@ -152,13 +153,14 @@ exit()
 	}
 
 	private fun write(stderr: List<String>, project: Project, file: VirtualFile, stdout: List<String>) {
-		if (stderr.isNotEmpty()) Messages.showDialog(
-			project,
-			stderr.joinToString("\n"),
-			JuliaBundle.message("julia.messages.doc-format.error"),
-			arrayOf(JuliaBundle.message("julia.yes")),
-			0, JuliaIcons.JOJO_ICON)
-		else file.getOutputStream(this).bufferedWriter().use {
+		if (stderr.isNotEmpty()) ApplicationManager.getApplication().invokeLater {
+			Messages.showDialog(
+				project,
+				stderr.joinToString("\n"),
+				JuliaBundle.message("julia.messages.doc-format.error"),
+				arrayOf(JuliaBundle.message("julia.yes")),
+				0, JuliaIcons.JOJO_ICON)
+		} else file.getOutputStream(this).bufferedWriter().use {
 			it.append(stdout.joinToString("\n"))
 			it.flush()
 		}

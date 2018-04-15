@@ -81,10 +81,10 @@ opAsSymbol ::=
 private comment ::= blockComment | LINE_COMMENT
 private blockComment ::= BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | blockComment)* BLOCK_COMMENT_END
 
-private str ::= QUOTE_START stringTemplateElement* QUOTE_END
-private rawStr ::= TRIPLE_QUOTE_START stringTemplateElement* TRIPLE_QUOTE_END
+private singleQuoteString ::= QUOTE_START stringTemplateElement* QUOTE_END
+private tripleQuoteString ::= TRIPLE_QUOTE_START stringTemplateElement* TRIPLE_QUOTE_END
 command ::= CMD_QUOTE_START stringTemplateElement* CMD_QUOTE_END { extends=expr }
-string ::= str | rawStr {
+string ::= singleQuoteString | tripleQuoteString {
 	extends=expr
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaString']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaStringMixin'
@@ -94,6 +94,14 @@ regex ::= REGEX_START (stringContent | STRING_ESCAPE)* REGEX_END {
 	extends=expr
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaRegex']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaRegexMixin'
+}
+
+rawString ::= RAW_STR_START (stringContent | STRING_ESCAPE)* RAW_STR_END {
+	extends=expr
+}
+
+versionNumber ::= VERSION_START (stringContent | STRING_ESCAPE)* VERSION_END {
+	extends=expr
 }
 
 private stringTemplateElement::=
@@ -447,6 +455,8 @@ private primaryExpr ::=
    string
  | command
  | regex
+ | rawString
+ | versionNumber
  | charLit
  | integer
  | floatLit
@@ -616,16 +626,24 @@ elseClause ::= ELSE_KEYWORD statements
 forComprehension ::=
  LEFT_M_BRACKET endOfLine
   comprehensionElement+ endOfLine
- RIGHT_M_BRACKET { extends=expr }
+ RIGHT_M_BRACKET {
+	extends=expr
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaForComprehensionMixin'
+}
 
 comprehensionElement ::=
  endOfLine expr endOfLine
  (
   FOR_KEYWORD
   singleComprehension
-   (commaSep singleComprehension)?)+
+   (commaSep singleComprehension)?)+ {
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaComprehensionElementMixin'
+}
 
-singleComprehension ::= indexer (IF_KEYWORD expr)?
+singleComprehension ::= indexer (IF_KEYWORD expr)? {
+	implements=['com.intellij.psi.PsiNameIdentifierOwner']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaSingleComprehensionMixin'
+}
 
 forExpr ::= FOR_KEYWORD endOfLine indexer (commaSep indexer)* statements END_KEYWORD {
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaLoopDeclarationMixin'

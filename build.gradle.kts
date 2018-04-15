@@ -1,5 +1,4 @@
 import groovy.lang.Closure
-import org.gradle.api.internal.HasConvention
 import org.gradle.language.base.internal.plugins.CleanRule
 import org.jetbrains.grammarkit.GrammarKitPluginExtension
 import org.jetbrains.grammarkit.tasks.*
@@ -9,13 +8,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
 import java.nio.file.*
 import java.net.URL
-import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 
 val isCI = !System.getenv("CI").isNullOrBlank()
 val commitHash = kotlin.run {
 	val process: Process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
-	process.waitFor(2000L, TimeUnit.MILLISECONDS)
+	process.waitFor()
 	@Suppress("RemoveExplicitTypeArguments")
 	val output = process.inputStream.use {
 		process.inputStream.use {
@@ -27,7 +25,7 @@ val commitHash = kotlin.run {
 	output.trim()
 }
 
-val pluginComingVersion = "0.1.10"
+val pluginComingVersion = "0.2.1"
 val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
 val packageName = "org.ice1000.julia"
 val kotlinVersion: String by extra
@@ -99,32 +97,25 @@ tasks.withType<PatchPluginXmlTask> {
 	pluginId(packageName)
 }
 
-val SourceSet.kotlin
-	get() = (this as HasConvention)
-		.convention
-		.getPlugin(KotlinSourceSet::class.java)
-		.kotlin
-
 java.sourceSets {
 	"main" {
-		listOf(java, kotlin).forEach {
-			it.srcDirs("src", "gen")
+		withConvention(KotlinSourceSet::class) {
+			listOf(java, kotlin).forEach {
+				it.srcDirs("src", "gen")
+			}
 		}
 		resources.srcDirs("res")
 	}
 
 	"test" {
-		listOf(java, kotlin).forEach {
-			it.srcDirs("test")
+		withConvention(KotlinSourceSet::class) {
+			listOf(java, kotlin).forEach {
+				it.srcDirs("test")
+			}
 		}
 		resources.srcDirs("testData")
 	}
 }
-
-// TODO workaround for KT-23077
-inline fun <reified TheTask : BaseTask>
-	Project.genTask(name: String, noinline configuration: TheTask.() -> Unit) =
-	task(name, TheTask::class, configuration)
 
 repositories {
 	mavenCentral()
@@ -190,8 +181,8 @@ fun path(more: Iterable<*>) = more.joinToString(File.separator)
 fun bnf(name: String) = Paths.get("grammar", "$name-grammar.bnf").toString()
 fun flex(name: String) = Paths.get("grammar", "$name-lexer.flex").toString()
 
-val genParser = genTask<GenerateParser>("genParser") {
-	group = "build setup"
+val genParser = task<GenerateParser>("genParser") {
+	group = tasks["init"].group
 	description = "Generate the Parser and PsiElement classes"
 	source = bnf("julia")
 	targetRoot = "gen/"
@@ -200,8 +191,8 @@ val genParser = genTask<GenerateParser>("genParser") {
 	purgeOldFiles = true
 }
 
-val genLexer = genTask<GenerateLexer>("genLexer") {
-	group = "build setup"
+val genLexer = task<GenerateLexer>("genLexer") {
+	group = genParser.group
 	description = "Generate the Lexer"
 	source = flex("julia")
 	targetDir = path(lexerRoot)
@@ -209,8 +200,8 @@ val genLexer = genTask<GenerateLexer>("genLexer") {
 	purgeOldFiles = true
 }
 
-val genDocfmtParser = genTask<GenerateParser>("genDocfmtParser") {
-	group = "build setup"
+val genDocfmtParser = task<GenerateParser>("genDocfmtParser") {
+	group = genParser.group
 	description = "Generate the Parser for DocumentFormat.jl"
 	source = bnf("docfmt")
 	targetRoot = "gen/"
@@ -220,8 +211,8 @@ val genDocfmtParser = genTask<GenerateParser>("genDocfmtParser") {
 	purgeOldFiles = true
 }
 
-val genDocfmtLexer = genTask<GenerateLexer>("genDocfmtLexer") {
-	group = "build setup"
+val genDocfmtLexer = task<GenerateLexer>("genDocfmtLexer") {
+	group = genParser.group
 	description = "Generate the Lexer for DocumentFormat.jl"
 	source = flex("docfmt")
 	targetDir = path(lexerRoot + "docfmt")
@@ -230,7 +221,7 @@ val genDocfmtLexer = genTask<GenerateLexer>("genDocfmtLexer") {
 }
 
 val cleanGenerated = task("cleanGenerated") {
-	group = "build"
+	group = tasks["clean"].group
 	description = "Remove all generated codes"
 	doFirst {
 		delete("gen", "pinpoint-piggy")
