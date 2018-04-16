@@ -15,7 +15,7 @@ interface JuliaProjectSettingsService {
 
 interface JuliaGlobalSettingsService {
 	val knownJuliaExes: MutableSet<String>
-	val packageInfos: MutableSet<InfoData>
+	val packagesInfo: MutableSet<InfoData>
 	var globalUnicodeInput: Boolean
 }
 
@@ -46,14 +46,14 @@ class JuliaProjectSettingsServiceImpl :
 class JuliaGlobalSettingsServiceImpl :
 	JuliaGlobalSettingsService, PersistentStateComponent<JuliaGlobalSettings> {
 	override val knownJuliaExes: MutableSet<String> = hashSetOf()
-	override val packageInfos: MutableSet<InfoData> = hashSetOf()
+	override val packagesInfo: MutableSet<InfoData> = hashSetOf()
 	override var globalUnicodeInput: Boolean = false
 	private fun invalidate() = knownJuliaExes.removeAll { !validateJuliaExe(it) }
 	override fun getState(): JuliaGlobalSettings {
 		invalidate()
 		return JuliaGlobalSettings(
 			globalUnicodeInput,
-			packageInfos.joinToString(File.pathSeparator) { "${it.name} ${it.version} ${it.latestVersion}" },
+			packagesInfo.joinToString(File.pathSeparator) { "${it.name} ${it.version} ${it.latestVersion}" },
 			knownJuliaExes.joinToString(File.pathSeparator))
 	}
 
@@ -61,7 +61,7 @@ class JuliaGlobalSettingsServiceImpl :
 		invalidate()
 		globalUnicodeInput = state.globalUnicodeInput
 		knownJuliaExes += state.allJuliaExePath.split(File.pathSeparatorChar)
-		packageInfos += state.packageInfos.split(File.pathSeparatorChar).map {
+		packagesInfo += state.packagesInfo.split(File.pathSeparatorChar).map {
 			val (name, version, latest) = it.split(" ")
 			InfoData(name, version, latest)
 		}

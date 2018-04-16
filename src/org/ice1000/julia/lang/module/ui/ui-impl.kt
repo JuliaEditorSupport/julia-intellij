@@ -189,7 +189,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
  */
 class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManager() {
 	private val settings = project.juliaSettings.settings
-	private val packageInfos = juliaGlobalSettings.packageInfos
+	private val packagesInfo = juliaGlobalSettings.packagesInfo
 
 	private class JuliaPackageTableModel : DefaultTableModel {
 		constructor(data: Array<Array<String>>, columnNames: Array<String>) : super(data, columnNames)
@@ -233,8 +233,8 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 				val tempDataModel = JuliaPackageTableModel(tempData, JULIA_TABLE_HEADER_COLUMN)
 				if (default) {
 					packagesList.model = tempDataModel
-					packageInfos.clear()
-					namesList.mapTo(packageInfos) { InfoData(it, "") }
+					packagesInfo.clear()
+					namesList.mapTo(packagesInfo) { InfoData(it, "") }
 				}
 
 				val sizeToDouble = namesList.size.coerceAtLeast(1).toDouble()
@@ -249,8 +249,8 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					it to second
 				}.toList()
 				packagesList.model = tempDataModel
-				packageInfos.clear()
-				versionList.mapTo(packageInfos) { InfoData(it.first, it.second) }
+				packagesInfo.clear()
+				versionList.mapTo(packagesInfo) { InfoData(it.first, it.second) }
 			}
 		})
 
@@ -258,10 +258,10 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 
 	override fun getDisplayName() = JuliaBundle.message("julia.pkg-manager.title")
 	override fun createComponent(): JPanel {
-		if (packageInfos.isEmpty()) {
+		if (packagesInfo.isEmpty()) {
 			if (validateJuliaExe(settings.exePath)) loadPackages()
 		} else {
-			val data = packageInfos.map {
+			val data = packagesInfo.map {
 				arrayOf(it.name, it.version, it.latestVersion)
 			}.toTypedArray()
 			val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)

@@ -61,7 +61,7 @@ fun findOrCreate(baseDir: VirtualFile, dir: String, module: Module) =
 
 class JuliaGlobalSettings(
 	var globalUnicodeInput: Boolean,
-	var packageInfos: String,
+	var packagesInfo: String,
 	var allJuliaExePath: String)
 
 class JuliaSettings(
