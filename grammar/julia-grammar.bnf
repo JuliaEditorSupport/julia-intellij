@@ -97,16 +97,12 @@ regex ::= REGEX_START (stringContent | STRING_ESCAPE)* REGEX_END {
 }
 
 rawString ::=
- RAW_STR_START
-  (stringContent | STRING_UNICODE | STRING_ESCAPE)*
- RAW_STR_END {
+ RAW_STR_START stringContent* RAW_STR_END {
 	extends=expr
 }
 
 versionNumber ::=
- VERSION_START
-  (stringContent | STRING_UNICODE | STRING_ESCAPE)*
- VERSION_END {
+ VERSION_START stringContent* VERSION_END {
 	extends=expr
 }
 

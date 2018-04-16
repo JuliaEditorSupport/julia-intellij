@@ -70,7 +70,7 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 		doTest(true)
 	}
 
-	fun testVersionAndRaw() {
+	fun testVersionRawByteArray() {
 		println("我永远喜欢时崎狂三")
 		doTest(true)
 	}
