@@ -11,8 +11,6 @@ import java.util.stream.Stream
 
 data class InfoData(val name: String, val version: String, val latestVersion: String = "")
 
-val packageInfos = emptyList<InfoData>().toMutableList()
-
 /**
  * It's needed for UE (User Experience)
  * @notice Do not use [File.list] (or [File.listFiles]) with 2 parameter filter

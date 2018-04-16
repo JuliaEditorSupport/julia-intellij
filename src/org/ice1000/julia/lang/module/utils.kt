@@ -60,10 +60,11 @@ fun findOrCreate(baseDir: VirtualFile, dir: String, module: Module) =
 	baseDir.findChild(dir) ?: baseDir.createChildDirectory(module, dir)
 
 class JuliaGlobalSettings(
-	var globalUnicodeInput: Boolean = false,
-	var allJuliaExePath: String = "")
+	var globalUnicodeInput: Boolean,
+	var packageInfos: String,
+	var allJuliaExePath: String)
 
-class JuliaSettings constructor(
+class JuliaSettings(
 	var importPath: String = "",
 	var exePath: String = "",
 	var basePath: String = "",
