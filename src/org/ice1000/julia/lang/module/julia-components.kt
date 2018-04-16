@@ -15,16 +15,16 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 	override fun projectOpened() {
 		super.projectOpened()
 		val isNightly = PluginManager.getPlugin(PluginId.getId(JULIA_PLUGIN_ID))?.run { '-' in version }.orFalse()
-		if (!validateJulia(project.juliaSettings.settings)) notify(
-			JuliaBundle.message("julia.messages.notify.invalid-julia.title"),
-			JuliaBundle.message("julia.messages.notify.invalid-julia.content"),
-			NotificationType.WARNING)
 		if (isNightly and !isNightlyNotificationShown) {
 			isNightlyNotificationShown = true
 			notify(
 				JuliaBundle.message("julia.messages.notify.nightly.title"),
 				JuliaBundle.message("julia.messages.notify.nightly.content"))
 		}
+		if (!validateJulia(project.juliaSettings.settings)) notify(
+			JuliaBundle.message("julia.messages.notify.invalid-julia.title"),
+			JuliaBundle.message("julia.messages.notify.invalid-julia.content"),
+			NotificationType.WARNING)
 	}
 
 	/** 好想把函数名写成 hugify 。。。 */

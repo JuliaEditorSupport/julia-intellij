@@ -2,6 +2,7 @@ package org.ice1000.julia.lang.module
 
 import com.intellij.openapi.components.*
 import com.intellij.openapi.project.Project
+import com.intellij.util.xmlb.XmlSerializationException
 import com.intellij.util.xmlb.XmlSerializerUtil
 import java.io.File
 
@@ -34,30 +35,33 @@ class JuliaProjectSettingsServiceImpl :
 	override fun getState(): JuliaSettings? = XmlSerializerUtil.createCopy(settings)
 	override fun loadState(state: JuliaSettings) {
 		XmlSerializerUtil.copyBean(state, settings)
-		settings.exePath.let {
-			if (validateJuliaExe(it)) juliaGlobalSettings.knownJuliaExes += it
+		try {
+			settings.exePath.let {
+				if (validateJuliaExe(it)) juliaGlobalSettings.knownJuliaExes += it
+			}
+		} catch (e: XmlSerializationException) {
 		}
 	}
 }
 
 @State(
-	name = "JuliaGlobalSettings",
+	name = "JuliaGlobalSettings2",
 	storages = [Storage(file = "juliaGlobalConfig.xml", scheme = StorageScheme.DIRECTORY_BASED)])
 class JuliaGlobalSettingsServiceImpl :
-	JuliaGlobalSettingsService, PersistentStateComponent<JuliaGlobalSettings> {
+	JuliaGlobalSettingsService, PersistentStateComponent<JuliaGlobalSettings2> {
 	override val knownJuliaExes: MutableSet<String> = hashSetOf()
 	override val packagesInfo: MutableSet<InfoData> = hashSetOf()
 	override var globalUnicodeInput: Boolean = false
 	private fun invalidate() = knownJuliaExes.removeAll { !validateJuliaExe(it) }
-	override fun getState(): JuliaGlobalSettings {
+	override fun getState(): JuliaGlobalSettings2 {
 		invalidate()
-		return JuliaGlobalSettings(
+		return JuliaGlobalSettings2(
 			globalUnicodeInput,
-			packagesInfo.joinToString(File.pathSeparator) { "${it.name} ${it.version} ${it.latestVersion}" },
-			knownJuliaExes.joinToString(File.pathSeparator))
+			knownJuliaExes.joinToString(File.pathSeparator),
+			packagesInfo.joinToString(File.pathSeparator) { "${it.name} ${it.version} ${it.latestVersion}" })
 	}
 
-	override fun loadState(state: JuliaGlobalSettings) {
+	override fun loadState(state: JuliaGlobalSettings2) {
 		invalidate()
 		globalUnicodeInput = state.globalUnicodeInput
 		knownJuliaExes += state.allJuliaExePath.split(File.pathSeparatorChar)

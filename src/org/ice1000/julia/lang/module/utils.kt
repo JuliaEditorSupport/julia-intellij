@@ -59,10 +59,10 @@ fun findPathLinux() =
 fun findOrCreate(baseDir: VirtualFile, dir: String, module: Module) =
 	baseDir.findChild(dir) ?: baseDir.createChildDirectory(module, dir)
 
-class JuliaGlobalSettings(
+class JuliaGlobalSettings2(
 	var globalUnicodeInput: Boolean,
-	var packagesInfo: String,
-	var allJuliaExePath: String)
+	var allJuliaExePath: String,
+	var packagesInfo: String)
 
 class JuliaSettings(
 	var importPath: String = "",
