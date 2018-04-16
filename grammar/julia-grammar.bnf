@@ -96,15 +96,24 @@ regex ::= REGEX_START (stringContent | STRING_ESCAPE)* REGEX_END {
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaRegexMixin'
 }
 
-rawString ::= RAW_STR_START (stringContent | STRING_ESCAPE)* RAW_STR_END {
+rawString ::=
+ RAW_STR_START
+  (stringContent | STRING_UNICODE | STRING_ESCAPE)*
+ RAW_STR_END {
 	extends=expr
 }
 
-versionNumber ::= VERSION_START (stringContent | STRING_ESCAPE)* VERSION_END {
+versionNumber ::=
+ VERSION_START
+  (stringContent | STRING_UNICODE | STRING_ESCAPE)*
+ VERSION_END {
 	extends=expr
 }
 
-byteArray ::= BYTE_ARRAY_START (stringContent | STRING_UNICODE | STRING_ESCAPE)* BYTE_ARRAY_END {
+byteArray ::=
+ BYTE_ARRAY_START
+  (stringContent | STRING_UNICODE | STRING_ESCAPE)*
+ BYTE_ARRAY_END {
 	extends=expr
 }
 
