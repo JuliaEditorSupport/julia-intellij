@@ -80,7 +80,7 @@ class JuliaCommandLineState(
 			super.update(event)
 			when {
 				!handler.isProcessTerminated -> event.presentation.isEnabled = true
-				!console.canPause() or !console.hasDeferredOutput() -> event.presentation.isEnabled = false
+				!console.canPause() || !console.hasDeferredOutput() -> event.presentation.isEnabled = false
 				else -> {
 					event.presentation.isEnabled = true
 					console.performWhenNoDeferredOutput { update(event) }

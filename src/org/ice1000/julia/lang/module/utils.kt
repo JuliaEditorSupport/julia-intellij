@@ -92,7 +92,7 @@ fun versionOf(exePath: String, timeLimit: Long = 800L) =
 	executeJulia(exePath, null, timeLimit, "--version")
 		.first
 		.firstOrNull { it.startsWith("julia version", true) }
-		?.dropWhile { it.isLetter() or it.isWhitespace() }
+		?.dropWhile { it.isLetter() || it.isWhitespace() }
 		?: JuliaBundle.message("julia.modules.sdk.unknown-version")
 
 /**

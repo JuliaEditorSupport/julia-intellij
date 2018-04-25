@@ -184,7 +184,7 @@ $JULIA_DOC_SURROUNDING
 	}
 
 	private fun string(string: JuliaString, holder: AnnotationHolder) = string.children
-		.filter { it.firstChild.node.elementType == JuliaTypes.STRING_ESCAPE && (it.textContains('x') or it.textContains('u')) }
+		.filter { it.firstChild.node.elementType == JuliaTypes.STRING_ESCAPE && (it.textContains('x') || it.textContains('u')) }
 		.forEach { holder.createErrorAnnotation(it, JuliaBundle.message("julia.lint.invalid-string-escape")) }
 
 	private fun definition(element: PsiElement, holder: AnnotationHolder, attributesKey: TextAttributesKey) {

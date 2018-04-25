@@ -44,7 +44,7 @@ class JuliaSymbolRef(
 	override fun bindToElement(element: PsiElement) = element.also { refTo = element }
 	override fun multiResolve(incompleteCode: Boolean): Array<out ResolveResult> {
 		val file = element.containingFile ?: return emptyArray()
-		if (isDeclaration or !element.isValid or element.project.isDisposed) return emptyArray()
+		if (isDeclaration || !element.isValid || element.project.isDisposed) return emptyArray()
 		return ResolveCache.getInstance(element.project)
 			.resolveWithCaching(this, resolver, true, incompleteCode, file)
 	}
@@ -100,7 +100,7 @@ open class SymbolResolveProcessor(
 	override fun execute(element: PsiElement, resolveState: ResolveState) = when {
 		candidateSet.isNotEmpty() -> false
 		element is JuliaSymbol -> {
-			val accessible = accessible(element) and element.isDeclaration
+			val accessible = accessible(element) && element.isDeclaration
 			if (accessible) candidateSet += PsiElementResolveResult(element, element.hasNoError)
 			!accessible
 		}
@@ -174,7 +174,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 				)
 				else -> return true
 			}
-			if (element.isDeclaration and element.hasNoError and isInScope(element)) candidateSet += LookupElementBuilder
+			if (element.isDeclaration && element.hasNoError && isInScope(element)) candidateSet += LookupElementBuilder
 				.create(value)
 				.withIcon(icon)
 				// tail text, it will not be completed by Enter Key press

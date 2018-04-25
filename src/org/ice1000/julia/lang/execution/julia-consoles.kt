@@ -100,7 +100,7 @@ class JuliaConsoleFolding : ConsoleFolding() {
 	// TODO remove after giving up 2017.*
 	@Suppress("OverridingDeprecatedMember")
 	override fun shouldFoldLine(output: String) =
-		output.matchExecCommand() or output.matchErrorStackTrace()
+		output.matchExecCommand() || output.matchErrorStackTrace()
 
 	private fun String.matchExecCommand() = "julia" in this &&
 		".jl" in this &&

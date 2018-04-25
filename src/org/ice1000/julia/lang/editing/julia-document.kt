@@ -39,7 +39,7 @@ class JuliaDocumentWindowImpl : JuliaDocumentWindow(), ToolWindowFactory {
 	}
 
 	override fun shouldBeAvailable(project: Project) =
-		validateJulia(project.juliaSettings.settings) and super.shouldBeAvailable(project)
+		validateJulia(project.juliaSettings.settings) && super.shouldBeAvailable(project)
 
 	// TODO: change its content like PyCharm Document
 	override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
