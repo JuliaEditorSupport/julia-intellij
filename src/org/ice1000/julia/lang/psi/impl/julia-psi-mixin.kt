@@ -9,10 +9,6 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.JuliaForComprehension
 
-fun PsiElement.printDescription() = apply {
-	println(toString() + text)
-}
-
 interface DocStringOwner : PsiElement
 
 interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
@@ -27,8 +23,8 @@ interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
 abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameIdentifierOwner {
 	private var refCache: Array<PsiReference>? = null
 	override fun setName(newName: String) = also {
-		nameIdentifier?.let { JuliaTokenType.fromText(newName, project).let(it::replace) }
 		references.forEach { it.handleElementRename(newName) }
+		nameIdentifier?.replace(JuliaTokenType.fromText(newName, project))
 	}
 
 	open val startPoint: PsiElement
@@ -245,14 +241,14 @@ abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), 
  * Just to provide implementation of [PsiNameIdentifierOwner] for [JuliaMacroSymbolMixin]
  * and [JuliaSymbolMixin] (see [JuliaSymbolRef]). (for code reuse purpose)
  */
-abstract class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), PsiNameIdentifierOwner, JuliaExpr {
+sealed class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), PsiNameIdentifierOwner, JuliaExpr {
 	private var referenceImpl: JuliaSymbolRef? = null
 
 	/** For [JuliaSymbolMixin], we cannot have a reference if it's a declaration. */
 	override fun getReference() = referenceImpl ?: JuliaSymbolRef(this).also { referenceImpl = it }
 
 	override fun getNameIdentifier(): JuliaAbstractSymbol? = this
-	override fun setName(name: String) = JuliaTokenType.fromText(name, project)
+	override fun setName(name: String) = replace(JuliaTokenType.fromText(name, project))
 	override fun getName() = text
 	override fun subtreeChanged() {
 		type = null

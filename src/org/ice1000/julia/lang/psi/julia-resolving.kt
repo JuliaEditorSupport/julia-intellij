@@ -11,6 +11,8 @@ import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 import org.ice1000.julia.lang.psi.impl.JuliaAbstractSymbol
+import org.ice1000.julia.lang.psi.impl.JuliaMacroSymbolMixin
+import org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin
 
 /**
  * @author ice1000
@@ -22,8 +24,10 @@ class JuliaSymbolRef(
 	private val range = TextRange(0, element.textLength)
 	private val isDeclaration = (element as? JuliaSymbol)?.isDeclaration.orFalse()
 	private val resolver by lazy {
-		if (element is JuliaMacroSymbol) macroResolver
-		else /* is JuliaSymbol */ symbolResolver
+		when (symbol) {
+			is JuliaMacroSymbolMixin -> macroResolver
+			is JuliaSymbolMixin -> symbolResolver
+		}
 	}
 
 	override fun equals(other: Any?) = (other as? JuliaSymbolRef)?.element == element

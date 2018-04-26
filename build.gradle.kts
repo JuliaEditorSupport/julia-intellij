@@ -1,4 +1,3 @@
-import groovy.lang.Closure
 import org.gradle.language.base.internal.plugins.CleanRule
 import org.jetbrains.grammarkit.GrammarKitPluginExtension
 import org.jetbrains.grammarkit.tasks.*
@@ -38,7 +37,7 @@ buildscript {
 	var grammarKitVersion: String by extra
 
 	grammarKitVersion = "2018.1.1"
-	kotlinVersion = "1.2.31"
+	kotlinVersion = "1.2.40"
 
 	repositories {
 		mavenCentral()
@@ -76,8 +75,8 @@ allprojects {
 		when (System.getProperty("user.name")) {
 			"ice1000" -> {
 				val root = "/home/ice1000/.local/share/JetBrains/Toolbox/apps"
-				localPath = "$root/IDEA-U/ch-0/181.4203.550"
-				alternativeIdePath = "$root/CLion/ch-0/181.4203.549"
+				localPath = "$root/IDEA-U/ch-0/181.4668.68"
+				alternativeIdePath = "$root/PyCharm-C/ch-0/181.4668.75"
 			}
 			"hoshino" -> localPath = ext["ideaC_path"].toString()
 			"zh" -> version = "2018.1"
@@ -239,6 +238,7 @@ tasks.withType<KotlinCompile> {
 		jvmTarget = "1.8"
 		languageVersion = "1.2"
 		apiVersion = "1.2"
+		freeCompilerArgs = listOf("-Xenable-jvm-default")
 	}
 }
 

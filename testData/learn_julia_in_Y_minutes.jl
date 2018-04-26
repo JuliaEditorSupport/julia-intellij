@@ -398,10 +398,6 @@ function meow(animal::Panther)
   "grrr"
 end
 
-function meow(animal::Tiger)
-  "rawwwr"
-end
-
 # Testing the meow function
 meow(tigger) # => "rawwr"
 meow(Lion("brown","ROAAR")) # => "ROAAR"

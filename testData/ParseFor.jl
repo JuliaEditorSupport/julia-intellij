@@ -6,4 +6,3 @@ for α ∈ [1, 2, 3, 4]
         println(β)
     end)")
 end
-
