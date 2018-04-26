@@ -274,11 +274,11 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	}
 	final override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
 	final override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
-	final override val isFunctionParameter by lazy {
-		parent is JuliaTypedNamedVariable && this === parent.firstChild
-	}
-	final override val isGlobalName: Boolean by lazy { parent is JuliaGlobalStatement }
-	final override val isCatchSymbol: Boolean by lazy { parent is JuliaCatchClause }
+	final override val isFunctionParameter
+		get() = parent is JuliaTypedNamedVariable && this === parent.firstChild
+
+	final override val isGlobalName: Boolean get() = parent is JuliaGlobalStatement
+	final override val isCatchSymbol: Boolean get() = parent is JuliaCatchClause
 	final override val isLambdaParameter: Boolean by lazy {
 		parent is JuliaLambda || (parent is JuliaTuple && parent.parent is JuliaLambda)
 	}
