@@ -16,7 +16,6 @@ val commitHash = kotlin.run {
 	@Suppress("RemoveExplicitTypeArguments")
 	val output = process.inputStream.use {
 		process.inputStream.use {
-			// TODO workaround for KT-23156
 			it.readBytes().let<ByteArray, String>(::String)
 		}
 	}
