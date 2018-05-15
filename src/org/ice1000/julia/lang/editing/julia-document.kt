@@ -54,6 +54,5 @@ class JuliaDocumentWindowImpl : JuliaDocumentWindow(), ToolWindowFactory {
 	}
 }
 
-val ideVersionAfter2017: Boolean
-	get() = (ApplicationInfo.getInstance() as ApplicationInfoEx)
-		.fullVersion.substringBefore('.').toInt() > 2017
+val ideVersionAfter2017
+	get() = ApplicationInfoEx.getInstanceEx().majorVersion.toInt() >= 2018
