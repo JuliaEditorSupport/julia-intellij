@@ -131,7 +131,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 	override val candidateSet = ArrayList<LookupElementBuilder>(20)
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
 		if (element is JuliaSymbol) {
-			val result: Tuple5<Icon, String, String?, String?, InsertHandler<LookupElement>?> = when {
+			val (icon: Icon, value: String?, tail: String?, type: Type?, handler: InsertHandler<LookupElement>?) = when {
 				element.isVariableName ||
 					element.isCatchSymbol ||
 					element.isIndexParameter -> tuple5(
@@ -158,12 +158,13 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 						element.text,
 						function.paramsText,
 						function.returnType,
-						InsertHandler { context, _: LookupElement ->
+						InsertHandler<LookupElement> { context, _: LookupElement ->
 							val editor = context.editor
 							editor.document.insertString(editor.caretModel.offset, "()")
 							editor.caretModel.moveCaretRelatively(1, 0, false, false, true)
 						})
-				} ?: tuple5(JuliaIcons.JULIA_FUNCTION_ICON, element.text, null, null)
+				} ?: tuple5<Icon, String?, String?, String?, InsertHandler<LookupElement>?>(
+					JuliaIcons.JULIA_FUNCTION_ICON, element.text, null, null)
 				element.isTypeName ||
 					element.isPrimitiveTypeName ||
 					element.isAbstractTypeName -> tuple5(
@@ -187,7 +188,6 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 				)
 				else -> return true
 			}
-			val (icon, value, tail, type, handler) = result
 			if (element.isDeclaration && element.hasNoError && isInScope(element)) candidateSet += LookupElementBuilder
 				.create(value)
 				.withIcon(icon)
