@@ -8,6 +8,9 @@ build_script:
   - gradlew verifyPlugin --info
 #
 
+cache:
+  - C:\Users\appveyor\.gradle
+
 artifacts:
   - path: 'build\distributions\*.zip'
     name: julia-intellij
