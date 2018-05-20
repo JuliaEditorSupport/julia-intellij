@@ -65,8 +65,11 @@ class JuliaGlobalSettingsServiceImpl :
 		invalidate()
 		globalUnicodeInput = state.globalUnicodeInput
 		knownJuliaExes += state.allJuliaExePath.split(File.pathSeparatorChar)
-		packagesInfo += state.packagesInfo.split(File.pathSeparatorChar).map {
-			val (name, version, latest) = it.split(" ")
+		state.packagesInfo.split(File.pathSeparatorChar).mapNotNullTo(packagesInfo) {
+			val (name, version, latest) = it
+				.split(" ")
+				.takeIf { it.size >= 3 }
+				?: return@mapNotNullTo null
 			InfoData(name, version, latest)
 		}
 	}

@@ -2,6 +2,8 @@ package org.ice1000.julia.lang.editing
 
 import com.github.rjeschke.txtmark.Processor
 import com.intellij.lang.documentation.AbstractDocumentationProvider
+import com.intellij.openapi.application.ApplicationInfo
+import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -23,7 +25,7 @@ class JuliaDocumentProvider : AbstractDocumentationProvider() {
 		val parent = symbol.parent as? DocStringOwner ?: return null
 		return parent.docString?.text?.let {
 			"function $parent${
-			if (PlatformUtils.isGoIde())
+			if (PlatformUtils.isGoIde() || ideVersionAfter2017)
 				MarkdownProcessor().markdown(it)
 			else Processor.process(it)
 			}"
@@ -39,7 +41,7 @@ class JuliaDocumentWindowImpl : JuliaDocumentWindow(), ToolWindowFactory {
 	}
 
 	override fun shouldBeAvailable(project: Project) =
-		validateJulia(project.juliaSettings.settings) and super.shouldBeAvailable(project)
+		validateJulia(project.juliaSettings.settings) && super.shouldBeAvailable(project)
 
 	// TODO: change its content like PyCharm Document
 	override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
@@ -51,3 +53,6 @@ class JuliaDocumentWindowImpl : JuliaDocumentWindow(), ToolWindowFactory {
 				true))
 	}
 }
+
+val ideVersionAfter2017
+	get() = ApplicationInfoEx.getInstanceEx().majorVersion.toInt() >= 2018

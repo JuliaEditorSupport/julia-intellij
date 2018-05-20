@@ -26,6 +26,6 @@ fun treeWalkUp(
 	return true
 }
 
-fun <A, B, C, D> quadOf(a: A, b: B, c: C, d: D) = Quad(a, b, c, d)
+fun <A, B, C, D, E> tuple5(a: A, b: B, c: C, d: D, e: E? = null) = Tuple5(a, b, c, d, e)
 
-data class Quad<out A, out B, out C, out D>(val a: A, val b: B, val c: C, val d: D)
+data class Tuple5<out A, out B, out C, out D, out E>(val a: A, val b: B, val c: C, val d: D, val e: E)

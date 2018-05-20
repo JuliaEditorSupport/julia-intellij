@@ -29,7 +29,7 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 
 	// Filter.Result(startPoint, entireLength, null)
 	override fun applyFilter(line: String, entireLength: Int): Filter.Result? {
-		if (project.isDisposed) return null
+		if (project.isDisposed || project.baseDir == null) return null
 		val startPoint = entireLength - line.length
 		val fileSystem = project.baseDir.fileSystem
 		val matcher1 = STACK_FRAME_LOCATION.matcher(line)
@@ -100,7 +100,7 @@ class JuliaConsoleFolding : ConsoleFolding() {
 	// TODO remove after giving up 2017.*
 	@Suppress("OverridingDeprecatedMember")
 	override fun shouldFoldLine(output: String) =
-		output.matchExecCommand() or output.matchErrorStackTrace()
+		output.matchExecCommand() || output.matchErrorStackTrace()
 
 	private fun String.matchExecCommand() = "julia" in this &&
 		".jl" in this &&
