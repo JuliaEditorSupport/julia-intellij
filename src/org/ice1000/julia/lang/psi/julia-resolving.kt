@@ -10,13 +10,8 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import icons.JuliaIcons
-import org.ice1000.julia.lang.JuliaTokenType
-import org.ice1000.julia.lang.UNKNOWN_VALUE_PLACEHOLDER
-import org.ice1000.julia.lang.orFalse
-import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
-import org.ice1000.julia.lang.psi.impl.JuliaAbstractSymbol
-import org.ice1000.julia.lang.psi.impl.JuliaMacroSymbolMixin
-import org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin
+import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.psi.impl.*
 import javax.swing.Icon
 
 /**
@@ -131,7 +126,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 	override val candidateSet = ArrayList<LookupElementBuilder>(20)
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
 		if (element is JuliaSymbol) {
-			val (icon: Icon, value: String?, tail: String?, type: Type?, handler: InsertHandler<LookupElement>?) = when {
+			val (icon: Icon, value: String, tail: String?, type: Type?, handler: InsertHandler<LookupElement>?) = when {
 				element.isVariableName ||
 					element.isCatchSymbol ||
 					element.isIndexParameter -> tuple5(
@@ -163,7 +158,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 							editor.document.insertString(editor.caretModel.offset, "()")
 							editor.caretModel.moveCaretRelatively(1, 0, false, false, true)
 						})
-				} ?: tuple5<Icon, String?, String?, String?, InsertHandler<LookupElement>?>(
+				} ?: tuple5<Icon, String, String?, String?, InsertHandler<LookupElement>?>(
 					JuliaIcons.JULIA_FUNCTION_ICON, element.text, null, null)
 				element.isTypeName ||
 					element.isPrimitiveTypeName ||
@@ -188,14 +183,15 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 				)
 				else -> return true
 			}
-			if (element.isDeclaration && element.hasNoError && isInScope(element)) candidateSet += LookupElementBuilder
-				.create(value)
-				.withIcon(icon)
-				// tail text, it will not be completed by Enter Key press
-				.withTailText(tail, true)
-				// the type of return value,show at right of popup
-				.withTypeText(type, true)
-				.withInsertHandler(handler)
+			if (element.isDeclaration && element.hasNoError && isInScope(element))
+				candidateSet += LookupElementBuilder
+					.create(value)
+					.withIcon(icon)
+					// tail text, it will not be completed by Enter Key press
+					.withTailText(tail, true)
+					// the type of return value,show at right of popup
+					.withTypeText(type, true)
+					.withInsertHandler(handler)
 		}
 		return true
 	}

@@ -78,7 +78,7 @@ allprojects {
 				alternativeIdePath = "$root/PyCharm-C/ch-0/181.4668.75"
 			}
 			"hoshino" -> localPath = ext["ideaC_path"].toString()
-			"zh" -> version = "2018.1"
+			/*"zh"*/ else -> version = "2018.2"
 		}
 	}
 }
@@ -98,26 +98,20 @@ tasks.withType<PatchPluginXmlTask> {
 java.sourceSets {
 	"main" {
 		withConvention(KotlinSourceSet::class) {
-			listOf(java, kotlin).forEach {
-				it.srcDirs("src", "gen")
-			}
+			listOf(java, kotlin).forEach { it.srcDirs("src", "gen") }
 		}
 		resources.srcDirs("res")
 	}
 
 	"test" {
 		withConvention(KotlinSourceSet::class) {
-			listOf(java, kotlin).forEach {
-				it.srcDirs("test")
-			}
+			listOf(java, kotlin).forEach { it.srcDirs("test") }
 		}
 		resources.srcDirs("testData")
 	}
 }
 
-repositories {
-	mavenCentral()
-}
+repositories { mavenCentral() }
 
 dependencies {
 	compileOnly(kotlin("stdlib", kotlinVersion))
@@ -137,17 +131,13 @@ dependencies {
 task("displayCommitHash") {
 	group = "help"
 	description = "Display the newest commit hash"
-	doFirst {
-		println("Commit hash: $commitHash")
-	}
+	doFirst { println("Commit hash: $commitHash") }
 }
 
 task("isCI") {
 	group = "help"
 	description = "Check if it's running in a continuous-integration"
-	doFirst {
-		println(if (isCI) "Yes, I'm on a CI." else "No, I'm not on CI.")
-	}
+	doFirst { println(if (isCI) "Yes, I'm on a CI." else "No, I'm not on CI.") }
 }
 
 task("downloadJuliaParser") {
