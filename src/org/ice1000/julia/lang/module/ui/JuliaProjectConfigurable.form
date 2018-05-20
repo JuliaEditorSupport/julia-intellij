@@ -238,7 +238,6 @@
                   <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <icon value="actions/refresh.png"/>
                   <text resource-bundle="org/ice1000/julia/lang/julia-bundle" key="julia.modules.auto-detect"/>
                 </properties>
               </component>
