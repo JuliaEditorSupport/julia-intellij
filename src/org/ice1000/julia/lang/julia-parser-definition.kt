@@ -3,10 +3,8 @@ package org.ice1000.julia.lang
 import com.intellij.lang.*
 import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.SystemInfoRt
 import com.intellij.psi.*
 import com.intellij.psi.tree.*
-import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.psi.JuliaTypes
 
 class JuliaLexerAdapter : FlexAdapter(JuliaLexer())

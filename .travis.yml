@@ -9,3 +9,7 @@ script:
 - ./gradlew buildPlugin
 before_install:
 - chmod a+x gradlew
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/

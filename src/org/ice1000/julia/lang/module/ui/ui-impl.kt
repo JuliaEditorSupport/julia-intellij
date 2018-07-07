@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.module.ui
 
+import com.intellij.icons.AllIcons
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.ide.util.projectWizard.SettingsStep
 import com.intellij.openapi.actionSystem.*
@@ -128,6 +129,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		// TODO workaround for KT-23421
 		val yetAnotherListener = LinkListener<Any> { _, _ -> reinit() }
 		refreshButton.setListener(yetAnotherListener, null)
+		refreshButton.icon = AllIcons.Actions.Refresh
 		val currentExePath = settings.exePath
 		if (validateJuliaExe(currentExePath)) {
 			juliaExeField.comboBox.selectedItem = currentExePath

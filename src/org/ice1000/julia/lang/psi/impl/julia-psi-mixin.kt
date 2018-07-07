@@ -311,6 +311,7 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			?.children
 			?.lastOrNull { it is JuliaExpr }
 			?.let { it as? JuliaExpr }
+			?.takeIf { it != this }
 			?.type
 			?.also { field = it }
 		else field

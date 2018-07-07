@@ -1,5 +1,7 @@
 package org.ice1000.julia.lang.psi
 
+import com.intellij.codeInsight.completion.InsertHandler
+import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
@@ -9,10 +11,8 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
-import org.ice1000.julia.lang.psi.impl.JuliaAbstractSymbol
-import org.ice1000.julia.lang.psi.impl.JuliaMacroSymbolMixin
-import org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin
+import org.ice1000.julia.lang.psi.impl.*
+import javax.swing.Icon
 
 /**
  * @author ice1000
@@ -126,51 +126,56 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 	override val candidateSet = ArrayList<LookupElementBuilder>(20)
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
 		if (element is JuliaSymbol) {
-			val (icon, value, tail, type) = when {
-				element.isVariableName or
-					element.isCatchSymbol or
-					element.isIndexParameter -> quadOf(
+			val (icon: Icon, value: String, tail: String?, type: Type?, handler: InsertHandler<LookupElement>?) = when {
+				element.isVariableName ||
+					element.isCatchSymbol ||
+					element.isIndexParameter -> tuple5(
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,
 					element.type ?: UNKNOWN_VALUE_PLACEHOLDER
 				)
-				element.isModuleName -> quadOf(
+				element.isModuleName -> tuple5(
 					JuliaIcons.JULIA_MODULE_ICON,
 					element.text,
 					null,
 					element.containingFile.name.let { "in $it" }
 				)
-				element.isMacroName -> quadOf(
+				element.isMacroName -> tuple5(
 					JuliaIcons.JULIA_MACRO_ICON,
 					"@${element.text}",
 					null,
 					null
 				)
 				element.isFunctionName -> (element.parent as? IJuliaFunctionDeclaration)?.let { function ->
-					quadOf(
+					tuple5(
 						JuliaIcons.JULIA_FUNCTION_ICON,
 						element.text,
 						function.paramsText,
-						function.returnType
-					)
-				} ?: quadOf(JuliaIcons.JULIA_FUNCTION_ICON, element.text, null, null)
-				element.isTypeName or
-					element.isPrimitiveTypeName or
-					element.isAbstractTypeName -> quadOf(
+						function.returnType,
+						InsertHandler<LookupElement> { context, _: LookupElement ->
+							val editor = context.editor
+							editor.document.insertString(editor.caretModel.offset, "()")
+							editor.caretModel.moveCaretRelatively(1, 0, false, false, true)
+						})
+				} ?: tuple5<Icon, String, String?, String?, InsertHandler<LookupElement>?>(
+					JuliaIcons.JULIA_FUNCTION_ICON, element.text, null, null)
+				element.isTypeName ||
+					element.isPrimitiveTypeName ||
+					element.isAbstractTypeName -> tuple5(
 					JuliaIcons.JULIA_TYPE_ICON,
 					element.text,
 					null,
 					null
 				)
-				element.isFunctionParameter or
-					element.isLambdaParameter -> quadOf(
+				element.isFunctionParameter ||
+					element.isLambdaParameter -> tuple5(
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,
 					element.type
 				)
-				element.isGlobalName -> quadOf(
+				element.isGlobalName -> tuple5(
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,
@@ -178,13 +183,15 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 				)
 				else -> return true
 			}
-			if (element.isDeclaration && element.hasNoError && isInScope(element)) candidateSet += LookupElementBuilder
-				.create(value)
-				.withIcon(icon)
-				// tail text, it will not be completed by Enter Key press
-				.withTailText(tail, true)
-				// the type of return value,show at right of popup
-				.withTypeText(type, true)
+			if (element.isDeclaration && element.hasNoError && isInScope(element))
+				candidateSet += LookupElementBuilder
+					.create(value)
+					.withIcon(icon)
+					// tail text, it will not be completed by Enter Key press
+					.withTailText(tail, true)
+					// the type of return value,show at right of popup
+					.withTypeText(type, true)
+					.withInsertHandler(handler)
 		}
 		return true
 	}

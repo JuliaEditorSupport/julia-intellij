@@ -7,9 +7,8 @@ import org.jdom.Element
 import java.nio.file.Files
 import java.nio.file.Paths
 
-/**
- * @deprecated
- */
+/** @deprecated */
+@Deprecated("No longer used")
 class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun getPresentableName() = JuliaBundle.message("julia.modules.sdk.name")
 	override fun getIcon() = JuliaIcons.JULIA_BIG_ICON
@@ -33,5 +32,5 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	}
 }
 
-fun validateJuliaSDK(sdkHome: String) = Files.isExecutable(Paths.get(sdkHome, "bin", "julia")) or
+fun validateJuliaSDK(sdkHome: String) = Files.isExecutable(Paths.get(sdkHome, "bin", "julia")) ||
 	Files.isExecutable(Paths.get(sdkHome, "bin", "julia.exe"))
