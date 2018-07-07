@@ -36,7 +36,7 @@ buildscript {
 	var grammarKitVersion: String by extra
 
 	grammarKitVersion = "2018.1.1"
-	kotlinVersion = "1.2.40"
+	kotlinVersion = "1.2.41"
 
 	repositories {
 		mavenCentral()
@@ -53,7 +53,7 @@ plugins {
 	idea
 	java
 	id("org.jetbrains.intellij") version "0.3.1"
-	kotlin("jvm") version "1.2.31"
+	kotlin("jvm") version "1.2.41"
 }
 
 idea {
