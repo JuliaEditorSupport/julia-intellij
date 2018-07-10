@@ -7,6 +7,8 @@
 	<depends optional="true" config-file="plugin-clion.xml">com.intellij.modules.clion</depends>
 	<depends optional="true" config-file="plugin-goland.xml">com.intellij.modules.go</depends>
 	<extensions defaultExtensionNs="com.intellij">
+		<liveTemplateContext implementation="org.ice1000.julia.lang.editing.JuliaTemplateContextType$Base"/>
+		<liveTemplateContext implementation="org.ice1000.julia.lang.editing.JuliaTemplateContextType$Module"/>
 		<internalFileTemplate name="Julia Module"/>
 		<internalFileTemplate name="Julia Function"/>
 		<internalFileTemplate name="Julia Type"/>
