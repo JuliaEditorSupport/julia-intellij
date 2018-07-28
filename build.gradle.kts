@@ -23,7 +23,7 @@ val commitHash = kotlin.run {
 	output.trim()
 }
 
-val pluginComingVersion = "0.2.3"
+val pluginComingVersion = "0.2.4"
 val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
 val packageName = "org.ice1000.julia"
 val kotlinVersion: String by extra
@@ -52,7 +52,7 @@ buildscript {
 plugins {
 	idea
 	java
-	id("org.jetbrains.intellij") version "0.3.1"
+	id("org.jetbrains.intellij") version "0.3.5"
 	kotlin("jvm") version "1.2.41"
 }
 
@@ -74,8 +74,8 @@ allprojects {
 		when (System.getProperty("user.name")) {
 			"ice1000" -> {
 				val root = "/home/ice1000/.local/share/JetBrains/Toolbox/apps"
-				localPath = "$root/IDEA-U/ch-0/181.4892.42"
-				alternativeIdePath = "$root/PyCharm-C/ch-0/181.4668.75"
+				localPath = "$root/IDEA-U/ch-0/182.3684.101"
+				alternativeIdePath = "$root/PyCharm-C/ch-0/182.3684.100"
 			}
 			"hoshino" -> localPath = ext["ideaC_path"].toString()
 			/*"zh"*/ else -> version = "2018.1"
