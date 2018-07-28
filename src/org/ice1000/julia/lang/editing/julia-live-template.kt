@@ -2,12 +2,10 @@ package org.ice1000.julia.lang.editing
 
 import com.intellij.codeInsight.template.EverywhereContextType
 import com.intellij.codeInsight.template.TemplateContextType
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.*
+import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.psi.JuliaImportExpr
 import org.ice1000.julia.lang.psi.JuliaModuleDeclaration
-import org.ice1000.julia.lang.psi.JuliaStatements
 import org.ice1000.julia.lang.psi.JuliaTypes.EOL
 import org.ice1000.julia.lang.psi.JuliaTypes.LINE_COMMENT
 import kotlin.reflect.KClass
@@ -23,9 +21,8 @@ abstract class JuliaTemplateContextType private constructor(
 	}
 
 	class Module : JuliaTemplateContextType("JULIA_MODULE", "Module", Base::class) {
-		override fun isInContext(element: PsiElement): Boolean {
-			return element.parent is JuliaModuleDeclaration    //TODO QAQ
-		}
+		override fun isInContext(element: PsiElement) =
+			PsiTreeUtil.getParentOfType(element, JuliaModuleDeclaration::class.java) != null
 	}
 
 	override fun isInContext(file: PsiFile, offset: Int): Boolean {
