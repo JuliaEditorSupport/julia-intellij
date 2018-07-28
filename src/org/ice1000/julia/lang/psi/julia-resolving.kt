@@ -44,7 +44,7 @@ class JuliaSymbolRef(
 	}
 
 	override fun getCanonicalText(): String = element.text
-	override fun handleElementRename(newName: String) = JuliaTokenType.fromText(newName, element.project).let(element::replace)
+	override fun handleElementRename(newName: String): PsiElement = JuliaTokenType.fromText(newName, element.project).let(element::replace)
 	override fun bindToElement(element: PsiElement) = element.also { refTo = element }
 	override fun multiResolve(incompleteCode: Boolean): Array<out ResolveResult> {
 		val file = element.containingFile ?: return emptyArray()

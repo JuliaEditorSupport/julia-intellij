@@ -1,4 +1,4 @@
-# Java Gradle CircleCI 2.0 configuration file
+# Java ./gradlew CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
@@ -24,18 +24,18 @@ jobs:
     steps:
       - checkout
 
-      - run: gradle dependencies
+      - run: ./gradlew dependencies
 
-      - run: gradle displayCommitHash
+      - run: ./gradlew displayCommitHash
 
-      - run: gradle buildPlugin
+      - run: ./gradlew buildPlugin
 
       - store_artifacts:
           path: build/distributions
 
-      - run: gradle test --info
+      - run: ./gradlew test --info
 
-      - run: gradle verifyPlugin --info
+      - run: ./gradlew verifyPlugin --info
 
       - run:
           name: Save test results
