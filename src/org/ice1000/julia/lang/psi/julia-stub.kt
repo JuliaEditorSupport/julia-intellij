@@ -14,7 +14,8 @@ class JuliaModuleNavigationContributor : GotoClassContributor {
 	}
 
 	override fun getNames(project: Project, includeNonProjectItems: Boolean) =
-		StubIndex.getInstance().getAllKeys(JuliaModuleIndex.key, project).toTypedArray()
+		emptyArray<String>()
+		// StubIndex.getInstance().getAllKeys(JuliaModuleIndex.key, project)?.toTypedArray()
 
 	override fun getItemsByName(
 		name: String,
