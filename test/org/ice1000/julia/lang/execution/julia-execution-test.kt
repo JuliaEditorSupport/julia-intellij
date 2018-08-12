@@ -46,6 +46,11 @@ private fun main(args: Array<String>) {
 
 class ExecutionTest {
 	@Test
+	fun testVersion2() {
+		println(versionOf("julia", timeLimit = 23_333L))
+	}
+
+	@Test
 	fun testTerminate() {
 		println(executeCommand("git status", timeLimit = 10000000L))
 	}

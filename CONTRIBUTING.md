@@ -42,7 +42,7 @@ For more information, see [the official doc](http://www.jetbrains.org/intellij/s
 
 ## You must
 
-0. Put all natrual language strings into the [resource bundle](res/org/ice1000/julia/lang/julia-bundle.properties)
+0. Put all natural language strings into the [resource bundle](res/org/ice1000/julia/lang/julia-bundle.properties)
 0. Use as much `@NotNull` and `@Nullable` as you can in Java codes except local variables
 
 ## You must not
@@ -68,3 +68,10 @@ For more information, see [the official doc](http://www.jetbrains.org/intellij/s
 
 0. Write comments, except you're using magics. Tell us if you do
 0. Write tests, because we'll review your codes carefully
+
+## Developers from Windows
+
+### Encoding
+
+The task `genLexer` and `runIde`(depends on former) need file encoding with UTF-8, so if you have trouble in 
+running some gradle tasks, please run gradle with VM options `-Dfile.encoding=UTF-8`
