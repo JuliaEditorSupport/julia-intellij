@@ -7,7 +7,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
 import java.nio.file.*
 import java.net.URL
-import java.util.stream.Collectors
 
 val isCI = !System.getenv("CI").isNullOrBlank()
 val commitHash = kotlin.run {
@@ -26,46 +25,23 @@ val commitHash = kotlin.run {
 val pluginComingVersion = "0.2.4"
 val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
 val packageName = "org.ice1000.julia"
-val kotlinVersion: String by extra
+val kotlinVersion = "1.2.60"
 
 group = packageName
 version = pluginVersion
 
-buildscript {
-	var kotlinVersion: String by extra
-	var grammarKitVersion: String by extra
-
-	grammarKitVersion = "2018.1.1"
-	kotlinVersion = "1.2.41"
-
-	repositories {
-		mavenCentral()
-		maven("https://jitpack.io")
-	}
-
-	dependencies {
-		classpath(kotlin("gradle-plugin", kotlinVersion))
-		classpath("com.github.JetBrains:gradle-grammar-kit-plugin:$grammarKitVersion")
-	}
-}
-
 plugins {
-	idea
 	java
 	id("org.jetbrains.intellij") version "0.3.5"
-	kotlin("jvm") version "1.2.41"
-}
-
-idea {
-	module {
-		// https://github.com/gradle/kotlin-dsl/issues/537/
-		excludeDirs = excludeDirs + file("pinpoint_piggy")
-	}
+	id("org.jetbrains.grammarkit") version "2018.1.7"
+	kotlin("jvm") version "1.2.60"
 }
 
 allprojects {
-	apply {
-		plugin("org.jetbrains.grammarkit")
+	apply { plugin("org.jetbrains.grammarkit") }
+
+	configure<GrammarKitPluginExtension> {
+		grammarKitRelease = "2017.1.5"
 	}
 
 	intellij {
