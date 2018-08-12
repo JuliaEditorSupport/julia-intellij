@@ -88,7 +88,15 @@ fun tryGetBase(exePath: String): String? {
 	return null
 }
 
-fun versionOf(exePath: String, timeLimit: Long = 800L) =
+/**
+ *
+ * @param exePath String
+ * @param timeLimit Long.
+ * 				How much the `timeLimit` is not important,
+ * 				it depends on what the time when process exited if the timeLimit is very huge.
+ * @return String
+ */
+fun versionOf(exePath: String, timeLimit: Long = 3000L) =
 	executeJulia(exePath, null, timeLimit, "--version")
 		.first
 		.firstOrNull { it.startsWith("julia version", true) }
