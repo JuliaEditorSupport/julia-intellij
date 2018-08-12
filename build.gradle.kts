@@ -187,9 +187,7 @@ val genDocfmtLexer = task<GenerateLexer>("genDocfmtLexer") {
 val cleanGenerated = task("cleanGenerated") {
 	group = tasks["clean"].group
 	description = "Remove all generated codes"
-	doFirst {
-		delete("gen", "pinpoint-piggy")
-	}
+	doFirst { delete("gen") }
 }
 
 tasks.withType<KotlinCompile> {
@@ -203,10 +201,8 @@ tasks.withType<KotlinCompile> {
 		jvmTarget = "1.8"
 		languageVersion = "1.2"
 		apiVersion = "1.2"
-		freeCompilerArgs = listOf("-Xenable-jvm-default")
+		freeCompilerArgs = listOf("-Xjvm-default=enable")
 	}
 }
 
-tasks.withType<Delete> {
-	dependsOn(cleanGenerated)
-}
+tasks.withType<Delete> { dependsOn(cleanGenerated) }
