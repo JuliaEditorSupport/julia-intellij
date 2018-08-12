@@ -78,7 +78,7 @@ allprojects {
 				alternativeIdePath = "$root/PyCharm-C/ch-0/182.3684.100"
 			}
 			"hoshino" -> localPath = ext["ideaC_path"].toString()
-			/*"zh"*/ else -> version = "2018.1"
+		/*"zh"*/ else -> version = "2018.2"
 		}
 	}
 }
