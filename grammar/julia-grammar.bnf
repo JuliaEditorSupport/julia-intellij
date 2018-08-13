@@ -90,7 +90,7 @@ string ::= singleQuoteString | tripleQuoteString {
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaStringMixin'
 }
 
-regex ::= REGEX_START (stringContent | STRING_ESCAPE)* REGEX_END {
+regex ::= REGEX_START stringTrivialElement* REGEX_END {
 	extends=expr
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaRegex']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaRegexMixin'
@@ -107,17 +107,18 @@ versionNumber ::=
 }
 
 byteArray ::=
- BYTE_ARRAY_START
-  (stringContent | STRING_UNICODE | STRING_ESCAPE)*
- BYTE_ARRAY_END {
+ BYTE_ARRAY_START stringTrivialElement* BYTE_ARRAY_END {
 	extends=expr
 }
 
-private stringTemplateElement::=
+private stringTrivialElement::=
    STRING_UNICODE
  | STRING_ESCAPE
- | template
  | stringContent
+
+private stringTemplateElement::=
+   stringTrivialElement
+ | template
 
 template ::= SHORT_INTERPOLATE_SYM symbol | STRING_INTERPOLATE_START expr STRING_INTERPOLATE_END
 stringContent ::= REGULAR_STRING_PART_LITERAL
