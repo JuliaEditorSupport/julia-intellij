@@ -40,6 +40,11 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 		doTest(true)
 	}
 
+	fun testParseEolAfterComma() {
+		println(name)
+		doTest(true)
+	}
+
 	fun testParseJuliac() {
 		println(name)
 		doTest(true)
