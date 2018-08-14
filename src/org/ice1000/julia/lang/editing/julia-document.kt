@@ -2,7 +2,6 @@ package org.ice1000.julia.lang.editing
 
 import com.github.rjeschke.txtmark.Processor
 import com.intellij.lang.documentation.AbstractDocumentationProvider
-import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -15,26 +14,26 @@ import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.module.ui.JuliaDocumentWindow
 import org.ice1000.julia.lang.module.validateJulia
-import org.ice1000.julia.lang.psi.JuliaSymbol
 import org.ice1000.julia.lang.psi.impl.DocStringOwner
 import org.ice1000.julia.lang.psi.impl.docString
 
 class JuliaDocumentProvider : AbstractDocumentationProvider() {
 	override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
-		val symbol = element as? JuliaSymbol ?: return null
+		val symbol = element ?: return null
 		val parent = symbol.parent as? DocStringOwner ?: return null
-		return parent.docString?.text?.let {
-			"function $parent${
+		val name = "<h2>${symbol.text}</h2>"
+		val content = parent.docString?.text?.trim('"').let {
 			if (PlatformUtils.isGoIde() || ideVersionAfter2017)
 				MarkdownProcessor().markdown(it)
 			else Processor.process(it)
-			}"
 		}
+		return "$name\n$content"
 	}
 }
 
 class JuliaDocumentWindowImpl : JuliaDocumentWindow(), ToolWindowFactory {
 	override fun init(window: ToolWindow) {
+		textPane.contentType = "text/html"
 		textPane.text = JuliaBundle.message("julia.tool-window.empty")
 		// window.title = JuliaBundle.message("julia.tool-window.title")
 		super.init(window)
