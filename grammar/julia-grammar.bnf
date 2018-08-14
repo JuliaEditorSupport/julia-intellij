@@ -90,12 +90,11 @@ string ::= singleQuoteString | tripleQuoteString {
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaStringMixin'
 }
 
-regex ::= REGEX_START stringTrivialElement* regexEnd {
+regex ::= REGEX_START stringTrivialElement* REGEX_END {
 	extends=expr
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaRegex']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaRegexMixin'
 }
-private regexEnd::= REGEX_END symbol?
 
 rawString ::=
  RAW_STR_START stringContent* RAW_STR_END {
