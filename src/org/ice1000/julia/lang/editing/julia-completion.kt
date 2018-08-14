@@ -9,6 +9,7 @@ import com.intellij.util.ProcessingContext
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.psi.*
+import kotlin.streams.toList
 
 open class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
 	override fun addCompletions(
@@ -73,55 +74,28 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
 		private val functionInside = listOf(LookupElementBuilder.create("return"))
 
+		private val builtinV06 by lazy {
+			this::class.java.getResource("builtin-v0.6.txt")
+				.openStream()
+				.bufferedReader().lines().flatMap { it.split(" ").stream() }.toList()
+		}
+		private val builtinV10 by lazy {
+			this::class.java.getResource("builtin-v1.0.txt")
+				.openStream()
+				.bufferedReader().lines().flatMap { it.split(" ").stream() }.toList()
+		}
+
 		// FIXME temp workaround. Should be replaced by reference resolving.
-		private val builtinFunction = listOf(
-			"typeof",
-			"isa",
-			"sqrt",
-			"zero",
-			"zeros",
-			"zeta",
-			"abs",
-			"acos",
-			"cos",
-			"cosh",
-			"asin",
-			"sin",
-			"sinh",
-			"atan",
-			"tan",
-			"tanh",
-			"acsc",
-			"csc",
-			"csch",
-			"asec",
-			"sec",
-			"sech",
-			"acot",
-			"cot",
-			"coth",
-			"bessel",
-			"broadcast",
-			"accumulate",
-			"accept",
-			"checkindex",
-			"cholfact",
-			"chomp",
-			"clipboard",
-			"accept",
-			"cumprod",
-			"deserialize",
-			"serialize",
-			"shuffle",
-			"throw",
-			"println",
-			"print"
-		).map {
+		private val builtinFunction = (builtinV06 + builtinV10).map {
 			LookupElementBuilder
 				.create(it)
 				.withIcon(JuliaIcons.JULIA_FUNCTION_ICON)
-				.withTypeText("Predefined symbol", true)
-				.let { PrioritizedLookupElement.withPriority(it, 0.1) }
+				.withTypeText(
+					when (it) {
+						!in builtinV10 -> "0.6 Predefined symbol"
+						!in builtinV06 -> "1.0 Predefined symbol"
+						else -> "Predefined symbol"
+					}, true)
 		}
 
 		private val where = listOf(
