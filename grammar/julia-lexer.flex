@@ -283,7 +283,7 @@ OTHERWISE=[^]
 
 <AFTER_COLON> {SIMPLE_SYMBOL} { dehugify(); return JuliaTypes.SYM; }
 
-<INSIDE_REGEX> \" { dehugify(); return JuliaTypes.REGEX_END; }
+<INSIDE_REGEX> \"[ismax]* { dehugify(); return JuliaTypes.REGEX_END; }
 <INSIDE_RAW_STR> \" { dehugify(); return JuliaTypes.RAW_STR_END; }
 <INSIDE_VERSION> \" { dehugify(); return JuliaTypes.VERSION_END; }
 <INSIDE_BYTE_ARRAY> \" { dehugify(); return JuliaTypes.BYTE_ARRAY_END; }
