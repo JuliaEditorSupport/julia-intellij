@@ -24,6 +24,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			"primitive type ",
 			"immutable ",
 			"module ",
+			"baremodule ",
 			"import ",
 			"using ",
 			"include ",
