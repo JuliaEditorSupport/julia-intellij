@@ -27,6 +27,7 @@ class JuliaDocumentProvider : AbstractDocumentationProvider() {
 	}
 }
 
+@Deprecated("Until we need show LaTeX.")
 class JuliaDocumentWindowImpl : JuliaDocumentWindow(), ToolWindowFactory {
 	override fun init(window: ToolWindow) {
 		textPane.contentType = "text/html"

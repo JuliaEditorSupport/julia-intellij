@@ -86,12 +86,12 @@
 		<lang.documentationProvider
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaDocumentProvider"/>
-		<toolWindow
-			id="Julia Document"
-			secondary="true"
-			icon="/icons/julia.png"
-			anchor="left"
-			factoryClass="org.ice1000.julia.lang.editing.JuliaDocumentWindowImpl"/>
+		<!--<toolWindow-->
+			<!--id="Julia Document"-->
+			<!--secondary="true"-->
+			<!--icon="/icons/julia.png"-->
+			<!--anchor="left"-->
+			<!--factoryClass="org.ice1000.julia.lang.editing.JuliaDocumentWindowImpl"/>-->
 		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
