@@ -419,7 +419,7 @@ multiplyLevelOperator ::=
  | MISC_MULTIPLY_SYM
 
 implicitMultiplyOp ::= specialLhs blockComment? IMPLICIT_MULTIPLY_SYM specialRhs
-private specialLhs ::= integer | floatLit | symbol | string
+private specialLhs ::= integer | floatLit | symbol | string | regex
 private specialRhs ::= symbol | string | charLit | integer | floatLit
 
 // // .//
