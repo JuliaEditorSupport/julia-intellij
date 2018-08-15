@@ -4,6 +4,7 @@
 	<idea-version since-build="162.0"/>
 
 	<depends>com.intellij.modules.lang</depends>
+	<depends>org.intellij.plugins.markdown</depends>
 	<depends optional="true" config-file="plugin-clion.xml">com.intellij.modules.clion</depends>
 	<depends optional="true" config-file="plugin-goland.xml">com.intellij.modules.go</depends>
 	<extensions defaultExtensionNs="com.intellij">

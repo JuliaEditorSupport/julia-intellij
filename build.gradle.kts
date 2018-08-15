@@ -56,6 +56,13 @@ allprojects {
 			"hoshino" -> localPath = ext["ideaC_path"].toString()
 		/*"zh"*/ else -> version = "2018.2"
 		}
+
+		// local developing (!isCI)
+		if (!isCI) {
+			setPlugins("org.intellij.plugins.markdown:182.2371")
+		} else {
+			setMarkdownCompileOnly()
+		}
 	}
 }
 
@@ -96,7 +103,6 @@ dependencies {
 		exclude(module = "kotlin-reflect")
 		exclude(module = "kotlin-stdlib")
 	}
-	compileOnly("org.commonjava.googlecode.markdown4j", "markdown4j", "2.2-cj-1.1")
 	compile("org.eclipse.mylyn.github", "org.eclipse.egit.github.core", "2.1.5") {
 		exclude(module = "gson")
 	}
@@ -206,3 +212,12 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<Delete> { dependsOn(cleanGenerated) }
+
+fun setMarkdownCompileOnly() {
+	repositories {
+		maven("https://dl.bintray.com/jetbrains/markdown/")
+	}
+	dependencies {
+		compileOnly("org.jetbrains", "markdown", "0.1.28")
+	}
+}
