@@ -1,0 +1,4 @@
+FILE
+  JuliaStatementsImpl(STATEMENTS)
+    JuliaCharLitImpl(CHAR_LIT)
+      PsiElement(CHAR_LITERAL)(''\''')

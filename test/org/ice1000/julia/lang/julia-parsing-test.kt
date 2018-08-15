@@ -85,6 +85,11 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 		doTest(true)
 	}
 
+	fun testParseCharEscape() {
+		println(name)
+		doTest(true)
+	}
+
 	fun testComment() {
 		println("我永远喜欢结城明日奈")
 		doTest(true)
