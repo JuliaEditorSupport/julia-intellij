@@ -70,6 +70,11 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 		doTest(true)
 	}
 
+	fun testParseLet() {
+		println(name)
+		doTest(true)
+	}
+
 	fun testParseEscapeInsideRegEx() {
 		println(name)
 		doTest(true)

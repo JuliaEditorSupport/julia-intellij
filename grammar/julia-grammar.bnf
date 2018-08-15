@@ -598,7 +598,7 @@ macro ::=
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaMacroMixin'
 }
 
-let ::= LET_KEYWORD statements END_KEYWORD { extends=expr }
+let ::= LET_KEYWORD assignLevelOp (commaSep assignLevelOp)* statements END_KEYWORD? { extends=expr }
 
 block ::= BEGIN_KEYWORD statements END_KEYWORD
 
