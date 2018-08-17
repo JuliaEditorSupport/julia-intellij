@@ -1,8 +1,7 @@
 package org.ice1000.julia.lang.action
 
 import com.intellij.codeInsight.completion.*
-import com.intellij.codeInsight.lookup.CharFilter
-import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.codeInsight.lookup.*
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
@@ -34,6 +33,10 @@ class JuliaTryEvaluateAction : JuliaAction(
 	}
 }
 
+/**
+ * see wiki
+ * [Unicode-input](https://github.com/ice1000/julia-intellij/wiki/Unicode-input)
+ */
 class JuliaUnicodeInputAction : JuliaAction(
 	JuliaBundle.message("julia.actions.unicode-input.text"),
 	JuliaBundle.message("julia.actions.unicode-input.description")), DumbAware {
@@ -83,17 +86,30 @@ class JuliaUnicodeInputAction : JuliaAction(
 				.setMovable(true)
 				.setAlpha(0.1F)
 				.setKeyEventHandler {
-					if (it.keyCode == KeyEvent.VK_ENTER) popup?.cancel()
-					false
+					if (it.keyCode == KeyEvent.VK_ENTER) {
+						// `LookUp` is the unique popup for a project.
+						if (LookupManager.getInstance(project).activeLookup != null) {
+							false
+						} else {
+							popup?.cancel()
+							true
+						}
+					} else
+						false
 				}
 				.setAdText(JuliaBundle.message("julia.actions.unicode-input.popup.ad"))
 				.setRequestFocus(true)
 				.createPopup()
-			popup.addListener(object : JBPopupListener.Adapter() {
+			popup.addListener(object : JBPopupListener {
 				override fun onClosed(event: LightweightWindowEvent?) {
 					CommandProcessor.getInstance().executeCommand(project, {
 						if (null != editor) ApplicationManager.getApplication().runWriteAction {
-							editor.document.insertString(editor.caretModel.offset, field.text)
+							editor.document.insertString(editor.caretModel.offset, field.text.let {
+								when(it){
+									"''","\"\""->it.replaceFirst(it[0],'\\')
+									else-> it.replace("\'","\\'").replace("\"","\\'")
+								}
+							})
 							editor.caretModel.moveCaretRelatively(field.text.length, 0, false, false, true)
 						}
 					}, null, null)
