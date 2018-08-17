@@ -241,14 +241,20 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 
 				val sizeToDouble = namesList.size.coerceAtLeast(1).toDouble()
 				val versionList = namesList.mapIndexed { index, it ->
-					val process = Runtime.getRuntime().exec(
-						arrayOf(gitPath, "describe", "--abbrev=0", "--tags"),
-						emptyArray(),
-						Paths.get(settings.importPath, it).toFile())
+					val dir = Paths.get(settings.importPath, it).toFile()
+					// process bar indicator percentage
 					indicator.fraction = index / sizeToDouble
-					val second = process.inputStream.use { it.reader().use { it.readText().trim() } }
-					tempDataModel.setValueAt(second, index, 1)
-					it to second
+					if (!dir.exists()) it to ""
+					else {
+						val process = Runtime.getRuntime().exec(
+							arrayOf(gitPath, "describe", "--abbrev=0", "--tags"),
+							emptyArray(),
+							dir)
+						// second column value
+						val secondValue = process.inputStream.use { it.reader().use { it.readText().trim() } }
+						tempDataModel.setValueAt(secondValue, index, 1)
+						it to secondValue
+					}
 				}.toList()
 				packagesList.model = tempDataModel
 				packagesInfo.clear()
