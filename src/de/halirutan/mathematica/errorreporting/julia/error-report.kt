@@ -35,6 +35,7 @@ import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.diagnostic.*
 import com.intellij.openapi.diagnostic.SubmittedReportInfo.SubmissionStatus
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
@@ -115,28 +116,14 @@ private object AnonymousFeedback {
 		labels = listOf(Label().apply { name = issueLabel })
 	}
 
-	private fun generateGitHubIssueBody(details: MutableMap<String, String>, includeStacktrace: Boolean): String {
-		val errorDescription = details.remove("error.description").orEmpty()
-		val stackTrace = details.remove("error.stacktrace")?.takeIf(String::isNotBlank) ?: "invalid stacktrace"
-		val result = StringBuilder()
-		if (!errorDescription.isEmpty()) {
-			result.append(errorDescription)
-			result.append("\n\n----------------------\n\n")
+	private fun generateGitHubIssueBody(details: MutableMap<String, String>, includeStacktrace: Boolean) =
+		buildString {
+			val errorDescription = details.remove("error.description").orEmpty()
+			val stackTrace = details.remove("error.stacktrace")?.takeIf(String::isNotBlank) ?: "invalid stacktrace"
+			if (errorDescription.isNotEmpty()) append(errorDescription).appendln("\n\n----------------------\n")
+			for ((key, value) in details) append("- ").append(key).append(": ").appendln(value)
+			if (includeStacktrace) appendln("\n```").appendln(stackTrace).appendln("```")
 		}
-		for ((key, value) in details) {
-			result.append("- ")
-			result.append(key)
-			result.append(": ")
-			result.append(value)
-			result.append("\n")
-		}
-		if (includeStacktrace) {
-			result.append("\n```\n")
-			result.append(stackTrace)
-			result.append("\n```\n")
-		}
-		return result.toString()
-	}
 }
 
 private const val initVector = "RandomInitVector"
@@ -178,8 +165,8 @@ class GitHubErrorReporter : ErrorReportSubmitter() {
 		bean: GitHubErrorBean,
 		description: String?): Boolean {
 		val dataContext = DataManager.getInstance().getDataContext(parent)
-		bean.description = description
-		bean.message = event.message
+		bean.description = description.orEmpty()
+		bean.message = event.message ?: event.throwable.message.toString()
 		event.throwable?.let { throwable ->
 			IdeErrorsDialog.findPluginId(throwable)?.let { pluginId ->
 				PluginManager.getPlugin(pluginId)?.let { ideaPluginDescriptor ->
@@ -191,7 +178,7 @@ class GitHubErrorReporter : ErrorReportSubmitter() {
 			}
 		}
 
-		(event.data as? LogMessageEx)?.let { bean.attachments = it.includedAttachments }
+		(event.data as? AbstractMessage)?.let { bean.attachments = it.includedAttachments }
 		val project = CommonDataKeys.PROJECT.getData(dataContext)
 		val reportValues = getKeyValuePairs(
 			project,
@@ -223,8 +210,14 @@ class GitHubErrorReporter : ErrorReportSubmitter() {
  *
  * @author patrick (17.06.17).
  */
-class GitHubErrorBean(throwable: Throwable, lastAction: String?) : ErrorBean(throwable, lastAction) {
+class GitHubErrorBean(throwable: Throwable, val lastAction: String) {
 	val exceptionHash = Arrays.hashCode(throwable.stackTrace).toString()
+	var description = "<null>"
+	var message = "<null>"
+	var pluginName = ""
+	var pluginVersion = ""
+	var stackTrace = "<null>"
+	var attachments: List<Attachment> = emptyList()
 }
 
 /**
@@ -257,6 +250,10 @@ private fun getKeyValuePairs(
 	error: GitHubErrorBean,
 	appInfo: ApplicationInfoEx,
 	namesInfo: ApplicationNamesInfo): MutableMap<String, String> {
+	PluginManager.getPlugin(PluginId.findId("com.tang"))?.run {
+		if (error.pluginName.isBlank()) error.pluginName = name
+		if (error.pluginVersion.isBlank()) error.pluginVersion = version
+	}
 	val params = mutableMapOf(
 		"error.description" to error.description,
 		"Julia Version" to (project?.run { juliaSettings.settings.version } ?: "Unknown"),
@@ -274,9 +271,6 @@ private fun getKeyValuePairs(
 		"error.message" to error.message,
 		"error.stacktrace" to error.stackTrace,
 		"error.hash" to error.exceptionHash)
-	for (attachment in error.attachments) {
-		params["attachment.name"] = attachment.name
-		params["attachment.value"] = attachment.encodedBytes
-	}
+	for (attachment in error.attachments) params["Attachment ${attachment.name}"] = attachment.encodedBytes
 	return params
 }
