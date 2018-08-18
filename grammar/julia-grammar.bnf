@@ -506,7 +506,7 @@ private primaryExpr ::=
 bracketedExpr ::=
  LEFT_BRACKET endOfLine
   (opAsSymbol | unaryOpAsSymbol)?
-   statements? endOfLine (COMMA_SYM endOfLine)? (FOR_KEYWORD expr IN_KEYWORD expr)*
+   statements endOfLine (COMMA_SYM endOfLine)? (FOR_KEYWORD expr IN_KEYWORD expr)*
  RIGHT_BRACKET
 
 whereClause ::= WHERE_KEYWORD afterWhere
@@ -605,7 +605,7 @@ macro ::=
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaMacroMixin'
 }
 
-let ::= LET_KEYWORD endOfLine assignLevelOp (commaSep assignLevelOp)* statements? END_KEYWORD? { extends=expr }
+let ::= LET_KEYWORD endOfLine assignLevelOp (commaSep assignLevelOp)* statements END_KEYWORD? { extends=expr }
 
 block ::= BEGIN_KEYWORD statements END_KEYWORD
 
