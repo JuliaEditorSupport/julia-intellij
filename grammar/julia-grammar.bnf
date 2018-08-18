@@ -1,5 +1,7 @@
+//noinspection BnfResolveForFile
 {
   // ref: https://github.com/JuliaLang/julia/blob/master/src/julia-parser.scm
+  // https://raw.githubusercontent.com/JuliaLang/julia/master/src/julia-parser.scm
   parserClass='org.ice1000.julia.lang.JuliaParser'
   extends='com.intellij.extapi.psi.ASTWrapperPsiElement'
   psiClassPrefix='Julia'
@@ -12,7 +14,6 @@
   tokenTypeClass='org.ice1000.julia.lang.JuliaTokenType'
   elementTypeHolderClass='org.ice1000.julia.lang.psi.JuliaTypes'
   elementTypeClass='org.ice1000.julia.lang.JuliaElementType'
-  psiImplUtilClass='org.ice1000.julia.lang.psi.impl.JuliaPsiImplUtils'
 }
 
 juliaFile ::= endOfLine statements
@@ -419,7 +420,7 @@ multiplyLevelOperator ::=
  | MISC_MULTIPLY_SYM
 
 implicitMultiplyOp ::= specialLhs blockComment? IMPLICIT_MULTIPLY_SYM specialRhs
-private specialLhs ::= integer | floatLit | symbol | string | regex
+private specialLhs ::= integer | floatLit | symbol | string | regex | bracketedExpr
 private specialRhs ::= symbol | string | charLit | integer | floatLit
 
 // // .//

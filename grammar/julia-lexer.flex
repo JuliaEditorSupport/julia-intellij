@@ -120,7 +120,11 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> \{ { return JuliaTypes.LEFT_B_BRACKET; }
 <YYINITIAL, LONG_TEMPLATE> \} { return JuliaTypes.RIGHT_B_BRACKET; }
 <YYINITIAL> \( { return JuliaTypes.LEFT_BRACKET; }
-<YYINITIAL> \) { return JuliaTypes.RIGHT_BRACKET; }
+<YYINITIAL> \) {
+  hugify(AFTER_SIMPLE_LIT);
+  return JuliaTypes.RIGHT_BRACKET;
+}
+
 <LONG_TEMPLATE> \( { leftBraceCount++; return JuliaTypes.LEFT_BRACKET; }
 <LONG_TEMPLATE> \) {
   if (leftBraceCount == 0) {
