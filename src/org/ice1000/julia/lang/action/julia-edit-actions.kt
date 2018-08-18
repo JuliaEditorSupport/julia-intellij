@@ -101,6 +101,8 @@ class JuliaUnicodeInputAction : JuliaAction(
 				.setRequestFocus(true)
 				.createPopup()
 			popup.addListener(object : JBPopupListener {
+				// due to that this function is not `default` in older idea versions
+				override fun beforeShown(event: LightweightWindowEvent?) = super.beforeShown(event)
 				override fun onClosed(event: LightweightWindowEvent?) {
 					CommandProcessor.getInstance().executeCommand(project, {
 						if (null != editor) ApplicationManager.getApplication().runWriteAction {

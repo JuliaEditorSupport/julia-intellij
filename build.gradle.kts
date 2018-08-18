@@ -6,7 +6,6 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
 import java.nio.file.*
-import java.net.URL
 
 val isCI = !System.getenv("CI").isNullOrBlank()
 val commitHash = kotlin.run {
@@ -14,7 +13,7 @@ val commitHash = kotlin.run {
 	process.waitFor()
 	@Suppress("RemoveExplicitTypeArguments")
 	val output = process.inputStream.use {
-		process.inputStream.use {
+		process.inputStream.use { _ ->
 			it.readBytes().let<ByteArray, String>(::String)
 		}
 	}
@@ -22,7 +21,7 @@ val commitHash = kotlin.run {
 	output.trim()
 }
 
-val pluginComingVersion = "0.2.4"
+val pluginComingVersion = "0.2.5"
 val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
 val packageName = "org.ice1000.julia"
 val kotlinVersion = "1.2.60"
@@ -122,28 +121,6 @@ task("isCI") {
 	doFirst { println(if (isCI) "Yes, I'm on a CI." else "No, I'm not on CI.") }
 }
 
-task("downloadJuliaParser") {
-	group = "help"
-	description = "Download julia-parser.scm"
-	doFirst {
-		val path = Paths.get("grammar", "julia-parser.scm")
-		if (!Files.exists(path)) Files.createFile(path)
-		Files.write(path,
-			URL("https://raw.githubusercontent.com/JuliaLang/julia/master/src/julia-parser.scm").readBytes())
-	}
-}
-
-task("downloadJuliaSyntax") {
-	group = "help"
-	description = "Download julia-syntax.scm"
-	doFirst {
-		val path = Paths.get("grammar", "julia-syntax.scm")
-		if (!Files.exists(path)) Files.createFile(path)
-		Files.write(path,
-			URL("https://raw.githubusercontent.com/JuliaLang/julia/master/src/julia-syntax.scm").readBytes())
-	}
-}
-
 // Don't specify type explicitly. Will be incorrectly recognized
 val parserRoot = Paths.get("org", "ice1000", "julia", "lang")!!
 val lexerRoot = Paths.get("gen", "org", "ice1000", "julia", "lang")!!
@@ -152,7 +129,7 @@ fun bnf(name: String) = Paths.get("grammar", "$name-grammar.bnf").toString()
 fun flex(name: String) = Paths.get("grammar", "$name-lexer.flex").toString()
 
 val genParser = task<GenerateParser>("genParser") {
-	group = tasks["init"].group
+	group = tasks["init"].group!!
 	description = "Generate the Parser and PsiElement classes"
 	source = bnf("julia")
 	targetRoot = "gen/"

@@ -23,7 +23,6 @@ package de.halirutan.mathematica.errorreporting.julia
 
 import com.intellij.CommonBundle
 import com.intellij.diagnostic.*
-import com.intellij.errorreport.bean.ErrorBean
 import com.intellij.ide.DataManager
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.idea.IdeaLogger
