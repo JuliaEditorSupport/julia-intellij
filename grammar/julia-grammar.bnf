@@ -534,8 +534,7 @@ array ::=
      (expr (commaSep|endOfLine expr)* (SEMICOLON_SYM? endOfLine expr)+ SEMICOLON_SYM?)
      |
      (expr SEMICOLON_SYM)
-     endOfLine
-    )?
+    )?endOfLine
  RIGHT_M_BRACKET) { extends=expr }
 
 union ::= UNION_KEYWORD tuple { extends=expr }
