@@ -13,3 +13,8 @@ let buffer = IOBuffer(),
 		end
 		Highlights.takebuf_str(buffer)
 end
+
+let a=1
+b=1
+
+let x=1 end

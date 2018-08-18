@@ -521,15 +521,22 @@ private afterWhere ::=
    RIGHT_B_BRACKET
 
 array ::=
-// symbol?
- LEFT_M_BRACKET endOfLine
-  (
-   (expr (commaSep? expr)* COMMA_SYM?)
-   (SEMICOLON_SYM endOfLine
-    (expr (commaSep? expr)* COMMA_SYM?)?)*
-  )?
-  endOfLine
- RIGHT_M_BRACKET { extends=expr }
+// empty array with typeName
+ (symbol LEFT_M_BRACKET RIGHT_M_BRACKET)
+// one-element array without typeName,
+// and the one-element array with typeName will be regarded as applyIndex first.
+ | (LEFT_M_BRACKET endOfLine expr commaSep? endOfLine RIGHT_M_BRACKET)
+// common
+ | (symbol? LEFT_M_BRACKET endOfLine
+    (
+     (expr (commaSep|endOfLine expr)+ (SEMICOLON_SYM? endOfLine expr)* COMMA_SYM?)
+     |
+     (expr (commaSep|endOfLine expr)* (SEMICOLON_SYM? endOfLine expr)+ SEMICOLON_SYM?)
+     |
+     (expr SEMICOLON_SYM)
+     endOfLine
+    )?
+ RIGHT_M_BRACKET) { extends=expr }
 
 union ::= UNION_KEYWORD tuple { extends=expr }
 
@@ -599,7 +606,7 @@ macro ::=
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaMacroMixin'
 }
 
-let ::= LET_KEYWORD assignLevelOp (commaSep assignLevelOp)* statements END_KEYWORD? { extends=expr }
+let ::= LET_KEYWORD endOfLine assignLevelOp (commaSep assignLevelOp)* statements? END_KEYWORD? { extends=expr }
 
 block ::= BEGIN_KEYWORD statements END_KEYWORD
 

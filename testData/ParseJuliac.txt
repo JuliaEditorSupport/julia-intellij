@@ -200,7 +200,7 @@ FILE
               JuliaSymbolImpl(SYMBOL)
                 PsiElement(SYM)('libfiles')
               PsiElement(EQ_SYM)('=')
-              JuliaApplyIndexOpImpl(APPLY_INDEX_OP)
+              JuliaArrayImpl(ARRAY)
                 JuliaSymbolImpl(SYMBOL)
                   PsiElement(SYM)('String')
                 PsiElement(LEFT_M_BRACKET)('[')
