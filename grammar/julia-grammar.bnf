@@ -220,7 +220,7 @@ private access ::= (DOT_SYM | DOUBLE_DOT_SYM | SLICE_SYM)? memberAccess
 private symbolAndMacroSymbol ::= symbol | macroSymbol
 
 compactFunction ::=
- symbol
+ (opAsSymbol|symbol)
   (typeParameters endOfLine)?
    functionSignature endOfLine
     (whereClause endOfLine)?

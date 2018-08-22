@@ -13,12 +13,12 @@ B[pos:p1, :] = Ak
 concatenate_setindex!(R, v, I...) = (R[I...] .= (v,); R)
 
 concatenate_setindex!(R, X::AbstractArray, I...) = (R[I...] = X)
-#
-# "abstractarraymath.jl"
-# *(x::AbstractArray{<:Number,2}) = x
-#
-# "base/strings/io.jl"
-# ==(a::AbstractString, b::AbstractString) = cmp(a, b) == 0
+
+"abstractarraymath.jl"
+*(x::AbstractArray{<:Number,2}) = x
+
+"base/strings/io.jl"
+==(a::AbstractString, b::AbstractString) = cmp(a, b) == 0
 # ⊇(l, r) = r ⊆ l
 # # < = <= and unicode...
 #
