@@ -64,13 +64,13 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 
 	private fun function(
 		element: JuliaFunction, holder: AnnotationHolder) {
-		val statements = element.statements?.run { exprList + moduleDeclarationList + globalStatementList } ?: return
+		val statements = element.statements.run { exprList + moduleDeclarationList + globalStatementList }
 		val signature = element.functionSignature
 		val signatureText = signature?.text ?: "()"
 		val typeParamsText = element.typeParameters?.text.orEmpty()
-		val where = element.whereClause
+		val where = element.whereClauseList
 		val name = element.name
-		if (where == null) when {
+		if (where.isNotEmpty()) when {
 			statements.isEmpty() -> holder.createWeakWarningAnnotation(
 				element.firstChild,
 				JuliaBundle.message("julia.lint.empty-function"))
