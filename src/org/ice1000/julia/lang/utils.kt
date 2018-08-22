@@ -29,7 +29,7 @@ fun executeJulia(
 	exePath: String, code: String? = null, timeLimit: Long = 2000L, vararg params: String) =
 	executeCommand(
 		"$exePath ${params.joinToString(" ")}",
-		code?.let { "$it\nquit()" },
+		code?.let { "$it\nexit()" },
 		timeLimit)
 
 fun executeCommandToFindPath(command: String) = executeCommand(command, null, 500L)
