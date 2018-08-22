@@ -281,15 +281,21 @@ type ::= expr typeParameters { extends=expr }
 exprOrEnd ::=
    plusIndexing
  | multiplyIndexing
+ | spliceIndexing
+ | assignLevelOperatorIndexing
  | rangeIndexing
+ | allRangeIndexing
  | end
  | exprWrapper
 
 end ::= END_KEYWORD { extends=exprOrEnd }
 exprWrapper ::= memberAccessOp | primaryExpr { extends=exprOrEnd }
 rangeIndexing ::= exprOrEnd COLON_SYM exprOrEnd { extends=exprOrEnd }
+allRangeIndexing ::= COLON_SYM { extends=exprOrEnd }
 plusIndexing ::= exprOrEnd plusLevelOperator exprOrEnd { extends=exprOrEnd }
 multiplyIndexing ::= exprOrEnd multiplyLevelOperator exprOrEnd { extends=exprOrEnd }
+spliceIndexing ::= exprOrEnd SLICE_SYM { extends=exprOrEnd }
+assignLevelOperatorIndexing::= exprOrEnd assignLevelOperator exprOrEnd { extends=exprOrEnd }
 
 applyIndexOp ::= expr LEFT_M_BRACKET
  (
