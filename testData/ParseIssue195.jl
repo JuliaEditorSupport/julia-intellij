@@ -37,11 +37,12 @@ concatenate_setindex!(R, X::AbstractArray, I...) = (R[I...] = X)
 # pairs(collection) = Generator(=>, keys(collection), values(collection))
 #
 # isin = in(pair, r, ==)
-#
-# function ==(l::AbstractDict, r::AbstractDict)
-# end
+
+function ==(l::AbstractDict, r::AbstractDict)
+end
 #
 # "abstractset.jl"
+# # union as function name in v1.0
 # function union end
 #
 # # some unicode assign like ∪ ∩ ⊆ ∉ ∈
@@ -50,21 +51,25 @@ concatenate_setindex!(R, X::AbstractArray, I...) = (R[I...] = X)
 # const ⊆ = issubset
 #
 # "accumulate.jl"
-# # cannot parse as `compact function` but `where statement`.
-# cumsum!(B::AbstractArray{T}, A; dims::Integer) where {T} = accumulate!(add_sum, B, A, dims=dims)
-#
+## cannot parse this as `compact function` but `where statement`.
+# cumsum!(B::AbstractArray{T}, A; dims::Integer) where {T} = accumulate(add_sum, B, A, dims=dims)
+
 # # `isa`
 # if nt isa NamedTuple{(:init,)}
 # end
-#
-# "array.jl"
-# # where T where N.
-# # only one `where T` will parse OK
-# function reshape(a::Array{T,N}, dims::NTuple{N,Int}) where T where N
-#
-# # endOfLine after `a`
-# Union{eltype(inds), Nothing}[
-#         get(bdict, i, nothing) for i in a
-# ]
-#
+
+"array.jl"
+# where T where N.
+# only one `where T` will parse OK
+function reshape(a::Array{T,N}, dims::NTuple{N,Int}) where T where N
+end
+function sub2ind_gen_impl(dims::Type{T}, I...) where T <: NTuple{N,Any} where N
+end
+
+# endOfLine after `a`
+Union{eltype(inds), Nothing}[
+        get(bdict, i, nothing) for i in a
+]
+
+# idk what is
 # filter(f, As::AbstractArray) = As[map(f, As)::AbstractArray{Bool}]

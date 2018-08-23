@@ -568,10 +568,10 @@ untypedVariables ::=
 function ::=
  FUNCTION_KEYWORD endOfLine
   (SYM DOT_SYM)? // TODO
-   symbol
+   (symbol|opAsSymbol) // function Name
    (typeParameters endOfLine)?
    (functionSignature endOfLine)?
-   (whereClause endOfLine)?
+   (whereClause endOfLine)*
   statements
  END_KEYWORD {
 	extends=expr
