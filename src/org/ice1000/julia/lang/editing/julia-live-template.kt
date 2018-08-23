@@ -4,6 +4,7 @@ import com.intellij.codeInsight.template.EverywhereContextType
 import com.intellij.codeInsight.template.TemplateContextType
 import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
+import org.ice1000.julia.lang.JuliaFileType
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.JuliaTypes.EOL
 import org.ice1000.julia.lang.psi.JuliaTypes.LINE_COMMENT
@@ -43,6 +44,8 @@ abstract class JuliaTemplateContextType private constructor(
 	}
 
 	override fun isInContext(file: PsiFile, offset: Int): Boolean {
+		if (file.fileType != JuliaFileType) return false
+
 		val element = file.findElementAt(offset) ?: file.findElementAt(offset - 1) ?: return false
 
 		return when {
