@@ -25,7 +25,7 @@ import javax.swing.*
 /**
  * Create a Julia file from template
  *
- * @author LimbolRain, ice1000
+ * @author HoshinoTented, ice1000
  */
 class NewJuliaFile : CreateFileFromTemplateAction(
 	JuliaBundle.message("julia.actions.new-file.title"),

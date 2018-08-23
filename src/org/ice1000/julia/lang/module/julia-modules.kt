@@ -33,6 +33,7 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	}
 
 	override fun setupRootModel(model: ModifiableRootModel) {
+		doAddContentEntry(model)
 		if (::settings.isInitialized)
 			(model.project.juliaSettings as JuliaProjectSettingsServiceImpl).loadState(settings)
 	}
