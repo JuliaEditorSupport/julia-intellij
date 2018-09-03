@@ -173,6 +173,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> baremodule { return JuliaTypes.BAREMODULE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> export { return JuliaTypes.EXPORT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> if { return JuliaTypes.IF_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> isa { return JuliaTypes.ISA_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> in {
   return noInAndUnion ? JuliaTypes.SYM : JuliaTypes.IN_KEYWORD;
 }

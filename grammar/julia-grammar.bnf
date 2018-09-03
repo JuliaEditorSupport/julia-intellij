@@ -78,6 +78,7 @@ opAsSymbol ::=
  | MISC_ARROW_SYM
  | BITWISE_NOT_SYM
  | ASSIGN_SYM
+ | keywordsAsSymbol
 
 private comment ::= blockComment | LINE_COMMENT
 private blockComment ::= BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | blockComment)* BLOCK_COMMENT_END
@@ -151,7 +152,7 @@ moduleDeclaration ::=
 
 globalStatement ::=
  GLOBAL_KEYWORD endOfLine
- symbol (COMMA_SYM endOfLine symbol)*
+ symbol (EQ_SYM endOfLine expr)*
 
 typeAnnotation ::=
  DOUBLE_COLON endOfLine
@@ -434,9 +435,11 @@ private specialRhs ::= symbol | string | charLit | integer | floatLit
 private fractionLevel ::=
    fractionOp
  | inOp
+ | isaOp
 
 fractionOp ::= expr FRACTION_SYM endOfLine expr
 inOp ::= expr (IN_KEYWORD | IN_SYM) endOfLine expr
+isaOp::= expr endOfLine ISA_KEYWORD endOfLine expr
 
 // ^ .^
 private exponentLevel ::=
@@ -506,6 +509,7 @@ private primaryExpr ::=
  | symbolLhs
  | symbol
  | inAsOp
+ | keywordsAsOp
  | macroSymbol
  | bracketedExpr
 
@@ -517,6 +521,8 @@ bracketedExpr ::=
 
 whereClause ::= WHERE_KEYWORD afterWhere
 inAsOp ::= IN_KEYWORD
+keywordsAsOp ::= ISA_KEYWORD | MODULE_KEYWORD
+keywordsAsSymbol ::= ISA_KEYWORD | MODULE_KEYWORD
 
 private afterWhere ::=
    (symbol | LEFT_B_BRACKET symbol RIGHT_B_BRACKET)
@@ -562,7 +568,7 @@ functionSignature ::=
 
 untypedVariables ::=
  LEFT_BRACKET endOfLine
-  (symbol (commaSep symbol)*)? endOfLine
+  (expr (commaSep expr)*)? endOfLine
  RIGHT_BRACKET
 
 function ::=

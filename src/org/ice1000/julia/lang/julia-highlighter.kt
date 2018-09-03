@@ -88,6 +88,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.FOR_KEYWORD,
 		JuliaTypes.WHILE_KEYWORD,
 		JuliaTypes.IN_KEYWORD,
+		JuliaTypes.ISA_KEYWORD,
 		JuliaTypes.RETURN_KEYWORD,
 		JuliaTypes.TRY_KEYWORD,
 		JuliaTypes.CATCH_KEYWORD,
