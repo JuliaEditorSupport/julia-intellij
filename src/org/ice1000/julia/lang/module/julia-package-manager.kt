@@ -3,7 +3,8 @@
 
 package org.ice1000.julia.lang.module
 
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.executeCommand
+import org.ice1000.julia.lang.printJulia
 import java.io.File
 import java.nio.file.*
 import java.util.function.Predicate
@@ -23,8 +24,13 @@ fun packageNamesList(importPathNullable: String? = null): Stream<String> {
 			.firstOrNull()
 			.let { it ?: return Stream.empty() }
 			.trim('"')
-	return importPath
-		.let { Files.list(Paths.get(it)) }
+	val path = try {
+		Paths.get(importPath)
+	} catch (e: NoSuchFileException) {
+		return Stream.empty()
+	}
+	return Files
+		.list(path)
 		.filter(packagePredicate)
 		.map { it.fileName.toString() }
 }
