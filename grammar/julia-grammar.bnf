@@ -78,6 +78,7 @@ opAsSymbol ::=
  | MISC_ARROW_SYM
  | BITWISE_NOT_SYM
  | ASSIGN_SYM
+ | COLON_SYM
  | keywordsAsSymbol
 
 private comment ::= blockComment | LINE_COMMENT
