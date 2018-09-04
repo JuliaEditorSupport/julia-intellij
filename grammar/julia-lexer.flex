@@ -293,6 +293,7 @@ OTHERWISE=[^]
 <INSIDE_VERSION> \" { dehugify(); return JuliaTypes.VERSION_END; }
 <INSIDE_BYTE_ARRAY> \" { dehugify(); return JuliaTypes.BYTE_ARRAY_END; }
 
+<YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL}\' { return JuliaTypes.SYM; }
 <YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} { hugify(AFTER_SIMPLE_LIT); return JuliaTypes.SYM; }
 <YYINITIAL, LONG_TEMPLATE> {SIMPLE_SYMBOL} \! /= {
   yypushback(1);
