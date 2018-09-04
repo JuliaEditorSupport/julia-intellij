@@ -41,7 +41,7 @@ struct GeneratedFunctionStub
     file::Symbol
     expand_early::Bool
 end
-"""
+# """
 # invoke and wrap the results of @generated
 function (g::GeneratedFunctionStub)(@nospecialize args...)
     body = g.gen(args...)
@@ -61,7 +61,7 @@ function (g::GeneratedFunctionStub)(@nospecialize args...)
         return Expr(Symbol("with-static-parameters"), lam, g.spnames...)
     end
 end
-"""
+# """
 NamedTuple() = NamedTuple{(),Tuple{}}(())
 
 """
