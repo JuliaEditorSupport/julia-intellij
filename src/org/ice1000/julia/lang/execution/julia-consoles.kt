@@ -24,6 +24,7 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 
 	private companion object PatternHolder {
 		private val STACK_FRAME_LOCATION = Pattern.compile(JULIA_STACK_FRAME_LOCATION_REGEX)
+		// TODO rmeove this. This seems no longer work.
 		private val ERROR_FILE_LOCATION = Pattern.compile(JULIA_ERROR_FILE_LOCATION_REGEX)
 	}
 
@@ -34,14 +35,17 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 		val fileSystem = project.baseDir.fileSystem
 		val matcher1 = STACK_FRAME_LOCATION.matcher(line)
 		if (matcher1.find()) {
-			val (path, lineNumber) = matcher1.group().drop(3).split(':') // "at ".length
+			val original = matcher1.group()
+			val trimmed = original.removePrefix("at ")
+			val (path, lineNumber) = trimmed.split(':') // "at ".length
 			val resultFile = fileSystem.findFileByPath(path)
-				?: fileSystem.findFileByPath(Paths.get(sdkHomeCache, path.trim('.', '/')).toString())
+				?: fileSystem.findFileByPath(Paths.get(sdkHomeCache).resolve(path).toString())
 				?: return null
+			val lineNumberInt = lineNumber.toIntOrNull() ?: return null
 			return Filter.Result(
-				startPoint + matcher1.start() + 3,
+				startPoint + matcher1.start() + (original.length - trimmed.length),
 				startPoint + matcher1.end(),
-				OpenFileHyperlinkInfo(project, resultFile, lineNumber.toInt()))
+				OpenFileHyperlinkInfo(project, resultFile, lineNumberInt))
 		}
 		val matcher2 = ERROR_FILE_LOCATION.matcher(line)
 		if (matcher2.find()) {
