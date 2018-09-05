@@ -38,6 +38,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaTypeAlias -> typeAlias(element, holder)
 			is JuliaPlusLevelOp -> plusLevelOp(element, holder)
 			is JuliaAssignLevelOp -> assignLevelOp(element, holder)
+			is JuliaAssignOp -> assignOp(element, holder)
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
@@ -138,6 +139,17 @@ $JULIA_DOC_SURROUNDING
 				registerFix(JuliaReplaceWithTextIntention(element, "${element.firstChild.text} \u22bb ${element.lastChild.text}",
 					JuliaBundle.message("julia.lint.xor-replace-22bb", element.firstChild.text, element.lastChild.text)))
 			}
+		}
+	}
+
+	private fun assignOp(element: JuliaAssignOp, holder: AnnotationHolder) {
+		// for top-level variable declaration
+		if (element.parent is JuliaStatements && element.parent.parent is JuliaFile && element.exprList.first() is JuliaTypeOp) {
+			holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.variable.type-declarations.global-error"))
+				.registerFix(JuliaReplaceWithTextIntention(element,
+					element.text.let { it.removeRange(it.indexOf("::"), it.indexOf("=")) },
+					JuliaBundle.message("julia.lint.variable.type-declarations.global-error-replace")
+				))
 		}
 	}
 

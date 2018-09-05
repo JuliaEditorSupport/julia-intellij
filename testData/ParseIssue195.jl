@@ -40,27 +40,26 @@ concatenate_setindex!(R, X::AbstractArray, I...) = (R[I...] = X)
 
 function ==(l::AbstractDict, r::AbstractDict)
 end
-#
-# "abstractset.jl"
-# # union as function name in v1.0
-# function union end
-#
+
+"abstractset.jl"
+# union as function name in v1.0
+function union end
+
 # # some unicode assign like ∪ ∩ ⊆ ∉ ∈
 # const ∪ = union
 # const ∩ = intersect
 # const ⊆ = issubset
-#
-# "accumulate.jl"
-## cannot parse this as `compact function` but `where statement`.
+
+"accumulate.jl"
+# cannot parse this as `compact function` but `where statement`.
 # cumsum!(B::AbstractArray{T}, A; dims::Integer) where {T} = accumulate(add_sum, B, A, dims=dims)
 
-# # `isa`
-# if nt isa NamedTuple{(:init,)}
-# end
+# `isa`
+if nt isa NamedTuple{(:init,)}
+end
 
 "array.jl"
 # where T where N.
-# only one `where T` will parse OK
 function reshape(a::Array{T,N}, dims::NTuple{N,Int}) where T where N
 end
 function sub2ind_gen_impl(dims::Type{T}, I...) where T <: NTuple{N,Any} where N
