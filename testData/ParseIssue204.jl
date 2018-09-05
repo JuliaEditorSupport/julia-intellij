@@ -7,8 +7,7 @@ macro __doc__(x)
     return Expr(:escape, Expr(:block, Expr(:meta, :doc), x))
 end
 atdoc     = (source, mod, str, expr) -> Expr(:escape, expr)
-# atdoc!(λ) =
-global atdoc = λ
+atdoc!(λ) = global atdoc = λ
 
 
 # simple stand-alone print definitions for debugging

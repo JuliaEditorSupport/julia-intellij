@@ -153,7 +153,8 @@ moduleDeclaration ::=
 
 globalStatement ::=
  GLOBAL_KEYWORD endOfLine
- symbol (EQ_SYM endOfLine expr)*
+ symbol (COMMA_SYM endOfLine expr (EQ_SYM endOfLine expr)?)*
+ |(EQ_SYM endOfLine expr)+
 
 typeAnnotation ::=
  DOUBLE_COLON endOfLine
@@ -513,17 +514,19 @@ private primaryExpr ::=
  | keywordsAsOp
  | macroSymbol
  | bracketedExpr
+ | globalStatementAsExpr
 
 bracketedExpr ::=
  LEFT_BRACKET endOfLine
   (opAsSymbol | unaryOpAsSymbol)?
    statements endOfLine (COMMA_SYM endOfLine)? (FOR_KEYWORD expr IN_KEYWORD expr)*
  RIGHT_BRACKET
+globalStatementAsExpr ::= globalStatement{extends=expr}
 
 whereClause ::= WHERE_KEYWORD afterWhere
 inAsOp ::= IN_KEYWORD
 keywordsAsOp ::= ISA_KEYWORD | MODULE_KEYWORD
-keywordsAsSymbol ::= ISA_KEYWORD | MODULE_KEYWORD
+keywordsAsSymbol ::= ISA_KEYWORD | MODULE_KEYWORD | WHERE_KEYWORD
 
 private afterWhere ::=
    (symbol | LEFT_B_BRACKET symbol RIGHT_B_BRACKET)
