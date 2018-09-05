@@ -223,7 +223,7 @@ private access ::= (DOT_SYM | DOUBLE_DOT_SYM | SLICE_SYM)? memberAccess
 private symbolAndMacroSymbol ::= symbol | macroSymbol
 
 compactFunction ::=
- (opAsSymbol|symbol)
+ (opAsSymbol|symbol|keywordsAsSymbol)
   (typeParameters endOfLine)?
    functionSignature endOfLine
     (whereClause endOfLine)?
@@ -526,7 +526,7 @@ globalStatementAsExpr ::= globalStatement{extends=expr}
 whereClause ::= WHERE_KEYWORD afterWhere
 inAsOp ::= IN_KEYWORD
 keywordsAsOp ::= ISA_KEYWORD | MODULE_KEYWORD
-keywordsAsSymbol ::= ISA_KEYWORD | MODULE_KEYWORD | WHERE_KEYWORD
+keywordsAsSymbol ::= ISA_KEYWORD | MODULE_KEYWORD | WHERE_KEYWORD | UNION_KEYWORD
 
 private afterWhere ::=
    (symbol | LEFT_B_BRACKET symbol RIGHT_B_BRACKET)
@@ -578,7 +578,7 @@ untypedVariables ::=
 function ::=
  FUNCTION_KEYWORD endOfLine
   (SYM DOT_SYM)? // TODO
-   (symbol|opAsSymbol|bracketedFunctionName)? // function Name
+   (symbol|opAsSymbol|bracketedFunctionName|keywordsAsSymbol)? // function Name
    (typeParameters endOfLine)?
    (functionSignature endOfLine)?
    (whereClause endOfLine)*
