@@ -74,4 +74,4 @@ For more information, see [the official doc](http://www.jetbrains.org/intellij/s
 ### Encoding
 
 The task `genLexer` and `runIde`(depends on former) need file encoding with UTF-8, so if you have trouble in 
-running some gradle tasks, please run gradle with VM options `-Dfile.encoding=UTF-8`
+running some gradle tasks, please run gradle with VM options `-Dfile.encoding=UTF-8` or run with environment variable `JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8`
