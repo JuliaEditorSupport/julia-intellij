@@ -144,7 +144,7 @@ $JULIA_DOC_SURROUNDING
 
 	private fun assignOp(element: JuliaAssignOp, holder: AnnotationHolder) {
 		// for top-level variable declaration
-		if (element.parent is JuliaStatements && element.exprList.first() is JuliaTypeOp) {
+		if (element.parent is JuliaStatements && element.parent.parent is JuliaFile && element.exprList.first() is JuliaTypeOp) {
 			holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.variable.type-declarations.global-error"))
 				.registerFix(JuliaReplaceWithTextIntention(element,
 					element.text.let { it.removeRange(it.indexOf("::"), it.indexOf("=")) },
