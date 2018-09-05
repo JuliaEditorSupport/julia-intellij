@@ -588,7 +588,7 @@ function ::=
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaFunctionMixin'
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration']
 }
-private bracketedFunctionName ::= LEFT_BRACKET symbol typeAnnotation? RIGHT_BRACKET
+private bracketedFunctionName ::= LEFT_BRACKET typedNamedVariable RIGHT_BRACKET
 
 private typeModifiers ::= IMMUTABLE_KEYWORD | MUTABLE_KEYWORD
 typeDeclaration ::=
