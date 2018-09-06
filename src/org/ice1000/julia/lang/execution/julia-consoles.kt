@@ -24,7 +24,7 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 
 	private companion object PatternHolder {
 		private val STACK_FRAME_LOCATION = Pattern.compile(JULIA_STACK_FRAME_LOCATION_REGEX)
-		// TODO rmeove this. This seems no longer work.
+		// TODO remove this. This seems no longer work.
 		private val ERROR_FILE_LOCATION = Pattern.compile(JULIA_ERROR_FILE_LOCATION_REGEX)
 	}
 

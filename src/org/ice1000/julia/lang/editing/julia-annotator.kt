@@ -71,7 +71,7 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		val typeParamsText = element.typeParameters?.text.orEmpty()
 		val where = element.whereClauseList
 		val name = element.name
-		if (where.isNotEmpty()) when {
+		if (where.isEmpty()) when {
 			statements.isEmpty() -> holder.createWeakWarningAnnotation(
 				element.firstChild,
 				JuliaBundle.message("julia.lint.empty-function"))
