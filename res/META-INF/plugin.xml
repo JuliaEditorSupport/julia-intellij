@@ -107,6 +107,9 @@
 		<lang.findUsagesProvider
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFindUsagesProvider"/>
+		<!--<codeInsight.template.postfixTemplateProvider-->
+			<!--language="Julia"-->
+			<!--implementationClass="org.ice1000.julia.lang.editing.JuliaPosixTemplateProvider"/>-->
 		<codeInsight.parameterNameHints
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaInlayParameterHintsProvider"/>
