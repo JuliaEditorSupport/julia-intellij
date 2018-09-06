@@ -18,7 +18,7 @@ import org.junit.Test
 //}
 
 class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinition()) {
-	override fun getTestDataPath() = "testData"
+	override fun getTestDataPath() = "testData/parsing"
 	override fun skipSpaces() = true
 	fun testParsing0() {
 		println(name)
