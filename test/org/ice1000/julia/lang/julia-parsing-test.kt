@@ -151,7 +151,7 @@ class JuliaLexerTest {
 }
 
 class DocfmtParsingTest : ParsingTestCase("", DOCFMT_EXTENSION, DocfmtParserDefinition()) {
-	override fun getTestDataPath() = "testData"
+	override fun getTestDataPath() = "testData/parsing"
 	override fun skipSpaces() = true
 	fun test() {
 		doTest(true)
