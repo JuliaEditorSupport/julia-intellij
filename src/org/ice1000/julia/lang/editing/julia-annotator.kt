@@ -65,7 +65,7 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 
 	private fun function(
 		element: JuliaFunction, holder: AnnotationHolder) {
-		val statements = element.statements.run { exprList + moduleDeclarationList + globalStatementList }
+		val statements = element.statements.run { exprList + moduleDeclarationList }
 		val signature = element.functionSignature
 		val signatureText = signature?.text ?: "()"
 		val typeParamsText = element.typeParameters?.text.orEmpty()

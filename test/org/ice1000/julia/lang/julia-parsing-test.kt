@@ -120,6 +120,11 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 		doTest(true)
 	}
 
+	fun testParseGlobal() {
+		println(name)
+		doTest(true)
+	}
+
 	fun testParseCharEscape() {
 		println(name)
 		doTest(true)
