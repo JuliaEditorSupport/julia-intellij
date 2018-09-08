@@ -18,7 +18,7 @@
 
 juliaFile ::= endOfLine statements
 
-symbol ::= SYM {
+symbol ::= SYM | privateOpAsSymbol {
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaSymbol']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaSymbolMixin'
 }
@@ -28,21 +28,24 @@ macroSymbol ::= MACRO_SYM {
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaMacroSymbolMixin'
 }
 
-unaryOpAsSymbol ::=
+unaryOpAsSymbol ::= privateUnaryOpAsSymbol
+private privateUnaryOpAsSymbol::=
    MINUS_SYM
  | DOT_SYM
  | PLUS_SYM
  | NOT_SYM
  | INTERPOLATE_SYM
 
-opAsSymbol ::=
+opAsSymbol ::= privateOpAsSymbol
+private privateOpAsSymbol::=
+ privateUnaryOpAsSymbol
 //   SEMICOLON_SYM |
-   QUESTION_SYM
+ | QUESTION_SYM
  | SUBTYPE_SYM
  | INVERSE_DIV_SYM
  | IS_SYM
  | ISNT_SYM
- | EQ_SYM
+// | EQ_SYM
  | LAMBDA_ABSTRACTION
  | ARROW_SYM
  | SLICE_SYM
@@ -204,8 +207,8 @@ expr ::=
  | exponentLevel
  | typeOp
  | unaryLevel
- | suffixedExpr
  | array
+ | suffixedExpr
  | primaryExpr {
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaExpr']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaExprMixin'
@@ -223,7 +226,7 @@ private access ::= (DOT_SYM | DOUBLE_DOT_SYM | SLICE_SYM)? memberAccess
 private symbolAndMacroSymbol ::= symbol | macroSymbol
 
 compactFunction ::=
- (opAsSymbol|symbol|keywordsAsOp)
+ (symbol)
   (typeParameters endOfLine)?
    functionSignature endOfLine
     (whereClause endOfLine)?
@@ -494,7 +497,7 @@ private primaryExpr ::=
  | breakExpr
  | tryCatch
  | continueExpr
- | union
+// | union
  | tuple
  | macro
  | let
@@ -510,8 +513,6 @@ private primaryExpr ::=
  | typeAlias
  | symbolLhs
  | symbol
- | keywordsAsOp
- | opAsSymbol
  | macroSymbol
  | bracketedExpr
 
@@ -523,7 +524,8 @@ bracketedExpr ::=
 
 whereClause ::= WHERE_KEYWORD afterWhere
 
-keywordsAsOp ::= ISA_KEYWORD | MODULE_KEYWORD | WHERE_KEYWORD | UNION_KEYWORD | IN_KEYWORD
+private keywordsAsOp ::=
+  ISA_KEYWORD | MODULE_KEYWORD | WHERE_KEYWORD | UNION_KEYWORD | IN_KEYWORD
 
 private afterWhere ::=
    (symbol | LEFT_B_BRACKET symbol RIGHT_B_BRACKET)
@@ -550,7 +552,7 @@ array ::=
     )?endOfLine
  RIGHT_M_BRACKET) { extends=expr }
 
-union ::= UNION_KEYWORD tuple { extends=expr }
+//union ::= UNION_KEYWORD tuple { extends=expr }
 
 tuple ::=
  LEFT_BRACKET endOfLine
@@ -575,7 +577,7 @@ untypedVariables ::=
 function ::=
  FUNCTION_KEYWORD endOfLine
   (SYM DOT_SYM)? // TODO
-   (symbol|opAsSymbol|bracketedFunctionName|keywordsAsOp)? // function Name
+   (symbol|bracketedFunctionName)? // function Name
    (typeParameters endOfLine)?
    (functionSignature endOfLine)?
    (whereClause endOfLine)*

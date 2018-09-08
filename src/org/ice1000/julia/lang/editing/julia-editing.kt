@@ -109,7 +109,7 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 		this is JuliaBlock ||
 		this is JuliaElseClause ||
 		this is JuliaElseIfClause ||
-		this is JuliaUnion ||
+//		this is JuliaUnion ||
 		this is JuliaLet ||
 		this is JuliaLambda ||
 		this is JuliaImportExpr ||
@@ -139,7 +139,7 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 		is JuliaColonBlock -> "block"
 		is JuliaElseClause -> "else"
 		is JuliaElseIfClause -> "elseif"
-		is JuliaUnion -> "union"
+//		is JuliaUnion -> "union"
 		is JuliaLet -> "let"
 		is JuliaLambda -> "λ"
 		is JuliaImportExpr -> "import ${element.children.firstOrNull { it is JuliaMemberAccess }?.text}"

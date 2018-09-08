@@ -19,7 +19,7 @@ FILE
             JuliaSymbolImpl(SYMBOL)
               PsiElement(SYM)('mat')
             PsiElement(LEFT_M_BRACKET)('[')
-            JuliaOpAsSymbolImpl(OP_AS_SYMBOL)
+            JuliaSymbolImpl(SYMBOL)
               PsiElement(COLON_SYM)(':')
             PsiElement(COMMA_SYM)(',')
             JuliaSymbolImpl(SYMBOL)

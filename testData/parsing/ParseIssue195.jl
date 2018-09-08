@@ -46,9 +46,9 @@ end
 function union end
 
 # # some unicode assign like ∪ ∩ ⊆ ∉ ∈
-# const ∪ = union
-# const ∩ = intersect
-# const ⊆ = issubset
+const ∪ = union
+const ∩ = intersect
+const ⊆ = issubset
 
 "accumulate.jl"
 # cannot parse this as `compact function` but `where statement`.

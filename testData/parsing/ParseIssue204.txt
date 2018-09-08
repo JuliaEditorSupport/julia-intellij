@@ -99,7 +99,7 @@ FILE
                   JuliaSymbolImpl(SYMBOL)
                     PsiElement(SYM)('name')
                 PsiElement(DOT_SYM)('.')
-                JuliaKeywordsAsOpImpl(KEYWORDS_AS_OP)
+                JuliaSymbolImpl(SYMBOL)
                   PsiElement(MODULE_KEYWORD)('module')
               PsiElement(RIGHT_BRACKET)(')')
             PsiElement(RIGHT_BRACKET)(')')

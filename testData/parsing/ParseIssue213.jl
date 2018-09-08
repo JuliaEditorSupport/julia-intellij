@@ -1,3 +1,3 @@
 module bug
-import Base: *, +a
+import Base: *, +
 end
