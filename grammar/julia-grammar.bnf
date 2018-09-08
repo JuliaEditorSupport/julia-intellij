@@ -36,8 +36,8 @@ unaryOpAsSymbol ::=
  | INTERPOLATE_SYM
 
 opAsSymbol ::=
-   SEMICOLON_SYM
- | QUESTION_SYM
+//   SEMICOLON_SYM |
+   QUESTION_SYM
  | SUBTYPE_SYM
  | INVERSE_DIV_SYM
  | IS_SYM
@@ -79,7 +79,7 @@ opAsSymbol ::=
  | BITWISE_NOT_SYM
  | ASSIGN_SYM
  | COLON_SYM
- | keywordsAsSymbol
+ | keywordsAsOp
 
 private comment ::= blockComment | LINE_COMMENT
 private blockComment ::= BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | blockComment)* BLOCK_COMMENT_END
@@ -205,6 +205,7 @@ expr ::=
  | typeOp
  | unaryLevel
  | suffixedExpr
+ | array
  | primaryExpr {
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaExpr']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaExprMixin'
@@ -222,7 +223,7 @@ private access ::= (DOT_SYM | DOUBLE_DOT_SYM | SLICE_SYM)? memberAccess
 private symbolAndMacroSymbol ::= symbol | macroSymbol
 
 compactFunction ::=
- (opAsSymbol|symbol|keywordsAsSymbol)
+ (opAsSymbol|symbol|keywordsAsOp)
   (typeParameters endOfLine)?
    functionSignature endOfLine
     (whereClause endOfLine)?
@@ -304,7 +305,7 @@ applyIndexOp ::= expr LEFT_M_BRACKET
  (
    comprehensionElement
  | exprOrEnd (COMMA_SYM exprOrEnd)*
- )? endOfLine
+ ) endOfLine
  RIGHT_M_BRACKET
 
 applyWhereOp ::= expr whereClause
@@ -493,7 +494,6 @@ private primaryExpr ::=
  | breakExpr
  | tryCatch
  | continueExpr
- | array
  | union
  | tuple
  | macro
@@ -510,8 +510,8 @@ private primaryExpr ::=
  | typeAlias
  | symbolLhs
  | symbol
- | inAsOp
  | keywordsAsOp
+ | opAsSymbol
  | macroSymbol
  | bracketedExpr
 
@@ -522,9 +522,8 @@ bracketedExpr ::=
  RIGHT_BRACKET
 
 whereClause ::= WHERE_KEYWORD afterWhere
-inAsOp ::= IN_KEYWORD
-keywordsAsOp ::= ISA_KEYWORD | MODULE_KEYWORD
-keywordsAsSymbol ::= ISA_KEYWORD | MODULE_KEYWORD | WHERE_KEYWORD | UNION_KEYWORD
+
+keywordsAsOp ::= ISA_KEYWORD | MODULE_KEYWORD | WHERE_KEYWORD | UNION_KEYWORD | IN_KEYWORD
 
 private afterWhere ::=
    (symbol | LEFT_B_BRACKET symbol RIGHT_B_BRACKET)
@@ -576,7 +575,7 @@ untypedVariables ::=
 function ::=
  FUNCTION_KEYWORD endOfLine
   (SYM DOT_SYM)? // TODO
-   (symbol|opAsSymbol|bracketedFunctionName|keywordsAsSymbol)? // function Name
+   (symbol|opAsSymbol|bracketedFunctionName|keywordsAsOp)? // function Name
    (typeParameters endOfLine)?
    (functionSignature endOfLine)?
    (whereClause endOfLine)*
@@ -601,7 +600,7 @@ typeDeclaration ::=
 
 abstractTypeDeclaration ::=
  ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
-  symbol (SUBTYPE_SYM endOfLine expr)? endOfLine
+  symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
  END_KEYWORD { extends=expr }
 
 primitiveTypeDeclaration ::=

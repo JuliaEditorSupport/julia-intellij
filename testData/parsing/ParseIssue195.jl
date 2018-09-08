@@ -19,9 +19,9 @@ concatenate_setindex!(R, X::AbstractArray, I...) = (R[I...] = X)
 
 "base/strings/io.jl"
 ==(a::AbstractString, b::AbstractString) = cmp(a, b) == 0
-# ⊇(l, r) = r ⊆ l
-# # < = <= and unicode...
-#
+⊇(l, r) = r ⊆ l
+# < = <= and unicode...
+
 # """ these success
 # '\a' <= c
 # c <= '\r'
@@ -36,7 +36,7 @@ concatenate_setindex!(R, X::AbstractArray, I...) = (R[I...] = X)
 #
 # pairs(collection) = Generator(=>, keys(collection), values(collection))
 #
-# isin = in(pair, r, ==)
+isin = in(pair, r, ==)
 
 function ==(l::AbstractDict, r::AbstractDict)
 end
@@ -72,3 +72,4 @@ Union{eltype(inds), Nothing}[
 
 # idk what is
 # filter(f, As::AbstractArray) = As[map(f, As)::AbstractArray{Bool}]
+findmax(a) = _findmax(a, :)
