@@ -40,7 +40,22 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 		doTest(true)
 	}
 
+	fun testParseIssue135() {
+		println(name)
+		doTest(true)
+	}
+
 	fun testParseIssue188() {
+		println(name)
+		doTest(true)
+	}
+
+	fun testParseIssue195() {
+		println(name)
+		doTest(true)
+	}
+
+	fun testParseIssue204() {
 		println(name)
 		doTest(true)
 	}
@@ -66,6 +81,11 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 	}
 
 	fun testParseIssue213() {
+		println(name)
+		doTest(true)
+	}
+
+	fun testParseIssue215() {
 		println(name)
 		doTest(true)
 	}
@@ -111,21 +131,6 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 	}
 
 	fun testParseImport() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue135() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue195() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue204() {
 		println(name)
 		doTest(true)
 	}
