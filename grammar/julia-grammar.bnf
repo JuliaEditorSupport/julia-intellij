@@ -292,13 +292,15 @@ exprOrEnd ::=
  | assignLevelOperatorIndexing
  | rangeIndexing
  | allRangeIndexing
+ | ternaryOpIndexing
  | end
  | exprWrapper
 
 end ::= END_KEYWORD { extends=exprOrEnd }
-exprWrapper ::= memberAccessOp | primaryExpr { extends=exprOrEnd }
+exprWrapper ::=  memberAccessOp| ternaryOp | primaryExpr { extends=exprOrEnd }
 rangeIndexing ::= exprOrEnd COLON_SYM exprOrEnd { extends=exprOrEnd }
 allRangeIndexing ::= COLON_SYM { extends=exprOrEnd }
+ternaryOpIndexing::= exprOrEnd QUESTION_SYM rangeIndexing{ extends=exprOrEnd }
 plusIndexing ::= exprOrEnd plusLevelOperator exprOrEnd { extends=exprOrEnd }
 multiplyIndexing ::= exprOrEnd multiplyLevelOperator exprOrEnd { extends=exprOrEnd }
 spliceIndexing ::= exprOrEnd SLICE_SYM { extends=exprOrEnd }
@@ -445,7 +447,7 @@ private fractionLevel ::=
 
 fractionOp ::= expr FRACTION_SYM endOfLine expr
 inOp ::= expr (IN_KEYWORD | IN_SYM) endOfLine expr
-isaOp::= expr endOfLine ISA_KEYWORD endOfLine expr
+isaOp::= expr ISA_KEYWORD expr
 
 // ^ .^
 private exponentLevel ::=

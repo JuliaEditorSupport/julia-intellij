@@ -31,11 +31,12 @@ concatenate_setindex!(R, X::AbstractArray, I...) = (R[I...] = X)
 #
 # '\a' <= c <= '\r'
 #
-# "abstractarraymath.jl"
-# y[1][isa(v, KeySet) ? 1 : 2]
-#
-# pairs(collection) = Generator(=>, keys(collection), values(collection))
-#
+"abstractarraymath.jl"
+y[1][isa(v, KeySet) ? 1 : 2]
+
+# `=>`, `==` asOp
+pairs(collection) = Generator(=>, keys(collection), values(collection))
+
 isin = in(pair, r, ==)
 
 function ==(l::AbstractDict, r::AbstractDict)
