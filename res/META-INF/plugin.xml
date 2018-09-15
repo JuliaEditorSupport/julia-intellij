@@ -112,7 +112,7 @@
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFindUsagesProvider"/>
 		<codeInsight.template.postfixTemplateProvider
 			language="Julia"
-			implementationClass="org.ice1000.julia.lang.editing.JuliaPosixTemplateProvider"/>
+			implementationClass="org.ice1000.julia.lang.editing.JuliaPostfixTemplateProvider"/>
 		<codeInsight.parameterNameHints
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaInlayParameterHintsProvider"/>

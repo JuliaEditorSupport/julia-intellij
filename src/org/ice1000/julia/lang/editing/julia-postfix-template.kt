@@ -9,11 +9,11 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ContainerUtil
-import org.ice1000.julia.lang.editing.JuliaPosixTemplateProvider.Companion.selectorTopmost
+import org.ice1000.julia.lang.editing.JuliaPostfixTemplateProvider.Companion.selectorTopmost
 import org.ice1000.julia.lang.psi.*
 
 
-class JuliaPosixTemplateProvider : PostfixTemplateProvider {
+class JuliaPostfixTemplateProvider : PostfixTemplateProvider {
 	private val myTemplates: Set<PostfixTemplate>
 
 	companion object {
@@ -25,7 +25,6 @@ class JuliaPosixTemplateProvider : PostfixTemplateProvider {
 			return object : PostfixTemplateExpressionSelectorBase(additionalFilter) {
 				override fun getNonFilteredExpressions(psiElement: PsiElement, document: Document, i: Int): List<PsiElement> {
 					val stat = PsiTreeUtil.getNonStrictParentOfType(psiElement, JuliaApplyFunctionOp::class.java, JuliaExpr::class.java)
-					println(stat)
 					return ContainerUtil.createMaybeSingletonList(stat)
 				}
 			}
@@ -35,6 +34,7 @@ class JuliaPosixTemplateProvider : PostfixTemplateProvider {
 	init {
 		myTemplates = ContainerUtil.newHashSet(
 			JuliaPrintPostfixTemplate(this),
+			JuliaSoutPostfixTemplate(this),
 			JuliaLengthPostfixTemplate(this),
 			JuliaSizePostfixTemplate(this)
 		)
@@ -50,6 +50,12 @@ class JuliaPosixTemplateProvider : PostfixTemplateProvider {
 class JuliaPrintPostfixTemplate(provider: PostfixTemplateProvider) :
 	StringBasedPostfixTemplate("print", "print(expr)", selectorTopmost(), provider) {
 	override fun getTemplateString(psiElement: PsiElement): String? = "print(\$expr\$)"
+	override fun getElementToRemove(expr: PsiElement): PsiElement = expr
+}
+
+class JuliaSoutPostfixTemplate(provider: PostfixTemplateProvider) :
+	StringBasedPostfixTemplate("sout", "println(expr)", selectorTopmost(), provider) {
+	override fun getTemplateString(psiElement: PsiElement): String? = "println(\$expr\$)"
 	override fun getElementToRemove(expr: PsiElement): PsiElement = expr
 }
 
