@@ -111,6 +111,7 @@ private object AnonymousFeedback {
 	private fun createNewGibHubIssue(details: MutableMap<String, String>) = Issue().apply {
 		val errorMessage = details.remove("error.message")?.takeIf(String::isNotBlank) ?: "Unspecified error"
 		title = ErrorReportBundle.message("git.issue.title", details.remove("error.hash").orEmpty(), errorMessage)
+		details["title"] = title
 		body = generateGitHubIssueBody(details, true)
 		labels = listOf(Label().apply { name = issueLabel })
 	}

@@ -28,7 +28,9 @@ import javax.swing.table.DefaultTableModel
 import javax.swing.text.DefaultFormatterFactory
 import javax.swing.text.NumberFormatter
 
-
+/**
+ * IDEA `New -> Project...`
+ */
 class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : JuliaSetupSdkWizardStep() {
 	init {
 		usefulText.isVisible = false
@@ -62,6 +64,9 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 	}
 }
 
+/**
+ * PyCharm and other IDEs' `New Project...`
+ */
 class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
 	private val settings = JuliaSettings()
 	private val listeners = ArrayList<ProjectGeneratorPeer.SettingsListener>()
