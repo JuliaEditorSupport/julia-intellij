@@ -130,8 +130,12 @@ fun importPathOf(exePath: String, timeLimit: Long = 800L) =
 		.orEmpty()
 		.trim('"')
 
+/**
+ * if [exePath] is empty, Files.isExecutable still return true!
+ */
 fun validateJuliaExe(exePath: String) = try {
-	Files.isExecutable(Paths.get(exePath))
+	if(exePath.isEmpty()) false
+	else Files.isExecutable(Paths.get(exePath))
 } catch (e: Exception) {
 	false
 }
