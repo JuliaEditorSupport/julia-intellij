@@ -2,11 +2,16 @@ package org.ice1000.julia.lang.editing
 
 import com.intellij.ide.structureView.*
 import com.intellij.ide.util.treeView.smartTree.SortableTreeElement
+import com.intellij.lang.ASTNode
 import com.intellij.lang.PsiStructureViewFactory
+import com.intellij.lang.folding.*
 import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.TextRange
 import com.intellij.pom.Navigatable
 import com.intellij.psi.*
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.PsiIconUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaFile
@@ -75,4 +80,31 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 		override fun isRootNodeShown() = true
 		override fun createStructureViewModel(editor: Editor?) = JuliaStructureViewModel(psiFile, editor)
 	}
+}
+
+/**
+ * Inspired by Grammar-Kit plugin and JavaX-Var-Hint plugin
+ */
+class JuliaCustomFoldingBuilder : CustomFoldingBuilder() {
+	override fun isRegionCollapsedByDefault(node: ASTNode) = false
+	override fun buildLanguageFoldRegions(descriptors: MutableList<FoldingDescriptor>, root: PsiElement, document: Document, quick: Boolean) {
+		if (root !is JuliaFile || root.hasError) return
+
+		PsiTreeUtil.findChildrenOfType(root, JuliaStatements::class.java).flatMap {
+			PsiTreeUtil.findChildrenOfType(it, JuliaFunction::class.java).mapNotNull {
+				getFold(it, it.toText)
+			}
+		}.let(descriptors::addAll)
+	}
+
+	private fun getFold(elem: PsiElement, placeHolder: String?) =
+		NamedFoldingDescriptor(elem.node, elem.textRange, null, placeHolder ?: "...")
+
+	/**
+	 * The return String will be overrode by [NamedFoldingDescriptor]'s `placeHolder`.
+	 */
+	override fun getLanguagePlaceholderText(node: ASTNode, range: TextRange): String = "..."
+
+	private val PsiElement.hasError get() = PsiTreeUtil.hasErrorElements(this)
+
 }

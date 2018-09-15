@@ -115,9 +115,10 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	override val paramsText: String
 		get() = paramsTextCache ?: functionSignature
 			?.typedNamedVariableList
-			?.joinToString { it.typeAnnotation?.expr?.text ?: "Any" }
+			?.joinToString { it.text.substringBefore("=") }
 			.orEmpty()
 			.let { "($it)" }
+			.replaceCommaWithSemi(functionSignature?.typedNamedVariableList?.indexOfFirst { it.text.contains('=') })
 			.also { paramsTextCache = it }
 
 	override fun subtreeChanged() {
@@ -131,6 +132,25 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 		functionSignature?.run {
 			typedNamedVariableList.all { processor.execute(it.firstChild, substitutor) }
 		}.orFalse() && super.processDeclarations(processor, substitutor, lastParent, place)
+}
+
+/**
+ * @param index means which comma will be replaced.
+ */
+fun String.replaceCommaWithSemi(index: Int?): String {
+	// null means no `keyword arguments` and 0 means no simple arguments so that we don't need to replace with.
+	if (index == null || index == 0) return this
+	var count = 0
+	// the position of `,` will be replaced.
+	var range = 0
+	for (i in this.indices) {
+		if (this[i] == ',') count++
+		if (count == index) {
+			range = i
+			break
+		}
+	}
+	return this.replaceRange(range, range + 1, ";")
 }
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {

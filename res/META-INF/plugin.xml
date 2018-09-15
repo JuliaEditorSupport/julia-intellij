@@ -83,6 +83,9 @@
 		<lang.formatter
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaFormattingModelBuilder"/>
+		<lang.foldingBuilder
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaCustomFoldingBuilder"/>
 		<lang.documentationProvider
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaDocumentProvider"/>
