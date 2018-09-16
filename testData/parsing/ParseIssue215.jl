@@ -1,8 +1,13 @@
-module bug
-function composeac(x)
-	(c ∘ a)(x)
-end
-function composeac2(x)
-	(c∘a)(x)
-end
+module Play
+
+a(x) = 2x
+b(x) = x + 2
+(a ∘ b)(x)
+
+isempty ∘ empty!
+
+Float64 ∘ length
+
+println ∘ Int
+
 end
