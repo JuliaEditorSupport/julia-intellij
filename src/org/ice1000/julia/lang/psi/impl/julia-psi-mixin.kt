@@ -138,8 +138,8 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
  * @param index means which comma will be replaced.
  */
 fun String.replaceCommaWithSemi(index: Int?): String {
-	// null means no `keyword arguments` and 0 means no simple arguments so that we don't need to replace with.
-	if (index == null || index == 0) return this
+	// null or -1 => no `keyword arguments`, and 0 means no simple arguments so that we don't need to replace with.
+	if (index == null || index == -1 || index == 0) return this
 	var count = 0
 	// the position of `,` will be replaced.
 	var range = 0

@@ -86,13 +86,24 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
  * Inspired by Grammar-Kit plugin and JavaX-Var-Hint plugin
  */
 class JuliaCustomFoldingBuilder : CustomFoldingBuilder() {
+
+	private val foldingNeeded = arrayOf(
+		JuliaFunction::class.java,
+		JuliaIfExpr::class.java,
+		JuliaElseClause::class.java,
+		JuliaElseIfClause::class.java,
+		JuliaWhileExpr::class.java,
+		JuliaModuleDeclaration::class.java,
+		JuliaTypeDeclaration::class.java
+	)
+
 	override fun isRegionCollapsedByDefault(node: ASTNode) = false
 	override fun buildLanguageFoldRegions(descriptors: MutableList<FoldingDescriptor>, root: PsiElement, document: Document, quick: Boolean) {
 		if (root !is JuliaFile || root.hasError) return
 
 		PsiTreeUtil.findChildrenOfType(root, JuliaStatements::class.java).flatMap {
-			PsiTreeUtil.findChildrenOfType(it, JuliaFunction::class.java).mapNotNull {
-				getFold(it, it.toText)
+			PsiTreeUtil.findChildrenOfAnyType(it, *foldingNeeded).map {
+				getFold(it, it.presentText())
 			}
 		}.let(descriptors::addAll)
 	}
