@@ -5,6 +5,7 @@ import com.intellij.notification.*
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
+import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.*
 import org.jetbrains.annotations.Nls
 
@@ -21,7 +22,8 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 				JuliaBundle.message("julia.messages.notify.nightly.title"),
 				JuliaBundle.message("julia.messages.notify.nightly.content"))
 		}
-		if (!validateJulia(project.juliaSettings.settings)) notify(
+		// other IDEs cannot verify settings...
+		if (!validateJulia(project.juliaSettings.settings) && PlatformUtils.isIntelliJ()) notify(
 			JuliaBundle.message("julia.messages.notify.invalid-julia.title"),
 			JuliaBundle.message("julia.messages.notify.invalid-julia.content"),
 			NotificationType.WARNING)
