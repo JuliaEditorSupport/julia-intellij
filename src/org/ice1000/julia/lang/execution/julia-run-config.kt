@@ -33,7 +33,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 	var systemImageOption = false
 	var inlineOption = false
 	var checkBoundsOption = false
-	var colorOption = false
+	var colorOption = true
 	var unsafeFloatOption = false
 	var handleSignalOption = false
 	var startupFileOption = false

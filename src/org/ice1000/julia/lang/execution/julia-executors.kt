@@ -8,9 +8,7 @@ import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.configurations.SearchScopeProvider
 import com.intellij.execution.filters.TextConsoleBuilderFactory
-import com.intellij.execution.process.OSProcessHandler
-import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.process.ProcessTerminatedListener
+import com.intellij.execution.process.*
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.ui.ConsoleView
@@ -62,13 +60,18 @@ class JuliaCommandLineState(
 			params += targetFile
 			params += programArgs.split(' ', '\n').filter(String::isNotBlank)
 		}
-		val handler = OSProcessHandler(GeneralCommandLine(params)
-			// Thanks to intellij-rust plugin.
+
+		val chooseColorful: (GeneralCommandLine) -> OSProcessHandler =
+			if (configuration.colorOption) ::ColoredProcessHandler
+			else ::OSProcessHandler
+		val handler = GeneralCommandLine(params)
+			// Thanks to intellij-rust plugin again!
 			// Explicitly use UTF-8.
 			// Even though default system encoding is usually not UTF-8 on windows,
 			// most Julia programs are UTF-8 only.
 			.withCharset(Charsets.UTF_8)
-			.withWorkDirectory(configuration.workingDir))
+			.withWorkDirectory(configuration.workingDir)
+			.let(chooseColorful)
 		ProcessTerminatedListener.attach(handler)
 		val console = consoleBuilder.console
 		console.attachToProcess(handler)
