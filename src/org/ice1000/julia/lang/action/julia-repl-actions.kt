@@ -19,16 +19,12 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
 import icons.JuliaIcons
-import org.ice1000.julia.lang.JuliaBundle
-import org.ice1000.julia.lang.JuliaLanguage
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.juliaGlobalSettings
 import java.awt.Font
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.util.concurrent.ConcurrentHashMap
-
-private const val JULIA_REPL_EMPTY_ACTION_ID = "julia.repl.empty.action"
-
 
 fun errorNotification(project: Project?, message: String) {
 	val errorTag = "Julia REPL ERROR"
@@ -172,11 +168,6 @@ class CommandHistory {
 		entries.add(entry)
 		listeners.forEach { it.onNewEntry(entry) }
 	}
-
-	fun lastUnprocessedEntry(): CommandHistory.Entry? =
-		if (processedEntriesCount < size)
-			get(processedEntriesCount)
-		else null
 
 	fun entryProcessed() {
 		processedEntriesCount++
