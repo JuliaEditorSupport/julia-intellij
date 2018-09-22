@@ -45,7 +45,7 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 			return Filter.Result(
 				startPoint + matcher1.start() + (original.length - trimmed.length),
 				startPoint + matcher1.end(),
-				OpenFileHyperlinkInfo(project, resultFile, lineNumberInt))
+				OpenFileHyperlinkInfo(project, resultFile, lineNumberInt - 1))
 		}
 		val matcher2 = ERROR_FILE_LOCATION.matcher(line)
 		if (matcher2.find()) {
@@ -85,7 +85,7 @@ class JuliaConsoleFolding : ConsoleFolding() {
 		lines.forEach {
 			when {
 				it.matchExecCommand() ->
-					return "julia ${it.substring(it.lastIndexOf("/") + 1)}"
+					return "julia ${it.substringAfterLast("/")}"
 				it.matchErrorStackTrace() ->
 					return " <${lines.size} stace frames>"
 			}
