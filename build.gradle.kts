@@ -45,8 +45,8 @@ allprojects {
 		when (System.getProperty("user.name")) {
 			"ice1000" -> {
 				val root = "/home/ice1000/.local/share/JetBrains/Toolbox/apps"
-				localPath = "$root/IDEA-U/ch-0/182.4129.33"
-				alternativeIdePath = "$root/PyCharm-C/ch-0/182.4129.34"
+				localPath = "$root/IDEA-U/ch-0/182.4505.22"
+				alternativeIdePath = "$root/PyCharm-C/ch-0/182.4323.29"
 			}
 			"hoshino" -> version = "2018.2.1"
 		/*"zh"*/ else -> version = "2018.2"

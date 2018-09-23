@@ -5,7 +5,7 @@ import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.project.Project
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.JuliaFileType
-import org.ice1000.julia.lang.module.initExeComboBox
+import org.ice1000.julia.lang.module.*
 import org.jetbrains.annotations.Contract
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -63,9 +63,10 @@ class JuliaRunConfigurationEditorImpl(configuration: JuliaRunConfiguration, proj
 	@Throws(ConfigurationException::class)
 	override fun applyEditorTo(configuration: JuliaRunConfiguration) {
 		val juliaExecutable = juliaExeField.comboBox.selectedItem as? String
-		if (juliaExecutable != null && Files.isExecutable(Paths.get(juliaExecutable)))
+		if (juliaExecutable != null && Files.isExecutable(Paths.get(juliaExecutable))) {
 			configuration.juliaExecutable = juliaExecutable
-		else reportInvalidPath(juliaExecutable.toString())
+			juliaGlobalSettings.knownJuliaExes += juliaExecutable
+		} else reportInvalidPath(juliaExecutable.toString())
 		val targetFile = targetFileField.text
 		if (Files.isReadable(Paths.get(targetFile))) configuration.targetFile = targetFile
 		else reportInvalidPath(targetFile)

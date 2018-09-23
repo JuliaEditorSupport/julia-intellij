@@ -39,7 +39,7 @@ class JuliaReplAction : JuliaAction(
 		val project = e.project ?: return errorNotification(null, "Project not found")
 		val juliaExe = juliaGlobalSettings.knownJuliaExes.firstOrNull()
 			?: return errorNotification(null, "No Julia Executable, please configure it.")
-		JuliaReplRunner(juliaExe.let { GeneralCommandLine(it) },
+		JuliaReplRunner(GeneralCommandLine(juliaExe),
 			project, "Julia REPL", juliaExe
 		).initAndRun()
 	}
