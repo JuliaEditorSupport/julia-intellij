@@ -139,14 +139,15 @@ class CommandExecutor(private val runner: JuliaReplRunner) {
 	private fun sendCommandToProcess(command: String) {
 		val processHandler = runner.processHandler
 		val processInputOS = processHandler.processInput ?: return errorNotification(null, "Error")
-		val charset = Charsets.UTF_8
-		val bytes = ("$command\n").toByteArray(charset)
-		processInputOS.write(bytes)
-		processInputOS.flush()
+		val bytes = ("$command\n").toByteArray()
+
 		val historyDocumentRange = runner.historyUpdater.printNewCommandInHistory(command)
 		val commandHistory = runner.commandHistory
 		commandHistory.addEntry(CommandHistory.Entry(command, historyDocumentRange))
 		runner.commandHistory.entryProcessed()
+
+		processInputOS.write(bytes)
+		processInputOS.flush()
 	}
 }
 
@@ -294,7 +295,5 @@ class HistoryKeyListener(
 }
 
 object ReplColors {
-//	val HISTORY_GUTTER_COLOR: JBColor = JBColor(Gray.xF2, Gray.x41)
-//	val EDITOR_GUTTER_COLOR: JBColor = JBColor(Gray.xCF, Gray.x31)
 	val PLACEHOLDER_COLOR: JBColor = JBColor.LIGHT_GRAY
 }
