@@ -19,6 +19,16 @@ open class JuliaCompletionProvider(private val list: List<LookupElement>) : Comp
 
 class JuliaBasicCompletionContributor : CompletionContributor() {
 	private companion object CompletionHolder {
+		/**
+		 * the lowest priority of completion, just make it less than [KEYWORDS_PRIORITY].
+		 */
+		const val BUILTIN_TAB_PRIORITY = -0xcafe
+		/**
+		 * This completion is lower than [JuliaSymbolRef]
+		 * @see [CompletionProcessor]
+		 */
+		const val KEYWORDS_PRIORITY = -0xbabe
+
 		private val statementBegin = listOf(
 			"type ",
 			"abstract type ",
@@ -50,6 +60,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 				.create(it)
 				.withIcon(JuliaIcons.JULIA_BIG_ICON)
 				.withTypeText(JuliaBundle.message("julia.completion.keyword.tail"), true)
+				.prioritized(KEYWORDS_PRIORITY)
 		}
 		private val tryInside = listOf(
 			"catch ",
@@ -58,6 +69,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			LookupElementBuilder
 				.create(it)
 				.withIcon(JuliaIcons.JULIA_BIG_ICON)
+				.prioritized(KEYWORDS_PRIORITY)
 		}
 		private val loopInside = listOf(
 			"break",
@@ -67,12 +79,13 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 				.create(it)
 				.withIcon(JuliaIcons.JULIA_BIG_ICON)
 				.withTypeText(JuliaBundle.message("julia.completion.jump.tail"), true)
+				.prioritized(KEYWORDS_PRIORITY)
 		}
 		private val ifInside = listOf(
 			"elseif ",
 			"else"
-		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON) }
-		private val functionInside = listOf(LookupElementBuilder.create("return"))
+		).map { LookupElementBuilder.create(it).withIcon(JuliaIcons.JULIA_BIG_ICON).prioritized(KEYWORDS_PRIORITY) }
+		private val functionInside = listOf(LookupElementBuilder.create("return").prioritized(KEYWORDS_PRIORITY))
 
 		private val builtinV06 by lazy {
 			this::class.java.getResource("builtin-v0.6.txt")
@@ -96,13 +109,17 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 						!in builtinV06 -> "1.0 Predefined symbol"
 						else -> "Predefined symbol"
 					}, true)
+				.prioritized(BUILTIN_TAB_PRIORITY
+				)
 		}
 
 		private val where = listOf(
 			LookupElementBuilder
 				.create("where")
 				.withIcon(JuliaIcons.JULIA_BIG_ICON)
-				.withTypeText("Keyword", true))
+				.withTypeText("Keyword", true)
+				.prioritized(KEYWORDS_PRIORITY)
+		)
 	}
 
 	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =
@@ -154,3 +171,11 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			JuliaCompletionProvider(functionInside))
 	}
 }
+
+/**
+ * convert a LookupElementBuilder into a Prioritized LookupElement
+ * @receiver [LookupElementBuilder]
+ * @param priority [Int] the priority of current LookupElementBuilder
+ * @return [LookupElement] Prioritized LookupElement
+ */
+fun LookupElementBuilder.prioritized(priority: Int): LookupElement = PrioritizedLookupElement.withPriority(this, priority.toDouble())
