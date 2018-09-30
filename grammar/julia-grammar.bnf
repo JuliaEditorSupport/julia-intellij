@@ -291,6 +291,7 @@ exprOrEnd ::=
  | spliceIndexing
  | assignLevelOperatorIndexing
  | rangeIndexing
+ | quoteIndexing
  | allRangeIndexing
  | ternaryOpIndexing
  | end
@@ -299,6 +300,7 @@ exprOrEnd ::=
 end ::= END_KEYWORD { extends=exprOrEnd }
 exprWrapper ::=  memberAccessOp| ternaryOp | primaryExpr { extends=exprOrEnd }
 rangeIndexing ::= exprOrEnd COLON_SYM exprOrEnd { extends=exprOrEnd }
+quoteIndexing ::= COLON_SYM exprOrEnd { extends=exprOrEnd }
 allRangeIndexing ::= COLON_SYM { extends=exprOrEnd }
 ternaryOpIndexing::= exprOrEnd QUESTION_SYM rangeIndexing{ extends=exprOrEnd }
 plusIndexing ::= exprOrEnd plusLevelOperator exprOrEnd { extends=exprOrEnd }
