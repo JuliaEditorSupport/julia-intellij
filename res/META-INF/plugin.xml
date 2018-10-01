@@ -49,6 +49,10 @@
 		<completion.contributor
 			language="DocumentFormat"
 			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtCompletionContributor"/>
+		<quoteHandler
+			fileType="Julia"
+			className="org.ice1000.julia.lang.editing.JuliaQuoteHandler"/>
+		<backspaceHandlerDelegate implementation="org.ice1000.julia.lang.editing.JuliaPairBackspaceHandler"/>
 		<spellchecker.support
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaSpellCheckingStrategy"/>

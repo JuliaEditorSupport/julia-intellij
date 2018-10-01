@@ -1,12 +1,15 @@
 package org.ice1000.julia.lang.editing
 
-import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
+import com.intellij.codeInsight.CodeInsightSettings
+import com.intellij.codeInsight.editorActions.*
 import com.intellij.ide.IconProvider
 import com.intellij.lang.*
 import com.intellij.lang.cacheBuilder.DefaultWordsScanner
 import com.intellij.lang.findUsages.FindUsagesProvider
 import com.intellij.lang.refactoring.RefactoringSupportProvider
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.InputValidatorEx
@@ -188,10 +191,91 @@ class JuliaRefactoringSupportProvider : RefactoringSupportProvider() {
 	override fun isMemberInplaceRenameAvailable(element: PsiElement, context: PsiElement?) = true
 }
 
+/**
+ * [JuliaBraceMatcher.isPairedBracesAllowedBeforeType] doesn't work!
+ */
 class JuliaTypedHandlerDelegate : TypedHandlerDelegate() {
 	override fun beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result {
 		if (fileType != JuliaFileType) return Result.CONTINUE
-		// TODO nothing to do? I don't think so
+		val offset = editor.caretModel.offset
+		if (c in "\"'`") {
+			editor.document.insertString(offset, c.toString())
+		}
 		return Result.CONTINUE
+	}
+}
+
+/**
+ * Thanks to Kotlin Plugin.
+ */
+class JuliaPairBackspaceHandler : BackspaceHandlerDelegate() {
+	/**
+	 * [JuliaTypes.TRANSPOSE_SYM] is `'`, because char has no `_START` and `_END` Token.
+	 */
+	override fun beforeCharDeleted(c: Char, file: PsiFile, editor: Editor) {
+		if (c !in "\"`'(" || file !is JuliaFile || !CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) return
+		val offset = editor.caretModel.offset
+		val highlighter = (editor as EditorEx).highlighter
+		val iterator = highlighter.createIterator(offset)
+		if (iterator.tokenType != JuliaTypes.STRING_INTERPOLATE_END
+			&& iterator.tokenType != JuliaTypes.QUOTE_END
+			&& iterator.tokenType != JuliaTypes.TRANSPOSE_SYM
+			&& iterator.tokenType != JuliaTypes.CMD_QUOTE_END) return
+		iterator.retreat()
+		if (iterator.tokenType != JuliaTypes.STRING_INTERPOLATE_START
+			&& iterator.tokenType != JuliaTypes.QUOTE_START
+			&& iterator.tokenType != JuliaTypes.TRANSPOSE_SYM
+			&& iterator.tokenType != JuliaTypes.CMD_QUOTE_START) return
+
+		if (offset + 1 > file.textLength) {
+			editor.document.deleteString(offset, offset)
+		} else
+			editor.document.deleteString(offset, offset + 1)
+	}
+
+	override fun charDeleted(c: Char, file: PsiFile, editor: Editor): Boolean {
+		return false
+	}
+}
+
+/**
+ * this class seems never used.
+ */
+class JuliaQuoteHandler : QuoteHandler {
+	override fun isOpeningQuote(iterator: HighlighterIterator, offset: Int): Boolean {
+		val tokenType = iterator.tokenType
+		if (tokenType == JuliaTypes.STRING || tokenType == JuliaTypes.CHAR_LITERAL) {
+			val start = iterator.start
+			return offset == start
+		}
+		return false
+	}
+
+	override fun hasNonClosedLiteral(editor: Editor?, iterator: HighlighterIterator?, offset: Int): Boolean {
+		return true
+	}
+
+	override fun isClosingQuote(iterator: HighlighterIterator, offset: Int): Boolean {
+		val tokenType = iterator.tokenType
+
+		if (tokenType == JuliaTypes.CHAR_LITERAL) {
+			val start = iterator.start
+			val end = iterator.end
+			return end - start >= 1 && offset == end - 1
+		} else if (tokenType == JuliaTypes.QUOTE_END || tokenType == JuliaTypes.CMD_QUOTE_END) {
+			return true
+		}
+		return false
+	}
+
+	override fun isInsideLiteral(iterator: HighlighterIterator): Boolean {
+		val tokenType = iterator.tokenType
+		return tokenType == JuliaTypes.REGULAR_STRING_PART_LITERAL ||
+			tokenType == JuliaTypes.STRING ||
+			tokenType == JuliaTypes.STRING_INTERPOLATE_START ||
+			tokenType == JuliaTypes.STRING_INTERPOLATE_END ||
+			tokenType == JuliaTypes.STRING_UNICODE ||
+			tokenType == JuliaTypes.STRING_ESCAPE ||
+			tokenType == JuliaTypes.STRING_CONTENT
 	}
 }
