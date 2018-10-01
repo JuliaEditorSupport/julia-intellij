@@ -72,5 +72,7 @@ Union{eltype(inds), Nothing}[
 ]
 
 # idk what is
-# filter(f, As::AbstractArray) = As[map(f, As)::AbstractArray{Bool}]
+filter(f, As::AbstractArray) = As[map(f, As)::AbstractArray{Bool}]
+map(f, As)::AbstractArray{Bool}
+
 findmax(a) = _findmax(a, :)

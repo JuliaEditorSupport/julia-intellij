@@ -311,7 +311,7 @@ assignLevelOperatorIndexing::= exprOrEnd assignLevelOperator exprOrEnd { extends
 applyIndexOp ::= expr LEFT_M_BRACKET
  (
    comprehensionElement
- | exprOrEnd (COMMA_SYM exprOrEnd)*
+ | exprOrEnd typeAnnotation? (COMMA_SYM exprOrEnd typeAnnotation?)*
  ) endOfLine
  RIGHT_M_BRACKET
 
