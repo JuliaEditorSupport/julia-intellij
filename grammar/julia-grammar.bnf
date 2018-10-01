@@ -229,7 +229,7 @@ compactFunction ::=
  (symbol)
   (typeParameters endOfLine)?
    functionSignature endOfLine
-    (whereClause endOfLine)?
+    (whereClause endOfLine)*
  EQ_SYM endOfLine expr {
 	pin=6
 	extends=expr
@@ -280,7 +280,7 @@ private suffixedExpr ::=
    applyFunctionOp
  | applyIndexOp
  | memberAccessOp
- | applyWhereOp
+// | applyWhereOp
  | type
 
 type ::= expr typeParameters { extends=expr }
@@ -533,7 +533,7 @@ private keywordsAsOp ::=
 
 private afterWhere ::=
    (symbol | LEFT_B_BRACKET symbol RIGHT_B_BRACKET)
-    ((SUBTYPE_SYM | EQ_SYM) endOfLine expr)?
+    ((SUBTYPE_SYM) endOfLine symbol typeParameters?)?
  | (endOfLine LEFT_B_BRACKET endOfLine)
     (afterWhere (commaSep afterWhere)*)?
      COMMA_SYM? endOfLine
