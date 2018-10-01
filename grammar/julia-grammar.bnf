@@ -541,7 +541,7 @@ private afterWhere ::=
 
 array ::=
 // empty array with typeName
- (symbol LEFT_M_BRACKET RIGHT_M_BRACKET)
+ (symbol typeParameters? LEFT_M_BRACKET RIGHT_M_BRACKET)
 // one-element array without typeName,
 // and the one-element array with typeName will be regarded as applyIndex first.
  | (LEFT_M_BRACKET endOfLine expr commaSep? endOfLine RIGHT_M_BRACKET)
