@@ -4,7 +4,6 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.util.SystemProperties
@@ -258,14 +257,6 @@ $JULIA_DOC_SURROUNDING
 		}
 	}
 
-	private fun checkType(value: BigInteger): String = when (value) {
-		in NumeralType.Int32.range ->
-			if (SystemInfo.is32Bit) NumeralType.Int32 else NumeralType.Int64
-		in NumeralType.Int64.range -> NumeralType.Int64
-		in NumeralType.Int128.range -> NumeralType.Int128
-		else -> NumeralType.BigInt
-	}.name
-
 	private fun integer(element: JuliaInteger, holder: AnnotationHolder) {
 		val code = element.text
 		if (code.any { !it.isLetterOrDigit() }) return
@@ -276,7 +267,7 @@ $JULIA_DOC_SURROUNDING
 			else -> 10 to code
 		}
 		val value = BigInteger(intText, base)
-		val type = checkType(value)
+		val type = checkIntType(value)
 		element.type = type
 		val annotation = holder.createInfoAnnotation(element,
 			JuliaBundle.message("julia.lint.int-type", type))
