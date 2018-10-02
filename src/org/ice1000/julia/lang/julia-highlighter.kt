@@ -36,6 +36,7 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
 	@JvmField val BLOCK_COMMENT = TextAttributesKey.createTextAttributesKey("JULIA_BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
 	@JvmField val TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
+	@JvmField val TYPE_PARAMETER_NAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPE_PARAMETER_NAME", DefaultLanguageHighlighterColors.IDENTIFIER)
 	@JvmField val ABSTRACT_TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_ABSTRACT_TYPE_NAME", DefaultLanguageHighlighterColors.INTERFACE_NAME)
 	@JvmField val PRIMITIVE_TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_PRIMITIVE_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val MODULE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_MODULE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
@@ -195,7 +196,8 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.macro-name.ref"), JuliaHighlighter.MACRO_REFERENCE),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.abs-type-name"), JuliaHighlighter.ABSTRACT_TYPE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.prim-type-name"), JuliaHighlighter.PRIMITIVE_TYPE_NAME),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.type-name"), JuliaHighlighter.TYPE_NAME)
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.type-name"), JuliaHighlighter.TYPE_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.type-parameter-name"), JuliaHighlighter.TYPE_PARAMETER_NAME)
 		)
 
 		private val ADDITIONAL_DESCRIPTORS = mapOf(
@@ -203,6 +205,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			"moduleName" to JuliaHighlighter.MODULE_NAME,
 			"macroName" to JuliaHighlighter.MACRO_NAME,
 			"stringEscapeInvalid" to JuliaHighlighter.STRING_ESCAPE_INVALID,
+			"typeParameterName" to JuliaHighlighter.TYPE_PARAMETER_NAME,
 			"typeName" to JuliaHighlighter.TYPE_NAME,
 			"charEscape" to JuliaHighlighter.CHAR_ESCAPE,
 			"charEscapeInvalid" to JuliaHighlighter.CHAR_ESCAPE_INVALID,
@@ -226,7 +229,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 		   NaN32 # (Float32)
 		   (1 + 3.2)::Float64
 			 raw"$$$!", v"1.0", b"\xff"
-		   IntOrString = Union{Int, AbstractString}
+		   IntOrString = Union{<typeParameterName>Int</typeParameterName>, <typeParameterName>AbstractString</typeParameterName>}
 		   div(5, 2) # => 2 # for a truncated result, use div
 		   @printf "%d is less than %f" 4.5 5.3
 		   ismatch(r"1 \+ 2 = 3", "1 + 2 = $(1 + 2)")

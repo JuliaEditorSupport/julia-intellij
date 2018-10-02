@@ -181,7 +181,9 @@ $JULIA_DOC_SURROUNDING
 				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
 			element.isTypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_NAME
-			element.text in arrayOf("in","where","isa","end") -> holder.createInfoAnnotation(element, null)
+			element.isTypeParameterName -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.TYPE_PARAMETER_NAME
+			element.text in arrayOf("in", "where", "isa", "end") -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
 		}
 	}

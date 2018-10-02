@@ -4,10 +4,9 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.*
+import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
-import org.ice1000.julia.lang.psi.JuliaForComprehension
 
 interface DocStringOwner : PsiElement
 
@@ -228,6 +227,7 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	val isMacroName: Boolean
 	val isModuleName: Boolean
 	val isTypeName: Boolean
+	val isTypeParameterName: Boolean
 	val isAbstractTypeName: Boolean
 	val isPrimitiveTypeName: Boolean
 	val isFunctionParameter: Boolean
@@ -289,9 +289,14 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	final override val isMacroName get() = parent is JuliaMacro
 	final override val isModuleName get() = parent is JuliaModuleDeclaration
 	final override val isTypeName by lazy {
-		(parent is JuliaTypeDeclaration && this === parent.children.firstOrNull { it is JuliaSymbol }) ||
-			parent is JuliaTypeAlias
+		parent is JuliaTypeOp && this === parent.children.getOrNull(1) ||
+			parent is JuliaTypeAlias ||
+			parent is JuliaType ||
+			parent is JuliaTypeAnnotation ||
+			parent is JuliaTypeDeclaration
 	}
+	final override val isTypeParameterName get() =
+		parent is JuliaTypeParameters || parent.parent is JuliaType
 	final override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
 	final override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
 	final override val isFunctionParameter

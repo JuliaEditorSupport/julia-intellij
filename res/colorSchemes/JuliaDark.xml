@@ -10,4 +10,14 @@
 			<option name="FOREGROUND" value="4EADE5"/>
 		</value>
 	</option>
+	<option name="JULIA_TYPE_PARAMETER_NAME">
+		<value>
+			<option name="FOREGROUND" value="507874"/>
+		</value>
+	</option>
+	<option name="JULIA_TYPE_NAME">
+		<value>
+			<option name="FOREGROUND" value="8AB8EC"/>
+		</value>
+	</option>
 </list>
