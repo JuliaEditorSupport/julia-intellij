@@ -25,9 +25,9 @@ enum class JuliaHintType(desc: String, enabled: Boolean) {
 
 		// is JuliaAssignOp or JuliaTypedNamedVariable (which is in function signature)
 		override fun isApplicable(elem: PsiElement): Boolean =
-				elem is JuliaAssignOp &&
-					elem.parent is JuliaStatements &&
-					elem.exprList.first() !is JuliaTypeOp
+			elem is JuliaAssignOp &&
+				elem.parent is JuliaStatements &&
+				elem.exprList.first() !is JuliaTypeOp
 
 	},
 	FUNCTION_SIGNATURE_PARAMETERS_HINT(JuliaBundle.message("julia.lint.function-param-hints.show"), false) {
@@ -36,9 +36,10 @@ enum class JuliaHintType(desc: String, enabled: Boolean) {
 		override fun provideHints(elem: PsiElement): List<InlayInfo> = provideTypeHint(elem)
 	},
 	// TODO
-	APPLY_FUNCTION_PARAMETERS_HINT(JuliaBundle.message("julia.lint.apply-function-param-hints.show"),false){
+	APPLY_FUNCTION_PARAMETERS_HINT(JuliaBundle.message("julia.lint.apply-function-param-hints.show"), false) {
 		override fun isApplicable(elem: PsiElement): Boolean =
 			(elem is JuliaApplyFunctionOp)
+
 		override fun provideHints(elem: PsiElement): List<InlayInfo> = emptyList()
 	};
 
@@ -57,7 +58,7 @@ enum class JuliaHintType(desc: String, enabled: Boolean) {
 			(elem as? JuliaAssignOp)?.run {
 				val offset = exprList.first().textLength
 				val rValue = exprList.lastOrNull() ?: return emptyList()
-				val type = parseType(rValue)
+				val type = parseType(rValue) ?: return emptyList()
 				return listOf(InlayInfo("::$type", elem.textOffset + offset))
 			}
 			// function parameters

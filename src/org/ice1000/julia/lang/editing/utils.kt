@@ -46,7 +46,7 @@ fun PsiElement.presentText(): String = when (this) {
 	is JuliaModuleDeclaration -> "module ${symbol.text}"
 	is IJuliaFunctionDeclaration -> toText
 	is JuliaTypeOp -> exprList.first().text
-	else -> text
+	else -> cutText(text, LONG_TEXT_MAX)
 }
 
 fun checkIntType(value: BigInteger): String = when (value) {

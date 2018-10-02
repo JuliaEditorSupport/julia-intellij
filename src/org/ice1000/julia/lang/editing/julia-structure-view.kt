@@ -88,12 +88,15 @@ class JuliaStructureViewFactory : PsiStructureViewFactory {
 class JuliaCustomFoldingBuilder : CustomFoldingBuilder() {
 
 	private val foldingNeeded = arrayOf(
+		JuliaModuleDeclaration::class.java,
+		JuliaImportExpr::class.java,
+		JuliaImportAllExpr::class.java,
+		JuliaExport::class.java,
 		JuliaFunction::class.java,
 		JuliaIfExpr::class.java,
 		JuliaElseClause::class.java,
 		JuliaElseIfClause::class.java,
 		JuliaWhileExpr::class.java,
-		JuliaModuleDeclaration::class.java,
 		JuliaTypeDeclaration::class.java
 	)
 
