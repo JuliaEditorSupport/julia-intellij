@@ -227,9 +227,9 @@ private symbolAndMacroSymbol ::= symbol | macroSymbol
 
 compactFunction ::=
  (symbol)
-  (typeParameters endOfLine)?
-   functionSignature endOfLine
-    (whereClause endOfLine)*
+ (typeParameters endOfLine)?
+ (functionSignature endOfLine)
+ (whereClause endOfLine)*
  EQ_SYM endOfLine expr {
 	pin=6
 	extends=expr
@@ -572,6 +572,7 @@ functionSignature ::=
   commaSep?
   (SLICE_SYM endOfLine)?
  RIGHT_BRACKET
+ typeAnnotation?
 
 untypedVariables ::=
  LEFT_BRACKET endOfLine
