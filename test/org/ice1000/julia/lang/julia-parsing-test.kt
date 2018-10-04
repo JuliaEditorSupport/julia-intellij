@@ -20,145 +20,35 @@ import org.junit.Test
 class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinition()) {
 	override fun getTestDataPath() = "testData/parsing"
 	override fun skipSpaces() = true
-	fun testParsing0() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParsing1() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseFunctions() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseRegexString() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue135() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue188() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue195() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue204() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue206() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue207() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue208() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue212() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue213() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue215() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue220() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue223() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseIssue225() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseEnd() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseEolAfterComma() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseEolAfterWhere() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseJuliac() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testRegex() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseFor() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseLet() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseEscapeInsideRegEx() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseImport() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseGlobal() {
-		println(name)
-		doTest(true)
-	}
-
-	fun testParseCharEscape() {
-		println(name)
-		doTest(true)
-	}
+	fun testParsing0() = doTest(true)
+	fun testParsing1() = doTest(true)
+	fun testParseFunctions() = doTest(true)
+	fun testParseRegexString() = doTest(true)
+	fun testParseIssue135() = doTest(true)
+	fun testParseIssue188() = doTest(true)
+	fun testParseIssue195() = doTest(true)
+	fun testParseIssue204() = doTest(true)
+	fun testParseIssue206() = doTest(true)
+	fun testParseIssue207() = doTest(true)
+	fun testParseIssue208() = doTest(true)
+	fun testParseIssue212() = doTest(true)
+	fun testParseIssue213() = doTest(true)
+	fun testParseIssue215() = doTest(true)
+	fun testParseIssue220() = doTest(true)
+	fun testParseIssue223() = doTest(true)
+	fun testParseIssue225() = doTest(true)
+	fun testParseIssue228() = doTest(true)
+	fun testParseEnd() = doTest(true)
+	fun testParseEolAfterComma() = doTest(true)
+	fun testParseEolAfterWhere() = doTest(true)
+	fun testParseJuliac() = doTest(true)
+	fun testRegex() = doTest(true)
+	fun testParseFor() = doTest(true)
+	fun testParseLet() = doTest(true)
+	fun testParseEscapeInsideRegEx() = doTest(true)
+	fun testParseImport() = doTest(true)
+	fun testParseGlobal() = doTest(true)
+	fun testParseCharEscape() = doTest(true)
 
 	fun testComment() {
 		println("我永远喜欢结城明日奈")
@@ -171,7 +61,7 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 	}
 
 	fun testlearn_julia_in_Y_minutes() {
-		println(name)
+
 		doTest(true)
 	}
 }
