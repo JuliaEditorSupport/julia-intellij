@@ -20,7 +20,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.module.juliaGlobalSettings
+import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Font
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -37,8 +37,8 @@ class JuliaReplAction : JuliaAction(
 	JuliaBundle.message("julia.actions.repl.description")) {
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.project ?: return errorNotification(null, "Project not found")
-		val juliaExe = juliaGlobalSettings.knownJuliaExes.firstOrNull()
-			?: return errorNotification(null, "No Julia Executable, please configure it.")
+		val juliaExe = project.juliaSettings.settings.exePath
+		if (juliaExe.isEmpty()) return errorNotification(null, "No Julia Executable, please configure it.")
 		JuliaReplRunner(GeneralCommandLine(juliaExe),
 			project, "Julia REPL", juliaExe
 		).initAndRun()
