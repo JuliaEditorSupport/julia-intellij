@@ -1,0 +1,1 @@
+fack(a::Int, b::Int)::T where T <: Int = a + b

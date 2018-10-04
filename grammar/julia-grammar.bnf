@@ -187,7 +187,7 @@ applyMacroOp ::= macroSymbol expr expr*// BUG: `expr+` is useless, and I don't k
 
 // naming: level+number or type+level or type+levelOp
 expr ::=
-  globalStatement
+   globalStatement
  | compactFunction
  | applyMacroOp
  | assignLevel
