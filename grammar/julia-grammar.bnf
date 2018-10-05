@@ -231,7 +231,7 @@ compactFunction ::=
  (functionSignature endOfLine)
  (whereClause endOfLine)*
  EQ_SYM endOfLine expr {
-	pin=6
+	pin=5
 	extends=expr
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaCompactFunctionMixin'
@@ -315,7 +315,7 @@ applyIndexOp ::= expr LEFT_M_BRACKET
  ) endOfLine
  RIGHT_M_BRACKET
 
-applyWhereOp ::= expr whereClause
+//applyWhereOp ::= expr whereClause
 
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
