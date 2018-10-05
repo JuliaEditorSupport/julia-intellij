@@ -28,6 +28,7 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 	// Filter.Result(startPoint, entireLength, null)
 	override fun applyFilter(line: String, entireLength: Int): Filter.Result? {
 		if (project.isDisposed || project.baseDir == null) return null
+		if (!line.startsWith(" [") && !line.startsWith("in expression starting at")) return null
 		val startPoint = entireLength - line.length
 		val fileSystem = project.baseDir.fileSystem
 		val matcher1 = STACK_FRAME_LOCATION.matcher(line)
