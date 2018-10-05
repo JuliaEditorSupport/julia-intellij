@@ -19,6 +19,8 @@ import org.jetbrains.annotations.NonNls
 @NonNls @Language("RegExp") const val JULIA_CHAR_SINGLE_UNICODE_U_REGEX = "\\\\u([A-Fa-f0-9]){4}"
 @NonNls @Language("RegExp") const val JULIA_CHAR_TRIPLE_UNICODE_X_REGEX = "(\\\\x([A-Fa-f0-9]){2}){3}"
 @NonNls @Language("RegExp") const val JULIA_STACK_FRAME_LOCATION_REGEX = "at ([^:<>*])+:\\d+"
+@NonNls @Language("RegExp") const val JULIA_IN_EXPR_STARTING_AT = "in expression starting at "
+const val JULIA_IN_EXPR_STARTING_AT_LEN = JULIA_IN_EXPR_STARTING_AT.length
 //@NonNls @Language("RegExp") const val JULIA_ERROR_FILE_LOCATION_REGEX = "[^ ,]+,"
 
 @NonNls const val JULIA_DEFAULT_MODULE_NAME = "MyBizarreJuliaModule"

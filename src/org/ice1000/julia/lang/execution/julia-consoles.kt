@@ -4,7 +4,7 @@ import com.intellij.execution.ConsoleFolding
 import com.intellij.execution.filters.*
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import org.ice1000.julia.lang.JULIA_STACK_FRAME_LOCATION_REGEX
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.juliaSettings
 import java.nio.file.Paths
 import java.util.regex.Pattern
@@ -28,9 +28,22 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 	// Filter.Result(startPoint, entireLength, null)
 	override fun applyFilter(line: String, entireLength: Int): Filter.Result? {
 		if (project.isDisposed || project.baseDir == null) return null
-		if (!line.startsWith(" [") && !line.startsWith("in expression starting at")) return null
+		if (!line.startsWith(" [")) return null
 		val startPoint = entireLength - line.length
 		val fileSystem = project.baseDir.fileSystem
+		if (line.startsWith(JULIA_IN_EXPR_STARTING_AT)) {
+			val importantPart = line.substring(JULIA_IN_EXPR_STARTING_AT_LEN).trimEnd()
+			val lastIndex = importantPart.lastIndexOf(':')
+			val path = importantPart.substring(0, lastIndex)
+			val lineNumber = importantPart.substring(lastIndex).toIntOrNull() ?: return null
+			val resultFile = fileSystem.findFileByPath(path)
+				?: fileSystem.findFileByPath(Paths.get(sdkHomeCache).resolve(path).toString())
+				?: return null
+			return Filter.Result(
+				startPoint + JULIA_IN_EXPR_STARTING_AT_LEN,
+				startPoint + JULIA_IN_EXPR_STARTING_AT_LEN + importantPart.length,
+				OpenFileHyperlinkInfo(project, resultFile, lineNumber - 1))
+		}
 		val matcher1 = STACK_FRAME_LOCATION.matcher(line)
 		if (matcher1.find()) {
 			val original = matcher1.group()
@@ -41,7 +54,7 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 				?: return null
 			val lineNumberInt = lineNumber.toIntOrNull() ?: return null
 			return Filter.Result(
-				startPoint + matcher1.start() + (original.length - trimmed.length),
+				startPoint + matcher1.start() + 3 /*(original.length - trimmed.length)*/,
 				startPoint + matcher1.end(),
 				OpenFileHyperlinkInfo(project, resultFile, lineNumberInt - 1))
 		}
