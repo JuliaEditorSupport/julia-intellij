@@ -46,7 +46,7 @@ allprojects {
 			"ice1000" -> {
 				val root = "/home/ice1000/.local/share/JetBrains/Toolbox/apps"
 				localPath = "$root/IDEA-U/ch-0/182.4505.22"
-				alternativeIdePath = "$root/PyCharm-C/ch-0/182.4323.29"
+				alternativeIdePath = "$root/PyCharm-C/ch-0/182.4505.26"
 			}
 			"hoshino" -> version = "2018.2.1"
 		/*"zh"*/ else -> version = "2018.2"

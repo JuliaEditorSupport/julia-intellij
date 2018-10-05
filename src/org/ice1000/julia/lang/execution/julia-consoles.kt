@@ -4,7 +4,6 @@ import com.intellij.execution.ConsoleFolding
 import com.intellij.execution.filters.*
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import org.ice1000.julia.lang.JULIA_ERROR_FILE_LOCATION_REGEX
 import org.ice1000.julia.lang.JULIA_STACK_FRAME_LOCATION_REGEX
 import org.ice1000.julia.lang.module.juliaSettings
 import java.nio.file.Paths
@@ -24,8 +23,6 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 
 	private companion object PatternHolder {
 		private val STACK_FRAME_LOCATION = Pattern.compile(JULIA_STACK_FRAME_LOCATION_REGEX)
-		// TODO remove this. This seems no longer work.
-		private val ERROR_FILE_LOCATION = Pattern.compile(JULIA_ERROR_FILE_LOCATION_REGEX)
 	}
 
 	// Filter.Result(startPoint, entireLength, null)
@@ -46,17 +43,6 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 				startPoint + matcher1.start() + (original.length - trimmed.length),
 				startPoint + matcher1.end(),
 				OpenFileHyperlinkInfo(project, resultFile, lineNumberInt - 1))
-		}
-		val matcher2 = ERROR_FILE_LOCATION.matcher(line)
-		if (matcher2.find()) {
-			val resultFile = fileSystem.findFileByPath(matcher2.group().dropLast(1))
-				?: return null
-			val lineNumber = line.split(' ').lastOrNull()?.trim()?.toIntOrNull()
-				?: return null
-			return Filter.Result(
-				startPoint + matcher2.start(),
-				startPoint + matcher2.end() - 1,
-				OpenFileHyperlinkInfo(project, resultFile, lineNumber - 1))
 		}
 		return null
 	}
