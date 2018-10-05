@@ -45,7 +45,7 @@ private privateOpAsSymbol::=
  | INVERSE_DIV_SYM
  | IS_SYM
  | ISNT_SYM
-// | EQ_SYM
+ | EQ_SYM
  | LAMBDA_ABSTRACTION
  | ARROW_SYM
  | SLICE_SYM
@@ -83,6 +83,7 @@ private privateOpAsSymbol::=
  | ASSIGN_SYM
  | COLON_SYM
  | keywordsAsOp
+ | typeAnnotationAsOp
 
 private comment ::= blockComment | LINE_COMMENT
 private blockComment ::= BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | blockComment)* BLOCK_COMMENT_END
@@ -166,6 +167,7 @@ typedNamedVariable ::=
  (
    symbol typeAnnotation?
  | symbol? typeAnnotation
+ | applyMacroOp
  ) (EQ_SYM expr)? {
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaTypedNamedVariableMixin'
 	implements=['com.intellij.psi.PsiNameIdentifierOwner']
@@ -173,7 +175,7 @@ typedNamedVariable ::=
 
 typeParameters ::=
  LEFT_B_BRACKET endOfLine
-  expr? (commaSep expr?)* endOfLine
+  (expr whereClause?)? (commaSep (expr whereClause?)?)* endOfLine
  RIGHT_B_BRACKET
 
 userType ::= primaryExpr typeParameters?
@@ -331,6 +333,7 @@ arguments ::=
  (
    namedParameter
   (commaSep namedParameter)*
+  (commaSep symbol SLICE_SYM)?
  )?
  endOfLine
 
@@ -736,3 +739,6 @@ private afterAssignLevelExpr ::= arrowOp
  | unaryLevel
  | suffixedExpr
  | primaryExpr
+
+private typeAnnotationAsOp::=
+	LEFT_BRACKET typeAnnotation RIGHT_BRACKET
