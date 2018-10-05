@@ -40,8 +40,8 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 				?: fileSystem.findFileByPath(Paths.get(sdkHomeCache).resolve(path).toString())
 				?: return null
 			return Filter.Result(
-				startPoint + JULIA_IN_EXPR_STARTING_AT_LEN,
-				startPoint + JULIA_IN_EXPR_STARTING_AT_LEN + importantPart.length,
+				startPoint + 1 + JULIA_IN_EXPR_STARTING_AT_LEN,
+				startPoint + 1 + JULIA_IN_EXPR_STARTING_AT_LEN + importantPart.length,
 				OpenFileHyperlinkInfo(project, resultFile, lineNumber - 1))
 		}
 		val matcher1 = STACK_FRAME_LOCATION.matcher(line)
