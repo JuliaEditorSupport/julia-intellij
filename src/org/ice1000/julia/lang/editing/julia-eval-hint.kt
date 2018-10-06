@@ -1,7 +1,11 @@
 package org.ice1000.julia.lang.editing
 
 import com.intellij.codeInsight.hints.*
+import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.lang.parameterInfo.*
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.*
@@ -118,4 +122,111 @@ class JuliaInlayParameterHintsProvider : InlayParameterHintsProvider {
 	 * default value append a `:` after inlayText so that we must override it.
 	 */
 	override fun getInlayPresentation(inlayText: String) = inlayText
+}
+
+/**
+ * Thanks to Kotlin plugin and IntelliJ-Rust plugin.
+ */
+class JuliaParameterInfo : ParameterInfoHandler<PsiElement, JuliaArgumentsDescription> {
+	var hintText: String = ""
+
+	override fun showParameterInfo(element: PsiElement, context: CreateParameterInfoContext) {
+		/**
+		 * itemsToShow is very important, and [description] is provided to [updateUI]
+		 */
+		val description = JuliaArgumentsDescription.findDescription(element) ?: return
+		context.itemsToShow = arrayOf(description)
+		context.showHint(element, element.textRange.startOffset, this)
+	}
+
+	// TODO: update for cursor index
+	override fun updateParameterInfo(parameterOwner: PsiElement, context: UpdateParameterInfoContext) {
+	}
+
+	override fun updateUI(p: JuliaArgumentsDescription?, context: ParameterInfoUIContext) {
+		if (p == null) {
+			context.isUIComponentEnabled = false
+			return
+		}
+		val range = p.getArgumentRange(context.currentParameterIndex)
+		hintText = p.presentText
+		context.setupUIComponentPresentation(
+			hintText,
+			range.startOffset,
+			range.endOffset,
+			!context.isUIComponentEnabled,
+			false,
+			false,
+			context.defaultParameterColor)
+	}
+
+	override fun getParametersForLookup(item: LookupElement, context: ParameterInfoContext?): Array<out Any>? {
+		val elem = item.`object` as? PsiElement ?: return null
+		val parent = elem.parent ?: return null
+		val isCall = parent is JuliaApplyFunctionOp
+		return if (isCall) arrayOf(parent) else emptyArray()
+	}
+
+	override fun couldShowInLookup() = true
+
+	override fun findElementForUpdatingParameterInfo(context: UpdateParameterInfoContext): PsiElement? {
+		return context.file.findElementAt(context.editor.caretModel.offset)
+	}
+
+	override fun findElementForParameterInfo(context: CreateParameterInfoContext): PsiElement? {
+		val contextElement = context.file.findElementAt(context.editor.caretModel.offset) ?: return null
+		val ret = PsiTreeUtil.getParentOfType(contextElement, JuliaApplyFunctionOp::class.java, /* strict */ true)
+		return ret
+	}
+}
+
+class JuliaArgumentsDescription(val arguments: Array<String>) {
+	fun getArgumentRange(index: Int): TextRange {
+		if (index < 0 || index >= arguments.size) return TextRange.EMPTY_RANGE
+		val start = arguments.take(index).sumBy { it.length + 2 }
+		return TextRange(start, start + arguments[index].length)
+	}
+
+	val presentText = if (arguments.isEmpty()) "<no arguments>" else arguments.joinToString(", ")
+
+	companion object {
+		/**
+		 * Finds declaration of the func/method and creates description of its arguments
+		 * @param current JuliaApplyFunctionOp
+		 */
+		fun findDescription(current: PsiElement): JuliaArgumentsDescription? {
+			val callInfo = when (current) {
+				is JuliaApplyFunctionOp -> CallInfo.resolve(current)
+				else -> null
+			} ?: return null
+			val params = callInfo.parameters.map { "${it.parameterName}::${it.parameterType}" }
+			return JuliaArgumentsDescription(params.toTypedArray())
+		}
+	}
+}
+
+class CallInfo private constructor(
+	val methodName: String?,
+	val selfParameter: String?,
+	val parameters: List<Parameter>) {
+	class Parameter(val parameterName: String, val parameterType: String)
+
+	companion object {
+		fun resolve(call: JuliaApplyFunctionOp): CallInfo? {
+			val stringBeforeCall = "str"
+			val functionName = call.exprList.first()
+			val functionRef = functionName.reference?.resolve()?.parent
+			val parameters = when (functionRef) {
+				is JuliaFunction -> functionRef.functionSignature?.generateParameters()
+				is JuliaCompactFunction -> functionRef.functionSignature.generateParameters()
+				else -> null
+			} ?: emptyList()
+			return CallInfo(functionName.text, stringBeforeCall, parameters)
+		}
+
+		private fun JuliaFunctionSignature.generateParameters() =
+			typedNamedVariableList.map {
+				CallInfo.Parameter(it.firstChild.text, it.typeAnnotation?.text ?: "Any")
+			}
+	}
 }

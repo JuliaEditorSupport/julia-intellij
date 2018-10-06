@@ -122,6 +122,9 @@
 		<codeInsight.parameterNameHints
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaInlayParameterHintsProvider"/>
+		<codeInsight.parameterInfo
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaParameterInfo"/>
 		<projectConfigurable
 			groupId="language"
 			id="Julia.Configuration"

@@ -295,8 +295,11 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			parent is JuliaTypeAnnotation ||
 			parent is JuliaTypeDeclaration
 	}
-	final override val isTypeParameterName get() =
-		parent is JuliaTypeParameters || parent.parent is JuliaType || parent is JuliaWhereClause
+	final override val isTypeParameterName by lazy {
+		parent is JuliaTypeParameters ||
+			parent.parent is JuliaType ||
+			parent is JuliaWhereClause
+	}
 	final override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
 	final override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
 	final override val isFunctionParameter
