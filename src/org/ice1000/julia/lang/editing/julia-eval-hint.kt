@@ -139,8 +139,17 @@ class JuliaParameterInfo : ParameterInfoHandler<PsiElement, JuliaArgumentsDescri
 		context.showHint(element, element.textRange.startOffset, this)
 	}
 
-	// TODO: update for cursor index
-	override fun updateParameterInfo(parameterOwner: PsiElement, context: UpdateParameterInfoContext) {
+	override fun updateParameterInfo(elem: PsiElement, context: UpdateParameterInfoContext) {
+		val grand = elem.parent.parent
+		if (grand is JuliaApplyFunctionOp) {
+			val index = grand.exprList.indexOfFirst { it === elem.parent }
+			if (index != -1) {
+				context.setCurrentParameter(index - 1)
+			}
+		} else if (grand is JuliaArguments) {
+			// TODO `keyword arguments`
+//			context.setCurrentParameter(magicIndex)
+		}
 	}
 
 	override fun updateUI(p: JuliaArgumentsDescription?, context: ParameterInfoUIContext) {
@@ -187,6 +196,7 @@ class JuliaArgumentsDescription(val arguments: Array<String>) {
 		return TextRange(start, start + arguments[index].length)
 	}
 
+	// TODO: add `;` for the rest
 	val presentText = if (arguments.isEmpty()) "<no arguments>" else arguments.joinToString(", ")
 
 	companion object {
@@ -213,20 +223,29 @@ class CallInfo private constructor(
 
 	companion object {
 		fun resolve(call: JuliaApplyFunctionOp): CallInfo? {
-			val stringBeforeCall = "str"
-			val functionName = call.exprList.first()
-			val functionRef = functionName.reference?.resolve()?.parent
+			var stringBeforeCall = ""
+			val first = call.exprList.first()
+
+			val ref = if (first is JuliaMemberAccessOp) {
+				// get function name for memberAssessOp
+				stringBeforeCall = first.exprList.first().toString()
+				first.exprList.lastOrNull()?.reference
+			} else {
+				first.reference
+			} ?: return null
+
+			val functionRef = ref.resolve()?.parent
 			val parameters = when (functionRef) {
 				is JuliaFunction -> functionRef.functionSignature?.generateParameters()
 				is JuliaCompactFunction -> functionRef.functionSignature.generateParameters()
 				else -> null
 			} ?: emptyList()
-			return CallInfo(functionName.text, stringBeforeCall, parameters)
+			return CallInfo(first.text, stringBeforeCall, parameters)
 		}
 
 		private fun JuliaFunctionSignature.generateParameters() =
 			typedNamedVariableList.map {
-				CallInfo.Parameter(it.firstChild.text, it.typeAnnotation?.text ?: "Any")
+				CallInfo.Parameter(it.firstChild.text, it.typeAnnotation?.text?.substringAfter("::") ?: "Any")
 			}
 	}
 }
