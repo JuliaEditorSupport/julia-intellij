@@ -23,6 +23,17 @@ import org.jetbrains.annotations.NonNls
 const val JULIA_IN_EXPR_STARTING_AT_LEN = JULIA_IN_EXPR_STARTING_AT.length
 //@NonNls @Language("RegExp") const val JULIA_ERROR_FILE_LOCATION_REGEX = "[^ ,]+,"
 
+// with IGNORE_CASE and COMMENTS options
+@NonNls @Language("RegExp") const val JULIA_VERSION_NUMBER_REGEX_IX = """^
+    v?                                      # prefix        (optional)
+    (\d+)                                   # major         (required)
+    (?:\.(\d+))?                            # minor         (optional)
+    (?:\.(\d+))?                            # patch         (optional)
+    (?:(-)|                                 # pre-release   (optional)
+    ([a-z][0-9a-z-]*(?:\.[0-9a-z-]+)*|-(?:[0-9a-z-]+\.)*[0-9a-z-]+)?
+    (?:(\+)|
+    (?:\+((?:[0-9a-z-]+\.)*[0-9a-z-]+))?    # build         (optional)
+    ))$"""
 @NonNls const val JULIA_DEFAULT_MODULE_NAME = "MyBizarreJuliaModule"
 @NonNls const val JULIA_WEBSITE = "https://julialang.org/downloads/"
 

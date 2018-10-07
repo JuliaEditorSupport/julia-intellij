@@ -41,6 +41,7 @@ class JuliaAnnotator : Annotator {
 			is JuliaCharLit -> char(element, holder)
 			is JuliaInteger -> integer(element, holder)
 			is JuliaString -> string(element, holder)
+			is JuliaVersionNumber -> versionNumber(element, holder)
 			is JuliaFloatLit -> float(element, holder)
 		}
 	}
@@ -201,6 +202,18 @@ $JULIA_DOC_SURROUNDING
 	private fun string(string: JuliaString, holder: AnnotationHolder) = string.children
 		.filter { it.firstChild.node.elementType == JuliaTypes.STRING_ESCAPE && (it.textContains('x') || it.textContains('u')) }
 		.forEach { holder.createErrorAnnotation(it, JuliaBundle.message("julia.lint.invalid-string-escape")) }
+
+	private fun versionNumber(element: JuliaVersionNumber, holder: AnnotationHolder) {
+		// Alibaba Java Coding Guidelines said
+		// "Never use exceptions for ordinary control flow. It is ineffective and unreadable."
+		// But we just do migration from Julia code to Kotlin code, so ignore it.
+		try {
+			val v = element.stringContentList.joinToString("") { it.text }
+			JuliaInKotlin.VersionNumber(v)
+		} catch (e: Exception) {
+			holder.createErrorAnnotation(element, e.message)
+		}
+	}
 
 	private fun definition(element: PsiElement, holder: AnnotationHolder, attributesKey: TextAttributesKey) {
 		holder.createInfoAnnotation(element, null).textAttributes = attributesKey

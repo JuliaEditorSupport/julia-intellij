@@ -128,4 +128,17 @@ class JuliaRegexTest {
 			" ⨦ ⨧ ⨨ ⨩ ⨪ ⨫ ⨬ ⨭ ⨮ ⨹ ⨺ ⩁ ⩂ ⩅ ⩊ ⩌ ⩏ ⩐ ⩒ ⩔ ⩖ ⩗ ⩛ ⩝ ⩡ ⩢ ⩣"
 			).replace(" ", ""))
 	}
+
+	@Test
+	fun juliaVersionStringRegexValidCheck(){
+		val jInK = org.ice1000.julia.lang.editing.JuliaInKotlin
+		println(jInK.VersionNumber("""2.3.4"""))
+		println(jInK.VersionNumber("""2.3.4b"""))
+		println(jInK.VersionNumber("""2.3.4+a"""))
+		println(jInK.VersionNumber("""2.3.4-3"""))
+		println(jInK.VersionNumber("""2.3.4+3"""))
+		println(jInK.VersionNumber("""2.3.4-3.3"""))
+		println(jInK.VersionNumber("""2.3.4-3.3a"""))
+		println(jInK.VersionNumber("""2.0.1-rc1"""))
+	}
 }

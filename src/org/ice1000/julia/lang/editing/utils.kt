@@ -2,9 +2,11 @@ package org.ice1000.julia.lang.editing
 
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiElement
+import org.ice1000.julia.lang.JULIA_VERSION_NUMBER_REGEX_IX
 import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
+import java.lang.IllegalArgumentException
 import java.math.BigInteger
 
 /**
@@ -78,5 +80,118 @@ object JuliaRValueLiteral {
 			val elementType = ""
 			return "Array{$elementType}"
 		}
+	}
+}
+
+/**
+ * VInt is UInt32, but Kotlin doesn't have it until version 1.3 .
+ */
+typealias VInt = Long
+
+/**
+ * If you are puzzled with the code style for some function in this object, do not ask why it is~
+ * What a nice julia-style!
+ */
+object JuliaInKotlin {
+	data class VersionNumber(
+		val major: VInt,
+		val minor: VInt,
+		val patch: VInt,
+		val prerelease: List<String> = emptyList(),
+		val build: List<String> = emptyList()) {
+
+		init {
+			major >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
+			minor >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
+			patch >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
+			for (ident in prerelease) {
+				try {
+					val int = ident.toInt()
+					int >= 0 || throw(IllegalArgumentException("invalid negative pre-release identifier: $ident"))
+				} catch (e: Exception) {
+					if (
+						!ident.matches(Regex("""^(?:|[0-9a-z-]*[a-z-][0-9a-z-]*)$""")) ||
+						ident.isEmpty() && !((prerelease.size == 1) && build.isEmpty())
+					)
+						throw(IllegalArgumentException("invalid pre-release identifier: $ident"))
+				}
+			}
+			for (ident in build) {
+				try {
+					val int = ident.toInt()
+					int >= 0 || throw(IllegalArgumentException("invalid negative pre-release identifier: $ident"))
+				} catch (e: Exception) {
+					if (
+						!ident.matches(Regex("""^(?:|[0-9a-z-]*[a-z-][0-9a-z-]*)$""")) ||
+						ident.isEmpty() && build.size != 1
+					)
+						throw(IllegalArgumentException("invalid pre-release identifier: $ident"))
+				}
+			}
+		}
+	}
+
+	/**
+	 * @see `base/version.jl`
+	 * ```julia
+	 * function VersionNumber(v::AbstractString)
+	 * 		v == "∞" && return typemax(VersionNumber)
+	 * 		m = match(VERSION_REGEX, v)
+	 * 		m === nothing && throw(ArgumentError("invalid version string: $v"))
+	 * 		major, minor, patch, minus, prerl, plus, build = m.captures
+	 * ......
+	 *
+	 * 		return VersionNumber(major, minor, patch, prerl, build)
+	 * end
+	 * ```
+	 * @param v [String]
+	 */
+	fun VersionNumber(v: String): VersionNumber {
+		v == "∞" && return typemax()
+		val regex = Regex(JULIA_VERSION_NUMBER_REGEX_IX, setOf(RegexOption.IGNORE_CASE, RegexOption.COMMENTS))
+		val captures = regex.matchEntire(v)?.groupValues ?: throw(IllegalArgumentException("invalid version string: $v"))
+
+		val major = captures.getOrNull(1)?.parseUInt() ?: 0L
+		val minor = captures.getOrNull(2)?.parseUInt() ?: 0L
+		val patch = captures.getOrNull(3)?.parseUInt() ?: 0L
+		val minus = captures.getOrNull(4)
+		var prerl = captures.getOrNull(5)
+		val plus = captures.getOrNull(6)
+		val build = captures.getOrNull(7)
+
+		if (prerl != null && prerl.isNotEmpty() && prerl[0] == '-') {
+			prerl = prerl.substring(1)
+		}
+		val prerelease = when {
+			prerl != null && prerl.isNotEmpty() -> prerl.split(".")
+			minus != null && minus.isNotEmpty() -> listOf("")
+			else -> emptyList()
+		}
+		val bld = when {
+			build != null && build.isNotEmpty() -> build.split(".")
+			plus != null && plus.isNotEmpty() -> listOf("")
+			else -> emptyList()
+		}
+		return VersionNumber(major, minor, patch, prerelease, bld)
+	}
+
+	private fun <T> T.parseUInt(): VInt? =
+		try {
+			this.toString().toLong()
+		} catch (e: Exception) {
+			null
+		}
+
+	/**
+	 * @see `base/version.jl`
+	 * ```julia
+	 * function typemax(::Type{VersionNumber})
+	 * 		∞ = typemax(VInt)
+	 * 		VersionNumber(∞, ∞, ∞, (), ("",))
+	 * end
+	 */
+	private fun typemax(): VersionNumber {
+		val `∞` = 4294967295L
+		return VersionNumber(`∞`, `∞`, `∞`, emptyList(), listOf(""))
 	}
 }
