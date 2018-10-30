@@ -6,16 +6,15 @@ import com.intellij.execution.runners.AsyncProgramRunner
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.notification.*
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.*
 import com.intellij.xdebugger.*
 import com.intellij.xdebugger.breakpoints.XLineBreakpointTypeBase
+import com.intellij.xdebugger.evaluation.EvaluationMode
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider
-import com.intellij.xdebugger.evaluation.XDebuggerEditorsProviderBase
-import com.intellij.xdebugger.impl.XDebugProcessConfiguratorStarter
-import com.intellij.xdebugger.impl.ui.XDebugSessionData
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.JuliaFileType
 import org.jetbrains.concurrency.AsyncPromise
@@ -34,17 +33,17 @@ class JuliaDebugProcess(session: XDebugSession) : XDebugProcess(session) {
 
 class JuliaDebugRunner : AsyncProgramRunner<RunnerSettings>() {
 	override fun canRun(executorId: String, profile: RunProfile): Boolean {
-		if (executorId != DefaultDebugExecutor.EXECUTOR_ID) return false
+		if (executorId != DefaultDebugExecutor.EXECUTOR_ID || profile !is JuliaRunConfiguration) return false
 		return true
 	}
 
 	override fun execute(environment: ExecutionEnvironment, state: RunProfileState): Promise<RunContentDescriptor?> {
 		val promise = AsyncPromise<RunContentDescriptor?>()
 		XDebuggerManager.getInstance(environment.project)
-			.startSession(environment, object : XDebugProcessConfiguratorStarter() {
+			.startSession(environment, object : XDebugProcessStarter() {
 				override fun start(session: XDebugSession): XDebugProcess =
 					JuliaDebugProcess(session).apply {
-						// FIXME: never fix it.
+						// FIXME: never fix it. How fragrant!
 						Notifications.Bus.notify(
 							Notification("org.ice1000.julia.lang.execution.debug.invalid.notification",
 								JuliaBundle.message("julia.debug.title"),
@@ -52,8 +51,6 @@ class JuliaDebugRunner : AsyncProgramRunner<RunnerSettings>() {
 								NotificationType.ERROR))
 						stop()
 					}
-
-				override fun configure(data: XDebugSessionData?) {}
 			})
 		return promise
 	}
@@ -61,10 +58,9 @@ class JuliaDebugRunner : AsyncProgramRunner<RunnerSettings>() {
 	override fun getRunnerId(): String = "JuliaDebugRunner"
 }
 
-class JuliaEditorsProvider : XDebuggerEditorsProviderBase() {
-	override fun createExpressionCodeFragment(project: Project, text: String, context: PsiElement?, isPhysical: Boolean): PsiFile {
-		super.getSupportedLanguages(context).forEach(::println)
-		return JavaCodeFragmentFactory.getInstance(project).createExpressionCodeFragment(text, context, null, isPhysical)
+class JuliaEditorsProvider : XDebuggerEditorsProvider() {
+	override fun createDocument(project: Project, expression: XExpression, sourcePosition: XSourcePosition?, mode: EvaluationMode): Document {
+		return EditorFactory.getInstance().createDocument(expression.expression)
 	}
 
 	override fun getFileType(): FileType = JuliaFileType
