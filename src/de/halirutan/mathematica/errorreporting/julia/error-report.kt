@@ -29,7 +29,6 @@ import com.intellij.idea.IdeaLogger
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.diagnostic.*
@@ -155,25 +154,31 @@ private fun encrypt(value: String): String {
 class GitHubErrorReporter : ErrorReportSubmitter() {
 	override fun getReportActionText() = ErrorReportBundle.message("report.error.to.plugin.vendor")
 	override fun submit(
-		events: Array<IdeaLoggingEvent>, info: String?, parent: Component, consumer: Consumer<SubmittedReportInfo>) =
-		doSubmit(events[0], parent, consumer, GitHubErrorBean(events[0].throwable, IdeaLogger.ourLastActionId), info)
+		events: Array<IdeaLoggingEvent>,
+		info: String?,
+		parent: Component,
+		consumer: Consumer<SubmittedReportInfo>): Boolean {
+		// TODO improve
+		val event = events.firstOrNull { it.throwable != null } ?: return false
+		return doSubmit(event, parent, consumer, info)
+	}
 
 	private fun doSubmit(
 		event: IdeaLoggingEvent,
 		parent: Component,
 		callback: Consumer<SubmittedReportInfo>,
-		bean: GitHubErrorBean,
 		description: String?): Boolean {
 		val dataContext = DataManager.getInstance().getDataContext(parent)
-		bean.description = description.orEmpty()
-		bean.message = event.message ?: event.throwable.message.toString()
-		event.throwable?.let { throwable ->
-			IdeErrorsDialog.findPluginId(throwable)?.let { pluginId ->
-				PluginManager.getPlugin(pluginId)?.let { ideaPluginDescriptor ->
-					if (!ideaPluginDescriptor.isBundled) {
-						bean.pluginName = ideaPluginDescriptor.name
-						bean.pluginVersion = ideaPluginDescriptor.version
-					}
+		val bean = GitHubErrorBean(
+			event.throwable,
+			IdeaLogger.ourLastActionId,
+			description ?: "<No description>",
+			event.message ?: event.throwable.message.toString())
+		IdeErrorsDialog.findPluginId(event.throwable)?.let { pluginId ->
+			PluginManager.getPlugin(pluginId)?.let { ideaPluginDescriptor ->
+				if (!ideaPluginDescriptor.isBundled) {
+					bean.pluginName = ideaPluginDescriptor.name
+					bean.pluginVersion = ideaPluginDescriptor.version
 				}
 			}
 		}
@@ -183,7 +188,7 @@ class GitHubErrorReporter : ErrorReportSubmitter() {
 		val reportValues = getKeyValuePairs(
 			project,
 			bean,
-			ApplicationInfo.getInstance() as ApplicationInfoEx,
+			ApplicationInfoEx.getInstanceEx(),
 			ApplicationNamesInfo.getInstance())
 		val notifyingCallback = CallbackWithNotification(callback, project)
 		val task = AnonymousFeedbackTask(project, ErrorReportBundle.message(
@@ -210,13 +215,21 @@ class GitHubErrorReporter : ErrorReportSubmitter() {
  *
  * @author patrick (17.06.17).
  */
-class GitHubErrorBean(throwable: Throwable, val lastAction: String) {
-	val exceptionHash = Arrays.hashCode(throwable.stackTrace).toString()
-	var description = "<null>"
-	var message = "<null>"
+class GitHubErrorBean(
+	throwable: Throwable,
+	val lastAction: String,
+	val description: String,
+	val message: String) {
+	val exceptionHash: String
+	val stackTrace: String
+	init {
+		val trace = throwable.stackTrace
+		exceptionHash = Arrays.hashCode(trace).toString()
+		stackTrace = trace.joinToString(System.lineSeparator())
+	}
+
 	var pluginName = ""
 	var pluginVersion = ""
-	var stackTrace = "<null>"
 	var attachments: List<Attachment> = emptyList()
 }
 
@@ -250,7 +263,7 @@ private fun getKeyValuePairs(
 	error: GitHubErrorBean,
 	appInfo: ApplicationInfoEx,
 	namesInfo: ApplicationNamesInfo): MutableMap<String, String> {
-	PluginManager.getPlugin(PluginId.findId("com.tang"))?.run {
+	PluginManager.getPlugin(PluginId.findId("org.ice1000.julia"))?.run {
 		if (error.pluginName.isBlank()) error.pluginName = name
 		if (error.pluginVersion.isBlank()) error.pluginVersion = version
 	}

@@ -1,6 +1,7 @@
 //noinspection BnfResolveForFile
 {
-  // ref: https://github.com/JuliaLang/julia/blob/master/src/julia-parser.scm
+   generate=[java="8" names="long" visitor-value="R"]
+ // ref: https://github.com/JuliaLang/julia/blob/master/src/julia-parser.scm
   // https://raw.githubusercontent.com/JuliaLang/julia/master/src/julia-parser.scm
   parserClass='org.ice1000.julia.lang.JuliaParser'
   extends='com.intellij.extapi.psi.ASTWrapperPsiElement'

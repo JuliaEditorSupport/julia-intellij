@@ -1,4 +1,5 @@
 {
+  generate=[java="8" names="long" visitor-value="R"]
   parserClass='org.ice1000.julia.lang.docfmt.DocfmtParser'
   extends='com.intellij.extapi.psi.ASTWrapperPsiElement'
   psiClassPrefix='Docfmt'
