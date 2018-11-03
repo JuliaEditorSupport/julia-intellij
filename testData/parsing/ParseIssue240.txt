@@ -25,8 +25,6 @@ FILE
         PsiElement(LEFT_M_BRACKET)('[')
         JuliaQuoteIndexingImpl(QUOTE_INDEXING)
           PsiElement(COLON_SYM)(':')
-          PsiErrorElement:<assign level operator>, <bitwise level operator>, <comment>, <comparison level operator>, <expr or end>, <expr>, <multiply level operator>, <op as symbol>, <pipe level operator>, <plus level operator>, <unary op as symbol>, BLOCK_COMMENT_START, COLON_SYM, COMMA_SYM, DOUBLE_COLON, EOL, FOR_KEYWORD, IMPLICIT_MULTIPLY_SYM, LAMBDA_ABSTRACTION, LEFT_BRACKET, LEFT_B_BRACKET, LEFT_M_BRACKET or QUOTE_KEYWORD expected, got ','
-            <empty list>
         PsiElement(COMMA_SYM)(',')
         JuliaRangeIndexingImpl(RANGE_INDEXING)
           JuliaRangeIndexingImpl(RANGE_INDEXING)
@@ -72,8 +70,6 @@ FILE
         PsiElement(LEFT_M_BRACKET)('[')
         JuliaQuoteIndexingImpl(QUOTE_INDEXING)
           PsiElement(COLON_SYM)(':')
-          PsiErrorElement:<assign level operator>, <bitwise level operator>, <comment>, <comparison level operator>, <expr or end>, <expr>, <multiply level operator>, <op as symbol>, <pipe level operator>, <plus level operator>, <unary op as symbol>, BLOCK_COMMENT_START, COLON_SYM, COMMA_SYM, DOUBLE_COLON, EOL, FOR_KEYWORD, IMPLICIT_MULTIPLY_SYM, LAMBDA_ABSTRACTION, LEFT_BRACKET, LEFT_B_BRACKET, LEFT_M_BRACKET or QUOTE_KEYWORD expected, got ','
-            <empty list>
         PsiElement(COMMA_SYM)(',')
         JuliaRangeIndexingImpl(RANGE_INDEXING)
           JuliaRangeIndexingImpl(RANGE_INDEXING)
@@ -92,6 +88,4 @@ FILE
         PsiElement(COMMA_SYM)(',')
         JuliaQuoteIndexingImpl(QUOTE_INDEXING)
           PsiElement(COLON_SYM)(':')
-          PsiErrorElement:<assign level operator>, <comment>, <expr or end>, <multiply level operator>, <plus level operator>, DOUBLE_COLON, EOL or RIGHT_M_BRACKET expected, got ']'
-            <empty list>
         PsiElement(RIGHT_M_BRACKET)(']')
