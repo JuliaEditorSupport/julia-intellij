@@ -1,9 +1,12 @@
 package org.ice1000.julia.lang.psi.impl
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.stubs.IStubElementType
+import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
@@ -27,7 +30,44 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 	}
 
 	open val startPoint: PsiElement
-	// TODO workaround for KT-22916
+		// TODO workaround for KT-22916
+		get() = PsiTreeUtil.getParentOfType(this, JuliaStatements::class.java) ?: parent
+
+	override fun getName() = nameIdentifier?.text.orEmpty()
+
+	override fun subtreeChanged() {
+		refCache = null
+		super.subtreeChanged()
+	}
+
+	override fun processDeclarations(
+		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+		nameIdentifier?.let { processor.execute(it, substitutor) }.orFalse() and
+			processDeclTrivial(processor, substitutor, lastParent, place)
+}
+
+abstract class JuliaFunctionDeclaration : StubBasedPsiElementBase<JuliaFunctionStub>, PsiNameIdentifierOwner {
+	constructor(node: ASTNode) : super(node)
+
+	var myType: IStubElementType<JuliaFunctionStub, JuliaFunction>? = null
+
+	constructor(stub: JuliaFunctionStub, elementType: IStubElementType<JuliaFunctionStub, JuliaFunction>) : super(stub, elementType) {
+		myType = elementType
+	}
+
+	override fun getElementType(): IStubElementType<out StubElement<*>, *> {
+		return myType ?: node.elementType as IStubElementType<out StubElement<*>, *>
+	}
+
+	private var refCache: Array<PsiReference>? = null
+
+	override fun setName(newName: String) = also {
+		references.forEach { it.handleElementRename(newName) }
+		nameIdentifier?.replace(JuliaTokenType.fromText(newName, project))
+	}
+
+	open val startPoint: PsiElement
+		// TODO workaround for KT-22916
 		get() = PsiTreeUtil.getParentOfType(this, JuliaStatements::class.java) ?: parent
 
 	override fun getName() = nameIdentifier?.text.orEmpty()
@@ -36,11 +76,6 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 			?.let { collectFrom(startPoint, it.text, it) }
 			?.also { refCache = it }
 		?: emptyArray()
-
-	override fun subtreeChanged() {
-		refCache = null
-		super.subtreeChanged()
-	}
 
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
@@ -100,7 +135,18 @@ abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 		?.let { (it as? JuliaSymbolLhs)?.symbolList?.firstOrNull() ?: it }
 }
 
-abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaFunction {
+abstract class JuliaFunctionMixin : JuliaFunctionDeclaration, JuliaFunction {
+	constructor(node: ASTNode) : super(node)
+	constructor(stub: JuliaFunctionStub, elementType: IStubElementType<JuliaFunctionStub, JuliaFunction>) : super(stub, elementType)
+
+	override var type: Type?
+		get() = null
+		set(value) {}
+
+	private var referenceImpl: JuliaFunctionRef? = null
+
+	override fun getReference() = referenceImpl ?: JuliaFunctionRef(this).also { referenceImpl = it }
+
 	private var paramsTextCache: String? = null
 	private var typeParamsTextCache: String? = null
 	override val returnType: Type get() = UNKNOWN_VALUE_PLACEHOLDER
@@ -123,6 +169,7 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	override fun subtreeChanged() {
 		paramsTextCache = null
 		typeParamsTextCache = null
+		referenceImpl = null
 		super.subtreeChanged()
 	}
 
@@ -293,7 +340,7 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			parent is JuliaTypeAlias ||
 			parent is JuliaType ||
 			parent is JuliaTypeAnnotation ||
-			parent is JuliaTypeDeclaration
+			parent is JuliaTypeDeclaration && this === parent.children.getOrNull(1)
 	}
 	final override val isTypeParameterName by lazy {
 		parent is JuliaTypeParameters ||
