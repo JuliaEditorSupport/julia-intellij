@@ -67,11 +67,13 @@ class JuliaStructureViewElement(private val root: NavigatablePsiElement) :
 	override fun getChildren() = root
 		.children
 		.flatMap { (it as? JuliaStatements)?.children?.toList() ?: listOf(it) }
+		.asSequence()
 		.filter {
 			if (it is JuliaSymbol || it is JuliaTypeOp) it.isFieldInTypeDeclaration
 			else it.treeViewTokens
 		}
 		.map { JuliaStructureViewElement(it as NavigatablePsiElement) }
+		.toList()
 		.toTypedArray()
 }
 

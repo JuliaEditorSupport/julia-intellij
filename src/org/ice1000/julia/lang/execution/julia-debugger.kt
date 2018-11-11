@@ -43,7 +43,7 @@ class JuliaDebugRunner : AsyncProgramRunner<RunnerSettings>() {
 			.startSession(environment, object : XDebugProcessStarter() {
 				override fun start(session: XDebugSession): XDebugProcess =
 					JuliaDebugProcess(session).apply {
-						// FIXME: never fix it. How fragrant!
+						// FIXME: never fix it. How delicious!
 						Notifications.Bus.notify(
 							Notification("org.ice1000.julia.lang.execution.debug.invalid.notification",
 								JuliaBundle.message("julia.debug.title"),
