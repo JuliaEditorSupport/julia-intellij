@@ -77,13 +77,13 @@ abstract class JuliaSingleComprehensionMixin(node: ASTNode) : JuliaDeclaration(n
 
 abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(node), JuliaTypedNamedVariable {
 	override var type: Type? = null
-		set(value) = Unit
+		set(_) = Unit
 
 	override fun getNameIdentifier() = firstChild as? JuliaSymbol
 	override val startPoint: PsiElement
 		get() = parent.parent.let {
 			when (it) {
-				is JuliaFunction -> it.statements ?: it
+				is JuliaFunction -> it.statements
 				is JuliaCompactFunction -> it.lastChild
 				else -> it
 			}
@@ -93,7 +93,7 @@ abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(no
 abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), JuliaAssignOp {
 	override var type: Type?
 		get() = exprList.lastOrNull()?.type
-		set(value) {}
+		set(_) {}
 
 	override fun getNameIdentifier() = children
 		.firstOrNull { it is JuliaSymbol || it is JuliaSymbolLhs }
