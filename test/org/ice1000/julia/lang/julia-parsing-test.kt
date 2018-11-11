@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang
 
+import com.intellij.lang.ParserDefinition
 import com.intellij.testFramework.ParsingTestCase
 import org.ice1000.julia.lang.docfmt.DocfmtParserDefinition
 import org.junit.Test
@@ -17,7 +18,9 @@ import org.junit.Test
 //	}
 //}
 
-class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinition()) {
+class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION,
+		// To make the IDE happy
+		JuliaParserDefinition() as ParserDefinition) {
 	override fun getTestDataPath() = "testData/parsing"
 	override fun skipSpaces() = true
 	fun testParsing0() = doTest(true)
@@ -39,6 +42,7 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION, JuliaParserDefinit
 	fun testParseIssue225() = doTest(true)
 	fun testParseIssue227() = doTest(true)
 	fun testParseIssue228() = doTest(true)
+	fun testParseIssue232() = doTest(true)
 	fun testParseIssue240() = doTest(true)
 	fun testParseEnd() = doTest(true)
 	fun testParseEolAfterComma() = doTest(true)
@@ -77,7 +81,8 @@ class JuliaLexerTest {
 	}
 }
 
-class DocfmtParsingTest : ParsingTestCase("", DOCFMT_EXTENSION, DocfmtParserDefinition()) {
+class DocfmtParsingTest : ParsingTestCase("", DOCFMT_EXTENSION,
+		DocfmtParserDefinition() as ParserDefinition) {
 	override fun getTestDataPath() = "testData/parsing"
 	override fun skipSpaces() = true
 	fun test() {
