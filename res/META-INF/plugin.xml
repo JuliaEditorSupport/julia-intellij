@@ -17,6 +17,7 @@
 		<internalFileTemplate name="Julia Function"/>
 		<internalFileTemplate name="Julia Type"/>
 		<internalFileTemplate name="Julia File"/>
+		<gotoDeclarationHandler implementation="org.ice1000.julia.lang.psi.JuliaGotoDeclarationHandler"/>
 <!--<gotoClassContributor implementation="org.ice1000.julia.lang.psi.JuliaModuleNavigationContributor"/>-->
 		<additionalTextAttributes scheme="Darcula" file="/colorSchemes/JuliaDark.xml"/>
 		<additionalTextAttributes scheme="Default" file="/colorSchemes/Julia.xml"/>
