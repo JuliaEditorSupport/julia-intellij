@@ -23,4 +23,5 @@ public abstract class JuliaProjectConfigurable implements Configurable {
 	protected @NotNull JBCheckBox showEvalHintCheckBox;
 	protected @NotNull JBCheckBox globalUnicodeCheckBox;
 	protected @NotNull LinkLabel<Object> refreshButton;
+	protected @NotNull JFormattedTextField maxCharacterToConvertToCompact;
 }
