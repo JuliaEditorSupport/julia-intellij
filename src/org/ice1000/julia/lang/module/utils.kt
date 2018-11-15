@@ -48,6 +48,14 @@ fun findPathMac(): String {
 	return "${result.toAbsolutePath()}$folderAfterPath"
 }
 
+fun appPathSpecify(exePath: String): String {
+	return when {
+		!SystemInfo.isMac || !exePath.endsWith(".app") -> exePath
+		exePath.contains("JuliaPro") -> "$exePath/Contents/Resources/julia/Contents/Resources/julia/bin/julia"
+		else /*julia.app*/ -> "$exePath/Contents/Resources/julia/bin/julia"
+	}
+}
+
 fun findPathWindows() =
 	PathEnvironmentVariableUtil.findInPath("julia.exe")?.absolutePath
 		?: executeCommandToFindPath("where julia")
@@ -174,7 +182,11 @@ inline fun initExeComboBox(
 		object : TextComponentAccessor<JComboBox<Any>> {
 			override fun getText(component: JComboBox<Any>) = component.selectedItem as? String ?: ""
 			override fun setText(component: JComboBox<Any>, text: String) {
-				component.addItem(text)
+				val item = text.let(::appPathSpecify)
+				if (!juliaGlobalSettings.knownJuliaExes.contains(item)) {
+					component.addItem(item)
+					component.selectedItem = item
+				}
 				addListener(juliaExeField)
 			}
 		})

@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.platform.ProjectGeneratorPeer
 import com.intellij.ui.components.labels.LinkListener
 import icons.JuliaIcons
@@ -39,6 +40,7 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@initExeComboBox
 			if (validateJuliaExe(exePath)) importPathField.text = importPathOf(exePath, 1500L)
 		}
+		if (SystemInfo.isMac) usefulText.isVisible = true
 		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor()))
 	}
