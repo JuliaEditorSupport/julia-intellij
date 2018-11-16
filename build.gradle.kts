@@ -169,12 +169,25 @@ val cleanGenerated = task("cleanGenerated") {
 	doFirst { delete("gen") }
 }
 
+val sortSpelling = task("sortSpellingFile") {
+	val fileName = "spelling.txt"
+	val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+	project.exec {
+		workingDir = file("$projectDir/res/org/ice1000/julia/lang/editing")
+		commandLine = when {
+			isWindows -> listOf("sort.exe", fileName, "/O", fileName)
+			else -> listOf("sort", fileName, "-f", "-o", fileName)
+		}
+	}
+}
+
 tasks.withType<KotlinCompile> {
 	dependsOn(
 		genParser,
 		genLexer,
 		genDocfmtParser,
-		genDocfmtLexer
+		genDocfmtLexer,
+		sortSpelling
 	)
 	kotlinOptions {
 		jvmTarget = "1.8"

@@ -84,15 +84,6 @@ class JuliaCommenter : Commenter {
 	override fun getLineCommentPrefix() = "# "
 }
 
-class JuliaSpellCheckingStrategy : SpellcheckingStrategy() {
-	override fun getTokenizer(element: PsiElement): Tokenizer<PsiElement> = when (element) {
-		is PsiComment,
-		is JuliaSymbol -> TEXT_TOKENIZER
-		is JuliaString -> super.getTokenizer(element).takeIf { it != EMPTY_TOKENIZER } ?: TEXT_TOKENIZER
-		else -> EMPTY_TOKENIZER
-	}
-}
-
 const val TEXT_MAX = 16
 const val LONG_TEXT_MAX = 24
 fun cutText(it: String, textMax: Int) = if (it.length <= textMax) it else "${it.take(textMax)}…"
