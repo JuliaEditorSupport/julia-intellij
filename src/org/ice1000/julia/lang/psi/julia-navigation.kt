@@ -41,9 +41,10 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 		} else if (sourceElement.node?.elementType == JuliaTypes.SYM) {
 			val juliaSymbol = sourceElement.parent as? JuliaSymbol ?: return null
 			if (juliaSymbol.isApplyFunctionName) {
-				val ele: JuliaFunction = findElement(project, juliaSymbol.text)
-					?: return null
-				return arrayOf(ele)
+//				 TODO: stub branch
+//				val ele: JuliaFunction = findElement(project, juliaSymbol.text)
+//					?: return null
+//				return arrayOf(ele)
 			}
 		}
 		return null
