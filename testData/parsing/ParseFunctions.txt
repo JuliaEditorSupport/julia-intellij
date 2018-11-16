@@ -137,7 +137,7 @@ FILE
         JuliaTypedNamedVariableImpl(TYPED_NAMED_VARIABLE)
           JuliaSymbolImpl(SYMBOL)
             PsiElement(SYM)('args')
-        PsiElement(SLICE_SYM)('...')
+          PsiElement(SLICE_SYM)('...')
         PsiElement(RIGHT_BRACKET)(')')
       PsiElement(EOL)('\n')
       JuliaStatementsImpl(STATEMENTS)

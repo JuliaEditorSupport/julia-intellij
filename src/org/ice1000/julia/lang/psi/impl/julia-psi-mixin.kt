@@ -131,6 +131,10 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 		functionSignature?.run {
 			typedNamedVariableList.all { processor.execute(it.firstChild, substitutor) }
 		}.orFalse() && super.processDeclarations(processor, substitutor, lastParent, place)
+
+	override fun toString(): String {
+		return "JuliaFunctionImpl(FUNCTION)"
+	}
 }
 
 /**
@@ -172,7 +176,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 	override val paramsText: String
 		get() = paramsTextCache ?: functionSignature
 			.typedNamedVariableList
-			.joinToString(prefix = "(", postfix = ")") { it.typeAnnotation?.expr?.text ?: "Any" }
+			.joinToString(prefix = "(", postfix = ")") { it.typeAnnotation?.exprList?.joinToString(".") ?: "Any" }
 			.also { paramsTextCache = it }
 
 	override fun subtreeChanged() {
@@ -293,12 +297,14 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			parent is JuliaTypeAlias ||
 			parent is JuliaType ||
 			parent is JuliaTypeAnnotation ||
-			parent is JuliaTypeDeclaration
+			parent is JuliaTypeDeclaration ||
+			parent is JuliaArray
 	}
 	final override val isTypeParameterName by lazy {
 		parent is JuliaTypeParameters ||
 			parent.parent is JuliaType ||
-			parent is JuliaWhereClause
+			parent is JuliaWhereClause ||
+			parent is JuliaUnarySubtypeOp
 	}
 	final override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
 	final override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
