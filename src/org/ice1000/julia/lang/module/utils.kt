@@ -5,14 +5,18 @@ package org.ice1000.julia.lang.module
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TextComponentAccessor
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.stubs.StubIndex
 import com.intellij.ui.ComboboxWithBrowseButton
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
@@ -143,7 +147,7 @@ fun importPathOf(exePath: String, timeLimit: Long = 800L) =
  * if [exePath] is empty, Files.isExecutable still return true!
  */
 fun validateJuliaExe(exePath: String) = try {
-	if(exePath.isEmpty()) false
+	if (exePath.isEmpty()) false
 	else Files.isExecutable(Paths.get(exePath))
 } catch (e: Exception) {
 	false
@@ -212,5 +216,32 @@ object JuliaUTF8Control : ResourceBundle.Control() {
 			if (null != res) return res
 		}
 		return ResourceBundle.getBundle(baseName)
+	}
+}
+
+fun syncJuliaLibrary() {
+	val pjt = ProjectJdkTable.getInstance()
+	pjt.findJdk(JuliaSdkType.instance.presentableName)?.apply {
+		ApplicationManager.getApplication().runWriteAction { pjt.removeJdk(this) }
+	}
+	ProjectJdkImpl(JuliaSdkType.instance.presentableName, JuliaSdkType.instance).apply {
+		ApplicationManager.getApplication().runWriteAction { pjt.addJdk(this) }
+	}
+}
+
+val Project.withJulia: Boolean
+	get() = this.baseDir.getChildrenWithDepth(4).any { it.name.endsWith(".jl") }
+
+fun VirtualFile.getChildrenWithDepth(depth: Int): Sequence<VirtualFile> {
+	if (depth == 0) return emptySequence()
+	return children.asSequence() + children.asSequence().flatMap { it.getChildrenWithDepth(depth - 1) }
+}
+
+fun Project.reload() {
+	if (withJulia) {
+		syncJuliaLibrary()
+		WriteAction.run<RuntimeException> {
+			StubIndex.getInstance().forceRebuild(Throwable("Julia language level changed."))
+		}
 	}
 }

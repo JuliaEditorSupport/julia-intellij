@@ -112,7 +112,7 @@ class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
 /**
  * Settings(Preference) | Language & Frameworks | Julia
  */
-class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable() {
+class JuliaProjectConfigurableImpl(val project: Project) : JuliaProjectConfigurable() {
 	private val settings = project.juliaSettings.settings
 	private val globalSettings = juliaGlobalSettings
 
@@ -195,6 +195,7 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		settings.importPath = importPathField.text
 		settings.unicodeEnabled = unicodeInputCheckBox.isSelected
 		settings.showEvalHint = showEvalHintCheckBox.isSelected
+		project.reload()
 	}
 }
 

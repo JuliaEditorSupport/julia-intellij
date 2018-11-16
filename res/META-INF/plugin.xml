@@ -39,9 +39,9 @@
 		<errorHandler implementation="de.halirutan.mathematica.errorreporting.julia.GitHubErrorReporter"/>
 		<breadcrumbsInfoProvider implementation="org.ice1000.julia.lang.editing.JuliaBreadCrumbsProvider"/>
 		<sdkType implementation="org.ice1000.julia.lang.module.JuliaSdkType"/>
-		<!--<library.presentationProvider implementation="org.ice1000.julia.lang.module.JuliaSdkLibraryPresentationProvider"/>-->
-		<!--<library.type implementation="org.ice1000.julia.lang.module.JuliaLibraryType"/>-->
-		<!--<additionalLibraryRootsProvider implementation="org.ice1000.julia.lang.module.JuliaAdditionalLibraryRootsProvider"/>-->
+		<library.presentationProvider implementation="org.ice1000.julia.lang.module.JuliaSdkLibraryPresentationProvider"/>
+		<library.type implementation="org.ice1000.julia.lang.module.JuliaLibraryType"/>
+		<additionalLibraryRootsProvider implementation="org.ice1000.julia.lang.module.JuliaStdLibraryProvider"/>
 		<stubElementTypeHolder class="org.ice1000.julia.lang.psi.JuliaTypes"/>
 		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaFunctionIndex"/>
 		<typedHandler implementation="org.ice1000.julia.lang.editing.JuliaTypedHandlerDelegate"/>
