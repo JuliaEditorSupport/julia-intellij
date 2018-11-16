@@ -228,6 +228,7 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	// check if they are declarations
 	val isField: Boolean
 	val isFunctionName: Boolean
+	val isApplyFunctionName: Boolean
 	val isMacroName: Boolean
 	val isModuleName: Boolean
 	val isTypeName: Boolean
@@ -289,6 +290,9 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	final override val isFunctionName by lazy {
 		(parent is JuliaCompactFunction && this === parent.firstChild) ||
 			parent is JuliaFunction
+	}
+	final override val isApplyFunctionName by lazy {
+		(parent is JuliaApplyFunctionOp) && this === parent.firstChild
 	}
 	final override val isMacroName get() = parent is JuliaMacro
 	final override val isModuleName get() = parent is JuliaModuleDeclaration
