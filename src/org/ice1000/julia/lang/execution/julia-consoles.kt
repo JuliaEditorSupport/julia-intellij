@@ -87,7 +87,7 @@ class JuliaConsoleFolding : ConsoleFolding() {
 				it.matchExecCommand() ->
 					return "julia ${it.substringAfterLast("/")}"
 				it.matchErrorStackTrace() ->
-					return " <${lines.size} stace frames>"
+					return " <${lines.size} stack frames>"
 			}
 		}
 		return null
