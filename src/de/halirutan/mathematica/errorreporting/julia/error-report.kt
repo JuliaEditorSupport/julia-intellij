@@ -46,8 +46,7 @@ import org.ice1000.julia.lang.module.juliaSettings
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
 import java.awt.Component
-import java.io.IOException
-import java.io.ObjectInputStream
+import java.io.*
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -225,7 +224,9 @@ class GitHubErrorBean(
 	init {
 		val trace = throwable.stackTrace
 		exceptionHash = Arrays.hashCode(trace).toString()
-		stackTrace = trace.joinToString(System.lineSeparator())
+		val sw = StringWriter()
+		throwable.printStackTrace(PrintWriter(sw))
+		stackTrace = sw.toString()
 	}
 
 	var pluginName = ""

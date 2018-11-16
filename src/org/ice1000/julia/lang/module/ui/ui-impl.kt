@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.platform.ProjectGeneratorPeer
 import com.intellij.ui.components.labels.LinkListener
 import icons.JuliaIcons
@@ -39,6 +40,7 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@initExeComboBox
 			if (validateJuliaExe(exePath)) importPathField.text = importPathOf(exePath, 1500L)
 		}
+		if (SystemInfo.isMac) usefulText.isVisible = true
 		juliaGlobalSettings.knownJuliaExes.forEach(juliaExeField.comboBox::addItem)
 		importPathField.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFolderDescriptor()))
 	}
@@ -123,6 +125,8 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		timeLimitField.value = settings.tryEvaluateTimeLimit
 		textLimitField.formatterFactory = factory
 		textLimitField.value = settings.tryEvaluateTextLimit.toLong()
+		maxCharacterToConvertToCompact.formatterFactory = factory
+		maxCharacterToConvertToCompact.value = settings.maxCharacterToConvertToCompact
 		// TODO workaround for KT-23421
 		val listener = LinkListener<Any> { _, _ -> BrowserLauncher.instance.open(juliaWebsite.text) }
 		juliaWebsite.setListener(listener, null)
@@ -168,11 +172,14 @@ class JuliaProjectConfigurableImpl(project: Project) : JuliaProjectConfigurable(
 		globalUnicodeCheckBox.isSelected != globalSettings.globalUnicodeInput ||
 		unicodeInputCheckBox.isSelected != settings.unicodeEnabled ||
 		showEvalHintCheckBox.isSelected != settings.showEvalHint ||
+		settings.maxCharacterToConvertToCompact != (maxCharacterToConvertToCompact.value as Number).toInt() ||
 		settings.tryEvaluateTextLimit != (textLimitField.value as Number).toInt() ||
 		settings.tryEvaluateTimeLimit != (timeLimitField.value as Number).toLong()
 
 	@Throws(ConfigurationException::class)
 	override fun apply() {
+		settings.maxCharacterToConvertToCompact = (maxCharacterToConvertToCompact.value as? Number
+			?: throw ConfigurationException(JuliaBundle.message("julia.settings.max-char-for-compact.invalid"))).toInt()
 		settings.tryEvaluateTextLimit = (textLimitField.value as? Number
 			?: throw ConfigurationException(JuliaBundle.message("julia.modules.try-eval.invalid"))).toInt()
 		settings.tryEvaluateTimeLimit = (timeLimitField.value as? Number

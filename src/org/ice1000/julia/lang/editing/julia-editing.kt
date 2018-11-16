@@ -198,7 +198,7 @@ class JuliaTypedHandlerDelegate : TypedHandlerDelegate() {
 	override fun beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result {
 		if (fileType != JuliaFileType) return Result.CONTINUE
 		val offset = editor.caretModel.offset
-		if (c in "\"'`") {
+		if (file.isWritable && c in "\"'`") {
 			editor.document.insertString(offset, c.toString())
 		}
 		return Result.CONTINUE

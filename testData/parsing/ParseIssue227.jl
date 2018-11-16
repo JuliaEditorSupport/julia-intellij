@@ -6,3 +6,5 @@ end
 convert(::Type{Any}, @nospecialize(x)) = x
 
 test(a,b;emm=1,kw...)
+
+test(kw...)

@@ -112,13 +112,13 @@ abstract class JuliaSingleComprehensionMixin(node: ASTNode) : JuliaDeclaration(n
 
 abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(node), JuliaTypedNamedVariable {
 	override var type: Type? = null
-		set(value) = Unit
+		set(_) = Unit
 
 	override fun getNameIdentifier() = firstChild as? JuliaSymbol
 	override val startPoint: PsiElement
 		get() = parent.parent.let {
 			when (it) {
-				is JuliaFunction -> it.statements ?: it
+				is JuliaFunction -> it.statements
 				is JuliaCompactFunction -> it.lastChild
 				else -> it
 			}
@@ -128,7 +128,7 @@ abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(no
 abstract class JuliaAssignOpMixin(node: ASTNode) : JuliaDeclaration(node), JuliaAssignOp {
 	override var type: Type?
 		get() = exprList.lastOrNull()?.type
-		set(value) {}
+		set(_) {}
 
 	override fun getNameIdentifier() = children
 		.firstOrNull { it is JuliaSymbol || it is JuliaSymbolLhs }
@@ -178,6 +178,10 @@ abstract class JuliaFunctionMixin : JuliaFunctionDeclaration, JuliaFunction {
 		functionSignature?.run {
 			typedNamedVariableList.all { processor.execute(it.firstChild, substitutor) }
 		}.orFalse() && super.processDeclarations(processor, substitutor, lastParent, place)
+
+	override fun toString(): String {
+		return "JuliaFunctionImpl(FUNCTION)"
+	}
 }
 
 /**
@@ -219,7 +223,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 	override val paramsText: String
 		get() = paramsTextCache ?: functionSignature
 			.typedNamedVariableList
-			.joinToString(prefix = "(", postfix = ")") { it.typeAnnotation?.expr?.text ?: "Any" }
+			.joinToString(prefix = "(", postfix = ")") { it.typeAnnotation?.exprList?.joinToString(".") ?: "Any" }
 			.also { paramsTextCache = it }
 
 	override fun subtreeChanged() {
@@ -271,6 +275,7 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	// check if they are declarations
 	val isField: Boolean
 	val isFunctionName: Boolean
+	val isApplyFunctionName: Boolean
 	val isMacroName: Boolean
 	val isModuleName: Boolean
 	val isTypeName: Boolean
@@ -333,6 +338,9 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 		(parent is JuliaCompactFunction && this === parent.firstChild) ||
 			parent is JuliaFunction
 	}
+	final override val isApplyFunctionName by lazy {
+		(parent is JuliaApplyFunctionOp) && this === parent.firstChild
+	}
 	final override val isMacroName get() = parent is JuliaMacro
 	final override val isModuleName get() = parent is JuliaModuleDeclaration
 	final override val isTypeName by lazy {
@@ -340,12 +348,14 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			parent is JuliaTypeAlias ||
 			parent is JuliaType ||
 			parent is JuliaTypeAnnotation ||
-			parent is JuliaTypeDeclaration && this === parent.children.getOrNull(1)
+			parent is JuliaTypeDeclaration ||
+			parent is JuliaArray
 	}
 	final override val isTypeParameterName by lazy {
 		parent is JuliaTypeParameters ||
 			parent.parent is JuliaType ||
-			parent is JuliaWhereClause
+			parent is JuliaWhereClause ||
+			parent is JuliaUnarySubtypeOp
 	}
 	final override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
 	final override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration

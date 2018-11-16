@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.util.SystemProperties
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.module.JuliaSettings
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
@@ -29,9 +30,10 @@ enum class NumeralType(
 
 class JuliaAnnotator : Annotator {
 	override fun annotate(element: PsiElement, holder: AnnotationHolder) {
+		val settings = element.project.juliaSettings.settings
 		when (element) {
-			is JuliaFunction -> function(element, holder)
-			is JuliaCompactFunction -> compactFunction(element, holder)
+			is JuliaFunction -> function(element, holder, settings)
+			is JuliaCompactFunction -> compactFunction(element, holder, settings)
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
 			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
@@ -47,7 +49,7 @@ class JuliaAnnotator : Annotator {
 	}
 
 	private fun compactFunction(
-		element: JuliaCompactFunction, holder: AnnotationHolder) {
+		element: JuliaCompactFunction, holder: AnnotationHolder, settings: JuliaSettings) {
 		val typeParams = element.typeParameters
 		val name = element.name
 		val signature = element.functionSignature
@@ -60,11 +62,11 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		docStringFunction(element, signature, holder, name, "", signatureText = signature
 			.typedNamedVariableList
 			.joinToString(", ") { it.exprList.firstOrNull()?.text.orEmpty() }
-			.let { "($it)" })
+			.let { "($it)" }, settings = settings)
 	}
 
 	private fun function(
-		element: JuliaFunction, holder: AnnotationHolder) {
+		element: JuliaFunction, holder: AnnotationHolder, settings: JuliaSettings) {
 		val statements = element.statements.run { exprList + moduleDeclarationList }
 		val signature = element.functionSignature
 		val signatureText = signature?.text ?: "()"
@@ -82,19 +84,20 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 				val expression = statements.first().let {
 					(it as? JuliaReturnExpr)?.exprList?.joinToString(", ") { it.text } ?: it.text
 				}
-				holder.createWeakWarningAnnotation(
-					element.firstChild,
-					JuliaBundle.message("julia.lint.lonely-function"))
-					.registerFix(JuliaReplaceWithTextIntention(element,
-						"$name$typeParamsText$signatureText = $expression",
-						JuliaBundle.message("julia.lint.replace-compact-function")))
+				if (expression.length <= settings.maxCharacterToConvertToCompact)
+					holder.createWeakWarningAnnotation(
+						element.firstChild,
+						JuliaBundle.message("julia.lint.lonely-function"))
+						.registerFix(JuliaReplaceWithTextIntention(element,
+							"$name$typeParamsText$signatureText = $expression",
+							JuliaBundle.message("julia.lint.replace-compact-function")))
 			}
 		}
 		docStringFunction(element, signature, holder, name, typeParamsText, signature
 			?.typedNamedVariableList
 			.orEmpty()
 			.joinToString(", ") { it.exprList.firstOrNull()?.text.orEmpty() }
-			.let { "($it)" })
+			.let { "($it)" }, settings)
 	}
 
 	private fun docStringFunction(
@@ -103,7 +106,8 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		holder: AnnotationHolder,
 		name: String?,
 		typeParamsText: String,
-		signatureText: String) {
+		signatureText: String,
+		settings: JuliaSettings) {
 		if (element.docString != null || element.parent !is JuliaStatements) return
 		val identifier = element.nameIdentifier ?: return
 		val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
@@ -116,7 +120,7 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 			.registerFix(JuliaInsertTextBeforeIntention(element, """$JULIA_DOC_SURROUNDING
     $name$typeParamsText$signatureText
 
-- Julia version: ${element.project.juliaSettings.settings.version}
+- Julia version: ${settings.version}
 - Author: ${SystemProperties.getUserName()}
 
 $signatureTextPart
