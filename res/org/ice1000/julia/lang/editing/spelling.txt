@@ -1,3 +1,7 @@
+abstract
+arg
+array
+at
 buf
 C
 ccall
@@ -17,6 +21,7 @@ get
 has
 hex
 ijulia
+in
 install
 invoke
 io
@@ -28,6 +33,7 @@ kernel
 last
 lib
 limit
+lshr
 mime
 mini
 mk
@@ -36,6 +42,7 @@ occurs
 oct
 os
 plot
+pointer
 post
 pre
 push
@@ -44,7 +51,9 @@ python
 raw
 re
 recv
+ref
 REPL
+set
 startup
 std
 string
