@@ -300,7 +300,8 @@ exprOrEnd ::=
  | exprWrapper
 
 end ::= END_KEYWORD { extends=exprOrEnd }
-exprWrapper ::=  memberAccessOp| ternaryOp | primaryExpr { extends=exprOrEnd }
+exprWrapper ::=  memberAccessOp| ternaryOp | primaryExpr | bracketIndexing { extends=exprOrEnd }
+private bracketIndexing ::= (LEFT_BRACKET exprOrEnd RIGHT_BRACKET) { extends=exprOrEnd }
 rangeIndexing ::= exprOrEnd COLON_SYM exprOrEnd { extends=exprOrEnd }
 quoteIndexing ::= COLON_SYM exprOrEnd? { extends=exprOrEnd }
 ternaryOpIndexing::= exprOrEnd QUESTION_SYM rangeIndexing{ extends=exprOrEnd }
@@ -338,7 +339,7 @@ arguments ::=
 
 private symbolLhsInternal ::= symbol | LEFT_BRACKET symbol RIGHT_BRACKET
 symbolLhs ::=
- ((LOCAL_KEYWORD | CONST_KEYWORD) endOfLine)
+ ((LOCAL_KEYWORD | (CONST_KEYWORD GLOBAL_KEYWORD?)) endOfLine)
  symbolLhsInternal (commaSep symbolLhsInternal)* { extends=expr }
 
 // All reserved but unassigned
