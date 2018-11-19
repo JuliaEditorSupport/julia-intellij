@@ -357,7 +357,7 @@ andOp ::= expr AND_SYM endOfLine expr
 // ->
 // level 5
 lambda ::=
- (symbol | tuple | LEFT_BRACKET RIGHT_BRACKET)
+ (symbol (DOUBLE_COLON expr)? | tuple | LEFT_BRACKET RIGHT_BRACKET)
   LAMBDA_ABSTRACTION expr {
 	rightAssociative=true
 	extends=expr
