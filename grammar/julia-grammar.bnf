@@ -592,6 +592,8 @@ function ::=
 	extends=expr
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaFunctionMixin'
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration']
+	stubClass='org.ice1000.julia.lang.psi.JuliaFunctionStub'
+	elementTypeClass='org.ice1000.julia.lang.psi.JuliaFunctionStubElementType'
 }
 private bracketedFunctionName ::= LEFT_BRACKET typedNamedVariable RIGHT_BRACKET
 

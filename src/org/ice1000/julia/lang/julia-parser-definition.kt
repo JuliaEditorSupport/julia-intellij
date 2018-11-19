@@ -4,6 +4,7 @@ import com.intellij.lang.*
 import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
+import com.intellij.psi.stubs.PsiFileStubImpl
 import com.intellij.psi.tree.*
 import org.ice1000.julia.lang.psi.JuliaTypes
 
@@ -11,7 +12,7 @@ class JuliaLexerAdapter : FlexAdapter(JuliaLexer())
 
 open class JuliaParserDefinition : ParserDefinition {
 	private companion object {
-		private val FILE = IFileElementType(JuliaLanguage.INSTANCE)
+		private val FILE = IStubFileElementType<JuliaStubFile>(JuliaLanguage.INSTANCE)
 	}
 
 	override fun createParser(project: Project?): PsiParser = JuliaParser()
@@ -27,6 +28,8 @@ open class JuliaParserDefinition : ParserDefinition {
 	final override fun getCommentTokens() = JuliaTokenType.COMMENTS
 	final override fun getWhitespaceTokens() = JuliaTokenType.WHITE_SPACE
 }
+
+class JuliaStubFile(file:JuliaFile) : PsiFileStubImpl<JuliaFile>(file)
 
 class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE) {
 	companion object TokenHolder {

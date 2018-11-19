@@ -23,10 +23,15 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 				JuliaBundle.message("julia.messages.notify.nightly.content"))
 		}
 		// other IDEs cannot verify settings...
-		if (!validateJulia(project.juliaSettings.settings) && PlatformUtils.isIntelliJ()) notify(
-			JuliaBundle.message("julia.messages.notify.invalid-julia.title"),
-			JuliaBundle.message("julia.messages.notify.invalid-julia.content"),
-			NotificationType.WARNING)
+		if (project.withJulia) {
+			if (!validateJulia(project.juliaSettings.settings) && PlatformUtils.isIntelliJ()) {
+				notify(
+					JuliaBundle.message("julia.messages.notify.invalid-julia.title"),
+					JuliaBundle.message("julia.messages.notify.invalid-julia.content"),
+					NotificationType.WARNING)
+			}
+			syncJuliaLibrary()
+		}
 	}
 
 	/** 好想把函数名写成 hugify 。。。 */

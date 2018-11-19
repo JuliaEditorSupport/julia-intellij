@@ -196,3 +196,26 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 		return true
 	}
 }
+
+class JuliaFunctionRef(private val psiElement: JuliaFunction) : PsiReferenceBase<PsiElement>(psiElement), PsiPolyVariantReference {
+	val key = psiElement.nameIdentifier?.text.toString()
+
+	override fun equals(other: Any?): Boolean = (other as? JuliaFunctionRef)?.element === element
+	override fun hashCode(): Int = element.hashCode()
+	override fun getElement(): PsiElement = psiElement
+	override fun getRangeInElement(): TextRange = TextRange(0, element.textLength)
+	override fun resolve() = multiResolve(false).firstOrNull()?.element
+
+	override fun getVariants(): Array<LookupElementBuilder> {
+		val variantsProcessor = CompletionProcessor(element, true)
+		treeWalkUp(variantsProcessor, element, element.containingFile)
+		return variantsProcessor.candidateSet.toTypedArray()
+	}
+
+	override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
+		val results = ArrayList<ResolveResult>()
+		val function = findElement<JuliaFunction>(element.project, key) ?: return emptyArray()
+		results.add(PsiElementResolveResult(function))
+		return results.toTypedArray()
+	}
+}
