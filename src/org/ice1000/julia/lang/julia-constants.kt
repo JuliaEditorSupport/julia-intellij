@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NonNls
 @NonNls const val JULIA_MODULE_ID = "JULIA_MODULE_TYPE"
 @NonNls const val JULIA_RUN_CONFIG_ID = "JULIA_RUN_CONFIG_ID"
 @NonNls const val JULIA_REPL_EMPTY_ACTION_ID = "julia.repl.empty.action"
+@NonNls const val JULIA_SCI_VIEW_ID = "JuliaSciView"
+@NonNls const val JULIA_INTELLIJ_PLOT_PORT = "JULIA_INTELLIJ_PLOT_PORT"
 @NonNls const val JULIA_PLUGIN_ID = "org.ice1000.julia"
 @NonNls @Language("RegExp") const val JULIA_CHAR_SINGLE_UNICODE_X_REGEX = "\\\\x([A-Fa-f0-9]){2}"
 @NonNls @Language("RegExp") const val JULIA_CHAR_NOT_UX_REGEX = "\\\\([^uxUX])"
