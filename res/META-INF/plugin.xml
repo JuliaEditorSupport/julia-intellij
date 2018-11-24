@@ -1,6 +1,6 @@
 <idea-plugin>
 	<name>Julia</name>
-	<vendor email="ice1000kotlin@foxmail.com" url="http://ice1000.org">ice1000</vendor>
+	<vendor email="ice1000kotlin@foxmail.com" url="https://ice1000.org">ice1000</vendor>
 	<idea-version since-build="162.0"/>
 
 	<depends>com.intellij.modules.lang</depends>
