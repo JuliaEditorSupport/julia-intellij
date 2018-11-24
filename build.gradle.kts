@@ -45,8 +45,8 @@ allprojects {
 		when (System.getProperty("user.name")) {
 			"ice1000" -> {
 				val root = "/home/ice1000/.local/share/JetBrains/Toolbox/apps"
-				localPath = "$root/IDEA-U/ch-0/182.4505.22"
-				alternativeIdePath = "$root/PyCharm-C/ch-0/182.4505.26"
+				localPath = "$root/IDEA-U/ch-0/183.4284.148"
+				alternativeIdePath = "$root/PyCharm-C/ch-0/183.4284.139"
 			}
 			"hoshino" -> version = "2018.2.1"
 		/*"zh"*/ else -> version = "2018.2"
@@ -54,7 +54,7 @@ allprojects {
 
 		// local developing (!isCI)
 		if (!isCI) {
-			setPlugins("org.intellij.plugins.markdown:182.2371")
+			setPlugins("org.intellij.plugins.markdown:183.4284.148")
 		} else {
 			setMarkdownCompileOnly()
 		}

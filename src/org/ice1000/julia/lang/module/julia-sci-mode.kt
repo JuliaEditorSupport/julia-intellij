@@ -2,7 +2,6 @@
 
 package org.ice1000.julia.lang.module
 
-import com.google.common.base.Preconditions
 import com.intellij.icons.AllIcons.Actions
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
@@ -17,31 +16,22 @@ import com.intellij.openapi.fileEditor.impl.EditorTabbedContainer.DockableEditor
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.wm.IdeFocusManager
-import com.intellij.openapi.wm.ToolWindow
-import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.openapi.wm.*
 import com.intellij.testFramework.BinaryLightVirtualFile
 import com.intellij.ui.JBColor
 import com.intellij.ui.SimpleColoredComponent
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.awt.RelativeRectangle
 import com.intellij.ui.content.ContentFactory.SERVICE
-import com.intellij.ui.docking.DockContainer
+import com.intellij.ui.docking.*
 import com.intellij.ui.docking.DockContainer.ContentResponse
 import com.intellij.ui.docking.DockContainer.Listener
-import com.intellij.ui.docking.DockManager
-import com.intellij.ui.docking.DockableContent
-import com.intellij.ui.docking.DragSession
-import com.intellij.ui.tabs.JBTabsPosition
-import com.intellij.ui.tabs.TabInfo
+import com.intellij.ui.tabs.*
 import com.intellij.ui.tabs.TabInfo.DragOutDelegate
-import com.intellij.ui.tabs.TabsListener
-import com.intellij.ui.tabs.impl.DefaultEditorTabsPainter
-import com.intellij.ui.tabs.impl.JBEditorTabs
-import com.intellij.ui.tabs.impl.JBTabsImpl
-import com.intellij.ui.tabs.impl.TabLabel
+import com.intellij.ui.tabs.impl.*
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
+import icons.JuliaIcons
 import java.awt.*
 import java.awt.event.MouseEvent
 import java.awt.image.*
@@ -51,10 +41,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 import javax.imageio.ImageIO
-import javax.swing.Icon
-import javax.swing.ImageIcon
-import javax.swing.JComponent
-import javax.swing.JPanel
+import javax.swing.*
 import kotlin.collections.Map.Entry
 
 interface Figure {
@@ -249,7 +236,7 @@ class JuliaSciToolWindow(private val d: Project) : JPanel(BorderLayout()), DumbA
 		}
 	}
 
-	private inner class CloseAllPlotsAction constructor() : AnAction("Close All Plots", "Close all plot", null as Icon?) {
+	private inner class CloseAllPlotsAction : AnAction("Close All Plots", "Close all plot", JuliaIcons.JULIA_BIG_ICON) {
 
 		override fun actionPerformed(e: AnActionEvent) {
 			this@JuliaSciToolWindow.tabs.removeAllTabs()
@@ -328,7 +315,8 @@ class ImageFigure @JvmOverloads constructor(imageVirtualFile: ImageVirtualFile, 
 	}
 
 	override fun getSearchKey(): Any {
-		Preconditions.checkState(this.hasSearchKey(), "Search key is not defined")
+		// TODO use contract
+		if (!this.hasSearchKey()) throw RuntimeException("Search key is not defined")
 		return this.key!!
 	}
 

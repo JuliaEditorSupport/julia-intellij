@@ -36,7 +36,7 @@ class JuliaSymbolRef(
 	override fun getRangeInElement() = range
 	override fun isSoft() = true
 	override fun resolve() = if (isDeclaration) null else multiResolve(false).firstOrNull()?.element
-	override fun isReferenceTo(o: PsiElement?) = o === refTo || o === resolve()
+	override fun isReferenceTo(o: PsiElement) = o === refTo || o === resolve()
 	override fun getVariants(): Array<LookupElementBuilder> {
 		val variantsProcessor = CompletionProcessor(this, true)
 		treeWalkUp(variantsProcessor, element, element.containingFile)

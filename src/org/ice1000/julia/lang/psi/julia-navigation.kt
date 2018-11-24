@@ -50,5 +50,5 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 		return null
 	}
 
-	override fun getActionText(context: DataContext?): String? = null
+	override fun getActionText(context: DataContext): String? = null
 }

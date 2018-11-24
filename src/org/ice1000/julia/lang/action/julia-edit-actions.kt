@@ -102,8 +102,8 @@ class JuliaUnicodeInputAction : JuliaAction(
 				.createPopup()
 			popup.addListener(object : JBPopupListener {
 				// due to that this function is not `default` in older idea versions
-				override fun beforeShown(event: LightweightWindowEvent?) = Unit
-				override fun onClosed(event: LightweightWindowEvent?) {
+				override fun beforeShown(event: LightweightWindowEvent) = Unit
+				override fun onClosed(event: LightweightWindowEvent) {
 					CommandProcessor.getInstance().executeCommand(project, {
 						if (null != editor) ApplicationManager.getApplication().runWriteAction {
 							editor.document.insertString(editor.caretModel.offset, field.text.let {
