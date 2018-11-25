@@ -22,14 +22,15 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 			return arrayOf(f)
 		}
 
-		if (sourceElement.node?.elementType == JuliaTypes.REGULAR_STRING_PART_LITERAL) {
-			val func = sourceElement.parent.parent.parent
+		val elementType = sourceElement.node?.elementType
+		if (elementType == JuliaTypes.REGULAR_STRING_PART_LITERAL) {
+			val func = sourceElement.parent?.parent?.parent
 			if (func is JuliaApplyFunctionOp) {
 				val name = func.exprList.firstOrNull()?.text ?: return null
 				when (name) {
 					"joinpath" -> {
 						val currentFileDir = sourceElement.containingFile.containingDirectory
-						val text = func.exprList.asSequence().filter { it is JuliaString }.joinToString(File.separator) { it.text.trim('\"') }
+						val text = func.exprList.asSequence().filterIsInstance<JuliaString>().joinToString(File.separator) { it.text.trim('\"') }
 						return arrayOfPsiElements(currentFileDir, text)
 					}
 					"include" -> {
@@ -38,7 +39,7 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 					}
 				}
 			}
-		} else if (sourceElement.node?.elementType == JuliaTypes.SYM) {
+		} else if (elementType == JuliaTypes.SYM) {
 			val juliaSymbol = sourceElement.parent as? JuliaSymbol ?: return null
 			if (juliaSymbol.isApplyFunctionName) {
 //				 TODO: stub branch
