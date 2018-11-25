@@ -49,7 +49,8 @@ allprojects {
 				alternativeIdePath = "$root/PyCharm-C/ch-0/183.4284.139"
 			}
 			"hoshino" -> version = "2018.2.1"
-		/*"zh"*/ else -> version = "2018.2"
+			"zh" -> version = "2018.2"
+		/* for CI */ else -> version = "2018.3"
 		}
 
 		// local developing (!isCI)
