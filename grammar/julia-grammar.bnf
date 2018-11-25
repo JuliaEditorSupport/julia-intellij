@@ -329,7 +329,7 @@ applyFunctionOp ::=
   (
     comprehensionElement+
   | (
-     expressionList endOfLine
+     (expressionList endOfLine)?
      commaSep?
      arguments*
     )
@@ -339,8 +339,9 @@ applyFunctionOp ::=
 
 arguments ::=
  SEMICOLON_SYM endOfLine
- expressionList endOfLine
- (commaSep symbol SLICE_SYM)?
+ (expressionList endOfLine)?
+ (commaSep)?
+ (symbol SLICE_SYM)?
 
 private symbolLhsInternal ::= symbol | LEFT_BRACKET symbol RIGHT_BRACKET
 symbolLhs ::=
