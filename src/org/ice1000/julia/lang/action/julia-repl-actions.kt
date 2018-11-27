@@ -39,16 +39,16 @@ class JuliaIncludeRunFileToReplAction : JuliaAction(
 		val juliaExe = project.juliaSettings.settings.exePath
 		if (juliaExe.isEmpty()) return errorNotification(null, "No Julia Executable, please configure it.")
 
-		var runner = project.getUserData(JULIA_REPL_RUNNER_KEY)
-		if (runner == null || runner.processHandler.isProcessTerminated) {
-			runner = JuliaReplRunner(GeneralCommandLine(juliaExe), project, "Julia REPL", juliaExe)
-				.apply {
-					project.putUserData(JULIA_REPL_RUNNER_KEY, this)
-					initAndRun()
-				}
-		}
-		val virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
 		WriteCommandAction.runWriteCommandAction(project) {
+			var runner = project.getUserData(JULIA_REPL_RUNNER_KEY)
+			if (runner == null || runner.processHandler.isProcessTerminated) {
+				runner = JuliaReplRunner(GeneralCommandLine(juliaExe), project, "Julia REPL", juliaExe)
+					.apply {
+						project.putUserData(JULIA_REPL_RUNNER_KEY, this)
+						initAndRun()
+					}
+			}
+			val virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return@runWriteCommandAction
 			FileDocumentManager
 				.getInstance()
 				.getDocument(virtualFile)
