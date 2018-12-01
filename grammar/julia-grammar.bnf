@@ -287,7 +287,10 @@ private suffixedExpr ::=
 // | applyWhereOp
  | type
 
-type ::= expr typeParameters { extends=expr }
+type ::=
+ expr typeParameters
+ whereClause?
+ { extends=expr }
 
 exprOrEnd ::=
    plusIndexing
@@ -330,6 +333,7 @@ applyFunctionOp ::=
     comprehensionElement+
   | (
      (expressionList endOfLine)?
+     commaSep?
      commaSep?
      arguments*
     )

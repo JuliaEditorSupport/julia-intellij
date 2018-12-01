@@ -14,3 +14,5 @@ plot!(; xlabel = s, kw...)
             k_max = 8, # maximum number of ticks
         )[1]
 
+# 3
+const TicksArgs = Union{AVec{T}, Tuple{AVec{T}, AVec{S}}, Symbol} where {T<:Real, S<:AbstractString}
