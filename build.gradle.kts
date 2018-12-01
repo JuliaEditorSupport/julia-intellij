@@ -49,7 +49,10 @@ allprojects {
 				alternativeIdePath = "$root/PyCharm-C/ch-0/183.4284.139"
 			}
 			"hoshino" -> version = "2018.2.1"
-			"zh" -> version = "2018.2"
+			"zxj5470" -> {
+				version = "2018.3"
+//				alternativeIdePath = "/home/zxj5470/.local/share/JetBrains/Toolbox/apps/PyCharm-P/ch-0/183.4284.139"
+			}
 		/* for CI */ else -> version = "2018.3"
 		}
 

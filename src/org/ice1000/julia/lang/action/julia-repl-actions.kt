@@ -121,7 +121,7 @@ class JuliaReplRunner(
 		cmdLine.withJuliaSciMode(project)
 		return object :ColoredProcessHandler(cmdLine
 			.withCharset(Charsets.UTF_8)
-			.withWorkDirectory(cmdLine.workDirectory)){}
+			.withWorkDirectory(project.basePath)){}
 	}
 
 	override fun createConsoleView(): LanguageConsoleView {
