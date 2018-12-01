@@ -41,7 +41,7 @@ class JuliaIncludeRunFileToReplAction : JuliaAction(
 
 		WriteCommandAction.runWriteCommandAction(project) {
 			var runner = project.getUserData(JULIA_REPL_RUNNER_KEY)
-			if (runner == null || runner.processHandler.isProcessTerminated) {
+			if (runner == null || runner.processHandler?.isProcessTerminated.orFalse()) {
 				runner = JuliaReplRunner(GeneralCommandLine(juliaExe), project, "Julia REPL", juliaExe)
 					.apply {
 						project.putUserData(JULIA_REPL_RUNNER_KEY, this)
@@ -94,8 +94,8 @@ class JuliaReplRunner(
 		WriteCommandAction.runWriteCommandAction(project) {
 			val jlFile = FileUtil.createTempFile("IntelliJ", ".jl")
 			val pyFile = FileUtil.createTempFile("backend_interagg", ".py")
-			jlFile.writeText(this::class.java.getResource("IntelliJ.jl").readText())
-			pyFile.writeText(this::class.java.getResource("backend_interagg.py").readText())
+			jlFile.writeText(javaClass.getResource("IntelliJ.jl").readText())
+			pyFile.writeText(javaClass.getResource("backend_interagg.py").readText())
 			executor.sendCommandToProcess("""include("${jlFile.absolutePath}")""", false)
 		}
 	}
