@@ -23,8 +23,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.module.JULIA_REPL_RUNNER_KEY
-import org.ice1000.julia.lang.module.JULIA_SCI_PORT_KEY
+import org.ice1000.julia.lang.JULIA_REPL_RUNNER_KEY
+import org.ice1000.julia.lang.JULIA_SCI_PORT_KEY
 import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Font
 import java.awt.event.KeyAdapter
@@ -174,6 +174,7 @@ class JuliaReplRunner(
 fun GeneralCommandLine.withJuliaSciMode(project: Project) = this
 	.apply {
 		environment[JULIA_INTELLIJ_PLOT_PORT] = project.getUserData(JULIA_SCI_PORT_KEY)
+			?: return@apply
 	}
 
 class CommandExecutor(private val runner: JuliaReplRunner) {

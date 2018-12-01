@@ -2,18 +2,14 @@ package org.ice1000.julia.lang.module
 
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.*
-import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.extensions.PluginId
-import com.intellij.openapi.keymap.impl.ui.Group
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.action.JuliaReplRunner
 import org.jetbrains.annotations.Nls
 import java.io.DataInputStream
 import java.io.IOException
@@ -114,6 +110,3 @@ fun VirtualFile.getChildrenWithDepth(depth: Int): Sequence<VirtualFile> {
 	if (depth == 0) return emptySequence()
 	return children.asSequence() + children.asSequence().flatMap { it.getChildrenWithDepth(depth - 1) }
 }
-
-val JULIA_SCI_PORT_KEY = Key<String>("JuliaSciPortKey")
-val JULIA_REPL_RUNNER_KEY = Key<JuliaReplRunner>("JuliaReplRunnerKey")

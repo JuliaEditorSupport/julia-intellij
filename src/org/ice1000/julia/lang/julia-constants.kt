@@ -1,5 +1,7 @@
 package org.ice1000.julia.lang
 
+import com.intellij.openapi.util.Key
+import org.ice1000.julia.lang.action.JuliaReplRunner
 import org.intellij.lang.annotations.Language
 import org.jetbrains.annotations.NonNls
 
@@ -53,3 +55,5 @@ Pkg.build("DocumentFormat")"""
 
 @NonNls const val DOCFMT_EXTENSION = "julia-config"
 @NonNls const val DOCFMT_LANGUAGE_NAME = "DocumentFormat"
+val JULIA_SCI_PORT_KEY = Key<String>("JuliaSciPortKey")
+val JULIA_REPL_RUNNER_KEY = Key<JuliaReplRunner>("JuliaReplRunnerKey")

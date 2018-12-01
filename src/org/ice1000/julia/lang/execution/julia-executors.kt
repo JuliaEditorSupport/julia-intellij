@@ -17,11 +17,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.util.Key
-import org.ice1000.julia.lang.JULIA_INTELLIJ_PLOT_PORT
 import org.ice1000.julia.lang.action.withJuliaSciMode
 import org.ice1000.julia.lang.forceRun
-import org.ice1000.julia.lang.module.JULIA_SCI_PORT_KEY
 import org.ice1000.julia.lang.module.compareVersion
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.toYesNo
