@@ -1,5 +1,7 @@
 package org.ice1000.julia.lang
 
+import com.intellij.openapi.util.Key
+import org.ice1000.julia.lang.action.JuliaReplRunner
 import org.intellij.lang.annotations.Language
 import org.jetbrains.annotations.NonNls
 
@@ -13,6 +15,8 @@ import org.jetbrains.annotations.NonNls
 @NonNls const val JULIA_MODULE_ID = "JULIA_MODULE_TYPE"
 @NonNls const val JULIA_RUN_CONFIG_ID = "JULIA_RUN_CONFIG_ID"
 @NonNls const val JULIA_REPL_EMPTY_ACTION_ID = "julia.repl.empty.action"
+@NonNls const val JULIA_SCI_VIEW_ID = "JuliaSciView"
+@NonNls const val JULIA_INTELLIJ_PLOT_PORT = "JULIA_INTELLIJ_PLOT_PORT"
 @NonNls const val JULIA_PLUGIN_ID = "org.ice1000.julia"
 @NonNls @Language("RegExp") const val JULIA_CHAR_SINGLE_UNICODE_X_REGEX = "\\\\x([A-Fa-f0-9]){2}"
 @NonNls @Language("RegExp") const val JULIA_CHAR_NOT_UX_REGEX = "\\\\([^uxUX])"
@@ -51,3 +55,5 @@ Pkg.build("DocumentFormat")"""
 
 @NonNls const val DOCFMT_EXTENSION = "julia-config"
 @NonNls const val DOCFMT_LANGUAGE_NAME = "DocumentFormat"
+val JULIA_SCI_PORT_KEY = Key<String>("JuliaSciPortKey")
+val JULIA_REPL_RUNNER_KEY = Key<JuliaReplRunner>("JuliaReplRunnerKey")

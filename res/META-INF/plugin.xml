@@ -1,6 +1,6 @@
 <idea-plugin>
 	<name>Julia</name>
-	<vendor email="ice1000kotlin@foxmail.com" url="http://ice1000.org">ice1000</vendor>
+	<vendor email="ice1000kotlin@foxmail.com" url="https://ice1000.org">ice1000</vendor>
 	<idea-version since-build="162.0"/>
 
 	<depends>com.intellij.modules.lang</depends>
@@ -107,6 +107,13 @@
 			<!--icon="/icons/julia.png"-->
 			<!--anchor="left"-->
 			<!--factoryClass="org.ice1000.julia.lang.editing.JuliaDocumentWindowImpl"/>-->
+		<toolWindow id="JuliaSciView"
+								anchor="right"
+								icon="/icons/julia.png"
+								factoryClass="org.ice1000.julia.lang.module.JuliaSciToolWindowFactory"/>
+		<projectService
+			serviceInterface="org.ice1000.julia.lang.module.JuliaSciToolWindow"
+			serviceImplementation="org.ice1000.julia.lang.module.JuliaSciToolWindow"/>
 		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
@@ -175,6 +182,14 @@
 			class="org.ice1000.julia.lang.action.JuliaTryEvaluateAction">
 			<keyboard-shortcut keymap="$default" first-keystroke="ctrl shift e"/>
 			<add-to-group group-id="EditorPopupMenu1" anchor="first"/>
+		</action>
+		<action
+			id="Julia.IncludeRunFileToREPL"
+			icon="JuliaIcons.JULIA_BIG_ICON"
+			class="org.ice1000.julia.lang.action.JuliaIncludeRunFileToReplAction">
+			<keyboard-shortcut keymap="$default" first-keystroke="ctrl shift F5"/>
+			<add-to-group group-id="EditorPopupMenu1" anchor="first"/>
+			<add-to-group group-id="ToolbarRunGroup" anchor="last"/>
 		</action>
 		<group
 			id="Julia.View.ToolsMenu"

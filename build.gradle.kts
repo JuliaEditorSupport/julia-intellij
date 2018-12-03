@@ -21,7 +21,7 @@ val commitHash = kotlin.run {
 	output.trim()
 }
 
-val pluginComingVersion = "0.3.3"
+val pluginComingVersion = "0.3.5"
 val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
 val packageName = "org.ice1000.julia"
 val kotlinVersion = "1.2.70"
@@ -45,16 +45,20 @@ allprojects {
 		when (System.getProperty("user.name")) {
 			"ice1000" -> {
 				val root = "/home/ice1000/.local/share/JetBrains/Toolbox/apps"
-				localPath = "$root/IDEA-U/ch-0/182.4505.22"
-				alternativeIdePath = "$root/PyCharm-C/ch-0/182.4505.26"
+				localPath = "$root/IDEA-U/ch-0/183.4284.148"
+				alternativeIdePath = "$root/PyCharm-C/ch-0/183.4284.139"
 			}
 			"hoshino" -> version = "2018.2.1"
-		/*"zh"*/ else -> version = "2018.2"
+			"zxj5470" -> {
+				version = "2018.3"
+//				alternativeIdePath = "/home/zxj5470/.local/share/JetBrains/Toolbox/apps/PyCharm-P/ch-0/183.4284.139"
+			}
+		/* for CI */ else -> version = "2018.3"
 		}
 
 		// local developing (!isCI)
 		if (!isCI) {
-			setPlugins("org.intellij.plugins.markdown:182.2371")
+			setPlugins("org.intellij.plugins.markdown:183.4284.148")
 		} else {
 			setMarkdownCompileOnly()
 		}

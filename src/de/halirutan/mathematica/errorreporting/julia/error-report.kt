@@ -216,7 +216,7 @@ class GitHubErrorReporter : ErrorReportSubmitter() {
  */
 class GitHubErrorBean(
 	throwable: Throwable,
-	val lastAction: String,
+	val lastAction: String?,
 	val description: String,
 	val message: String) {
 	val exceptionHash: String
@@ -281,7 +281,7 @@ private fun getKeyValuePairs(
 		"Is EAP" to java.lang.Boolean.toString(appInfo.isEAP),
 		"App Build" to appInfo.build.asString(),
 		"App Version" to appInfo.fullVersion,
-		"Last Action" to error.lastAction,
+		"Last Action" to (error.lastAction ?: "Unknown"),
 		"error.message" to error.message,
 		"error.stacktrace" to error.stackTrace,
 		"error.hash" to error.exceptionHash)

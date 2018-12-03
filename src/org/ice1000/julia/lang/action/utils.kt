@@ -1,6 +1,5 @@
 package org.ice1000.julia.lang.action
 
-import com.google.common.util.concurrent.UncheckedTimeoutException
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
@@ -14,7 +13,9 @@ import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Dimension
-import javax.swing.*
+import java.util.concurrent.TimeoutException
+import javax.swing.JLabel
+import javax.swing.JTextArea
 
 /**
  * icon is configured in plugin.xml
@@ -58,7 +59,7 @@ class TryEvaluate {
 			}
 			if (stderr.isNotEmpty()) showPopupWindow(builder.toString(), editor, 0xE20911, 0xC20022)
 			else showPopupWindow(builder.toString(), editor, 0x0013F9, 0x000CA1)
-		} catch (e: UncheckedTimeoutException) {
+		} catch (e: TimeoutException) {
 			showPopupWindow(JuliaBundle.message("julia.messages.try-eval.timeout"), editor, 0xEDC209, 0xC26500)
 		} catch (e: Throwable) {
 			val cause = e.cause ?: e

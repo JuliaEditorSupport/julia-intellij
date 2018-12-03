@@ -17,6 +17,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
+import org.ice1000.julia.lang.action.withJuliaSciMode
 import org.ice1000.julia.lang.forceRun
 import org.ice1000.julia.lang.module.compareVersion
 import org.ice1000.julia.lang.module.juliaSettings
@@ -24,7 +25,7 @@ import org.ice1000.julia.lang.toYesNo
 
 class JuliaCommandLineState(
 	private val configuration: JuliaRunConfiguration,
-	env: ExecutionEnvironment) : RunProfileState {
+	val env: ExecutionEnvironment) : RunProfileState {
 	private val consoleBuilder = TextConsoleBuilderFactory
 		.getInstance()
 		.createBuilder(env.project,
@@ -71,6 +72,7 @@ class JuliaCommandLineState(
 			// most Julia programs are UTF-8 only.
 			.withCharset(Charsets.UTF_8)
 			.withWorkDirectory(configuration.workingDir)
+			.withJuliaSciMode(env.project)
 			.let(chooseColorful)
 		ProcessTerminatedListener.attach(handler)
 		val console = consoleBuilder.console

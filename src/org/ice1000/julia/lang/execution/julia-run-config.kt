@@ -10,15 +10,16 @@ import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.util.Ref
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.PsiElement
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
 import org.jdom.Element
-import com.google.common.io.Files as GoogleFiles
 
 class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
-	LocatableConfigurationBase(project, factory, JuliaBundle.message("julia.name")) {
+	LocatableConfigurationBase<JuliaCommandLineState>(project, factory, JuliaBundle.message("julia.name")) {
 	var workingDir = ""
 	var targetFile = ""
 	var additionalOptions = ""
@@ -120,7 +121,9 @@ class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfigura
 		if (file?.fileType != JuliaFileType) return false
 		configuration.targetFile = file.path
 		configuration.workingDir = context.project.basePath.orEmpty()
-		configuration.name = GoogleFiles.getNameWithoutExtension(configuration.targetFile)
+		configuration.name = FileUtilRt
+			.getNameWithoutExtension(configuration.targetFile)
+			.takeLastWhile { it != '/' && it != '\\' }
 		val existPath = context.project
 			.juliaSettings
 			.settings

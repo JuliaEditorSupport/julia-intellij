@@ -11,6 +11,7 @@
   psiImplPackage='org.ice1000.julia.lang.psi.impl'
 
   extends('.*Op|.*Expr|.*Lit|.*ymbol|.*lock')=expr
+  extends('.*Indexing')=exprOrEnd
 
   tokenTypeClass='org.ice1000.julia.lang.JuliaTokenType'
   elementTypeHolderClass='org.ice1000.julia.lang.psi.JuliaTypes'
@@ -286,7 +287,10 @@ private suffixedExpr ::=
 // | applyWhereOp
  | type
 
-type ::= expr typeParameters { extends=expr }
+type ::=
+ expr typeParameters
+ whereClause?
+ { extends=expr }
 
 exprOrEnd ::=
    plusIndexing
@@ -298,17 +302,21 @@ exprOrEnd ::=
  | ternaryOpIndexing
  | end
  | exprWrapper
+ | bracketedExprIndexing
 
 end ::= END_KEYWORD { extends=exprOrEnd }
-exprWrapper ::=  memberAccessOp| ternaryOp | primaryExpr | bracketIndexing { extends=exprOrEnd }
-private bracketIndexing ::= (LEFT_BRACKET exprOrEnd RIGHT_BRACKET) { extends=exprOrEnd }
-rangeIndexing ::= exprOrEnd COLON_SYM exprOrEnd { extends=exprOrEnd }
-quoteIndexing ::= COLON_SYM exprOrEnd? { extends=exprOrEnd }
-ternaryOpIndexing::= exprOrEnd QUESTION_SYM rangeIndexing{ extends=exprOrEnd }
-plusIndexing ::= exprOrEnd plusLevelOperator exprOrEnd { extends=exprOrEnd }
-multiplyIndexing ::= exprOrEnd multiplyLevelOperator exprOrEnd { extends=exprOrEnd }
-spliceIndexing ::= exprOrEnd SLICE_SYM { extends=exprOrEnd }
-assignLevelOperatorIndexing::= exprOrEnd assignLevelOperator exprOrEnd { extends=exprOrEnd }
+exprWrapper ::=  memberAccessOp | ternaryOp | primaryExpr { extends=exprOrEnd }
+rangeIndexing ::= exprOrEnd COLON_SYM exprOrEnd
+quoteIndexing ::= COLON_SYM exprOrEnd?
+ternaryOpIndexing::= exprOrEnd QUESTION_SYM rangeIndexing
+plusIndexing ::= exprOrEnd plusLevelOperator exprOrEnd
+multiplyIndexing ::= exprOrEnd multiplyLevelOperator exprOrEnd
+spliceIndexing ::= exprOrEnd SLICE_SYM
+assignLevelOperatorIndexing::= exprOrEnd assignLevelOperator exprOrEnd
+bracketedExprIndexing ::=
+ LEFT_BRACKET endOfLine
+  exprOrEnd
+ RIGHT_BRACKET
 
 applyIndexOp ::= expr LEFT_M_BRACKET
  (
@@ -324,7 +332,8 @@ applyFunctionOp ::=
   (
     comprehensionElement+
   | (
-     expressionList endOfLine
+     (expressionList endOfLine)?
+     commaSep?
      commaSep?
      arguments*
     )
@@ -334,12 +343,13 @@ applyFunctionOp ::=
 
 arguments ::=
  SEMICOLON_SYM endOfLine
- expressionList endOfLine
- (commaSep symbol SLICE_SYM)?
+ (expressionList endOfLine)?
+ (commaSep)?
+ (symbol SLICE_SYM)?
 
 private symbolLhsInternal ::= symbol | LEFT_BRACKET symbol RIGHT_BRACKET
 symbolLhs ::=
- ((LOCAL_KEYWORD | (CONST_KEYWORD GLOBAL_KEYWORD?)) endOfLine)
+ ((LOCAL_KEYWORD | CONST_KEYWORD) endOfLine)
  symbolLhsInternal (commaSep symbolLhsInternal)* { extends=expr }
 
 // All reserved but unassigned
@@ -357,7 +367,7 @@ andOp ::= expr AND_SYM endOfLine expr
 // ->
 // level 5
 lambda ::=
- (symbol (DOUBLE_COLON expr)? | tuple | LEFT_BRACKET RIGHT_BRACKET)
+ (symbol | tuple | LEFT_BRACKET RIGHT_BRACKET)
   LAMBDA_ABSTRACTION expr {
 	rightAssociative=true
 	extends=expr
@@ -593,8 +603,6 @@ function ::=
 	extends=expr
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaFunctionMixin'
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration']
-	stubClass='org.ice1000.julia.lang.psi.JuliaFunctionStub'
-	elementTypeClass='org.ice1000.julia.lang.psi.JuliaFunctionStubElementType'
 }
 private bracketedFunctionName ::= LEFT_BRACKET typedNamedVariable RIGHT_BRACKET
 

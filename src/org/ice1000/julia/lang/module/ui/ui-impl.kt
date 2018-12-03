@@ -219,7 +219,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 			JuliaAddPkgAction(alternativeExecutables),
 			JuliaRemovePkgAction(alternativeExecutables, packagesList),
 			object : AnAction(JuliaIcons.REFRESH_ICON) {
-				override fun actionPerformed(e: AnActionEvent?) = loadPackages(false)
+				override fun actionPerformed(e: AnActionEvent) = loadPackages(false)
 			})
 		actionsPanel.add(ActionManager
 			.getInstance()

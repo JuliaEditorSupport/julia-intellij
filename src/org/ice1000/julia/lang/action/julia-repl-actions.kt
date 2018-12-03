@@ -13,20 +13,52 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.keymap.KeymapUtil
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JULIA_REPL_RUNNER_KEY
+import org.ice1000.julia.lang.JULIA_SCI_PORT_KEY
 import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Font
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.util.concurrent.ConcurrentHashMap
 
-fun errorNotification(project: Project?, message: String) {
+class JuliaIncludeRunFileToReplAction : JuliaAction(
+	JuliaBundle.message("julia.actions.repl.run-include.name"),
+	JuliaBundle.message("julia.actions.repl.run-include.description")), DumbAware {
+	override fun actionPerformed(e: AnActionEvent) {
+		val project = e.getData(CommonDataKeys.PROJECT) ?: return errorNotification(message = "Project is null")
+		val juliaExe = project.juliaSettings.settings.exePath
+		if (juliaExe.isEmpty()) return errorNotification(null, "No Julia Executable, please configure it.")
+
+		WriteCommandAction.runWriteCommandAction(project) {
+			var runner = project.getUserData(JULIA_REPL_RUNNER_KEY)
+			if (runner == null || runner.processHandler?.isProcessTerminated.orFalse()) {
+				runner = JuliaReplRunner(GeneralCommandLine(juliaExe), project, "Julia REPL", juliaExe)
+					.apply {
+						project.putUserData(JULIA_REPL_RUNNER_KEY, this)
+						initAndRun()
+					}
+			}
+			val virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return@runWriteCommandAction
+			FileDocumentManager
+				.getInstance()
+				.getDocument(virtualFile)
+				?.let(FileDocumentManager.getInstance()::saveDocument)
+			runner.executor.sendCommandToProcess("""include("${virtualFile.path}")""")
+		}
+	}
+}
+
+fun errorNotification(project: Project? = null, message: String = "") {
 	val errorTag = "Julia REPL ERROR"
 	val errorTitle = "Julia REPL Configuration Error"
 	Notifications.Bus.notify(Notification(errorTag, errorTitle, message, NotificationType.ERROR), project)
@@ -39,9 +71,11 @@ class JuliaReplAction : JuliaAction(
 		val project = e.project ?: return errorNotification(null, "Project not found")
 		val juliaExe = project.juliaSettings.settings.exePath
 		if (juliaExe.isEmpty()) return errorNotification(null, "No Julia Executable, please configure it.")
-		JuliaReplRunner(GeneralCommandLine(juliaExe),
-			project, "Julia REPL", juliaExe
-		).initAndRun()
+		JuliaReplRunner(GeneralCommandLine(juliaExe), project, "Julia REPL", juliaExe)
+			.apply {
+				project.putUserData(JULIA_REPL_RUNNER_KEY, this)
+				initAndRun()
+			}
 	}
 }
 
@@ -51,6 +85,20 @@ class JuliaReplRunner(
 	title: String,
 	path: String?
 ) : AbstractConsoleRunnerWithHistory<LanguageConsoleView>(myProject, title, path) {
+	override fun initAndRun() {
+		super.initAndRun()
+		useSciMode()
+	}
+
+	fun useSciMode() {
+		WriteCommandAction.runWriteCommandAction(project) {
+			val jlFile = FileUtil.createTempFile("IntelliJ", ".jl")
+			val pyFile = FileUtil.createTempFile("backend_interagg", ".py")
+			jlFile.writeText(javaClass.getResource("IntelliJ.jl").readText())
+			pyFile.writeText(javaClass.getResource("backend_interagg.py").readText())
+			executor.sendCommandToProcess("""include("${jlFile.absolutePath}")""", false)
+		}
+	}
 
 	private val consoleMap: MutableMap<VirtualFile, JuliaReplRunner> = ConcurrentHashMap()
 	fun getConsoleByVirtualFile(virtualFile: VirtualFile) = consoleMap[virtualFile]
@@ -70,9 +118,10 @@ class JuliaReplRunner(
 	override fun createProcessHandler(process: Process?): OSProcessHandler {
 		val consoleFile = consoleView.virtualFile
 		putVirtualFileToConsole(consoleFile, this)
-		return ColoredProcessHandler(cmdLine
+		cmdLine.withJuliaSciMode(project)
+		return object :ColoredProcessHandler(cmdLine
 			.withCharset(Charsets.UTF_8)
-			.withWorkDirectory(cmdLine.workDirectory))
+			.withWorkDirectory(project.basePath)){}
 	}
 
 	override fun createConsoleView(): LanguageConsoleView {
@@ -122,6 +171,12 @@ class JuliaReplRunner(
 	}
 }
 
+fun GeneralCommandLine.withJuliaSciMode(project: Project) = this
+	.apply {
+		environment[JULIA_INTELLIJ_PLOT_PORT] = project.getUserData(JULIA_SCI_PORT_KEY)
+			?: return@apply
+	}
+
 class CommandExecutor(private val runner: JuliaReplRunner) {
 	fun executeCommand() = WriteCommandAction.runWriteCommandAction(runner.project) {
 		val commandText = getTrimmedCommandText()
@@ -136,16 +191,17 @@ class CommandExecutor(private val runner: JuliaReplRunner) {
 		return document.text.trim()
 	}
 
-	private fun sendCommandToProcess(command: String) {
+	fun sendCommandToProcess(command: String, showCommand: Boolean = true) {
 		val processHandler = runner.processHandler
 		val processInputOS = processHandler.processInput ?: return errorNotification(null, "Error")
 		val bytes = ("$command\n").toByteArray()
 
-		val historyDocumentRange = runner.historyUpdater.printNewCommandInHistory(command)
-		val commandHistory = runner.commandHistory
-		commandHistory.addEntry(CommandHistory.Entry(command, historyDocumentRange))
-		runner.commandHistory.entryProcessed()
-
+		if (showCommand) {
+			val historyDocumentRange = runner.historyUpdater.printNewCommandInHistory(command)
+			val commandHistory = runner.commandHistory
+			commandHistory.addEntry(CommandHistory.Entry(command, historyDocumentRange))
+			runner.commandHistory.entryProcessed()
+		}
 		processInputOS.write(bytes)
 		processInputOS.flush()
 	}
