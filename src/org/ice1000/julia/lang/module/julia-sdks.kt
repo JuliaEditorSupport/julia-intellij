@@ -13,8 +13,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.xmlb.XmlSerializerUtil
 import icons.JuliaIcons
-import org.ice1000.julia.lang.JULIA_WEBSITE
-import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.*
 import org.jdom.Element
 import java.nio.file.Files
 import java.nio.file.Paths

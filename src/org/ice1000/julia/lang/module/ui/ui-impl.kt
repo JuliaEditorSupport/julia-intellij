@@ -195,6 +195,7 @@ class JuliaProjectConfigurableImpl(val project: Project) : JuliaProjectConfigura
 		settings.importPath = importPathField.text
 		settings.unicodeEnabled = unicodeInputCheckBox.isSelected
 		settings.showEvalHint = showEvalHintCheckBox.isSelected
+		project.reloadSdkAndIndex()
 	}
 }
 

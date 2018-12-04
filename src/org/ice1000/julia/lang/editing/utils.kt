@@ -77,7 +77,7 @@ object JuliaRValueLiteral {
 		(elem as JuliaArray).run {
 			if (this.typeParameters != null) return null
 			// TODO getTypeByElements
-			val elementType = ""
+			val elementType = (elem.exprList.firstOrNull() as? JuliaSymbol)?.text ?: ""
 			return "Array{$elementType}"
 		}
 	}

@@ -229,19 +229,14 @@ fun syncJuliaLibrary() {
 	}
 }
 
-val Project.withJulia: Boolean
-	get() = this.baseDir.getChildrenWithDepth(4).any { it.name.endsWith(".jl") }
-
-fun VirtualFile.getChildrenWithDepth(depth: Int): Sequence<VirtualFile> {
-	if (depth == 0) return emptySequence()
-	return children.asSequence() + children.asSequence().flatMap { it.getChildrenWithDepth(depth - 1) }
-}
-
-fun Project.reload() {
+fun Project.reloadSdkAndIndex() {
 	if (withJulia) {
 		syncJuliaLibrary()
-		WriteAction.run<RuntimeException> {
-			StubIndex.getInstance().forceRebuild(Throwable("Julia language level changed."))
+		var needsToReIndex = false
+		if (needsToReIndex) {
+			WriteAction.run<RuntimeException> {
+				StubIndex.getInstance().forceRebuild(Throwable("Julia language level changed."))
+			}
 		}
 	}
 }

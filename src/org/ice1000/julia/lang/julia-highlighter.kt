@@ -39,6 +39,8 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val TYPE_PARAMETER_NAME = TextAttributesKey.createTextAttributesKey("JULIA_TYPE_PARAMETER_NAME", DefaultLanguageHighlighterColors.IDENTIFIER)
 	@JvmField val ABSTRACT_TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_ABSTRACT_TYPE_NAME", DefaultLanguageHighlighterColors.INTERFACE_NAME)
 	@JvmField val PRIMITIVE_TYPE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_PRIMITIVE_TYPE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
+	@JvmField val QUOTE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_QUOTE_NAME", HighlighterColors.TEXT)
+	@JvmField val CONST_NAME = TextAttributesKey.createTextAttributesKey("JULIA_CONST_NAME", DefaultLanguageHighlighterColors.STATIC_FIELD)
 	@JvmField val MODULE_NAME = TextAttributesKey.createTextAttributesKey("JULIA_MODULE_NAME", DefaultLanguageHighlighterColors.CLASS_NAME)
 	@JvmField val FUNCTION_NAME = TextAttributesKey.createTextAttributesKey("JULIA_FUNCTION_NAME", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
 	@JvmField val MACRO_NAME = TextAttributesKey.createTextAttributesKey("JULIA_MACRO_NAME", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
@@ -197,7 +199,8 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.abs-type-name"), JuliaHighlighter.ABSTRACT_TYPE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.prim-type-name"), JuliaHighlighter.PRIMITIVE_TYPE_NAME),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.type-name"), JuliaHighlighter.TYPE_NAME),
-			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.type-parameter-name"), JuliaHighlighter.TYPE_PARAMETER_NAME)
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.type-parameter-name"), JuliaHighlighter.TYPE_PARAMETER_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.quote-name"), JuliaHighlighter.QUOTE_NAME)
 		)
 
 		private val ADDITIONAL_DESCRIPTORS = mapOf(

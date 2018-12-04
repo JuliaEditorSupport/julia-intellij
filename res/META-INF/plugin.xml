@@ -43,7 +43,6 @@
 		<library.type implementation="org.ice1000.julia.lang.module.JuliaLibraryType"/>
 		<additionalLibraryRootsProvider implementation="org.ice1000.julia.lang.module.JuliaStdLibraryProvider"/>
 		<stubElementTypeHolder class="org.ice1000.julia.lang.psi.JuliaTypes"/>
-		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaFunctionIndex"/>
 		<typedHandler implementation="org.ice1000.julia.lang.editing.JuliaTypedHandlerDelegate"/>
 		<languageInjector implementation="org.ice1000.julia.lang.editing.JuliaLanguageInjector"/>
 		<lang.refactoringSupport

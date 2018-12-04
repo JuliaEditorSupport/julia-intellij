@@ -188,6 +188,11 @@ $JULIA_DOC_SURROUNDING
 				.textAttributes = JuliaHighlighter.TYPE_NAME
 			element.isTypeParameterName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_PARAMETER_NAME
+			element.isConstName || (element.reference?.element as? JuliaSymbol)?.isConstName.orFalse() -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.CONST_NAME
+			element.isQuoteCall -> holder.createInfoAnnotation(element.parent
+				.let { if (it is JuliaQuoteOp) it else it.parent }, null)
+				.textAttributes = JuliaHighlighter.QUOTE_NAME
 			element.text in arrayOf("in", "where", "isa", "end") -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
 		}
@@ -240,30 +245,30 @@ $JULIA_DOC_SURROUNDING
 	private fun char(
 		element: JuliaCharLit, holder: AnnotationHolder) {
 		when (element.textLength) {
-		// 0, 1, 2 are impossible, 3: 'a', no need!
+			// 0, 1, 2 are impossible, 3: 'a', no need!
 			0, 1, 2, 3 -> {
 			}
-		// '\n'
+			// '\n'
 			4 -> if (element.text[2] !in "ux") holder.createInfoAnnotation(element.textRange.narrow(1, 1), null)
 				.textAttributes = JuliaHighlighter.CHAR_ESCAPE
 			else holder.createErrorAnnotation(element.textRange.narrow(1, 1),
 				JuliaBundle.message("julia.lint.invalid-char-escape"))
 				.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
-		// '\x00'
+			// '\x00'
 			6 -> {
 				if (element.text.trimQuotePair().matches(Regex(JULIA_CHAR_SINGLE_UNICODE_X_REGEX)))
 					holder.createInfoAnnotation(element.textRange.narrow(1, 1), null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
 				else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
 					.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 			}
-		// '\u0022'
+			// '\u0022'
 			8 -> {
 				if (element.text.trimQuotePair().matches(Regex(JULIA_CHAR_SINGLE_UNICODE_U_REGEX)))
 					holder.createInfoAnnotation(element.textRange.narrow(1, 1), null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
 				else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
 					.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
 			}
-		// '\xe5\x86\xb0'
+			// '\xe5\x86\xb0'
 			14 -> {
 				if (element.text.trimQuotePair().matches(Regex(JULIA_CHAR_TRIPLE_UNICODE_X_REGEX)))
 					holder.createInfoAnnotation(element.textRange.narrow(1, 1), null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
@@ -313,3 +318,10 @@ $JULIA_DOC_SURROUNDING
 		}
 	}
 }
+
+private val JuliaSymbol.isQuoteCall: Boolean
+	get() = (parent is JuliaQuoteOp) || (parent is JuliaExprWrapper && parent.parent is JuliaQuoteIndexing)
+
+
+private val JuliaSymbol.isConstName: Boolean
+	get() = (parent is JuliaSymbolLhs)
