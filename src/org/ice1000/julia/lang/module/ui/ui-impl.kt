@@ -195,7 +195,6 @@ class JuliaProjectConfigurableImpl(val project: Project) : JuliaProjectConfigura
 		settings.importPath = importPathField.text
 		settings.unicodeEnabled = unicodeInputCheckBox.isSelected
 		settings.showEvalHint = showEvalHintCheckBox.isSelected
-		project.reload()
 	}
 }
 
@@ -243,7 +242,14 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 				true) {
 			override fun run(indicator: ProgressIndicator) {
 				indicator.text = JuliaBundle.message("julia.messages.package.names.loading")
-				val namesList = packageNamesList(settings.importPath).collect(Collectors.toList())
+
+				val afterVersion06 = compareVersion(settings.version, "0.7.0") >= 0
+				val namesList: List<String> = if (afterVersion06) {
+					packageNamesList(settings.importPath).collect(Collectors.toList())
+				} else {
+					TODO() // get packageNamesList from `$(Pkg.envdir())/v$({1.0 or 0.7})/Project.toml` [deps] children's names
+				}
+
 				val tempData = namesList.map { arrayOf(it) }.toTypedArray()
 				val tempDataModel = JuliaPackageTableModel(tempData, JULIA_TABLE_HEADER_COLUMN)
 				if (default) {
@@ -253,22 +259,37 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 				}
 
 				val sizeToDouble = namesList.size.coerceAtLeast(1).toDouble()
-				val versionList = namesList.mapIndexed { index, it ->
-					val dir = Paths.get(settings.importPath, it).toFile()
-					// process bar indicator percentage
-					indicator.fraction = index / sizeToDouble
-					if (!dir.exists()) it to ""
-					else {
-						val process = Runtime.getRuntime().exec(
-							arrayOf(gitPath, "describe", "--abbrev=0", "--tags"),
-							emptyArray(),
-							dir)
-						// second column value
-						val secondValue = process.inputStream.use { it.reader().use { it.readText().trim() } }
-						tempDataModel.setValueAt(secondValue, index, 1)
-						it to secondValue
+
+				val versionList =
+					if (afterVersion06) {
+						namesList.asSequence().mapIndexed { index, it ->
+							// process bar indicator percentage
+							indicator.fraction = index / sizeToDouble
+							// TODO get currentVersionString from `$(Pkg.envdir())/v$({1.0 or 0.7})/Manifest.toml`
+							val currentVersionString = ""
+							// second column value
+							tempDataModel.setValueAt(currentVersionString, index, 1)
+							it to currentVersionString
+						}.toList()
+					} else { // legacy package manager use git to get the version
+						namesList.asSequence().mapIndexed { index, it ->
+							val dir = Paths.get(settings.importPath, it).toFile()
+							// process bar indicator percentage
+							indicator.fraction = index / sizeToDouble
+							if (!dir.exists()) it to ""
+							else {
+								val process = Runtime.getRuntime().exec(
+									arrayOf(gitPath, "describe", "--abbrev=0", "--tags"),
+									emptyArray(),
+									dir)
+								// second column value
+								val secondValue = process.inputStream.use { it.reader().use { it.readText().trim() } }
+								tempDataModel.setValueAt(secondValue, index, 1)
+								it to secondValue
+							}
+						}.toList()
 					}
-				}.toList()
+
 				packagesList.model = tempDataModel
 				packagesInfo.clear()
 				versionList.mapTo(packagesInfo) { InfoData(it.first, it.second) }
