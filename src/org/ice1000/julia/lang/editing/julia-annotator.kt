@@ -188,7 +188,7 @@ $JULIA_DOC_SURROUNDING
 				.textAttributes = JuliaHighlighter.TYPE_NAME
 			element.isTypeParameterName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_PARAMETER_NAME
-			element.isConstName || (element.reference?.element as? JuliaSymbol)?.isConstName.orFalse() -> holder.createInfoAnnotation(element, null)
+			element.isConstName  -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.CONST_NAME
 			element.isQuoteCall -> holder.createInfoAnnotation(element.parent
 				.let { if (it is JuliaQuoteOp) it else it.parent }, null)
@@ -324,4 +324,7 @@ private val JuliaSymbol.isQuoteCall: Boolean
 
 
 private val JuliaSymbol.isConstName: Boolean
-	get() = (parent is JuliaSymbolLhs)
+	get() = (parent is JuliaSymbolLhs) || isConstNameRef
+
+private val JuliaSymbol.isConstNameRef: Boolean
+	get() =		(reference?.resolve() as? JuliaSymbol)?.isConstName.orFalse()
