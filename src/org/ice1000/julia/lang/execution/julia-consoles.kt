@@ -28,20 +28,20 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 	// Filter.Result(startPoint, entireLength, null)
 	override fun applyFilter(line: String, entireLength: Int): Filter.Result? {
 		if (project.isDisposed || project.baseDir == null) return null
-		if (!line.startsWith(" [")) return null
+		if (!line.startsWith(" [") && !line.startsWith(JULIA_IN_EXPR_STARTING_AT)) return null
 		val startPoint = entireLength - line.length
 		val fileSystem = project.baseDir.fileSystem
 		if (line.startsWith(JULIA_IN_EXPR_STARTING_AT)) {
 			val importantPart = line.substring(JULIA_IN_EXPR_STARTING_AT_LEN).trimEnd()
 			val lastIndex = importantPart.lastIndexOf(':')
 			val path = importantPart.substring(0, lastIndex)
-			val lineNumber = importantPart.substring(lastIndex).toIntOrNull() ?: return null
+			val lineNumber = importantPart.substring(lastIndex + 1).toIntOrNull() ?: return null
 			val resultFile = fileSystem.findFileByPath(path)
 				?: fileSystem.findFileByPath(Paths.get(sdkHomeCache).resolve(path).toString())
 				?: return null
 			return Filter.Result(
-				startPoint + 1 + JULIA_IN_EXPR_STARTING_AT_LEN,
-				startPoint + 1 + JULIA_IN_EXPR_STARTING_AT_LEN + importantPart.length,
+				startPoint + JULIA_IN_EXPR_STARTING_AT_LEN,
+				startPoint + JULIA_IN_EXPR_STARTING_AT_LEN + importantPart.length,
 				OpenFileHyperlinkInfo(project, resultFile, lineNumber - 1))
 		}
 		val matcher1 = STACK_FRAME_LOCATION.matcher(line)
