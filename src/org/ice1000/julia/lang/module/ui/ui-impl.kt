@@ -244,13 +244,15 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 			override fun run(indicator: ProgressIndicator) {
 				indicator.text = JuliaBundle.message("julia.messages.package.names.loading")
 
-				val afterVersion06 = compareVersion(settings.version, "0.7.0") >= 0
-				val namesList: List<String> = if (afterVersion06) {
+				val beforeVersion07 = compareVersion(settings.version, "0.7.0") < 0
+				var envdir = ""
+				val namesList: List<String> = if (beforeVersion07) {
 					packageNamesList(settings.importPath).collect(Collectors.toList())
 				} else {
-					TODO() // get packageNamesList from `$(Pkg.envdir())/v$({1.0 or 0.7})/Project.toml` [deps] children's names
+					envdir = getEnvDir(settings)
+					loadNamesListByEnvFile(settings, envdir)
 				}
-
+				println(namesList.joinToString(","))
 				val tempData = namesList.map { arrayOf(it) }.toTypedArray()
 				val tempDataModel = JuliaPackageTableModel(tempData, JULIA_TABLE_HEADER_COLUMN)
 				if (default) {
@@ -262,17 +264,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 				val sizeToDouble = namesList.size.coerceAtLeast(1).toDouble()
 
 				val versionList =
-					if (afterVersion06) {
-						namesList.asSequence().mapIndexed { index, it ->
-							// process bar indicator percentage
-							indicator.fraction = index / sizeToDouble
-							// TODO get currentVersionString from `$(Pkg.envdir())/v$({1.0 or 0.7})/Manifest.toml`
-							val currentVersionString = ""
-							// second column value
-							tempDataModel.setValueAt(currentVersionString, index, 1)
-							it to currentVersionString
-						}.toList()
-					} else { // legacy package manager use git to get the version
+					if (beforeVersion07) { // legacy package manager use git to get the version
 						namesList.asSequence().mapIndexed { index, it ->
 							val dir = Paths.get(settings.importPath, it).toFile()
 							// process bar indicator percentage
@@ -288,6 +280,32 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 								tempDataModel.setValueAt(secondValue, index, 1)
 								it to secondValue
 							}
+						}.toList()
+					} else {
+						val versionDir = "v" + settings.version.substringBeforeLast(".")
+						val manifestTomlFile = Paths.get(envdir, versionDir, "Manifest.toml").toFile()
+						var cur = ""
+						var ver = ""
+						val map: Map<String, String> = manifestTomlFile.readLines().mapNotNull {
+							when {
+								it.startsWith("[[") -> {
+									cur = it.substring(2, it.lastIndex - 1)
+									null
+								}
+								it.startsWith("version") -> {
+									ver = it.split(" ").last().trim('"')
+									cur to ver
+								}
+								else -> null
+							}
+						}.toMap()
+						namesList.asSequence().mapIndexed { index, it ->
+							// process bar indicator percentage
+							indicator.fraction = index / sizeToDouble
+							val currentVersionString = map[it] ?: ""
+							// second column value
+							tempDataModel.setValueAt(currentVersionString, index, 1)
+							it to currentVersionString
 						}.toList()
 					}
 
@@ -306,7 +324,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		} else {
 			val data = packagesInfo.map {
 				arrayOf(it.name, it.version, it.latestVersion)
-			}.toTypedArray()
+			}.sortedBy { it.first() }.toTypedArray()
 			val dataModel = JuliaPackageTableModel(data, JULIA_TABLE_HEADER_COLUMN)
 			packagesList.model = dataModel
 		}
