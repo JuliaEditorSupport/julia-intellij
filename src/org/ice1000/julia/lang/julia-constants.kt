@@ -57,3 +57,5 @@ Pkg.build("DocumentFormat")"""
 @NonNls const val DOCFMT_LANGUAGE_NAME = "DocumentFormat"
 val JULIA_SCI_PORT_KEY = Key<String>("JuliaSciPortKey")
 val JULIA_REPL_RUNNER_KEY = Key<JuliaReplRunner>("JuliaReplRunnerKey")
+
+const val REPL_ERROR_TAG = "Julia REPL ERROR"
