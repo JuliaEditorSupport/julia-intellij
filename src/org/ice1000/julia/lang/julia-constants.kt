@@ -14,7 +14,8 @@ import org.jetbrains.annotations.NonNls
 @NonNls const val JULIA_STRING_DOLLAR = '\$'
 @NonNls const val JULIA_MODULE_ID = "JULIA_MODULE_TYPE"
 @NonNls const val JULIA_RUN_CONFIG_ID = "JULIA_RUN_CONFIG_ID"
-@NonNls const val JULIA_REPL_EMPTY_ACTION_ID = "julia.repl.empty.action"
+/// See plugin.xml
+@NonNls const val JULIA_REPL_EMPTY_ACTION_ID = "Julia.Tools.EmptyAction"
 @NonNls const val JULIA_SCI_VIEW_ID = "JuliaSciView"
 @NonNls const val JULIA_INTELLIJ_PLOT_PORT = "JULIA_INTELLIJ_PLOT_PORT"
 @NonNls const val JULIA_PLUGIN_ID = "org.ice1000.julia"

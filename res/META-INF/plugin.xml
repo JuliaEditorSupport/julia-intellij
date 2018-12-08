@@ -18,7 +18,7 @@
 		<internalFileTemplate name="Julia Type"/>
 		<internalFileTemplate name="Julia File"/>
 		<gotoDeclarationHandler implementation="org.ice1000.julia.lang.psi.JuliaGotoDeclarationHandler"/>
-<!--<gotoClassContributor implementation="org.ice1000.julia.lang.psi.JuliaModuleNavigationContributor"/>-->
+		<!--<gotoClassContributor implementation="org.ice1000.julia.lang.psi.JuliaModuleNavigationContributor"/>-->
 		<additionalTextAttributes scheme="Darcula" file="/colorSchemes/JuliaDark.xml"/>
 		<additionalTextAttributes scheme="Default" file="/colorSchemes/Julia.xml"/>
 		<fileTypeFactory implementation="org.ice1000.julia.lang.JuliaFileTypeFactory"/>
@@ -101,15 +101,15 @@
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaDocumentProvider"/>
 		<!--<toolWindow-->
-			<!--id="Julia Document"-->
-			<!--secondary="true"-->
-			<!--icon="/icons/julia.png"-->
-			<!--anchor="left"-->
-			<!--factoryClass="org.ice1000.julia.lang.editing.JuliaDocumentWindowImpl"/>-->
+		<!--id="Julia Document"-->
+		<!--secondary="true"-->
+		<!--icon="/icons/julia.png"-->
+		<!--anchor="left"-->
+		<!--factoryClass="org.ice1000.julia.lang.editing.JuliaDocumentWindowImpl"/>-->
 		<toolWindow id="JuliaSciView"
-								anchor="right"
-								icon="/icons/julia.png"
-								factoryClass="org.ice1000.julia.lang.module.JuliaSciToolWindowFactory"/>
+		            anchor="right"
+		            icon="/icons/julia.png"
+		            factoryClass="org.ice1000.julia.lang.module.JuliaSciToolWindowFactory"/>
 		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaSciToolWindow"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaSciToolWindow"/>
@@ -183,10 +183,18 @@
 			<add-to-group group-id="EditorPopupMenu1" anchor="first"/>
 		</action>
 		<action
-			id="Julia.IncludeRunFileToREPL"
-			icon="JuliaIcons.JULIA_BIG_ICON"
+			id="Julia.Tools.REPL.IncludeFile"
+			icon="JuliaIcons.JULIA_RUN_ICON"
 			class="org.ice1000.julia.lang.action.JuliaIncludeRunFileToReplAction">
 			<keyboard-shortcut keymap="$default" first-keystroke="ctrl shift F5"/>
+			<add-to-group group-id="EditorPopupMenu1" anchor="first"/>
+			<add-to-group group-id="ToolbarRunGroup" anchor="last"/>
+		</action>
+		<action
+			id="Julia.Tools.REPL.SendSelection"
+			icon="JuliaIcons.JULIA_RUN_ICON"
+			class="org.ice1000.julia.lang.action.JuliaSendSelectionToReplAction">
+			<keyboard-shortcut keymap="$default" first-keystroke="ctrl shift e"/>
 			<add-to-group group-id="EditorPopupMenu1" anchor="first"/>
 			<add-to-group group-id="ToolbarRunGroup" anchor="last"/>
 		</action>
@@ -204,14 +212,17 @@
 		</group>
 		<action
 			id="Julia.Tools.REPL"
-			icon="JuliaIcons.JULIA_BIG_ICON"
+			icon="JuliaIcons.JULIA_RUN_ICON"
 			class="org.ice1000.julia.lang.action.JuliaReplAction">
 			<add-to-group group-id="Julia.View.ToolsMenu" anchor="last"/>
 		</action>
-		<action id="julia.repl.empty.action" class="com.intellij.openapi.actionSystem.EmptyAction"
-						 text="Execute Julia Code"
-						 description="Execute Julia code in console">
-		<keyboard-shortcut first-keystroke="shift ENTER" keymap="$default"/>
-	</action>
+		<!-- A placeholder for REPL, don't delete -->
+		<action
+			id="Julia.Tools.EmptyAction"
+			class="com.intellij.openapi.actionSystem.EmptyAction"
+			text="Execute Julia Code"
+			description="Execute Julia code in console">
+			<keyboard-shortcut first-keystroke="shift ENTER" keymap="$default"/>
+		</action>
 	</actions>
 </idea-plugin>

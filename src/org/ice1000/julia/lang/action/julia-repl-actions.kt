@@ -30,9 +30,9 @@ import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.util.concurrent.ConcurrentHashMap
 
-class JuliaIncludeRunFileToReplAction : JuliaAction(
-	JuliaBundle.message("julia.actions.repl.run-include.name"),
-	JuliaBundle.message("julia.actions.repl.run-include.description")), DumbAware {
+abstract class JuliaSendCodeToReplAction(
+	text: String?,
+	description: String?) : JuliaAction(text, description) {
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.getData(CommonDataKeys.PROJECT)
 			?: return errorNotification(message = JuliaBundle.message("julia.actions.project-not-found"))
@@ -48,13 +48,37 @@ class JuliaIncludeRunFileToReplAction : JuliaAction(
 						initAndRun()
 					}
 			}
-			val virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return@runWriteCommandAction
-			FileDocumentManager
-				.getInstance()
-				.getDocument(virtualFile)
-				?.let(FileDocumentManager.getInstance()::saveDocument)
-			runner.executor.sendCommandToProcess("""include("${virtualFile.path}")""")
+			runner.executor.sendCommandToProcess(code(e) ?: return@runWriteCommandAction)
 		}
+	}
+
+	abstract fun code(e: AnActionEvent): String?
+}
+
+class JuliaIncludeRunFileToReplAction : JuliaSendCodeToReplAction(
+	JuliaBundle.message("julia.actions.repl.run-include.name"),
+	JuliaBundle.message("julia.actions.repl.run-include.description")), DumbAware {
+	override fun code(e: AnActionEvent): String? {
+		val virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return null
+		FileDocumentManager
+			.getInstance()
+			.getDocument(virtualFile)
+			?.let(FileDocumentManager.getInstance()::saveDocument)
+		return """include("${virtualFile.path}")"""
+	}
+}
+
+class JuliaSendSelectionToReplAction : JuliaSendCodeToReplAction(
+	JuliaBundle.message("julia.actions.repl.run-selected.name"),
+	JuliaBundle.message("julia.actions.repl.run-selected.description")), DumbAware {
+	override fun code(e: AnActionEvent): String? {
+		val editor = e.getData(CommonDataKeys.EDITOR) ?: return null
+		return editor.selectionModel.selectedText
+	}
+
+	override fun update(e: AnActionEvent) {
+		super.update(e)
+		e.presentation.isEnabled = e.getData(CommonDataKeys.EDITOR)?.selectionModel?.selectedText != null
 	}
 }
 
@@ -218,7 +242,6 @@ class CommandExecutor(private val runner: JuliaReplRunner) {
 		processInputOS.flush()
 	}
 }
-
 
 class CommandHistory {
 	class Entry(

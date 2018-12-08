@@ -12,6 +12,7 @@ import javax.swing.*;
  */
 public interface JuliaIcons {
 	@NotNull Icon JULIA_BIG_ICON = IconLoader.getIcon("/icons/julia.png");
+	@NotNull Icon JULIA_RUN_ICON = IconLoader.getIcon("/icons/julia_run.png");
 	@NotNull Icon JULIA_ICON = IconLoader.getIcon("/icons/julia_file.png");
 	@NotNull Icon JOJO_ICON = IconLoader.getIcon("/icons/jojo.png");
 	@NotNull Icon JULIA_MODULE_ICON = IconLoader.getIcon("/icons/julia_module.png");
