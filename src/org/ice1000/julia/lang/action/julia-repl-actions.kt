@@ -22,7 +22,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
 import icons.JuliaIcons
-import org.apache.commons.io.IOUtils
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Font
@@ -121,16 +120,8 @@ class JuliaReplRunner(
 		WriteCommandAction.runWriteCommandAction(project) {
 			val jlFile = FileUtil.createTempFile("IntelliJ", ".jl")
 			val pyFile = FileUtil.createTempFile("backend_interagg", ".py")
-			jlFile.outputStream().use { out ->
-				javaClass.getResource("IntelliJ.jl").openStream().use {
-					IOUtils.copy(it, out)
-				}
-			}
-			pyFile.outputStream().use { out ->
-				javaClass.getResource("backend_interagg.py").openStream().use {
-					IOUtils.copy(it, out)
-				}
-			}
+			jlFile.writeBytes(javaClass.getResource("IntelliJ.jl").readBytes())
+			pyFile.writeBytes(javaClass.getResource("backend_interagg.py").readBytes())
 			executor.sendCommandToProcess("""include("${jlFile.absolutePath}")""", false)
 		}
 	}
