@@ -194,7 +194,7 @@
 			id="Julia.Tools.REPL.SendSelection"
 			icon="JuliaIcons.JULIA_RUN_ICON"
 			class="org.ice1000.julia.lang.action.JuliaSendSelectionToReplAction">
-			<keyboard-shortcut keymap="$default" first-keystroke="ctrl shift e"/>
+			<keyboard-shortcut keymap="$default" first-keystroke="alt F5"/>
 			<add-to-group group-id="EditorPopupMenu1" anchor="first"/>
 			<add-to-group group-id="ToolbarRunGroup" anchor="last"/>
 		</action>
