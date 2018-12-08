@@ -2,7 +2,6 @@ package org.ice1000.julia.lang.execution
 
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.SystemProperties
-import org.ice1000.julia.lang.executeJulia
 import org.ice1000.julia.lang.module.*
 import org.ice1000.julia.lang.printJulia
 import org.junit.Test
@@ -45,6 +44,6 @@ class JuliaPackageTest {
 	@Test
 	fun testListPackageVersions() {
 		if (!System.getenv("CI").isNullOrBlank()) return
-		versionsList(JuliaSettings()).forEach(::println)
+		versionsList(JuliaSettings(replPrompt = "julia> ")).forEach(::println)
 	}
 }

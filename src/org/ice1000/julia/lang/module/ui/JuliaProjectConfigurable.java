@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+@SuppressWarnings("NullableProblems")
 public abstract class JuliaProjectConfigurable implements Configurable {
 	protected @NotNull JPanel mainPanel;
 	protected @NotNull JFormattedTextField textLimitField;
@@ -24,4 +25,5 @@ public abstract class JuliaProjectConfigurable implements Configurable {
 	protected @NotNull JBCheckBox globalUnicodeCheckBox;
 	protected @NotNull LinkLabel<Object> refreshButton;
 	protected @NotNull JFormattedTextField maxCharacterToConvertToCompact;
+	protected @NotNull JTextField replPromptField;
 }

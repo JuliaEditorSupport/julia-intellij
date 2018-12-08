@@ -59,7 +59,7 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
 
 	override fun getComponent() = mainPanel
 	override fun updateDataModel() {
-		val settings = JuliaSettings()
+		val settings = JuliaSettings(replPrompt = "julia> ")
 		settings.exePath = juliaExeField.comboBox.selectedItem.toString()
 		settings.initWithExe()
 		builder.settings = settings
@@ -70,7 +70,7 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
  * PyCharm and other IDEs' `New Project...`
  */
 class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
-	private val settings = JuliaSettings()
+	private val settings = JuliaSettings(replPrompt = "julia> ")
 	private val listeners = ArrayList<ProjectGeneratorPeer.SettingsListener>()
 
 	init {
@@ -118,6 +118,7 @@ class JuliaProjectConfigurableImpl(val project: Project) : JuliaProjectConfigura
 
 	init {
 		version.text = settings.version
+		replPromptField.text = settings.replPrompt
 		val format = NumberFormat.getIntegerInstance()
 		format.isGroupingUsed = false
 		val factory = DefaultFormatterFactory(NumberFormatter(format))
@@ -168,6 +169,7 @@ class JuliaProjectConfigurableImpl(val project: Project) : JuliaProjectConfigura
 	override fun createComponent() = mainPanel
 	override fun isModified() = settings.importPath != importPathField.text ||
 		settings.basePath != basePathField.text ||
+		settings.replPrompt != replPromptField.text ||
 		settings.exePath != juliaExeField.comboBox.selectedItem ||
 		globalUnicodeCheckBox.isSelected != globalSettings.globalUnicodeInput ||
 		unicodeInputCheckBox.isSelected != settings.unicodeEnabled ||
@@ -193,6 +195,7 @@ class JuliaProjectConfigurableImpl(val project: Project) : JuliaProjectConfigura
 		settings.version = version.text
 		settings.basePath = basePathField.text
 		settings.importPath = importPathField.text
+		settings.replPrompt = replPromptField.text
 		settings.unicodeEnabled = unicodeInputCheckBox.isSelected
 		settings.showEvalHint = showEvalHintCheckBox.isSelected
 		project.reloadSdkAndIndex()

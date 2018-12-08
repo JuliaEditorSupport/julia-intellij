@@ -85,7 +85,8 @@ class JuliaSettings(
 	var showEvalHint: Boolean = false,
 	var maxCharacterToConvertToCompact: Int = 140,
 	var tryEvaluateTimeLimit: Long = 2500L,
-	var tryEvaluateTextLimit: Int = 320) {
+	var tryEvaluateTextLimit: Int = 320,
+	var replPrompt: String = "julia> ") {
 	fun initWithExe() {
 		version = versionOf(exePath)
 		importPath = importPathOf(exePath)

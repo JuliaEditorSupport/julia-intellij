@@ -31,7 +31,7 @@ val juliaGlobalSettings: JuliaGlobalSettingsService
 	storages = [Storage(file = "juliaConfig.xml", scheme = StorageScheme.DIRECTORY_BASED)])
 class JuliaProjectSettingsServiceImpl :
 	JuliaProjectSettingsService, PersistentStateComponent<JuliaSettings> {
-	override val settings = JuliaSettings()
+	override val settings = JuliaSettings(replPrompt = "julia> ")
 	override fun getState(): JuliaSettings? = XmlSerializerUtil.createCopy(settings)
 	override fun loadState(state: JuliaSettings) {
 		XmlSerializerUtil.copyBean(state, settings)

@@ -153,10 +153,11 @@ class JuliaReplRunner(
 	override fun createConsoleView(): LanguageConsoleView {
 		val builder = LanguageConsoleBuilder()
 
+		val project = project
 		val consoleView = builder.gutterContentProvider(object : BasicGutterContentProvider() {
 			override fun beforeEvaluate(editor: Editor) = Unit
 		}).build(project, JuliaLanguage.INSTANCE)
-		consoleView.prompt = "julia> "
+		consoleView.prompt = project.juliaSettings.settings.replPrompt
 		val consoleEditor = consoleView.consoleEditor
 		setupPlaceholder(consoleEditor)
 
