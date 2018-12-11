@@ -42,7 +42,8 @@ class JuliaPostfixTemplateProvider : PostfixTemplateProvider {
 			JuliaPrintPostfixTemplate("print"),
 			JuliaSoutPostfixTemplate("sout", "println"),
 			JuliaLengthPostfixTemplate("length"),
-			JuliaSizePostfixTemplate("size")
+			JuliaSizePostfixTemplate("size"),
+			JuliaTypeofPostfixTemplate("typeof")
 		)
 	}
 
@@ -57,10 +58,10 @@ class JuliaPostfixTemplateProvider : PostfixTemplateProvider {
  * These classes' name should be equal to `res/postfixTemplates/`
  */
 class JuliaPrintPostfixTemplate(name: String, functionName: String = name) : JuliaPostfixTemplateBase(name, functionName)
-
 class JuliaSoutPostfixTemplate(name: String, functionName: String = name) : JuliaPostfixTemplateBase(name, functionName)
 class JuliaLengthPostfixTemplate(name: String, functionName: String = name) : JuliaPostfixTemplateBase(name, functionName)
 class JuliaSizePostfixTemplate(name: String, functionName: String = name) : JuliaPostfixTemplateBase(name, functionName)
+class JuliaTypeofPostfixTemplate(name: String, functionName: String = name) : JuliaPostfixTemplateBase(name, functionName)
 
 /**
  * PostfixTemplate(String,String) is deprecated but we have to compact legacy versions.
