@@ -2,12 +2,16 @@
 
 package org.ice1000.julia.lang.module
 
+import com.intellij.execution.console.LanguageConsoleImpl
+import com.intellij.execution.impl.ConsoleViewUtil
+import com.intellij.execution.ui.ObservableConsoleView
 import com.intellij.icons.AllIcons.Actions
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.colors.*
 import com.intellij.openapi.fileChooser.FileChooserFactory
 import com.intellij.openapi.fileChooser.FileSaverDescriptor
 import com.intellij.openapi.fileEditor.FileEditor
@@ -23,15 +27,19 @@ import com.intellij.ui.SimpleColoredComponent
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.awt.RelativeRectangle
 import com.intellij.ui.content.ContentFactory.SERVICE
+import com.intellij.ui.docking.DockContainer.*
 import com.intellij.ui.docking.*
-import com.intellij.ui.docking.DockContainer.ContentResponse
-import com.intellij.ui.docking.DockContainer.Listener
 import com.intellij.ui.tabs.*
 import com.intellij.ui.tabs.TabInfo.DragOutDelegate
 import com.intellij.ui.tabs.impl.*
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
+import com.intellij.xdebugger.frame.*
+import com.intellij.xdebugger.impl.frame.XStandaloneVariablesView
 import icons.JuliaIcons
+import org.apache.commons.lang.StringEscapeUtils
+import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.execution.JuliaEditorsProvider
 import java.awt.*
 import java.awt.event.MouseEvent
 import java.awt.image.*
@@ -63,7 +71,7 @@ interface DockableContentFigureFactory {
 	fun createFigure(content: DockableContent<*>): Figure
 }
 
-class JuliaSciToolWindow(private val d: Project) : JPanel(BorderLayout()), DumbAware {
+class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()), DumbAware {
 	private val tabs: JBEditorTabs
 	private val map: MutableMap<TabInfo, Any>
 	var lastPlotIndex: Int = 0
@@ -75,7 +83,7 @@ class JuliaSciToolWindow(private val d: Project) : JPanel(BorderLayout()), DumbA
 		this.map = HashMap()
 		this.lastPlotIndex = 0
 		this.list = ArrayList()
-		this.tabs = JuliaSciToolWindow.MyTabs(this.d)
+		this.tabs = JuliaSciToolWindow.MyTabs(this.project)
 		this.tabs.tabsPosition = JBTabsPosition.right
 		this.tabs.setPopupGroup(DefaultActionGroup(SaveAsFileAction(), CloseAllPlotsAction()), "unknown", true)
 		this.tabs.isTabDraggingEnabled = true
@@ -93,19 +101,23 @@ class JuliaSciToolWindow(private val d: Project) : JPanel(BorderLayout()), DumbA
 	}
 
 	fun init(toolWindow: ToolWindow) {
-		val var4 = SERVICE.getInstance()
-		val var5 = var4.createContent(this, "Plots", false)
-		var5.isCloseable = false
-		toolWindow.contentManager.addContent(var5)
-		if (this.dockContainer == null) {
-			this.dockContainer = MyDockContainer(toolWindow)
-			Disposer.register(this.d, this.dockContainer!!)
-			DockManager.getInstance(this.d).register(this.dockContainer)
-		}
-	}
+		val sciPanel = SERVICE.getInstance()
+		val plotsContent = sciPanel.createContent(this, "Plots", false)
+		plotsContent.isCloseable = false
 
-	fun addDockableContentFigureFactory(factory: DockableContentFigureFactory) {
-		this.list.add(factory)
+		val stackFrame = JuliaVariableStackFrame(project)
+		val view = JuliaVariablesView(project, stackFrame)
+		project.putUserData(JULIA_SCI_DATA_KEY, view)
+		val dataContent = sciPanel.createContent(view.panel, "Data", false)
+
+		toolWindow.contentManager.addContent(dataContent)
+		toolWindow.contentManager.addContent(plotsContent)
+
+		if (dockContainer == null) {
+			dockContainer = MyDockContainer(toolWindow)
+			Disposer.register(this.project, dockContainer!!)
+			DockManager.getInstance(this.project).register(dockContainer)
+		}
 	}
 
 	fun addFigure(figure: Figure) {
@@ -190,9 +202,7 @@ class JuliaSciToolWindow(private val d: Project) : JPanel(BorderLayout()), DumbA
 			this.dragSession = this.getDockManager().createDragSession(mouseEvent, this.a.createDockableContent())
 		}
 
-		private fun getDockManager(): DockManager {
-			return DockManager.getInstance(this@JuliaSciToolWindow.d)
-		}
+		private fun getDockManager(): DockManager = DockManager.getInstance(this@JuliaSciToolWindow.project)
 
 		override fun processDragOut(event: MouseEvent, source: TabInfo) {
 			this.dragSession!!.process(event)
@@ -267,19 +277,14 @@ class JuliaSciToolWindow(private val d: Project) : JPanel(BorderLayout()), DumbA
 	private class MyTabs constructor(project: Project) : JBEditorTabs(project, ActionManager.getInstance(), IdeFocusManager.findInstance(), project) {
 		init {
 			this.myDefaultPainter = object : DefaultEditorTabsPainter(this) {
-				override fun getBackgroundColor(): Color {
-					return JBColor.LIGHT_GRAY
-				}
+				override fun getBackgroundColor(): Color = JBColor.LIGHT_GRAY
 			}
 		}
 
-		override fun createTabLabel(info: TabInfo): TabLabel {
-			return JuliaSciToolWindow.MyTabLabel(this, info)
-		}
+		override fun createTabLabel(info: TabInfo): TabLabel = JuliaSciToolWindow.MyTabLabel(this, info)
 	}
 
 	companion object {
-		private val h = 80
 		private val logger = Logger.getInstance(JuliaSciToolWindow::class.java)
 		@JvmStatic
 		fun getInstance(project: Project): JuliaSciToolWindow {
@@ -303,17 +308,11 @@ class ImageFigure @JvmOverloads constructor(imageVirtualFile: ImageVirtualFile, 
 	}
 
 	init {
-		this.tabInfo = a(imageVirtualFile, project)
+		tabInfo = a(imageVirtualFile, project)
 	}
 
-	override fun getTabInfo(): TabInfo {
-		return this.tabInfo
-	}
-
-	override fun hasSearchKey(): Boolean {
-		return this.key != null
-	}
-
+	override fun getTabInfo(): TabInfo = this.tabInfo
+	override fun hasSearchKey(): Boolean = this.key != null
 	override fun getSearchKey(): Any {
 		// TODO use contract
 		if (!this.hasSearchKey()) throw RuntimeException("Search key is not defined")
@@ -405,17 +404,11 @@ object FigureUtil {
 	}
 
 	@JvmStatic
-	fun fit(image: Image, width: Int, height: Int): Image {
-		return image.getScaledInstance(JBUI.scale(width), JBUI.scale(height), 4)
-	}
+	fun fit(image: Image, width: Int, height: Int): Image = image.getScaledInstance(JBUI.scale(width), JBUI.scale(height), 4)
 
 	@JvmStatic
 	fun componentToByteArray(component: JComponent): ByteArray {
-		return if (component is WithBinaryContent) {
-			component.getBytes()
-		} else {
-			componentImage(component).toByteArray()
-		}
+		return if (component is WithBinaryContent) component.getBytes() else componentImage(component).toByteArray()
 	}
 
 	@JvmName("toByteArrayExt")
@@ -449,5 +442,81 @@ object FigureUtil {
 class JuliaSciToolWindowFactory : ToolWindowFactory, DumbAware {
 	override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
 		JuliaSciToolWindow.getInstance(project).init(toolWindow)
+	}
+}
+
+class JuliaConsoleView(project: Project, title: String) : LanguageConsoleImpl(project, title, JuliaLanguage.INSTANCE), ObservableConsoleView {
+	var lastModified: Long = 0L
+	private val myPyHighlighter: JuliaHighlighter
+	private val myScheme: EditorColorsScheme
+
+	init {
+		historyViewer.putUserData(ConsoleViewUtil.EDITOR_IS_CONSOLE_HISTORY_VIEW, true)
+		setUpdateFoldingsEnabled(false)
+		myPyHighlighter = JuliaHighlighter
+		myScheme = consoleEditor.colorsScheme
+	}
+
+	fun showVariables() {
+		ApplicationManager.getApplication().executeOnPooledThread {
+			try {
+				while (true) {
+					val tmpdir = System.getProperty("java.io.tmpdir")
+					val tempDataFile = Paths.get(tmpdir, "tempJuliaVarInfo.tsv").toFile()
+					val timeStamp = tempDataFile.lastModified()
+					Thread.sleep(100)
+					if (lastModified != timeStamp) {
+						lastModified = timeStamp
+						val list = tempDataFile.readLines().map {
+							val (name, bytes, value, summary) = StringEscapeUtils.unescapeJava(it).split("\t")
+							JuliaDebugValue(name, value, summary)
+						}
+						project.putUserData(JULIA_VAR_LIST_KEY, list)
+						project.getUserData(JULIA_SCI_DATA_KEY)?.rebuildView()
+						return@executeOnPooledThread
+					}
+				}
+			} catch (e: Exception) {
+				e.printStackTrace()
+			}
+		}
+	}
+
+	override fun createCenterComponent(): JComponent {
+		val centerComponent = super.createCenterComponent()
+		historyViewer.settings.additionalLinesCount = 0
+		historyViewer.settings.isUseSoftWraps = false
+		consoleEditor.gutterComponentEx.background = consoleEditor.backgroundColor
+		consoleEditor.gutterComponentEx.revalidate()
+		consoleEditor.colorsScheme.setColor(EditorColors.GUTTER_BACKGROUND, consoleEditor.backgroundColor)
+		// settings.set
+		return centerComponent
+	}
+}
+
+class JuliaVariablesView(project: Project, stackFrame: JuliaVariableStackFrame) : XStandaloneVariablesView(project, JuliaEditorsProvider(), stackFrame)
+
+class JuliaVariableStackFrame(val project: Project) : XStackFrame() {
+	override fun computeChildren(node: XCompositeNode) {
+		val list = project.getUserData(JULIA_VAR_LIST_KEY) ?: return super.computeChildren(node)
+		val childrenList = XValueChildrenList()
+		list.forEach(childrenList::add)
+		node.addChildren(childrenList, true)
+	}
+}
+
+class JuliaDebugValue(name: String,
+											var type: String = "",
+											var value: String = "",
+											var container: Boolean = false,
+											var parent: JuliaDebugValue? = null) : XNamedValue(name) {
+	override fun computePresentation(node: XValueNode, place: XValuePlace) {
+		val icon =
+			when (type) {
+				"function" -> JuliaIcons.JULIA_FUNCTION_ICON
+				else -> JuliaIcons.JULIA_VARIABLE_ICON
+			}
+		// param `type` is value, vise versa
+		node.setPresentation(icon, value, type, container)
 	}
 }

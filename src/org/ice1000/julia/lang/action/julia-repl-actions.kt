@@ -23,6 +23,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.module.JuliaConsoleView
 import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Font
 import java.awt.event.KeyAdapter
@@ -108,7 +109,7 @@ class JuliaReplAction : JuliaAction(
 class JuliaReplRunner(
 	private val cmdLine: GeneralCommandLine,
 	myProject: Project,
-	title: String,
+	val title: String,
 	path: String?
 ) : AbstractConsoleRunnerWithHistory<LanguageConsoleView>(myProject, title, path) {
 	override fun initAndRun() {
@@ -151,12 +152,8 @@ class JuliaReplRunner(
 	}
 
 	override fun createConsoleView(): LanguageConsoleView {
-		val builder = LanguageConsoleBuilder()
-
 		val project = project
-		val consoleView = builder.gutterContentProvider(object : BasicGutterContentProvider() {
-			override fun beforeEvaluate(editor: Editor) = Unit
-		}).build(project, JuliaLanguage.INSTANCE)
+		val consoleView = JuliaConsoleView(project,title)
 		consoleView.prompt = project.juliaSettings.settings.replPrompt
 		val consoleEditor = consoleView.consoleEditor
 		setupPlaceholder(consoleEditor)
@@ -175,7 +172,6 @@ class JuliaReplRunner(
 			}
 		}
 		executeAction.registerCustomShortcutSet(KeyEvent.VK_ENTER, KeyEvent.SHIFT_DOWN_MASK, consoleView.consoleEditor.component)
-
 		return consoleView
 	}
 
@@ -222,8 +218,9 @@ class CommandExecutor(private val runner: JuliaReplRunner) {
 		val processHandler = runner.processHandler
 		val processInputOS = processHandler.processInput
 			?: return errorNotification(runner.project, "Error")
-		val bytes = ("$command\n").toByteArray()
-
+		val intellijCode = """_intellij_varinfo()"""
+		val bytes = ("$command\n$intellijCode\n").toByteArray()
+		(runner.consoleView as JuliaConsoleView).showVariables()
 		if (showCommand) {
 			val historyDocumentRange = runner.historyUpdater.printNewCommandInHistory(command)
 			val commandHistory = runner.commandHistory
