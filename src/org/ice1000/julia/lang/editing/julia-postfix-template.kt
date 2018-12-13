@@ -43,6 +43,7 @@ class JuliaPostfixTemplateProvider : PostfixTemplateProvider {
 			JuliaSoutPostfixTemplate("sout", "println"),
 			JuliaLengthPostfixTemplate("length"),
 			JuliaSizePostfixTemplate("size"),
+			JuliaSizeofPostfixTemplate("sizeof"),
 			JuliaTypeofPostfixTemplate("typeof")
 		)
 	}
@@ -61,6 +62,7 @@ class JuliaPrintPostfixTemplate(name: String, functionName: String = name) : Jul
 class JuliaSoutPostfixTemplate(name: String, functionName: String = name) : JuliaPostfixTemplateBase(name, functionName)
 class JuliaLengthPostfixTemplate(name: String, functionName: String = name) : JuliaPostfixTemplateBase(name, functionName)
 class JuliaSizePostfixTemplate(name: String, functionName: String = name) : JuliaPostfixTemplateBase(name, functionName)
+class JuliaSizeofPostfixTemplate(name: String, functionName: String = name) : JuliaPostfixTemplateBase(name, functionName)
 class JuliaTypeofPostfixTemplate(name: String, functionName: String = name) : JuliaPostfixTemplateBase(name, functionName)
 
 /**
