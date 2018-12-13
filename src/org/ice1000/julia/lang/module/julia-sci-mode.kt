@@ -468,8 +468,13 @@ class JuliaConsoleView(project: Project, title: String) : LanguageConsoleImpl(pr
 					if (lastModified != timeStamp) {
 						lastModified = timeStamp
 						val list = tempDataFile.readLines().map {
-							val (name, bytes, value, summary) = StringEscapeUtils.unescapeJava(it).split("\t")
-							JuliaDebugValue(name, value, summary)
+							val (name, bytes, value, typeSummary) = StringEscapeUtils.unescapeJava(it.replace("""\""""", "\"")).split("\t")
+							val valuePresentation = value.removeSurrounding("\"\"\"")
+							val container = when {
+								typeSummary.contains("EnvDict") -> true
+								else -> false
+							}
+							JuliaDebugValue(name, typeSummary, valuePresentation, container)
 						}
 						project.putUserData(JULIA_VAR_LIST_KEY, list)
 						project.getUserData(JULIA_SCI_DATA_KEY)?.rebuildView()
@@ -516,7 +521,28 @@ class JuliaDebugValue(name: String,
 				"function" -> JuliaIcons.JULIA_FUNCTION_ICON
 				else -> JuliaIcons.JULIA_VARIABLE_ICON
 			}
-		// param `type` is value, vise versa
-		node.setPresentation(icon, value, type, container)
+		// if type is not empty, presentation is `{$type}`, otherwise it won't show bracket pairs.
+		val typePresentation = if (type.isEmpty()) null else type
+		node.setPresentation(icon, typePresentation, value, container)
+	}
+
+	override fun computeChildren(node: XCompositeNode) {
+		val childrenList = XValueChildrenList()
+		when {
+			type.contains("EnvDict") -> value.lines().filterNot { it.isEmpty() }.forEach {
+				childrenList.add(
+					JuliaDebugValue(
+						name = it.substringBefore("="),
+						value = it.substringAfter("="),
+						parent = this))
+			}
+			type.contains("Array") -> {
+				// TODO
+			}
+			type.contains("Dict{") -> {
+				// TODO
+			}
+		}
+		node.addChildren(childrenList, true)
 	}
 }
