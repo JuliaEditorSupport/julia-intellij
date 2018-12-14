@@ -471,6 +471,7 @@ class JuliaConsoleView(project: Project, title: String) : LanguageConsoleImpl(pr
 							val valuePresentation = value.removeSurrounding("\"\"\"")
 							val container = when {
 								typeSummary.contains("EnvDict") -> true
+								typeSummary.contains("Array{") -> true
 								else -> false
 							}
 							JuliaDebugValue(name, typeSummary, valuePresentation, container)
@@ -493,7 +494,6 @@ class JuliaConsoleView(project: Project, title: String) : LanguageConsoleImpl(pr
 		consoleEditor.gutterComponentEx.background = consoleEditor.backgroundColor
 		consoleEditor.gutterComponentEx.revalidate()
 		consoleEditor.colorsScheme.setColor(EditorColors.GUTTER_BACKGROUND, consoleEditor.backgroundColor)
-		// settings.set
 		return centerComponent
 	}
 }
@@ -515,14 +515,19 @@ class JuliaDebugValue(name: String,
 											var container: Boolean = false,
 											var parent: JuliaDebugValue? = null) : XNamedValue(name) {
 	override fun computePresentation(node: XValueNode, place: XValuePlace) {
+		var valuePresentation = value
 		val icon =
-			when (type) {
-				"function" -> JuliaIcons.JULIA_FUNCTION_ICON
+			when {
+				type == "function" -> JuliaIcons.JULIA_FUNCTION_ICON
+				type.contains("Array{") -> {
+					valuePresentation = "[${value.replace(FULL_ANGLE_SPACE, ", ")}]"
+					JuliaIcons.JULIA_VARIABLE_ICON
+				}
 				else -> JuliaIcons.JULIA_VARIABLE_ICON
 			}
 		// if type is not empty, presentation is `{$type}`, otherwise it won't show bracket pairs.
 		val typePresentation = if (type.isEmpty()) null else type
-		node.setPresentation(icon, typePresentation, value, container)
+		node.setPresentation(icon, typePresentation, valuePresentation, container)
 	}
 
 	override fun computeChildren(node: XCompositeNode) {
@@ -535,8 +540,14 @@ class JuliaDebugValue(name: String,
 						value = it.substringAfter("="),
 						parent = this))
 			}
-			type.contains("Array") -> {
-				// TODO
+			type.contains("Array{") -> {
+				value.split(FULL_ANGLE_SPACE).forEachIndexed { index, it ->
+					childrenList.add(
+						JuliaDebugValue(
+							name = "[${index + 1}]",
+							value = it,
+							parent = this))
+				}
 			}
 			type.contains("Dict{") -> {
 				// TODO

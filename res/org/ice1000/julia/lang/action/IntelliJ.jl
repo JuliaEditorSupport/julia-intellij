@@ -31,7 +31,7 @@ else
 	 please add PyCall and install matplotlib.pyplot package.""")
 end
 
-const _intellij_plot_key = "JULIA_INTELLIJ_PLOT_PORT"
+const _intellij_full_angle_space_key = "　"
 
 _intellij_filter_names(v) = string(v) ∉ ["Base", "Core", "Main", "InteractiveUtils", "matplotlib"]
 
@@ -55,6 +55,14 @@ function _intellij_send_to(rows)
     end
 end
 
+function _intellij_stringfy(value)
+    if isa(value,Array)
+        "$(join(value,_intellij_full_angle_space_key))"
+    else
+        repr(value)
+    end
+end
+
 function _intellij_varinfo(m=Main)
 	@eval using Base:summarysize, format_bytes
 	pattern="_intellij_"
@@ -62,7 +70,7 @@ function _intellij_varinfo(m=Main)
   name = string(v)
   size = value === Main || value === Base || value === Core ? "" : format_bytes(summarysize(value))
   summary_info = summary(value)
-  info = repr(repr(value))
+  info = repr(_intellij_stringfy(value))
   if size == "0 bytes" && summary_info == "typeof($(name))"
 		summary_info = "function"
 	end
