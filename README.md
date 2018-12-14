@@ -50,6 +50,11 @@ To learn about the test summery, visit https://circleci.com/build-insights/gh/ic
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17932.png)
 ![](https://github.com/zxj5470/julia-intellij-docs-cn/blob/master/screenshots/pkg-manager.gif?raw=true)
 
+### Plots
+![](https://user-images.githubusercontent.com/20026798/49950430-c72f1780-ff32-11e8-8498-68ebcad8c4b5.gif)
+
+### VarInfo (Workspace)
+![](https://user-images.githubusercontent.com/20026798/50019689-91f7f780-000e-11e9-85ce-ab602cab6505.png)
 ## Compatible IDEs
 
 The plugin is compatible with any IntelliJ based IDE starting from 2016.1.
