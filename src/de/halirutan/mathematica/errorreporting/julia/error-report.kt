@@ -120,7 +120,11 @@ private object AnonymousFeedback {
 			val stackTrace = details.remove("error.stacktrace")?.takeIf(String::isNotBlank) ?: "invalid stacktrace"
 			if (errorDescription.isNotEmpty()) append(errorDescription).appendln("\n\n----------------------\n")
 			for ((key, value) in details) append("- ").append(key).append(": ").appendln(value)
-			if (includeStacktrace) appendln("\n```").appendln(stackTrace).appendln("```")
+			if (includeStacktrace)
+				appendln("<details><summary>Full StackTrace</summary>")
+					.appendln("<pre><code>")
+					.appendln(stackTrace)
+					.appendln("</code></pre>\n</details>")
 		}
 }
 
