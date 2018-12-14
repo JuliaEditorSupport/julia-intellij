@@ -6,8 +6,7 @@ import com.intellij.ide.util.projectWizard.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.rootManager
+import com.intellij.openapi.project.*
 import com.intellij.openapi.roots.ModifiableModelsProvider
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.vfs.VfsUtil
@@ -67,6 +66,7 @@ project($name)
 			val template = FileTemplateManager
 				.getInstance(this)
 				.getTemplate("Julia Module")
+			val baseDir = guessProjectDir() ?: return
 			PsiManager.getInstance(this).findDirectory(baseDir.createChildDirectory(null, "src"))?.let { srcDir ->
 				FileTemplateUtil.createFromTemplate(template, "main.jl", NewJuliaFile.createProperties(this, name), srcDir)
 			}

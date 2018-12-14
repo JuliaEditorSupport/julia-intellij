@@ -17,8 +17,7 @@ import com.intellij.openapi.fileChooser.FileSaverDescriptor
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.ex.FileEditorProviderManager
 import com.intellij.openapi.fileEditor.impl.EditorTabbedContainer.DockableEditor
-import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.*
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.*
 import com.intellij.testFramework.BinaryLightVirtualFile
@@ -233,7 +232,7 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 
 			val fileSaverDescriptor = FileSaverDescriptor("Select File to Save Plot", "", "png")
 			val fileSaverDialog = FileChooserFactory.getInstance().createSaveFileDialog(fileSaverDescriptor, project)
-			val virtualFileWrapper = fileSaverDialog.save(project.baseDir, "myplot")
+			val virtualFileWrapper = fileSaverDialog.save(project.guessProjectDir(), "myplot")
 
 			try {
 				if (virtualFileWrapper != null) {

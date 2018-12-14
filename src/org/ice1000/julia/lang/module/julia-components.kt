@@ -6,6 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.util.PlatformUtils
@@ -105,7 +106,7 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 }
 
 val Project.withJulia: Boolean
-	get() = this.baseDir.getChildrenWithDepth(4).any { it.name.endsWith(".jl") }
+	get() = this.guessProjectDir()?.run { getChildrenWithDepth(4).any { it.name.endsWith(".jl") } }.orFalse()
 
 fun VirtualFile.getChildrenWithDepth(depth: Int): Sequence<VirtualFile> {
 	if (depth == 0) return emptySequence()

@@ -3,6 +3,7 @@ package org.ice1000.julia.lang.execution
 import com.intellij.execution.ConsoleFolding
 import com.intellij.execution.filters.*
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.guessProjectDir
 import com.intellij.psi.search.GlobalSearchScope
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.juliaSettings
@@ -27,10 +28,11 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 
 	// Filter.Result(startPoint, entireLength, null)
 	override fun applyFilter(line: String, entireLength: Int): Filter.Result? {
-		if (project.isDisposed || project.baseDir == null) return null
+		val projectDir = project.guessProjectDir()
+		if (project.isDisposed || projectDir == null) return null
 		if (!line.startsWith(" [") && !line.startsWith(JULIA_IN_EXPR_STARTING_AT)) return null
 		val startPoint = entireLength - line.length
-		val fileSystem = project.baseDir.fileSystem
+		val fileSystem = projectDir.fileSystem
 		if (line.startsWith(JULIA_IN_EXPR_STARTING_AT)) {
 			val importantPart = line.substring(JULIA_IN_EXPR_STARTING_AT_LEN).trimEnd()
 			val lastIndex = importantPart.lastIndexOf(':')
