@@ -41,6 +41,9 @@ const val JULIA_IN_EXPR_STARTING_AT_LEN = JULIA_IN_EXPR_STARTING_AT.length
     (?:(\+)|
     (?:\+((?:[0-9a-z-]+\.)*[0-9a-z-]+))?    # build         (optional)
     ))$"""
+@NonNls
+@Language("RegExp")
+const val JULIA_VERSION_NUMBER_REGEX_PRE_I = """^(?:|[0-9a-z-]*[a-z-][0-9a-z-]*)$"""
 @NonNls const val JULIA_DEFAULT_MODULE_NAME = "MyBizarreJuliaModule"
 @NonNls const val JULIA_WEBSITE = "https://julialang.org/downloads/"
 @NonNls const val FULL_ANGLE_SPACE = "　"

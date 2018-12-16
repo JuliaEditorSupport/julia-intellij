@@ -2,7 +2,7 @@ package org.ice1000.julia.lang.editing
 
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiElement
-import org.ice1000.julia.lang.JULIA_VERSION_NUMBER_REGEX_IX
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
@@ -101,6 +101,8 @@ object JuliaInKotlin {
 		val build: List<String> = emptyList()) {
 
 		init {
+			val preRegex = Regex(JULIA_VERSION_NUMBER_REGEX_PRE_I, setOf(RegexOption.IGNORE_CASE))
+
 			major >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
 			minor >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
 			patch >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
@@ -109,10 +111,9 @@ object JuliaInKotlin {
 					val int = ident.toInt()
 					int >= 0 || throw(IllegalArgumentException("invalid negative pre-release identifier: $ident"))
 				} catch (e: Exception) {
-					if (
-						!ident.matches(Regex("""^(?:|[0-9a-z-]*[a-z-][0-9a-z-]*)$""")) ||
-						ident.isEmpty() && !((prerelease.size == 1) && build.isEmpty())
-					)
+					if (!ident.matches(preRegex) || ident.isEmpty()
+						&& !((prerelease.size == 1) && build.isEmpty()))
+
 						throw(IllegalArgumentException("invalid pre-release identifier: $ident"))
 				}
 			}
@@ -121,10 +122,7 @@ object JuliaInKotlin {
 					val int = ident.toInt()
 					int >= 0 || throw(IllegalArgumentException("invalid negative pre-release identifier: $ident"))
 				} catch (e: Exception) {
-					if (
-						!ident.matches(Regex("""^(?:|[0-9a-z-]*[a-z-][0-9a-z-]*)$""")) ||
-						ident.isEmpty() && build.size != 1
-					)
+					if (!ident.matches(preRegex) || ident.isEmpty() && build.size != 1)
 						throw(IllegalArgumentException("invalid pre-release identifier: $ident"))
 				}
 			}
