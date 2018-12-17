@@ -204,7 +204,7 @@ interface IJuliaString : PsiLanguageInjectionHost {
 abstract class JuliaStringMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaString {
 	override var type: Type? = "String"
 	override fun isValidHost() = true
-	override fun createLiteralTextEscaper() = LiteralTextEscaper.createSimple(this)
+	override fun createLiteralTextEscaper() = JuliaStringEscaper(this)
 	override fun updateText(s: String) = ElementManipulators.handleContentChange(this, s)
 }
 
@@ -217,7 +217,7 @@ interface IJuliaRegex : PsiLanguageInjectionHost {
 abstract class JuliaRegexMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaRegex {
 	override var type: Type? = "Regex"
 	override fun isValidHost() = true
-	override fun createLiteralTextEscaper() = LiteralTextEscaper.createSimple(this)
+	override fun createLiteralTextEscaper() = JuliaStringEscaper(this)
 	override fun updateText(s: String) = ElementManipulators.handleContentChange(this, s)
 }
 
