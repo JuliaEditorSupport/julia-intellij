@@ -438,42 +438,6 @@ class JuliaConsoleView(project: Project, title: String) : LanguageConsoleImpl(pr
 		myScheme = consoleEditor.colorsScheme
 	}
 
-	fun showVariables() {
-		ApplicationManager.getApplication().executeOnPooledThread {
-			try {
-				while (true) {
-					val tmpdir = System.getProperty("java.io.tmpdir")
-					val tempDataFile = Paths.get(tmpdir, "tempJuliaVarInfo.tsv").toFile()
-					val timeStamp = tempDataFile.lastModified()
-					Thread.sleep(100)
-					if (lastModified != timeStamp) {
-						lastModified = timeStamp
-						try {
-							val text = tempDataFile.readText()
-							val root = json.parse(text).asJsonArray
-							val list = root.map {
-								val (name, bytes, value, typeSummary) = it.asJsonArray.map { ele -> ele.asJsonPrimitive.asString }
-								val container = when {
-									typeSummary.contains("EnvDict") -> true
-									typeSummary.contains("Array{") -> true
-									else -> false
-								}
-								JuliaDebugValue(name, typeSummary, value, container)
-							}
-							project.putUserData(JULIA_VAR_LIST_KEY, list)
-							project.getUserData(JULIA_SCI_DATA_KEY)?.rebuildView()
-							return@executeOnPooledThread
-						} catch (e: Exception) {
-							e.printStackTrace()
-						}
-					}
-				}
-			} catch (e: Exception) {
-				e.printStackTrace()
-			}
-		}
-	}
-
 	override fun createCenterComponent(): JComponent {
 		val centerComponent = super.createCenterComponent()
 		historyViewer.settings.additionalLinesCount = 0

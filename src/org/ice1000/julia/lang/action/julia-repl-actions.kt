@@ -197,7 +197,7 @@ class JuliaReplRunner(
 fun GeneralCommandLine.withJuliaSciMode(project: Project) = this
 	.apply {
 		environment[JULIA_INTELLIJ_PLOT_PORT] = project.getUserData(JULIA_SCI_PORT_KEY)
-			?: return@apply
+		environment[JULIA_INTELLIJ_DATA_PORT] = project.getUserData(JULIA_DATA_PORT_KEY)
 	}
 
 class CommandExecutor(private val runner: JuliaReplRunner) {
@@ -220,7 +220,6 @@ class CommandExecutor(private val runner: JuliaReplRunner) {
 			?: return errorNotification(runner.project, "Error")
 		val intellijCode = """_intellij_varinfo()"""
 		val bytes = ("$command\n$intellijCode\n").toByteArray()
-		(runner.consoleView as JuliaConsoleView).showVariables()
 		if (showCommand) {
 			val historyDocumentRange = runner.historyUpdater.printNewCommandInHistory(command)
 			val commandHistory = runner.commandHistory
