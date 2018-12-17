@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NonNls
 @NonNls const val JULIA_REPL_EMPTY_ACTION_ID = "Julia.Tools.EmptyAction"
 @NonNls const val JULIA_SCI_VIEW_ID = "JuliaSciView"
 @NonNls const val JULIA_INTELLIJ_PLOT_PORT = "JULIA_INTELLIJ_PLOT_PORT"
+@NonNls const val JULIA_INTELLIJ_DATA_PORT = "JULIA_INTELLIJ_DATA_PORT"
 @NonNls const val JULIA_PLUGIN_ID = "org.ice1000.julia"
 @NonNls @Language("RegExp") const val JULIA_CHAR_SINGLE_UNICODE_X_REGEX = "\\\\x([A-Fa-f0-9]){2}"
 @NonNls @Language("RegExp") const val JULIA_CHAR_NOT_UX_REGEX = "\\\\([^uxUX])"
@@ -61,6 +62,7 @@ Pkg.build("DocumentFormat")"""
 @NonNls const val DOCFMT_EXTENSION = "julia-config"
 @NonNls const val DOCFMT_LANGUAGE_NAME = "DocumentFormat"
 val JULIA_SCI_PORT_KEY = Key<String>("JuliaSciPortKey")
+val JULIA_DATA_PORT_KEY = Key<String>("JuliaSciDataPortKey")
 val JULIA_SCI_DATA_KEY = Key<JuliaVariablesView>("JuliaVariablesViewKey")
 val JULIA_VAR_LIST_KEY = Key<List<JuliaDebugValue>>("JuliaVarListKey")
 val JULIA_REPL_RUNNER_KEY = Key<JuliaReplRunner>("JuliaReplRunnerKey")

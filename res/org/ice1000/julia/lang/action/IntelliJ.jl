@@ -7,6 +7,7 @@ IntelliJ.jl:
 
 if VERSION >= v"0.7.0"
 	using Pkg
+  using Sockets
 end
 
 println("Initialize julia-intellij REPL environment...")
@@ -55,8 +56,10 @@ function _intellij_x_to_bytes(x)
 end
 
 function _intellij_send_to(rows)
-    open("$(tempdir())/tempJuliaVarInfo.tsv","w") do f
-      write(f,json(rows))
+    if "JULIA_INTELLIJ_DATA_PORT" in keys(ENV)
+        port = parse(Int, ENV["JULIA_INTELLIJ_DATA_PORT"])
+        f = connect(getipaddr(), port)
+        write(f,json(rows) * "\n")
     end
 end
 

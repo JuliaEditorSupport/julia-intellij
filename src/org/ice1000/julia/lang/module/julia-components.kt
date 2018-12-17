@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang.module
 
+import com.google.gson.JsonParser
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.*
 import com.intellij.openapi.application.ApplicationManager
@@ -12,15 +13,17 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.*
 import org.jetbrains.annotations.Nls
-import java.io.DataInputStream
-import java.io.IOException
+import java.io.*
 import java.net.ServerSocket
 
 class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 	var isNightlyNotificationShown = false
-	lateinit var socket: ServerSocket
+	lateinit var plotSocket: ServerSocket
+	lateinit var dataSocket: ServerSocket
 	@Volatile
 	private var hold = true
+
+	private val json = JsonParser()
 
 	override fun getComponentName() = "JuliaProjectComponent"
 	override fun projectOpened() {
@@ -43,19 +46,46 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 			syncJuliaLibrary()
 			val useSciView = true
 			if (useSciView) {
-				socket = ServerSocket(0)
-				project.putUserData(JULIA_SCI_PORT_KEY, socket.localPort.toString())
+				plotSocket = ServerSocket(0)
+				dataSocket = ServerSocket(0)
+				project.putUserData(JULIA_SCI_PORT_KEY, plotSocket.localPort.toString())
+				project.putUserData(JULIA_DATA_PORT_KEY, dataSocket.localPort.toString())
 				ApplicationManager.getApplication().executeOnPooledThread {
 					while (this.hold) {
-						waitAndHandle()
+						waitAndHandlePlots()
+					}
+				}
+				ApplicationManager.getApplication().executeOnPooledThread {
+					while (this.hold) {
+						waitAndHandleDataView()
 					}
 				}
 			}
 		}
 	}
 
-	private fun waitAndHandle() {
-		val socketAccept = socket.accept()
+	private fun waitAndHandleDataView() {
+		while (true) {
+			val connectionSocket = dataSocket.accept()
+			val inFromClient = BufferedReader(InputStreamReader(connectionSocket.getInputStream()))
+			val text = inFromClient.readLine()
+			val root = json.parse(text).asJsonArray
+			val list = root.map {
+				val (name, bytes, value, typeSummary) = it.asJsonArray.map { ele -> ele.asJsonPrimitive.asString }
+				val container = when {
+					typeSummary.contains("EnvDict") -> true
+					typeSummary.contains("Array{") -> true
+					else -> false
+				}
+				JuliaDebugValue(name, typeSummary, value, container)
+			}
+			project.putUserData(JULIA_VAR_LIST_KEY, list)
+			project.getUserData(JULIA_SCI_DATA_KEY)?.rebuildView()
+		}
+	}
+
+	private fun waitAndHandlePlots() {
+		val socketAccept = plotSocket.accept()
 		try {
 			val inputStream = socketAccept.getInputStream()
 			val data = DataInputStream(inputStream)
