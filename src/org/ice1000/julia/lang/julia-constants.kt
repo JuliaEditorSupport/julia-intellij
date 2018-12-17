@@ -43,7 +43,6 @@ const val JULIA_IN_EXPR_STARTING_AT_LEN = JULIA_IN_EXPR_STARTING_AT.length
     ))$"""
 @NonNls const val JULIA_DEFAULT_MODULE_NAME = "MyBizarreJuliaModule"
 @NonNls const val JULIA_WEBSITE = "https://julialang.org/downloads/"
-@NonNls const val FULL_ANGLE_SPACE = "　"
 @NonNls const val MAC_APPLICATIONS = "/Applications"
 
 @NonNls val JULIA_TABLE_HEADER_COLUMN = arrayOf("Package", "Version", "Latest")

@@ -7,11 +7,16 @@ IntelliJ.jl:
 
 if VERSION >= v"0.7.0"
 	using Pkg
-  using DelimitedFiles
-  using Sockets
 end
 
 println("Initialize julia-intellij REPL environment...")
+
+if "JSON" in keys(Pkg.installed())
+  using JSON
+else
+  Pkg.add("JSON")
+  using JSON
+end
 
 if "PyCall" in keys(Pkg.installed())
 	using PyCall
@@ -51,17 +56,11 @@ end
 
 function _intellij_send_to(rows)
     open("$(tempdir())/tempJuliaVarInfo.tsv","w") do f
-      writedlm(f,rows,'\t')
+      write(f,json(rows))
     end
 end
 
-function _intellij_stringfy(value)
-    if isa(value,Array)
-        "$(join(value,_intellij_full_angle_space_key))"
-    else
-        repr(value)
-    end
-end
+_intellij_stringfy(value) = JSON.json(value)
 
 function _intellij_varinfo(m=Main)
 	@eval using Base:summarysize, format_bytes
@@ -69,12 +68,14 @@ function _intellij_varinfo(m=Main)
 	rows = Array[ let value = getfield(m, v)
   name = string(v)
   size = value === Main || value === Base || value === Core ? "" : format_bytes(summarysize(value))
-  summary_info = summary(value)
-  info = repr(_intellij_stringfy(value))
-  if size == "0 bytes" && summary_info == "typeof($(name))"
-		summary_info = "function"
+  type_info = summary(value)
+  info = type_info
+  if size == "0 bytes" && occursin("typeof(",type_info)
+    type_info = "function"
+  else 
+    info = _intellij_stringfy(value)
 	end
-  String[name, size, info, summary_info]
+  String[name, size, info, type_info]
 	end
 	for v in sort!(names(m)) if isdefined(m, v) &&
 	!occursin(pattern, string(v)) && _intellij_filter_names(v)]

@@ -2,6 +2,7 @@
 
 package org.ice1000.julia.lang.module
 
+import com.google.gson.*
 import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.impl.ConsoleViewUtil
 import com.intellij.execution.ui.ObservableConsoleView
@@ -44,6 +45,7 @@ import java.awt.event.MouseEvent
 import java.awt.image.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.lang.StringBuilder
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
@@ -466,19 +468,24 @@ class JuliaConsoleView(project: Project, title: String) : LanguageConsoleImpl(pr
 					Thread.sleep(100)
 					if (lastModified != timeStamp) {
 						lastModified = timeStamp
-						val list = tempDataFile.readLines().map {
-							val (name, bytes, value, typeSummary) = StringEscapeUtils.unescapeJava(it.replace("""\""""", "\"")).split("\t")
-							val valuePresentation = value.removeSurrounding("\"\"\"")
-							val container = when {
-								typeSummary.contains("EnvDict") -> true
-								typeSummary.contains("Array{") -> true
-								else -> false
+						try {
+							val text = tempDataFile.readText()
+							val root = json.parse(text).asJsonArray
+							val list = root.map {
+								val (name, bytes, value, typeSummary) = it.asJsonArray.map { ele -> ele.asJsonPrimitive.asString }
+								val container = when {
+									typeSummary.contains("EnvDict") -> true
+									typeSummary.contains("Array{") -> true
+									else -> false
+								}
+								JuliaDebugValue(name, typeSummary, value, container)
 							}
-							JuliaDebugValue(name, typeSummary, valuePresentation, container)
+							project.putUserData(JULIA_VAR_LIST_KEY, list)
+							project.getUserData(JULIA_SCI_DATA_KEY)?.rebuildView()
+							return@executeOnPooledThread
+						} catch (e: Exception) {
+							e.printStackTrace()
 						}
-						project.putUserData(JULIA_VAR_LIST_KEY, list)
-						project.getUserData(JULIA_SCI_DATA_KEY)?.rebuildView()
-						return@executeOnPooledThread
 					}
 				}
 			} catch (e: Exception) {
@@ -513,46 +520,69 @@ class JuliaDebugValue(name: String,
 											var type: String = "",
 											var value: String = "",
 											var container: Boolean = false,
+											var arrayDepth: Int = 0,
 											var parent: JuliaDebugValue? = null) : XNamedValue(name) {
+
 	override fun computePresentation(node: XValueNode, place: XValuePlace) {
 		var valuePresentation = value
 		val icon =
 			when {
 				type == "function" -> JuliaIcons.JULIA_FUNCTION_ICON
 				type.contains("Array{") -> {
-					valuePresentation = "[${value.replace(FULL_ANGLE_SPACE, ", ")}]"
+					valuePresentation = json.parse(value).asJsonArray.toString()
 					JuliaIcons.JULIA_VARIABLE_ICON
 				}
 				else -> JuliaIcons.JULIA_VARIABLE_ICON
 			}
 		// if type is not empty, presentation is `{$type}`, otherwise it won't show bracket pairs.
-		val typePresentation = if (type.isEmpty()) null else type
+		val typePresentation = if (type.isEmpty() || type == "ArrayItem") null else type
 		node.setPresentation(icon, typePresentation, valuePresentation, container)
 	}
 
 	override fun computeChildren(node: XCompositeNode) {
 		val childrenList = XValueChildrenList()
 		when {
-			type.contains("EnvDict") -> value.lines().filterNot { it.isEmpty() }.forEach {
-				childrenList.add(
-					JuliaDebugValue(
-						name = it.substringBefore("="),
-						value = it.substringAfter("="),
-						parent = this))
-			}
-			type.contains("Array{") -> {
-				value.split(FULL_ANGLE_SPACE).forEachIndexed { index, it ->
-					childrenList.add(
-						JuliaDebugValue(
-							name = "[${index + 1}]",
-							value = it,
-							parent = this))
+			type.contains("EnvDict") || type.contains("Dict{") -> {
+				json.parse(value).asJsonObject.apply {
+					keySet().forEach { key ->
+						childrenList.add(
+							JuliaDebugValue(
+								name = key,
+								value = this[key].asString,
+								parent = this@JuliaDebugValue))
+					}
 				}
 			}
-			type.contains("Dict{") -> {
-				// TODO
+			type.contains("Array{") -> {
+				json.parse(value).asJsonArray.forEachIndexed { index, it ->
+					val name =
+						if (type.endsWith(",2}")) "[Row ${index + 1}]"
+						else "[${index + 1}]"
+					arrays(it, childrenList, name)
+				}
+			}
+			type == "ArrayItem" -> {
+				json.parse(value).asJsonArray.forEachIndexed { index, it ->
+					val name = if (it.isJsonArray &&
+						it.asJsonArray.all(JsonElement::isJsonArray) &&
+						it.asJsonArray.first().asJsonArray.any { !it.isJsonArray }) "[Row ${index + 1}]"
+					else "[${index + 1}]"
+					arrays(it, childrenList, name)
+				}
 			}
 		}
 		node.addChildren(childrenList, true)
 	}
+
+	private fun arrays(it: JsonElement, childrenList: XValueChildrenList, name: String) {
+		childrenList.add(
+			JuliaDebugValue(
+				name = name,
+				value = it.toString(),
+				type = "ArrayItem",
+				container = it.isJsonArray,
+				parent = this@JuliaDebugValue))
+	}
 }
+
+private val json = JsonParser()
