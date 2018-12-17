@@ -10,6 +10,8 @@ class JuliaStringManipulator : AbstractElementManipulator<JuliaString>() {
 		psi.replace(after)
 		return after
 	}
+
+	override fun getRangeInElement(element: JuliaString) = TextRange(1, element.textLength - 1)
 }
 
 class JuliaRegexManipulator : AbstractElementManipulator<JuliaRegex>() {
@@ -18,4 +20,6 @@ class JuliaRegexManipulator : AbstractElementManipulator<JuliaRegex>() {
 		psi.replace(after)
 		return after
 	}
+
+	override fun getRangeInElement(element: JuliaRegex) = TextRange(2, element.textLength - 1)
 }
