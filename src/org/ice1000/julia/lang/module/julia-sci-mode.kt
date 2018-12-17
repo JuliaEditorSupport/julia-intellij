@@ -37,7 +37,6 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.xdebugger.frame.*
 import com.intellij.xdebugger.impl.frame.XStandaloneVariablesView
 import icons.JuliaIcons
-import org.apache.commons.lang.StringEscapeUtils
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.execution.JuliaEditorsProvider
 import java.awt.*
@@ -45,7 +44,6 @@ import java.awt.event.MouseEvent
 import java.awt.image.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.lang.StringBuilder
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
@@ -91,11 +89,8 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		this.tabs.addListener(object : TabsListener {
 			override fun tabRemoved(tabToRemove: TabInfo) {
 				this@JuliaSciToolWindow.map.remove(tabToRemove)
-				val jComponent = tabToRemove.component
-				if (jComponent is Disposable) {
-					Disposer.dispose(jComponent as Disposable)
-				}
-
+				val jComponent = tabToRemove.component as? Disposable ?: return
+				Disposer.dispose(jComponent)
 			}
 		})
 		this.add(this.tabs)
@@ -103,13 +98,13 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 
 	fun init(toolWindow: ToolWindow) {
 		val sciPanel = SERVICE.getInstance()
-		val plotsContent = sciPanel.createContent(this, "Plots", false)
+		val plotsContent = sciPanel.createContent(this, JuliaBundle.message("julia.modules.sci-mode.plots.title"), false)
 		plotsContent.isCloseable = false
 
 		val stackFrame = JuliaVariableStackFrame(project)
 		val view = JuliaVariablesView(project, stackFrame)
 		project.putUserData(JULIA_SCI_DATA_KEY, view)
-		val dataContent = sciPanel.createContent(view.panel, "Data", false)
+		val dataContent = sciPanel.createContent(view.panel, JuliaBundle.message("julia.modules.sci-mode.data.title"), false)
 
 		toolWindow.contentManager.addContent(dataContent)
 		toolWindow.contentManager.addContent(plotsContent)
@@ -160,15 +155,12 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 	}
 
 	inner class MyDockContainer constructor(private val a: ToolWindow) : DockContainer {
-
 		override fun getAcceptArea(): RelativeRectangle = RelativeRectangle(this.a.component)
-
 		override fun getAcceptAreaFallback(): RelativeRectangle = this.acceptArea
+		override fun getContainerComponent(): JComponent = this.a.component
 
 		override fun getContentResponse(content: DockableContent<*>, point: RelativePoint): ContentResponse =
 			if (this.factory(content) != null) ContentResponse.ACCEPT_MOVE else ContentResponse.DENY
-
-		override fun getContainerComponent(): JComponent = this.a.component
 
 		override fun add(content: DockableContent<*>, dropTarget: RelativePoint) {
 			val figure = this.factory(content)!!.createFigure(content)
@@ -194,13 +186,10 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		private var dragSession: DragSession? = null
 
 		override fun dragOutStarted(mouseEvent: MouseEvent, info: TabInfo) {
-			val tabInfo = info.previousSelection
 			info.isHidden = true
-			if (tabInfo != null) {
-				this@JuliaSciToolWindow.tabs.select(tabInfo, true)
-			}
-
 			this.dragSession = this.getDockManager().createDragSession(mouseEvent, this.a.createDockableContent())
+			val tabInfo = info.previousSelection ?: return
+			this@JuliaSciToolWindow.tabs.select(tabInfo, true)
 		}
 
 		private fun getDockManager(): DockManager = DockManager.getInstance(this@JuliaSciToolWindow.project)
@@ -217,10 +206,7 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 
 		override fun dragOutCancelled(source: TabInfo) {
 			source.isHidden = false
-			if (this.dragSession != null) {
-				this.dragSession!!.cancel()
-			}
-
+			this.dragSession?.cancel()
 			this.dragSession = null
 		}
 	}
@@ -263,16 +249,11 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 
 	private class MyTabLabel constructor(tabs: JBTabsImpl, info: TabInfo) : TabLabel(tabs, info) {
 		init {
-			val jComponent = this.labelComponent
-			if (jComponent is SimpleColoredComponent) {
-				jComponent.isIconOnTheRight = true
-			}
-
+			val jComponent = this.labelComponent as? SimpleColoredComponent
+			jComponent?.isIconOnTheRight = true
 		}
 
-		override fun getPreferredSize(): Dimension {
-			return Dimension(JBUI.scale(100), JBUI.scale(80))
-		}
+		override fun getPreferredSize(): Dimension = Dimension(JBUI.scale(100), JBUI.scale(80))
 	}
 
 	private class MyTabs constructor(project: Project) : JBEditorTabs(project, ActionManager.getInstance(), IdeFocusManager.findInstance(), project) {
@@ -288,9 +269,8 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 	companion object {
 		private val logger = Logger.getInstance(JuliaSciToolWindow::class.java)
 		@JvmStatic
-		fun getInstance(project: Project): JuliaSciToolWindow {
-			return ServiceManager.getService(project, JuliaSciToolWindow::class.java) as JuliaSciToolWindow
-		}
+		fun getInstance(project: Project): JuliaSciToolWindow =
+			ServiceManager.getService(project, JuliaSciToolWindow::class.java) as JuliaSciToolWindow
 	}
 }
 
@@ -298,8 +278,8 @@ class ImageFigure @JvmOverloads constructor(imageVirtualFile: ImageVirtualFile, 
 	private val tabInfo: TabInfo
 
 	private fun a(file: ImageVirtualFile, project: Project): TabInfo {
-		val var2 = ImageFigure.MyPlotPanel(file, project)
-		val var3 = TabInfo(var2)
+		val plotPanel = ImageFigure.MyPlotPanel(file, project)
+		val var3 = TabInfo(plotPanel)
 		var3.tabColor = UIUtil.getPanelBackground()
 		val var4 = file.image
 		val var5 = FigureUtil.fit(var4!!, 64, 48)
@@ -392,7 +372,7 @@ class ImageVirtualFile : BinaryLightVirtualFile, Disposable {
 }
 
 /**
- * decompile from [com.jetbrains.scientific.figures.FigureUtil]
+ * decompile from PyCharm Professional [com.jetbrains.scientific.figures.FigureUtil]
  */
 object FigureUtil {
 	@JvmStatic
@@ -520,7 +500,6 @@ class JuliaDebugValue(name: String,
 											var type: String = "",
 											var value: String = "",
 											var container: Boolean = false,
-											var arrayDepth: Int = 0,
 											var parent: JuliaDebugValue? = null) : XNamedValue(name) {
 
 	override fun computePresentation(node: XValueNode, place: XValuePlace) {
@@ -535,7 +514,7 @@ class JuliaDebugValue(name: String,
 				else -> JuliaIcons.JULIA_VARIABLE_ICON
 			}
 		// if type is not empty, presentation is `{$type}`, otherwise it won't show bracket pairs.
-		val typePresentation = if (type.isEmpty() || type == "ArrayItem") null else type
+		val typePresentation = if (type.isEmpty() || type == ARRAY_ITEM_TYPE) null else type
 		node.setPresentation(icon, typePresentation, valuePresentation, container)
 	}
 
@@ -561,12 +540,10 @@ class JuliaDebugValue(name: String,
 					arrays(it, childrenList, name)
 				}
 			}
-			type == "ArrayItem" -> {
+			type == ARRAY_ITEM_TYPE -> {
 				json.parse(value).asJsonArray.forEachIndexed { index, it ->
-					val name = if (it.isJsonArray &&
-						it.asJsonArray.all(JsonElement::isJsonArray) &&
-						it.asJsonArray.first().asJsonArray.any { !it.isJsonArray }) "[Row ${index + 1}]"
-					else "[${index + 1}]"
+					// Do we need to add `Row` for High dimensional arrays?
+					val name = "[${index + 1}]"
 					arrays(it, childrenList, name)
 				}
 			}
@@ -578,11 +555,12 @@ class JuliaDebugValue(name: String,
 		childrenList.add(
 			JuliaDebugValue(
 				name = name,
+				type = ARRAY_ITEM_TYPE,
 				value = it.toString(),
-				type = "ArrayItem",
 				container = it.isJsonArray,
 				parent = this@JuliaDebugValue))
 	}
 }
 
 private val json = JsonParser()
+const val ARRAY_ITEM_TYPE = "ArrayItem"
