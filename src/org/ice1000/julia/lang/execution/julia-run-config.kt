@@ -1,5 +1,8 @@
+@file:Suppress("DEPRECATION")
+
 package org.ice1000.julia.lang.execution
 
+import com.intellij.execution.ExecutionResult
 import com.intellij.execution.Executor
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.actions.RunConfigurationProducer
@@ -10,16 +13,19 @@ import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.util.Ref
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.PsiElement
+import com.intellij.xdebugger.XDebugProcess
+import com.intellij.xdebugger.XDebugSession
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
 import org.jdom.Element
+import org.jetbrains.debugger.DebuggableRunConfiguration
+import java.net.InetSocketAddress
 
 class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
-	LocatableConfigurationBase<JuliaCommandLineState>(project, factory, JuliaBundle.message("julia.name")) {
+	LocatableConfigurationBase<JuliaCommandLineState>(project, factory, JuliaBundle.message("julia.name")), DebuggableRunConfiguration {
 	var workingDir = ""
 	var targetFile = ""
 	var additionalOptions = ""
@@ -44,10 +50,12 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 			field = if (value > 3) 3 else if (value < 0) 0 else value
 		}
 
+	override fun createDebugProcess(socketAddress: InetSocketAddress, session: XDebugSession, executionResult: ExecutionResult?, environment: ExecutionEnvironment): XDebugProcess =
+		JuliaDebugProcess(socketAddress,session,executionResult,environment)
 	override fun getConfigurationEditor() = JuliaRunConfigurationEditorImpl(this, project)
 	override fun getState(executor: Executor, env: ExecutionEnvironment) = JuliaCommandLineState(this, env)
 	override fun writeExternal(element: Element) {
-		super.writeExternal(element)
+		super<LocatableConfigurationBase>.writeExternal(element)
 		JDOMExternalizer.write(element, "workingDir", workingDir)
 		JDOMExternalizer.write(element, "targetFile", targetFile)
 		JDOMExternalizer.write(element, "additionalOptions", additionalOptions)
@@ -72,7 +80,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 	}
 
 	override fun readExternal(element: Element) {
-		super.readExternal(element)
+		super<LocatableConfigurationBase>.readExternal(element)
 		PathMacroManager.getInstance(project).expandPaths(element)
 		JDOMExternalizer.readString(element, "workingDir")?.let { workingDir = it }
 		JDOMExternalizer.readString(element, "targetFile")?.let { targetFile = it }

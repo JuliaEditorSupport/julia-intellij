@@ -1,31 +1,27 @@
 package org.ice1000.julia.lang.execution
 
-import com.intellij.execution.DefaultExecutionResult
-import com.intellij.execution.ExecutionBundle
-import com.intellij.execution.ExecutionResult
-import com.intellij.execution.Executor
-import com.intellij.execution.configurations.GeneralCommandLine
-import com.intellij.execution.configurations.RunProfileState
-import com.intellij.execution.configurations.SearchScopeProvider
+import com.intellij.execution.*
+import com.intellij.execution.configurations.*
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.process.*
-import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.runners.ProgramRunner
+import com.intellij.execution.runners.*
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.util.Key
+import com.pty4j.PtyProcessBuilder
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.action.withJuliaSciMode
-import org.ice1000.julia.lang.forceRun
 import org.ice1000.julia.lang.module.compareVersion
 import org.ice1000.julia.lang.module.juliaSettings
-import org.ice1000.julia.lang.toYesNo
+import org.jetbrains.concurrency.*
 
 class JuliaCommandLineState(
 	private val configuration: JuliaRunConfiguration,
-	val env: ExecutionEnvironment) : RunProfileState {
+	val env: ExecutionEnvironment) : RunProfileState, DebuggableRunProfileState {
 	private val consoleBuilder = TextConsoleBuilderFactory
 		.getInstance()
 		.createBuilder(env.project,
@@ -79,6 +75,69 @@ class JuliaCommandLineState(
 		console.attachToProcess(handler)
 		handler.startNotify()
 		return DefaultExecutionResult(console, handler, PauseOutputAction(console, handler))
+	}
+
+	private fun buildParams(): MutableList<String> {
+		val params = mutableListOf<String>()
+		with(configuration) {
+			val settings = project.juliaSettings.settings
+			params += juliaExecutable
+			params += "--check-bounds=${checkBoundsOption.toYesNo()}"
+			params += "--history-file=${historyOption.toYesNo()}"
+			params += "--inline=${inlineOption.toYesNo()}"
+			params += "--color=${colorOption.toYesNo()}"
+			params += "--math-mode=${if (unsafeFloatOption) "fast" else "ieee"}"
+			params += "--handle-signals=${handleSignalOption.toYesNo()}"
+			params += "--startup-file=${startupFileOption.toYesNo()}"
+			// julia#9384, a bug of 0.4.x
+			forceRun {
+				if (compareVersion(settings.version, "0.5.0") >= 0)
+					params += "--optimize=$optimizationLevel"
+			}
+			params += "--compile=$jitCompiler"
+			params += "--depwarn=$deprecationWarning"
+			params += "--code-coverage=$codeCoverage"
+			params += "--track-allocation=$trackAllocation"
+			if (launchReplOption) params += "-i"
+			if (systemImageOption) {
+				params += "--sysimage"
+				params += systemImage
+			}
+			params += additionalOptions.split(' ', '\n').filter(String::isNotBlank)
+			params += targetFile
+			params += programArgs.split(' ', '\n').filter(String::isNotBlank)
+		}
+		return params
+	}
+
+	override fun execute(debugPort: Int): Promise<ExecutionResult> {
+		val emm = AsyncPromise<ExecutionResult>()
+		val params = buildParams()
+		val cmdLine = GeneralCommandLine(params).withJuliaSciMode(env.project)
+		val project = env.project
+		cmdLine.environment[JULIA_INTELLIJ_PLOT_PORT] = project.getUserData(JULIA_SCI_PORT_KEY)
+		cmdLine.environment[JULIA_INTELLIJ_DATA_PORT] = project.getUserData(JULIA_DATA_PORT_KEY)
+		val process = PtyProcessBuilder(params.toTypedArray())
+			.setDirectory(configuration.workingDir)
+			.setEnvironment(cmdLine.environment)
+			.start()
+		val handler = ColoredProcessHandler(process,null,Charsets.UTF_8)
+		ProcessTerminatedListener.attach(handler)
+		val console = consoleBuilder.console
+		handler.addProcessListener(object:ProcessListener{
+			override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {}
+			override fun processTerminated(event: ProcessEvent) {
+				handler.destroyProcess()
+			}
+			override fun processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean) {
+			}
+			override fun startNotified(event: ProcessEvent) {
+			}
+		})
+		console.attachToProcess(handler)
+		handler.startNotify()
+		emm.setResult(DefaultExecutionResult(console, handler, PauseOutputAction(console, handler)))
+		return emm
 	}
 
 	private class PauseOutputAction(private val console: ConsoleView, private val handler: ProcessHandler) :
