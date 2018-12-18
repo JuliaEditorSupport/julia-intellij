@@ -36,7 +36,7 @@
 		<moduleConfigurationEditorProvider implementation="org.ice1000.julia.lang.module.JuliaModuleConfigEditor"/>
 		<directoryProjectGenerator implementation="org.ice1000.julia.lang.module.JuliaProjectGenerator"/>
 		<iconProvider implementation="org.ice1000.julia.lang.editing.JuliaIconProvider"/>
-		<errorHandler implementation="de.halirutan.mathematica.errorreporting.julia.GitHubErrorReporter"/>
+		<errorHandler implementation="org.ice1000.julia.lang.error.GitHubErrorReporter"/>
 		<breadcrumbsInfoProvider implementation="org.ice1000.julia.lang.editing.JuliaBreadCrumbsProvider"/>
 		<sdkType implementation="org.ice1000.julia.lang.module.JuliaSdkType"/>
 		<library.presentationProvider implementation="org.ice1000.julia.lang.module.JuliaSdkLibraryPresentationProvider"/>

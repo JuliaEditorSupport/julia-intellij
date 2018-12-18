@@ -19,7 +19,7 @@
  * THE SOFTWARE.
  */
 
-package de.halirutan.mathematica.errorreporting.julia
+package org.ice1000.julia.lang.error
 
 import com.intellij.CommonBundle
 import com.intellij.diagnostic.*
@@ -56,7 +56,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 private object AnonymousFeedback {
-	private const val tokenFile = "de/halirutan/mathematica/errorreporting-julia/token.bin"
+	private const val tokenFile = "org/ice1000/julia/lang/error-report/token.bin"
 	private const val gitRepoUser = "ice1000"
 	private const val gitRepo = "julia-intellij"
 	private const val issueLabel = "pending"
@@ -103,7 +103,7 @@ private object AnonymousFeedback {
 	private fun findFirstDuplicate(uniqueTitle: String, service: IssueService, repo: RepositoryId): Issue? {
 		val searchParameters = HashMap<String, String>(2)
 		searchParameters[IssueService.FILTER_STATE] = IssueService.STATE_OPEN
-		return service.pageIssues(repo, searchParameters).flatMap { it }.firstOrNull { it.title == uniqueTitle }
+		return service.pageIssues(repo, searchParameters).flatten().firstOrNull { it.title == uniqueTitle }
 	}
 
 	private fun createNewGibHubIssue(details: MutableMap<String, String>) = Issue().apply {
@@ -242,7 +242,7 @@ class GitHubErrorBean(
  * Messages and strings used by the error reporter
  */
 private object ErrorReportBundle {
-	@NonNls private const val BUNDLE = "de.halirutan.mathematica.errorreporting-julia.report-bundle"
+	@NonNls private const val BUNDLE = "org.ice1000.julia.lang.error-report.report-bundle"
 	private val bundle: ResourceBundle by lazy { ResourceBundle.getBundle(BUNDLE) }
 
 	@JvmStatic

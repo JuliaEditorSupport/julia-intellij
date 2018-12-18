@@ -6,17 +6,23 @@ import org.ice1000.julia.lang.JuliaTokenType
 
 class JuliaStringManipulator : AbstractElementManipulator<JuliaString>() {
 	override fun handleContentChange(psi: JuliaString, range: TextRange, new: String): JuliaString {
-		val after = JuliaTokenType.fromText(new, psi.project) as? JuliaString ?: return psi
+		val oldText = psi.text
+		val newText = "${oldText.substring(0, range.startOffset)}$new${oldText.substring(range.endOffset)}"
+		val after = JuliaTokenType.fromText(newText, psi.project) as? JuliaString ?: return psi
 		psi.replace(after)
 		return after
 	}
 
-	override fun getRangeInElement(element: JuliaString) = TextRange(1, element.textLength - 1)
+	override fun getRangeInElement(element: JuliaString) = element.firstChild.textLength.let {
+		TextRange(it, element.textLength - it)
+	}
 }
 
 class JuliaRegexManipulator : AbstractElementManipulator<JuliaRegex>() {
 	override fun handleContentChange(psi: JuliaRegex, range: TextRange, new: String): JuliaRegex {
-		val after = JuliaTokenType.fromText(new, psi.project) as? JuliaRegex ?: return psi
+		val oldText = psi.text
+		val newText = "${oldText.substring(0, range.startOffset)}$new${oldText.substring(range.endOffset)}"
+		val after = JuliaTokenType.fromText(newText, psi.project) as? JuliaRegex ?: return psi
 		psi.replace(after)
 		return after
 	}

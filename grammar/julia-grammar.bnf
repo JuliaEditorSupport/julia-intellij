@@ -90,8 +90,8 @@ private privateOpAsSymbol::=
 comment ::= blockComment | LINE_COMMENT
 private blockComment ::= BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | blockComment)* BLOCK_COMMENT_END
 
-private singleQuoteString ::= QUOTE_START stringTemplateElement* QUOTE_END
-private tripleQuoteString ::= TRIPLE_QUOTE_START stringTemplateElement* TRIPLE_QUOTE_END
+private singleQuoteString ::= QUOTE_START stringTemplateElement* QUOTE_END { pin=1 }
+private tripleQuoteString ::= TRIPLE_QUOTE_START stringTemplateElement* TRIPLE_QUOTE_END { pin=1 }
 command ::= CMD_QUOTE_START stringTemplateElement* CMD_QUOTE_END { extends=expr }
 string ::= singleQuoteString | tripleQuoteString {
 	extends=expr
