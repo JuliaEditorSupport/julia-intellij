@@ -1,5 +1,6 @@
 package org.ice1000.julia.lang
 
+import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.util.Key
 import org.ice1000.julia.lang.action.JuliaReplRunner
 import org.ice1000.julia.lang.module.JuliaDebugValue
@@ -66,5 +67,6 @@ val JULIA_DATA_PORT_KEY = Key<String>("JuliaSciDataPortKey")
 val JULIA_SCI_DATA_KEY = Key<JuliaVariablesView>("JuliaVariablesViewKey")
 val JULIA_VAR_LIST_KEY = Key<List<JuliaDebugValue>>("JuliaVarListKey")
 val JULIA_REPL_RUNNER_KEY = Key<JuliaReplRunner>("JuliaReplRunnerKey")
+val JULIA_DEBUG_PROCESS_HANDLER_KEY = Key<OSProcessHandler>("JuliaDebugProcessHandlerKey")
 
 const val REPL_ERROR_TAG = "Julia REPL ERROR"

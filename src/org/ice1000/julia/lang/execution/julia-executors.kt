@@ -11,13 +11,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.util.Key
-import com.pty4j.PtyProcessBuilder
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.action.withJuliaSciMode
 import org.ice1000.julia.lang.module.compareVersion
 import org.ice1000.julia.lang.module.juliaSettings
-import org.jetbrains.concurrency.*
+import org.jetbrains.concurrency.AsyncPromise
+import org.jetbrains.concurrency.Promise
 
 class JuliaCommandLineState(
 	private val configuration: JuliaRunConfiguration,
@@ -113,29 +112,17 @@ class JuliaCommandLineState(
 	override fun execute(debugPort: Int): Promise<ExecutionResult> {
 		val emm = AsyncPromise<ExecutionResult>()
 		val params = buildParams()
-		val cmdLine = GeneralCommandLine(params).withJuliaSciMode(env.project)
-		val project = env.project
-		cmdLine.environment[JULIA_INTELLIJ_PLOT_PORT] = project.getUserData(JULIA_SCI_PORT_KEY)
-		cmdLine.environment[JULIA_INTELLIJ_DATA_PORT] = project.getUserData(JULIA_DATA_PORT_KEY)
-		val process = PtyProcessBuilder(params.toTypedArray())
-			.setDirectory(configuration.workingDir)
-			.setEnvironment(cmdLine.environment)
-			.start()
-		val handler = ColoredProcessHandler(process,null,Charsets.UTF_8)
+		val handler = GeneralCommandLine(params)
+			.withCharset(Charsets.UTF_8)
+			.withWorkDirectory(configuration.workingDir)
+			.withJuliaSciMode(env.project)
+			.let(::ColoredProcessHandler)
+		// needs a PTY Handler to Run ASTInterpreter2
 		ProcessTerminatedListener.attach(handler)
 		val console = consoleBuilder.console
-		handler.addProcessListener(object:ProcessListener{
-			override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {}
-			override fun processTerminated(event: ProcessEvent) {
-				handler.destroyProcess()
-			}
-			override fun processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean) {
-			}
-			override fun startNotified(event: ProcessEvent) {
-			}
-		})
 		console.attachToProcess(handler)
 		handler.startNotify()
+		env.project.putUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY, handler)
 		emm.setResult(DefaultExecutionResult(console, handler, PauseOutputAction(console, handler)))
 		return emm
 	}

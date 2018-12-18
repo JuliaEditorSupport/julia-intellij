@@ -51,7 +51,8 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		}
 
 	override fun createDebugProcess(socketAddress: InetSocketAddress, session: XDebugSession, executionResult: ExecutionResult?, environment: ExecutionEnvironment): XDebugProcess =
-		JuliaDebugProcess(socketAddress,session,executionResult,environment)
+		JuliaDebugProcess(socketAddress, session, executionResult, environment)
+
 	override fun getConfigurationEditor() = JuliaRunConfigurationEditorImpl(this, project)
 	override fun getState(executor: Executor, env: ExecutionEnvironment) = JuliaCommandLineState(this, env)
 	override fun writeExternal(element: Element) {
