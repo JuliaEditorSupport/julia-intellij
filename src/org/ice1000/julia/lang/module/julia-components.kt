@@ -73,8 +73,9 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 			val list = root.map {
 				val (name, bytes, value, typeSummary) = it.asJsonArray.map { ele -> ele.asJsonPrimitive.asString }
 				val container = when {
-					typeSummary.contains("EnvDict") -> true
-					typeSummary.contains("Array{") -> true
+					typeSummary.contains("EnvDict") ||
+						typeSummary.contains("Dict{") ||
+						typeSummary.contains("Array{") -> true
 					else -> false
 				}
 				JuliaDebugValue(name, typeSummary, value, container)

@@ -1,8 +1,8 @@
 #=
 IntelliJ.jl:
-- Julia version: 1.0.2
+- Julia version: 1.0.2 (Adapted to 0.6)
 - Author: zxj5470
-- Date: 2018-11-23
+- Date: 2018-12-18
 =#
 println("Initialize julia-intellij REPL environment...")
 
@@ -21,13 +21,14 @@ else
 end
 
 if "PyCall" in keys(Pkg.installed())
-    using PyCall
-    @eval @pyimport matplotlib
     function use_intellij_backend()
-      pushfirst!(PyVector(pyimport("sys")["path"]),@__DIR__)
-      matplotlib.use("module://backend_interagg")
-      println("set plot outputs redirect to intellij.")
-  end
+        println("using PyCall and @pyimport matplotlib, please wait about 6 ~ 10 seconds...")
+        @eval using PyCall
+        @eval @pyimport matplotlib
+        @eval pushfirst!(PyVector(pyimport("sys")["path"]),@__DIR__)
+        @eval matplotlib.use("module://backend_interagg")
+        println("set plot outputs redirect to intellij.")
+    end
 
   println("""execute `use_intellij_backend()` to enable JuliaSciView Plots,
   supported backends if you installed:
@@ -35,7 +36,7 @@ if "PyCall" in keys(Pkg.installed())
 
 else
    println("""PyCall package not found, to use JuliaSciView Plots,
-	 please add PyCall and install matplotlib.pyplot package.""")
+	 please add PyCall first and install matplotlib.pyplot package.""")
 end
 
 _intellij_filter_names(v) = string(v) ∉ ["Base", "Core", "Main", "InteractiveUtils", "matplotlib"]
@@ -72,7 +73,8 @@ function _intellij_varinfo(m=Main)
         String[name, size, info, type_info]
         end
         for v in sort!(names(m)) if isdefined(m, v) &&
-            !occursin(pattern, string(v)) && _intellij_filter_names(v)]
+            !occursin(pattern, string(v)) && _intellij_filter_names(v)
+    ]
 
     _intellij_send_to(rows)
     return
