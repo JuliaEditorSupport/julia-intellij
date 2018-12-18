@@ -177,18 +177,16 @@ $JULIA_DOC_SURROUNDING
 			element.isModuleName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
 			element.isMacroName -> definition(element, holder, JuliaHighlighter.MACRO_NAME)
-			element.isFunctionName -> {
-				definition(element, holder, JuliaHighlighter.FUNCTION_NAME)
-			}
+			element.isFunctionName -> definition(element, holder, JuliaHighlighter.FUNCTION_NAME)
 			element.isAbstractTypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
 			element.isPrimitiveTypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
-			element.isTypeName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.TYPE_NAME
 			element.isTypeParameterName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_PARAMETER_NAME
-			element.isConstName  -> holder.createInfoAnnotation(element, null)
+			element.isKeywordParameterName -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.KEYWORD_ARGUMENT
+			element.isConstName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.CONST_NAME
 			element.isQuoteCall -> holder.createInfoAnnotation(element.parent
 				.let { if (it is JuliaQuoteOp) it else it.parent }, null)
@@ -322,9 +320,12 @@ $JULIA_DOC_SURROUNDING
 private val JuliaSymbol.isQuoteCall: Boolean
 	get() = (parent is JuliaQuoteOp) || (parent is JuliaExprWrapper && parent.parent is JuliaQuoteIndexing)
 
-
 private val JuliaSymbol.isConstName: Boolean
 	get() = (parent is JuliaSymbolLhs) || isConstNameRef
 
 private val JuliaSymbol.isConstNameRef: Boolean
-	get() =		(reference?.resolve() as? JuliaSymbol)?.isConstName.orFalse()
+	get() = (reference?.resolve() as? JuliaSymbol)?.isConstName.orFalse()
+
+private val JuliaSymbol.isKeywordParameterName: Boolean
+	get() = (parent is JuliaAssignOp) && this === parent.firstChild && (parent.parent is JuliaArguments)
+		|| (parent is JuliaSpliceOp) && this === parent.firstChild && (parent.parent is JuliaArguments)
