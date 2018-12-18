@@ -19,7 +19,7 @@
  * THE SOFTWARE.
  */
 
-package de.halirutan.mathematica.errorreporting.julia
+package org.ice1000.julia.lang.error
 
 import com.intellij.CommonBundle
 import com.intellij.diagnostic.*
