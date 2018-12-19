@@ -68,5 +68,6 @@ val JULIA_SCI_DATA_KEY = Key<JuliaVariablesView>("JuliaVariablesViewKey")
 val JULIA_VAR_LIST_KEY = Key<List<JuliaDebugValue>>("JuliaVarListKey")
 val JULIA_REPL_RUNNER_KEY = Key<JuliaReplRunner>("JuliaReplRunnerKey")
 val JULIA_DEBUG_PROCESS_HANDLER_KEY = Key<OSProcessHandler>("JuliaDebugProcessHandlerKey")
+val JULIA_DEBUG_FILE_KEY = Key<String>("JuliaDebugFileKey")
 
 const val REPL_ERROR_TAG = "Julia REPL ERROR"
