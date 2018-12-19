@@ -3,7 +3,6 @@ package org.ice1000.julia.lang.execution
 import com.google.common.collect.Maps
 import com.intellij.execution.*
 import com.intellij.execution.configurations.*
-import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.process.*
@@ -20,14 +19,9 @@ import org.ice1000.julia.lang.module.compareVersion
 import org.ice1000.julia.lang.module.juliaSettings
 import org.jetbrains.concurrency.AsyncPromise
 import org.jetbrains.concurrency.Promise
-import org.bouncycastle.asn1.x500.style.RFC4519Style.title
-import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.util.Key
 import org.ice1000.julia.lang.action.errorNotification
-import java.awt.BorderLayout
-import javax.swing.JPanel
-import javax.swing.text.StyleConstants.getComponent
 
 
 class JuliaCommandLineState(
@@ -90,7 +84,11 @@ class JuliaCommandLineState(
 
 	// debug
 	override fun execute(debugPort: Int): Promise<ExecutionResult> {
-		val emm = AsyncPromise<ExecutionResult>()
+		val promise = AsyncPromise<ExecutionResult>()
+		if (env.executor is DefaultRunExecutor) {
+			promise.setResult(execute(env.executor, env.runner))
+			return promise
+		}
 		val params = arrayOf(configuration.juliaExecutable)
 		val envs = Maps.newHashMap(System.getenv()).apply {
 			if (!SystemInfo.isWindows) {
@@ -98,7 +96,7 @@ class JuliaCommandLineState(
 				// put intellij port environment
 			}
 		}
-		errorNotification(env.project, "Debugger has not been finished! You can use ASTInterpreter2#master to debug temporarily.")
+		errorNotification(env.project, "Debugger has not been finished yet! Use DebuggerFramework and ASTInterpreter2 master to debug temporarily.")
 		val process = PtyProcess.exec(params, envs, configuration.workingDir)
 		val handler = object : ColoredProcessHandler(process, null, Charsets.UTF_8) {
 			override fun coloredTextAvailable(text: String, attributes: Key<*>) {
@@ -113,8 +111,8 @@ class JuliaCommandLineState(
 		handler.startNotify()
 		env.putUserData(JULIA_DEBUG_FILE_KEY, configuration.targetFile)
 		env.project.putUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY, handler)
-		emm.setResult(DefaultExecutionResult(console, handler, PauseOutputAction(console, handler)))
-		return emm
+		promise.setResult(DefaultExecutionResult(console, handler, PauseOutputAction(console, handler)))
+		return promise
 	}
 
 	private class PauseOutputAction(private val console: ConsoleView, private val handler: ProcessHandler) :

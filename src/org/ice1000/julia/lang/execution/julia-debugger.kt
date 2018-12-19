@@ -6,28 +6,20 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.*
-import com.intellij.icons.AllIcons
 import com.intellij.javascript.debugger.execution.DebuggableProgramRunner
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.terminal.TerminalExecutionConsole
-import com.intellij.ui.ColoredTextContainer
-import com.intellij.ui.SimpleTextAttributes
-import com.intellij.util.Processor
-import com.intellij.util.containers.ContainerUtil
 import com.intellij.xdebugger.*
-import com.intellij.xdebugger.breakpoints.XLineBreakpoint
 import com.intellij.xdebugger.breakpoints.XLineBreakpointTypeBase
 import com.intellij.xdebugger.evaluation.*
 import com.intellij.xdebugger.frame.*
 import com.intellij.xdebugger.impl.frame.XStackFrameContainerEx
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.action.errorNotification
 import org.jetbrains.debugger.DebuggableRunConfiguration
 import java.net.InetSocketAddress
 import java.nio.file.Paths
@@ -75,26 +67,28 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 	}
 
 	override fun startForceStepInto(context: XSuspendContext?) {
-		env.project.getUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY)?.sendCommandToProcess("s")
+		processHandler.sendCommandToProcess("s")
 		pause()
 	}
 
 	override fun startStepOver(context: XSuspendContext?) {
-		env.project.getUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY)?.sendCommandToProcess("nc")
+		processHandler.sendCommandToProcess("nc")
 		pause()
 	}
 
 	override fun startStepInto(context: XSuspendContext?) {
-		env.project.getUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY)?.sendCommandToProcess("sg")
+		processHandler.sendCommandToProcess("sg")
 		pause()
 	}
 
 	override fun resume(context: XSuspendContext?) {
-		env.project.getUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY)?.sendCommandToProcess("finish")
+		processHandler.sendCommandToProcess("finish")
+		pause()
 	}
 
 	override fun startStepOut(context: XSuspendContext?) {
-		env.project.getUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY)?.sendCommandToProcess("finish")
+		processHandler.sendCommandToProcess("finish")
+		pause()
 	}
 
 	override fun stop() {
