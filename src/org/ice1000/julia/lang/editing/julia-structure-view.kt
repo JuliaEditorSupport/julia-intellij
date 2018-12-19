@@ -99,7 +99,11 @@ class JuliaCustomFoldingBuilder : CustomFoldingBuilder() {
 		JuliaElseClause::class.java,
 		JuliaElseIfClause::class.java,
 		JuliaWhileExpr::class.java,
-		JuliaTypeDeclaration::class.java
+		JuliaTypeDeclaration::class.java,
+		JuliaString::class.java,
+		JuliaMacro::class.java,
+		JuliaQuoteOp::class.java,
+		JuliaLet::class.java
 	)
 
 	override fun isRegionCollapsedByDefault(node: ASTNode) = false
