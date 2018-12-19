@@ -1,22 +1,34 @@
 package org.ice1000.julia.lang.execution
 
+import com.google.common.collect.Maps
 import com.intellij.execution.*
 import com.intellij.execution.configurations.*
+import com.intellij.execution.executors.DefaultDebugExecutor
+import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.process.*
 import com.intellij.execution.runners.*
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.util.SystemInfo
+import com.pty4j.PtyProcess
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.action.withJuliaSciMode
 import org.ice1000.julia.lang.module.compareVersion
 import org.ice1000.julia.lang.module.juliaSettings
 import org.jetbrains.concurrency.AsyncPromise
 import org.jetbrains.concurrency.Promise
+import org.bouncycastle.asn1.x500.style.RFC4519Style.title
+import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.util.Key
+import org.ice1000.julia.lang.action.errorNotification
+import java.awt.BorderLayout
+import javax.swing.JPanel
+import javax.swing.text.StyleConstants.getComponent
+
 
 class JuliaCommandLineState(
 	private val configuration: JuliaRunConfiguration,
@@ -76,52 +88,30 @@ class JuliaCommandLineState(
 		return DefaultExecutionResult(console, handler, PauseOutputAction(console, handler))
 	}
 
-	private fun buildParams(): MutableList<String> {
-		val params = mutableListOf<String>()
-		with(configuration) {
-			val settings = project.juliaSettings.settings
-			params += juliaExecutable
-			params += "--check-bounds=${checkBoundsOption.toYesNo()}"
-			params += "--history-file=${historyOption.toYesNo()}"
-			params += "--inline=${inlineOption.toYesNo()}"
-			params += "--color=${colorOption.toYesNo()}"
-			params += "--math-mode=${if (unsafeFloatOption) "fast" else "ieee"}"
-			params += "--handle-signals=${handleSignalOption.toYesNo()}"
-			params += "--startup-file=${startupFileOption.toYesNo()}"
-			// julia#9384, a bug of 0.4.x
-			forceRun {
-				if (compareVersion(settings.version, "0.5.0") >= 0)
-					params += "--optimize=$optimizationLevel"
-			}
-			params += "--compile=$jitCompiler"
-			params += "--depwarn=$deprecationWarning"
-			params += "--code-coverage=$codeCoverage"
-			params += "--track-allocation=$trackAllocation"
-			if (launchReplOption) params += "-i"
-			if (systemImageOption) {
-				params += "--sysimage"
-				params += systemImage
-			}
-			params += additionalOptions.split(' ', '\n').filter(String::isNotBlank)
-			params += targetFile
-			params += programArgs.split(' ', '\n').filter(String::isNotBlank)
-		}
-		return params
-	}
-
+	// debug
 	override fun execute(debugPort: Int): Promise<ExecutionResult> {
 		val emm = AsyncPromise<ExecutionResult>()
-		val params = buildParams()
-		val handler = GeneralCommandLine(params)
-			.withCharset(Charsets.UTF_8)
-			.withWorkDirectory(configuration.workingDir)
-			.withJuliaSciMode(env.project)
-			.let(::ColoredProcessHandler)
-		// needs a PTY Handler to Run ASTInterpreter2
+		val params = arrayOf(configuration.juliaExecutable)
+		val envs = Maps.newHashMap(System.getenv()).apply {
+			if (!SystemInfo.isWindows) {
+				put("TERM", "xterm-256color")
+				// put intellij port environment
+			}
+		}
+		errorNotification(env.project, "Debugger has not been finished! You can use ASTInterpreter2#master to debug temporarily.")
+		val process = PtyProcess.exec(params, envs, configuration.workingDir)
+		val handler = object : ColoredProcessHandler(process, null, Charsets.UTF_8) {
+			override fun coloredTextAvailable(text: String, attributes: Key<*>) {
+				// very important!
+				super.coloredTextAvailable(text.replace("\n", "\r\n"), attributes)
+			}
+		}
 		ProcessTerminatedListener.attach(handler)
-		val console = consoleBuilder.console
+		val console = JuliaDebugTerminalExecutionConsole(env, handler)
+		console.setAutoNewLineMode(true)
 		console.attachToProcess(handler)
 		handler.startNotify()
+		env.putUserData(JULIA_DEBUG_FILE_KEY, configuration.targetFile)
 		env.project.putUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY, handler)
 		emm.setResult(DefaultExecutionResult(console, handler, PauseOutputAction(console, handler)))
 		return emm

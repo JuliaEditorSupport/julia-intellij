@@ -5,21 +5,32 @@ import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.ui.ExecutionConsole
+import com.intellij.execution.ui.*
+import com.intellij.icons.AllIcons
 import com.intellij.javascript.debugger.execution.DebuggableProgramRunner
-import com.intellij.notification.*
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.terminal.TerminalExecutionConsole
+import com.intellij.ui.ColoredTextContainer
+import com.intellij.ui.SimpleTextAttributes
+import com.intellij.util.Processor
+import com.intellij.util.containers.ContainerUtil
 import com.intellij.xdebugger.*
+import com.intellij.xdebugger.breakpoints.XLineBreakpoint
 import com.intellij.xdebugger.breakpoints.XLineBreakpointTypeBase
-import com.intellij.xdebugger.evaluation.EvaluationMode
-import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider
+import com.intellij.xdebugger.evaluation.*
+import com.intellij.xdebugger.frame.*
+import com.intellij.xdebugger.impl.frame.XStackFrameContainerEx
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.action.errorNotification
 import org.jetbrains.debugger.DebuggableRunConfiguration
 import java.net.InetSocketAddress
+import java.nio.file.Paths
 
 /**
  * this feature is a Joke!
@@ -32,13 +43,27 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 												val env: ExecutionEnvironment) : XDebugProcess(session) {
 	override fun getEditorsProvider(): XDebuggerEditorsProvider = JuliaEditorsProvider()
 
+	val debugStack = JuliaDebugExecutionStack(emptyList())
+	val breakpoints
+		get() = XDebuggerManager.getInstance(session.project)
+			.breakpointManager
+			.getBreakpoints(JuliaLineBreakpointType::class.java)
+
+	override fun sessionInitialized() {
+		super.sessionInitialized()
+		val filePath = env.getUserData(JULIA_DEBUG_FILE_KEY).let { Paths.get(it) } ?: return
+		processHandler.sendCommandToProcess("""include("$filePath")""")
+		pause()
+	}
+
+	private fun pause() {
+		ApplicationManager.getApplication().invokeLater {
+			session.breakpointReached(breakpoints.first(), null, JuliaDebugSuspendContext(debugStack))
+		}
+	}
+
 	override fun startPausing() {
-		Notifications.Bus.notify(
-			Notification("org.ice1000.julia.lang.execution.debug.invalid.notification",
-				JuliaBundle.message("julia.debug.title"),
-				"Pausing unsupported!",
-				NotificationType.ERROR))
-		super.startPausing()
+		pause()
 	}
 
 	// outputs
@@ -48,10 +73,38 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 	override fun doGetProcessHandler(): ProcessHandler? {
 		return env.project.getUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY)
 	}
+
+	override fun startForceStepInto(context: XSuspendContext?) {
+		env.project.getUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY)?.sendCommandToProcess("s")
+		pause()
+	}
+
+	override fun startStepOver(context: XSuspendContext?) {
+		env.project.getUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY)?.sendCommandToProcess("nc")
+		pause()
+	}
+
+	override fun startStepInto(context: XSuspendContext?) {
+		env.project.getUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY)?.sendCommandToProcess("sg")
+		pause()
+	}
+
+	override fun resume(context: XSuspendContext?) {
+		env.project.getUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY)?.sendCommandToProcess("finish")
+	}
+
+	override fun startStepOut(context: XSuspendContext?) {
+		env.project.getUserData(JULIA_DEBUG_PROCESS_HANDLER_KEY)?.sendCommandToProcess("finish")
+	}
+
 	override fun stop() {
 		session.stop()
 		processHandler.destroyProcess()
 	}
+}
+
+class JuliaDebugSuspendContext(private val active: JuliaDebugExecutionStack) : XSuspendContext() {
+	override fun getActiveExecutionStack() = active
 }
 
 class JuliaDebugRunner : DebuggableProgramRunner() {
@@ -79,5 +132,37 @@ class JuliaLineBreakpointType : XLineBreakpointTypeBase(ID, NAME, JuliaEditorsPr
 	companion object {
 		private const val ID = "julia-line"
 		private const val NAME = "julia-line-breakpoint"
+	}
+}
+
+fun ProcessHandler.sendCommandToProcess(command: String) {
+	val processInputOS = processInput ?: return
+	val bytes = ("$command\n").toByteArray()
+	processInputOS.write(bytes)
+	processInputOS.flush()
+}
+
+class JuliaDebugTerminalExecutionConsole(env: ExecutionEnvironment, handler: ProcessHandler) : TerminalExecutionConsole(env.project, handler)
+
+class JuliaDebugExecutionStack(private val stackFrameList: List<XStackFrame>) : XExecutionStack("JuliaStack") {
+	private var _topFrame: XStackFrame? = null
+
+	val stackFrames: Array<XStackFrame>
+		get() = stackFrameList.toTypedArray()
+
+	init {
+		if (stackFrameList.isNotEmpty())
+			_topFrame = stackFrameList[0]
+	}
+
+	override fun getTopFrame() = _topFrame
+
+	fun setTopFrame(frame: XStackFrame) {
+		_topFrame = frame
+	}
+
+	override fun computeStackFrames(i: Int, xStackFrameContainer: XExecutionStack.XStackFrameContainer) {
+		val stackFrameContainerEx = xStackFrameContainer as XStackFrameContainerEx
+		stackFrameContainerEx.addStackFrames(stackFrameList, topFrame, true)
 	}
 }
