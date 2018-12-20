@@ -61,24 +61,24 @@ class JuliaStyleSettingsProvider : LanguageCodeStyleSettingsProvider() {
 
 	override fun getCodeSample(settingsType: SettingsType) =
 		when (settingsType) {
-			SettingsType.INDENT_SETTINGS ->
-				"""
-					type a
-						s::Int
-						function a(a,b)
-					 	new(1)
-					 end
-					end
-				""".trimIndent()
-			SettingsType.BLANK_LINES_SETTINGS ->
-				"""
-					Blank=1
+			SettingsType.INDENT_SETTINGS -> """struct A
+    v::Int
+    function A(a, b)
+        new(a + b)
+    end
+end"""
+			SettingsType.BLANK_LINES_SETTINGS -> """function a()
+
+end
 
 
-					Blank=2
+Blank=1
 
 
-				""".trimIndent()
+Blank=2
+
+
+"""
 			else ->
 				"""#=
 		      BLOCK COMMENT
@@ -119,5 +119,4 @@ class JuliaStyleSettingsProvider : LanguageCodeStyleSettingsProvider() {
 		   end
 		   end""".trimIndent()
 		}
-
 }
