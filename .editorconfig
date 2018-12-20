@@ -14,3 +14,7 @@ indent_style=space
 
 [appveyor.yml]
 indent_style=space
+
+[*.jl]
+indent_size = 4
+indent_style = space

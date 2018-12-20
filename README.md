@@ -56,7 +56,9 @@ To learn about the test summery, visit https://circleci.com/build-insights/gh/ic
 ### VarInfo (Workspace)
 ![](https://user-images.githubusercontent.com/20026798/50019689-91f7f780-000e-11e9-85ce-ab602cab6505.png)
 
-### Debugger based on DebuggerFramework and ASTInterpreter2 (nightly-build)
+### Debugger (nightly-build)
+> based on DebuggerFramework and ASTInterpreter2
+
 ![](https://user-images.githubusercontent.com/20026798/50192112-f0550b00-036b-11e9-901f-9f689a74948c.gif)
 
 ## Compatible IDEs
