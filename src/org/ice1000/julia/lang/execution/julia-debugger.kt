@@ -1,18 +1,22 @@
 package org.ice1000.julia.lang.execution
 
+import com.google.gson.Gson
 import com.intellij.execution.ExecutionResult
 import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.ui.*
+import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.javascript.debugger.execution.DebuggableProgramRunner
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.project.guessProjectDir
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.*
 import com.intellij.terminal.TerminalExecutionConsole
 import com.intellij.xdebugger.*
 import com.intellij.xdebugger.breakpoints.XLineBreakpointTypeBase
@@ -20,12 +24,15 @@ import com.intellij.xdebugger.evaluation.*
 import com.intellij.xdebugger.frame.*
 import com.intellij.xdebugger.impl.frame.XStackFrameContainerEx
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.module.*
 import org.jetbrains.debugger.DebuggableRunConfiguration
-import java.net.InetSocketAddress
+import org.jetbrains.debugger.SourceInfo
+import java.io.*
+import java.net.*
 import java.nio.file.Paths
 
 /**
- * this feature is a Joke!
+ * this feature is not a Joke!
  * @author zxj5470
  * @date 2018/09/22
  */
@@ -34,7 +41,7 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 												val executionResult: ExecutionResult?,
 												val env: ExecutionEnvironment) : XDebugProcess(session) {
 	override fun getEditorsProvider(): XDebuggerEditorsProvider = JuliaEditorsProvider()
-
+	lateinit var socket: ServerSocket
 	val debugStack = JuliaDebugExecutionStack(emptyList())
 	val breakpoints
 		get() = XDebuggerManager.getInstance(session.project)
@@ -44,7 +51,61 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 	override fun sessionInitialized() {
 		super.sessionInitialized()
 		val filePath = env.getUserData(JULIA_DEBUG_FILE_KEY).let { Paths.get(it) } ?: return
-		processHandler.sendCommandToProcess("""include("$filePath")""")
+
+		ApplicationManager.getApplication().executeOnPooledThread {
+			try {
+				socket = ServerSocket(0)
+				val port = socket.localPort
+				WriteCommandAction.runWriteCommandAction(env.project) {
+					val debuggerFile = FileUtil.createTempFile("IntelliJDebugger", ".jl")
+					debuggerFile.writeBytes(javaClass.getResource("IntelliJDebugger.jl").readBytes())
+					processHandler.sendCommandToProcess("""include("${debuggerFile.absolutePath}")""")
+					processHandler.sendCommandToProcess("""_intellij_debug_port=$port;""")
+					processHandler.sendCommandToProcess("""include("$filePath")""")
+				}
+
+				while (true) {
+					val connectionSocket = socket.accept()
+					val inFromClient = BufferedReader(InputStreamReader(connectionSocket.getInputStream()))
+					val text = inFromClient.readLine()
+					try {
+						val debugData = Gson().fromJson(text, JuliaDebugFrameValue::class.java)
+						val sdkHomeCache = env.project.juliaSettings.settings.basePath
+						val projectDir = env.project.guessProjectDir() ?: break
+						val fileSystem = projectDir.fileSystem
+
+						val topFrame = debugData.next
+						val currentFile = fileSystem.findFileByPath(topFrame.file)
+							?: fileSystem.findFileByPath(Paths.get(sdkHomeCache).resolve(topFrame.file).toString())
+						val currentPosition = currentFile?.let { SourceInfo(it, topFrame.line - 1) }
+
+						val list = debugData.frames.map { stack ->
+							val virtualFile = fileSystem.findFileByPath(stack.stack.file)
+								?: fileSystem.findFileByPath(Paths.get(sdkHomeCache).resolve(stack.stack.file).toString())
+							val source = virtualFile?.let { SourceInfo(virtualFile, line = stack.stack.line - 1, functionName = stack.stack.function) }
+							stack.vars.map {
+								JuliaDebugValue(it.name, it.type, it.value, sourceInfo = source)
+							}
+						}
+						list.first().first().sourceInfo = currentPosition
+						val top = JuliaVariableStackFrame(env.project, list.first())
+						val stackFrame = JuliaDebugExecutionStack(list.map { JuliaVariableStackFrame(env.project, it) })
+						session.setCurrentStackFrame(stackFrame, top)
+						session.updateExecutionPosition()
+					} catch (e: Exception) {
+						e.printStackTrace()
+					}
+				}
+			} catch (e: SocketException) {
+				e.printStackTrace()
+				session.stop()
+				socket.close()
+			} catch (e: Exception) {
+				e.printStackTrace()
+				session.stop()
+				socket.close()
+			}
+		}
 		pause()
 	}
 
@@ -68,32 +129,30 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 
 	override fun startForceStepInto(context: XSuspendContext?) {
 		processHandler.sendCommandToProcess("s")
-		pause()
 	}
 
 	override fun startStepOver(context: XSuspendContext?) {
 		processHandler.sendCommandToProcess("nc")
-		pause()
 	}
 
 	override fun startStepInto(context: XSuspendContext?) {
 		processHandler.sendCommandToProcess("sg")
-		pause()
 	}
 
 	override fun resume(context: XSuspendContext?) {
 		processHandler.sendCommandToProcess("finish")
-		pause()
 	}
 
 	override fun startStepOut(context: XSuspendContext?) {
 		processHandler.sendCommandToProcess("finish")
-		pause()
 	}
 
 	override fun stop() {
+		processHandler.sendCommandToProcess("q")
 		session.stop()
 		processHandler.destroyProcess()
+		if (::socket.isInitialized)
+			socket.close()
 	}
 }
 
@@ -139,24 +198,38 @@ fun ProcessHandler.sendCommandToProcess(command: String) {
 class JuliaDebugTerminalExecutionConsole(env: ExecutionEnvironment, handler: ProcessHandler) : TerminalExecutionConsole(env.project, handler)
 
 class JuliaDebugExecutionStack(private val stackFrameList: List<XStackFrame>) : XExecutionStack("JuliaStack") {
-	private var _topFrame: XStackFrame? = null
-
-	val stackFrames: Array<XStackFrame>
-		get() = stackFrameList.toTypedArray()
+	private var topFrame: XStackFrame? = null
 
 	init {
 		if (stackFrameList.isNotEmpty())
-			_topFrame = stackFrameList[0]
+			topFrame = stackFrameList[0]
 	}
 
-	override fun getTopFrame() = _topFrame
-
-	fun setTopFrame(frame: XStackFrame) {
-		_topFrame = frame
-	}
+	override fun getTopFrame() = topFrame
 
 	override fun computeStackFrames(i: Int, xStackFrameContainer: XExecutionStack.XStackFrameContainer) {
 		val stackFrameContainerEx = xStackFrameContainer as XStackFrameContainerEx
 		stackFrameContainerEx.addStackFrames(stackFrameList, topFrame, true)
 	}
 }
+
+data class JuliaDebugFrameValue(var next: Next,
+																var frames: List<Frames>) {
+	data class Next(var line: Int,
+									var file: String,
+									var expr: String)
+
+	data class Frames(var stack: Stack,
+										var vars: List<Vars>) {
+		data class Stack(var line: Int,
+										 var function: String,
+										 var file: String)
+
+		data class Vars(var name: String,
+										var value: String,
+										var type: String)
+	}
+}
+
+@Suppress("Unsupported")
+val DEBUG_COMMANDS = ["s", "n", "nc", "sg", "finish", "q"]

@@ -22,8 +22,7 @@ import com.intellij.openapi.project.*
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.*
 import com.intellij.testFramework.BinaryLightVirtualFile
-import com.intellij.ui.JBColor
-import com.intellij.ui.SimpleColoredComponent
+import com.intellij.ui.*
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.awt.RelativeRectangle
 import com.intellij.ui.content.ContentFactory.SERVICE
@@ -34,11 +33,13 @@ import com.intellij.ui.tabs.TabInfo.DragOutDelegate
 import com.intellij.ui.tabs.impl.*
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
+import com.intellij.xdebugger.XSourcePosition
 import com.intellij.xdebugger.frame.*
 import com.intellij.xdebugger.impl.frame.XStandaloneVariablesView
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.execution.JuliaEditorsProvider
+import org.jetbrains.debugger.SourceInfo
 import java.awt.*
 import java.awt.event.MouseEvent
 import java.awt.image.*
@@ -451,12 +452,38 @@ class JuliaConsoleView(project: Project, title: String) : LanguageConsoleImpl(pr
 
 class JuliaVariablesView(project: Project, stackFrame: JuliaVariableStackFrame) : XStandaloneVariablesView(project, JuliaEditorsProvider(), stackFrame)
 
-class JuliaVariableStackFrame(val project: Project) : XStackFrame() {
+class JuliaVariableStackFrame(val project: Project, val list: List<JuliaDebugValue>? = null) : XStackFrame() {
 	override fun computeChildren(node: XCompositeNode) {
-		val list = project.getUserData(JULIA_VAR_LIST_KEY) ?: return super.computeChildren(node)
-		val childrenList = XValueChildrenList()
-		list.forEach(childrenList::add)
-		node.addChildren(childrenList, true)
+		if (this.list != null) {
+			val childrenList = XValueChildrenList()
+			list.forEach(childrenList::add)
+			node.addChildren(childrenList, true)
+		} else {
+			val list = project.getUserData(JULIA_VAR_LIST_KEY) ?: return super.computeChildren(node)
+			val childrenList = XValueChildrenList()
+			list.forEach(childrenList::add)
+			node.addChildren(childrenList, true)
+		}
+	}
+
+	override fun getSourcePosition(): XSourcePosition? {
+		list ?: return super.getSourcePosition()
+		return list.first().sourceInfo
+	}
+
+	override fun customizePresentation(component: ColoredTextContainer) {
+		val position = sourcePosition
+		if (position == null)
+			super.customizePresentation(component)
+		else {
+			component.append(position.file.name, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+			component.append(":" + position.line + 1, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+			val icon = if (position.file.path.contains("julia/share"))
+				JuliaIcons.JULIA_BIG_ICON
+			else
+				JuliaIcons.JULIA_ICON
+			component.setIcon(icon)
+		}
 	}
 }
 
@@ -464,7 +491,11 @@ class JuliaDebugValue(name: String,
 											var type: String = "",
 											var value: String = "",
 											var container: Boolean = false,
-											var parent: JuliaDebugValue? = null) : XNamedValue(name) {
+											var parent: JuliaDebugValue? = null,
+											var sourceInfo: SourceInfo? = null) : XNamedValue(name) {
+	override fun computeSourcePosition(navigatable: XNavigatable) {
+		navigatable.setSourcePosition(sourceInfo)
+	}
 
 	override fun computePresentation(node: XValueNode, place: XValuePlace) {
 		var valuePresentation = value

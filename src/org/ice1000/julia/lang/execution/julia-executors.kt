@@ -15,13 +15,11 @@ import com.intellij.openapi.util.SystemInfo
 import com.pty4j.PtyProcess
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.action.withJuliaSciMode
-import org.ice1000.julia.lang.module.compareVersion
-import org.ice1000.julia.lang.module.juliaSettings
 import org.jetbrains.concurrency.AsyncPromise
 import org.jetbrains.concurrency.Promise
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.util.Key
-import org.ice1000.julia.lang.action.errorNotification
+import org.ice1000.julia.lang.module.*
 
 
 class JuliaCommandLineState(
@@ -93,15 +91,16 @@ class JuliaCommandLineState(
 		val envs = Maps.newHashMap(System.getenv()).apply {
 			if (!SystemInfo.isWindows) {
 				put("TERM", "xterm-256color")
-				// put intellij port environment
 			}
 		}
-		errorNotification(env.project, "Debugger has not been finished yet! Use DebuggerFramework and ASTInterpreter2 master to debug temporarily.")
 		val process = PtyProcess.exec(params, envs, configuration.workingDir)
 		val handler = object : ColoredProcessHandler(process, null, Charsets.UTF_8) {
 			override fun coloredTextAvailable(text: String, attributes: Key<*>) {
 				// very important!
-				super.coloredTextAvailable(text.replace("\n", "\r\n"), attributes)
+				when {
+					text == "1|debug > " -> Unit
+					else -> super.coloredTextAvailable(text.replace("\n", "\r\n"), attributes)
+				}
 			}
 		}
 		ProcessTerminatedListener.attach(handler)
