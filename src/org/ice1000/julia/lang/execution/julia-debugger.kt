@@ -129,22 +129,28 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 
 	override fun startForceStepInto(context: XSuspendContext?) {
 		processHandler.sendCommandToProcess("s")
+		pause()
 	}
 
 	override fun startStepOver(context: XSuspendContext?) {
 		processHandler.sendCommandToProcess("nc")
+		context ?: return
+		session.positionReached(context)
 	}
 
 	override fun startStepInto(context: XSuspendContext?) {
 		processHandler.sendCommandToProcess("sg")
+		pause()
 	}
 
 	override fun resume(context: XSuspendContext?) {
 		processHandler.sendCommandToProcess("finish")
+		pause()
 	}
 
 	override fun startStepOut(context: XSuspendContext?) {
 		processHandler.sendCommandToProcess("finish")
+		pause()
 	}
 
 	override fun stop() {
