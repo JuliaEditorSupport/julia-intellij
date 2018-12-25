@@ -236,6 +236,3 @@ data class JuliaDebugFrameValue(var next: Next,
 										var type: String)
 	}
 }
-
-@Suppress("Unsupported")
-val DEBUG_COMMANDS = ["s", "n", "nc", "sg", "finish", "q"]

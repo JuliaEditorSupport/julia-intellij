@@ -477,7 +477,7 @@ class JuliaVariableStackFrame(val project: Project, val list: List<JuliaDebugVal
 			super.customizePresentation(component)
 		else {
 			component.append(position.file.name, SimpleTextAttributes.REGULAR_ATTRIBUTES)
-			component.append(":" + position.line + 1, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+			component.append(":${position.line + 1}", SimpleTextAttributes.REGULAR_ATTRIBUTES)
 			val icon = if (position.file.path.contains("julia/share"))
 				JuliaIcons.JULIA_BIG_ICON
 			else

@@ -99,7 +99,7 @@ class JuliaCommandLineState(
 				// very important!
 				when {
 					text == "1|debug > " -> Unit
-					attributes.toString().length == 7 -> Unit // ignore debug input
+//					attributes.toString() == DEBUG_INPUT_INTS -> Unit
 					else -> super.coloredTextAvailable(text.replace("\n", "\r\n"), attributes)
 				}
 			}
