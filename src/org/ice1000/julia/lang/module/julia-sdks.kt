@@ -29,7 +29,7 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun getIconForAddAction() = JuliaIcons.ADD_SDK_ICON
 	override fun isValidSdkHome(sdkHome: String?) = validateJuliaSDK(sdkHome.orEmpty())
 	override fun suggestSdkName(s: String?, p1: String?) = JuliaBundle.message("julia.modules.sdk.name")
-	override fun suggestHomePath() = Paths.get(juliaPath).parent?.parent?.toString()
+	override fun suggestHomePath() = juliaGlobalSettings.knownJuliaExes.firstOrNull()?.let { Paths.get(it) }?.parent?.parent?.toString()
 	override fun getDownloadSdkUrl() = JULIA_WEBSITE
 	override fun createAdditionalDataConfigurable(md: SdkModel, m: SdkModificator): AdditionalDataConfigurable? = null
 	override fun getVersionString(sdkHome: String?) = versionOf(sdkHome.orEmpty())
