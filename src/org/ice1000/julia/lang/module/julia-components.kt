@@ -36,29 +36,32 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 				JuliaBundle.message("julia.messages.notify.nightly.content"))
 		}
 		// other IDEs cannot verify settings...
-		if (project.withJulia) {
-			if (!validateJulia(project.juliaSettings.settings) && PlatformUtils.isIntelliJ()) {
-				notify(
+		setupJulia()
+	}
+
+	fun setupJulia() {
+		if (!project.withJulia) return
+		if (!validateJulia(project.juliaSettings.settings) && PlatformUtils.isIntelliJ()) {
+			notify(
 					JuliaBundle.message("julia.messages.notify.invalid-julia.title"),
 					JuliaBundle.message("julia.messages.notify.invalid-julia.content"),
 					NotificationType.WARNING)
-			}
-			syncJuliaLibrary()
-			val useSciView = true
-			if (useSciView) {
-				plotSocket = ServerSocket(0)
-				dataSocket = ServerSocket(0)
-				project.putUserData(JULIA_SCI_PORT_KEY, plotSocket.localPort.toString())
-				project.putUserData(JULIA_DATA_PORT_KEY, dataSocket.localPort.toString())
-				ApplicationManager.getApplication().executeOnPooledThread {
-					while (this.hold) {
-						waitAndHandlePlots()
-					}
+		}
+		syncJuliaLibrary()
+		val useSciView = true
+		if (useSciView) {
+			plotSocket = ServerSocket(0)
+			dataSocket = ServerSocket(0)
+			project.putUserData(JULIA_SCI_PORT_KEY, plotSocket.localPort.toString())
+			project.putUserData(JULIA_DATA_PORT_KEY, dataSocket.localPort.toString())
+			ApplicationManager.getApplication().executeOnPooledThread {
+				while (this.hold) {
+					waitAndHandlePlots()
 				}
-				ApplicationManager.getApplication().executeOnPooledThread {
-					while (this.hold) {
-						waitAndHandleDataView()
-					}
+			}
+			ApplicationManager.getApplication().executeOnPooledThread {
+				while (this.hold) {
+					waitAndHandleDataView()
 				}
 			}
 		}

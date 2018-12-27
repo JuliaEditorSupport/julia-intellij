@@ -9,22 +9,19 @@ import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
 import com.intellij.notification.*
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.keymap.KeymapUtil
-import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.*
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.module.JuliaConsoleView
-import org.ice1000.julia.lang.module.juliaSettings
+import org.ice1000.julia.lang.module.*
 import java.awt.Font
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -153,7 +150,7 @@ class JuliaReplRunner(
 
 	override fun createConsoleView(): LanguageConsoleView {
 		val project = project
-		val consoleView = JuliaConsoleView(project,title)
+		val consoleView = JuliaConsoleView(project, title)
 		consoleView.prompt = project.juliaSettings.settings.replPrompt
 		val consoleEditor = consoleView.consoleEditor
 		setupPlaceholder(consoleEditor)
@@ -196,8 +193,16 @@ class JuliaReplRunner(
 
 fun GeneralCommandLine.withJuliaSciMode(project: Project) = this
 	.apply {
-		environment[JULIA_INTELLIJ_PLOT_PORT] = project.getUserData(JULIA_SCI_PORT_KEY)
-		environment[JULIA_INTELLIJ_DATA_PORT] = project.getUserData(JULIA_DATA_PORT_KEY)
+		val sciPort = project.getUserData(JULIA_SCI_PORT_KEY)
+		val dataPort = project.getUserData(JULIA_DATA_PORT_KEY)
+		if (sciPort == null || dataPort == null) {
+			errorNotification(project, "SciView unavailable, Run again to enable it.")
+			project.getComponent(JuliaProjectComponent::class.java).setupJulia()
+			return@apply
+		} else {
+			environment[JULIA_INTELLIJ_PLOT_PORT] = sciPort
+			environment[JULIA_INTELLIJ_DATA_PORT] = dataPort
+		}
 	}
 
 class CommandExecutor(private val runner: JuliaReplRunner) {
