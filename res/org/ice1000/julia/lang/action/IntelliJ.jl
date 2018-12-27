@@ -9,15 +9,22 @@ println("Initialize julia-intellij REPL environment...")
 if VERSION >= v"0.7.0"
     using Pkg
     using Sockets
-else
+    if "JSON" in keys(Pkg.installed())
+        using JSON
+    else
+        Pkg.add("JSON")
+    using JSON
+    end
+else # 0.6
     using Compat
+    if !(joinpath(Pkg.dir(),"JSON") |> isdir)
+        Pkg.add("JSON")
+    end
+    using JSON
 end
 
-if "JSON" in keys(Pkg.installed())
-    using JSON
-else
-    Pkg.add("JSON")
-    using JSON
+if "JULIA_INTELLIJ_DATA_PORT" ∉ keys(ENV)
+    println("DataView is unavailable!")
 end
 
 if "PyCall" in keys(Pkg.installed())
