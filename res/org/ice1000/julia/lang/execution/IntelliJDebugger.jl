@@ -6,16 +6,28 @@ IntelliJDebugger:
 =#
 if VERSION >= v"0.7.0"
     using Pkg
+    pkgs = Pkg.installed()
+    if "JSON" in keys(pkgs)
+    else
+        Pkg.add("JSON")
+    end
     using Sockets
-else
-    using Compat
-end
+    if "DebuggerFramework" in pkgs && pkgs["DebuggerFramework"] >= v"0.1.2+"
+        println("DebuggerFramework version $(pkgs["DebuggerFramework"]) correct.")
+    else
+        println("please add latest version DebuggerFramework by `add DebuggerFramework#master` within pkg REPL.")
+    end
 
-if "JSON" in keys(Pkg.installed())
-    using JSON
-else
-    Pkg.add("JSON")
-    using JSON
+    if "ASTInterpreter2" in pkgs && pkgs["ASTInterpreter2"] >= v"0.1.1+"
+        println("DebuggerFramework version $(pkgs["ASTInterpreter2"]) correct.")
+    else
+        println("please add latest version ASTInterpreter2 by `add ASTInterpreter2#master` within pkg REPL.")
+    end
+else # 0.6
+    using Compat
+    if !(joinpath(Pkg.dir(),"JSON") |> isdir)
+        Pkg.add("JSON")
+    end
 end
 
 using DebuggerFramework
