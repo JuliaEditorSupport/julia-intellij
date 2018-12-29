@@ -18,7 +18,7 @@ open class JuliaCompletionProvider(private val list: List<LookupElement>) : Comp
 }
 
 class JuliaBasicCompletionContributor : CompletionContributor() {
-	private companion object CompletionHolder {
+	companion object CompletionHolder {
 		/**
 		 * the lowest priority of completion, just make it less than [KEYWORDS_PRIORITY].
 		 */
@@ -96,6 +96,10 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			this::class.java.getResource("builtin-v1.0.txt")
 				.openStream()
 				.bufferedReader().lines().flatMap { it.split(" ").stream() }.toList()
+		}
+
+		val builtins by lazy {
+			(builtinV06 + builtinV10).distinct()
 		}
 
 		// FIXME temp workaround. Should be replaced by reference resolving.

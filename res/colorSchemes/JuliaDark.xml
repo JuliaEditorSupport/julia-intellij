@@ -20,6 +20,11 @@
 			<option name="FOREGROUND" value="8AB8EC"/>
 		</value>
 	</option>
+	<option name="JULIA_ABSTRACT_TYPE_NAME">
+		<value>
+			<option name="FOREGROUND" value="69CAB3"/>
+		</value>
+	</option>
 	<option name="JULIA_QUOTE_NAME">
 		<value>
 			<option name="FOREGROUND" value="8A980C"/>
@@ -28,6 +33,11 @@
 	<option name="JULIA_KEYWORD_ARGUMENT">
 		<value>
 			<option name="FOREGROUND" value="AA4926"/>
+		</value>
+	</option>
+	<option name="JULIA_BUILTIN_NAME">
+		<value>
+			<option name="FOREGROUND" value="8888C3"/>
 		</value>
 	</option>
 </list>

@@ -16,6 +16,9 @@ import org.intellij.lang.annotations.Language
 object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val KEYWORD = TextAttributesKey.createTextAttributesKey("JULIA_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD)
 	@JvmField val KEYWORD_ARGUMENT = TextAttributesKey.createTextAttributesKey("JULIA_KEYWORD_ARGUMENT", DefaultLanguageHighlighterColors.PARAMETER)
+	@JvmField val FUNCTION_PARAMETER = TextAttributesKey.createTextAttributesKey("JULIA_FUNCTION_PARAMETER", DefaultLanguageHighlighterColors.PARAMETER)
+	@JvmField val FUNCTION_CALL = TextAttributesKey.createTextAttributesKey("JULIA_FUNCTION_CALL", DefaultLanguageHighlighterColors.FUNCTION_CALL)
+	@JvmField val BUILTIN_NAME = TextAttributesKey.createTextAttributesKey("JULIA_BUILTIN_NAME", DefaultLanguageHighlighterColors.FUNCTION_CALL)
 	@JvmField val SYMBOL = TextAttributesKey.createTextAttributesKey("JULIA_SYMBOL", HighlighterColors.TEXT)
 	@JvmField val NUMBER = TextAttributesKey.createTextAttributesKey("JULIA_NUMBER", DefaultLanguageHighlighterColors.NUMBER)
 	@JvmField val FLOAT_LIT = TextAttributesKey.createTextAttributesKey("JULIA_FLOAT_LIT", DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL)
@@ -178,6 +181,9 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.comment"), JuliaHighlighter.COMMENT),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.block-comment"), JuliaHighlighter.BLOCK_COMMENT),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.keyword"), JuliaHighlighter.KEYWORD),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.function-name-builtin"), JuliaHighlighter.BUILTIN_NAME),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.function-call"), JuliaHighlighter.FUNCTION_CALL),
+			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.function-parameter"), JuliaHighlighter.FUNCTION_PARAMETER),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.keyword-argument"), JuliaHighlighter.KEYWORD_ARGUMENT),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.operator"), JuliaHighlighter.OPERATOR),
 			AttributesDescriptor(JuliaBundle.message("julia.highlighter.settings.operator-assign"), JuliaHighlighter.ASSIGNMENT_OPERATOR),
@@ -215,7 +221,11 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			"charEscape" to JuliaHighlighter.CHAR_ESCAPE,
 			"charEscapeInvalid" to JuliaHighlighter.CHAR_ESCAPE_INVALID,
 			"abstractTypeName" to JuliaHighlighter.ABSTRACT_TYPE_NAME,
-			"primitiveTypeName" to JuliaHighlighter.PRIMITIVE_TYPE_NAME
+			"primitiveTypeName" to JuliaHighlighter.PRIMITIVE_TYPE_NAME,
+			"functionParameter" to JuliaHighlighter.FUNCTION_PARAMETER,
+			"builtinFunction" to JuliaHighlighter.BUILTIN_NAME,
+			"functionCall" to JuliaHighlighter.FUNCTION_CALL,
+			"binaryOperators" to JuliaHighlighter.OPERATOR
 		)
 	}
 
@@ -228,7 +238,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 	@Language("Julia")
 	override fun getDemoText() =
 		"""#=
-  BLOCK COMMENT
+    BLOCK COMMENT
 =#
 module <moduleName>ice1000</moduleName>
 using Printf
@@ -236,37 +246,37 @@ using Printf
 NaN32 # (Float32)
 (1 + 3.2)::<primitiveTypeName>Float64</primitiveTypeName>
 raw"$$$!", v"1.0", b"\xff"
-IntOrString = Union{<typeParameterName>Int</typeParameterName>, <typeParameterName>AbstractString</typeParameterName>}
+IntOrString = <typeName>Union</typeName>{<typeParameterName>Int</typeParameterName>, <typeParameterName>AbstractString</typeParameterName>}
 div(5, 2)
 @printf "%d is less than %f" 4.5 5.3
-ismatch(r"1 \+ 2 = 3", "1 + 2 = $(1 + 2)")
+<builtinFunction>ismatch</builtinFunction>(r"1 \+ 2 = 3", "1 + 2 = $(1 + 2)")
 try
-	 println("Hello\nWorld '<stringEscapeInvalid>\x</stringEscapeInvalid>jb'" *
-		 '<charEscapeInvalid>\x</charEscapeInvalid>' * '<charEscape>\a<charEscape>')
-	 some_other_var # => Unresolved reference: some_other_var
+    <builtinFunction>println</builtinFunction>("Hello\nWorld '<stringEscapeInvalid>\x</stringEscapeInvalid>jb'" *
+    '<charEscapeInvalid>\x</charEscapeInvalid>' * '<charEscape>\a<charEscape>')
+    some_other_var # => Unresolved reference: some_other_var
 catch exception
-	 println(exception)
+    <builtinFunction>println</builtinFunction>(exception)
 end
 
 abstract type <abstractTypeName>Cat</abstractTypeName> <: <abstractTypeName>Animals</abstractTypeName> end
 primitive type <primitiveTypeName>Bool</primitiveTypeName> <: Integer 8 end
 type <typeName>Dog</typeName> <: <abstractTypeName>Animals</abstractTypeName>
-	 age::Int64
+    age::<primitiveTypeName>Int64</primitiveTypeName>
 end
 macro <macroName>assert</macroName>(condition)
-	 return :( ${JULIA_STRING_DOLLAR}ex ? nothing : throw(AssertionError($JULIA_STRING_DOLLAR{'$'}(string(ex)))) )
+    return :( ${JULIA_STRING_DOLLAR}ex ? nothing : throw(AssertionError($JULIA_STRING_DOLLAR{'$'}(string(ex)))) )
 end
-function <functionName>fib</functionName>(n)
-	 return n ≤ 2 ? 1 : fib(n - 1) + fib(n - 2)
+function <functionName>fib</functionName>(<functionParameter>n</functionParameter>)
+    return n ≤ 2 ? 1 : <functionCall>fib</functionCall>(n - 1) + <functionCall>fib</functionCall>(n - 2)
 end
-for (k, v) in Dict("dog"=>"mammal", "cat"=>"mammal", "mouse"=>"mammal")
-	 println("${JULIA_STRING_DOLLAR}k is a ${JULIA_STRING_DOLLAR}v")
+for (k, v) in Dict("dog" <binaryOperators>=></binaryOperators> "mammal", "cat" <binaryOperators>=></binaryOperators> "mammal")
+    <builtinFunction>println</builtinFunction>("${JULIA_STRING_DOLLAR}k is a ${JULIA_STRING_DOLLAR}v")
 end
 call_with_keyword(1,2;<keywordParameterName>a</keywordParameterName> = 2, <keywordParameterName>b</keywordParameterName> = 3)
 x = 0
 while x ≤ 4
-	 println(x)
-	 x += 1
+    <builtinFunction>println</builtinFunction>(x)
+    x += 1
 end
 end"""
 }

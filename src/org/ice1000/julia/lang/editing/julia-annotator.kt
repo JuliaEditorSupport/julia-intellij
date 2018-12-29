@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.util.SystemProperties
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor.CompletionHolder.builtins
 import org.ice1000.julia.lang.module.JuliaSettings
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.*
@@ -184,6 +185,8 @@ $JULIA_DOC_SURROUNDING
 				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
 			element.isTypeParameterName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_PARAMETER_NAME
+			element.isFunctionParameter -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.FUNCTION_PARAMETER
 			element.isKeywordParameterName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.KEYWORD_ARGUMENT
 			element.isConstName -> holder.createInfoAnnotation(element, null)
@@ -191,6 +194,8 @@ $JULIA_DOC_SURROUNDING
 			element.isQuoteCall -> holder.createInfoAnnotation(element.parent
 				.let { if (it is JuliaQuoteOp) it else it.parent }, null)
 				.textAttributes = JuliaHighlighter.QUOTE_NAME
+			element.isTypeName -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.TYPE_NAME
 			element.text in arrayOf("in", "where", "isa", "end") -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
 		}
@@ -202,6 +207,8 @@ $JULIA_DOC_SURROUNDING
 		if (name is JuliaSymbol) {
 			when (name.text) {
 				"new" -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.KEYWORD
+				in builtins -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.BUILTIN_NAME
+				else -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.FUNCTION_CALL
 			}
 		}
 	}

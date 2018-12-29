@@ -223,7 +223,7 @@ class CommandExecutor(private val runner: JuliaReplRunner) {
 		val processHandler = runner.processHandler
 		val processInputOS = processHandler.processInput
 			?: return errorNotification(runner.project, "Error")
-		val intellijCode = """_intellij_varinfo()"""
+		val intellijCode = """isdefined(Main,:_intellij_varinfo)&&_intellij_varinfo();"""
 		val bytes = ("$command\n$intellijCode\n").toByteArray()
 		if (showCommand) {
 			val historyDocumentRange = runner.historyUpdater.printNewCommandInHistory(command)
