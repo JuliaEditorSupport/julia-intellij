@@ -41,6 +41,11 @@ For detailed use instruction, visit: https://julia-intellij.readthedocs.io/en/la
 To download a nightly build (buggy!), visit https://ci.appveyor.com/project/ice1000/julia-intellij/build/artifacts/ .<br/>
 To learn about the test summery, visit https://circleci.com/build-insights/gh/ice1000/julia-intellij/master .
 
+### Video Instructions
+
++ English video instruction on YouTube: https://www.youtube.com/watch?v=gjRhvPBiasU
++ Chinese video instruction on Bilibili: https://www.bilibili.com/video/av20155813
+
 ## Screenshots
 
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17880.png)
