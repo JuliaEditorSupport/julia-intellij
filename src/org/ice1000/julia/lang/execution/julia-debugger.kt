@@ -144,7 +144,8 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 	}
 
 	override fun resume(context: XSuspendContext?) {
-		processHandler.sendCommandToProcess("finish")
+		val filePath = env.getUserData(JULIA_DEBUG_FILE_KEY).let { Paths.get(it) } ?: return
+		processHandler.sendCommandToProcess("""include("$filePath")""")
 		pause()
 	}
 

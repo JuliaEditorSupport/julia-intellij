@@ -7,6 +7,8 @@ import com.intellij.execution.Executor
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.*
+import com.intellij.execution.executors.DefaultDebugExecutor
+import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.components.PathMacroManager
@@ -17,6 +19,7 @@ import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.PsiElement
 import com.intellij.xdebugger.XDebugProcess
 import com.intellij.xdebugger.XDebugSession
+import com.intellij.xdebugger.XDebuggerManager
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
@@ -52,6 +55,18 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 
 	override fun createDebugProcess(socketAddress: InetSocketAddress, session: XDebugSession, executionResult: ExecutionResult?, environment: ExecutionEnvironment): XDebugProcess =
 		JuliaDebugProcess(socketAddress, session, executionResult, environment)
+
+	override fun canRun(executorId: String, profile: RunProfile): Boolean {
+		if (executorId == DefaultRunExecutor.EXECUTOR_ID) {
+			return true
+		} else if (executorId == DefaultDebugExecutor.EXECUTOR_ID) {
+			val breakpoints = XDebuggerManager.getInstance(project)
+				.breakpointManager
+				.getBreakpoints(JuliaLineBreakpointType::class.java)
+			return breakpoints.isNotEmpty()
+		}
+		return super.canRun(executorId, profile)
+	}
 
 	override fun getConfigurationEditor() = JuliaRunConfigurationEditorImpl(this, project)
 	override fun getState(executor: Executor, env: ExecutionEnvironment) = JuliaCommandLineState(this, env)
