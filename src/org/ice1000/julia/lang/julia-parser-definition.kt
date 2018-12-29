@@ -4,6 +4,7 @@ import com.intellij.lang.*
 import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
+import com.intellij.psi.stubs.PsiFileStub
 import com.intellij.psi.tree.*
 import org.ice1000.julia.lang.psi.JuliaTypes
 
@@ -44,6 +45,7 @@ class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.
 
 		@JvmField val BINARY_OPERATORS = TokenSet.create(
 			JuliaTypes.SPECIAL_ARROW_SYM,
+			JuliaTypes.ARROW_SYM,
 			JuliaTypes.DOT_SYM,
 			JuliaTypes.DOUBLE_COLON,
 			JuliaTypes.COLON_SYM,

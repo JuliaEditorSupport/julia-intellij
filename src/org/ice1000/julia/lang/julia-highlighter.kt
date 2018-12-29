@@ -68,6 +68,11 @@ object JuliaHighlighter : SyntaxHighlighter {
 	@JvmField val SEMICOLON_KEY = arrayOf(SEMICOLON)
 	@JvmField val BLOCK_COMMENT_KEY = arrayOf(BLOCK_COMMENT)
 
+	/**
+	 * These TokenLists must be defined in this file!
+	 * Otherwise token will not highlight correctly.
+	 * Even you use `listOf(*aList)` or `tokens.types.asList()` when `aList` is in `julia-parser-definition.kt` File.
+	 */
 	private val UNICODE_OPERATOR_LIST = listOf(
 		JuliaTypes.MISC_ARROW_SYM,
 		JuliaTypes.MISC_COMPARISON_SYM,
@@ -75,10 +80,66 @@ object JuliaHighlighter : SyntaxHighlighter {
 		JuliaTypes.MISC_MULTIPLY_SYM,
 		JuliaTypes.MISC_EXPONENT_SYM
 	)
-
-	private val ASSIGNMENT_OPERATOR_LIST = JuliaTokenType.ASSIGN_OPERATORS.types.asList()
-	private val OPERATOR_LIST = JuliaTokenType.BINARY_OPERATORS.types.asList()
-
+	private val ASSIGNMENT_OPERATOR_LIST = listOf(
+		JuliaTypes.EQ_SYM,
+		JuliaTypes.INVERSE_DIV_ASSIGN_SYM,
+		JuliaTypes.USHR_ASSIGN_SYM,
+		JuliaTypes.SHL_ASSIGN_SYM,
+		JuliaTypes.SHR_ASSIGN_SYM,
+		JuliaTypes.PLUS_ASSIGN_SYM,
+		JuliaTypes.MINUS_ASSIGN_SYM,
+		JuliaTypes.MULTIPLY_ASSIGN_SYM,
+		JuliaTypes.DIVIDE_ASSIGN_SYM,
+		JuliaTypes.FRACTION_ASSIGN_SYM,
+		JuliaTypes.FACTORISE_ASSIGN_SYM,
+		JuliaTypes.EXPONENT_ASSIGN_SYM,
+		JuliaTypes.BITWISE_AND_ASSIGN_SYM,
+		JuliaTypes.BITWISE_OR_ASSIGN_SYM,
+		JuliaTypes.BITWISE_XOR_ASSIGN_SYM,
+		JuliaTypes.REMAINDER_ASSIGN_SYM
+	)
+	private val OPERATOR_LIST = listOf(
+		JuliaTypes.SPECIAL_ARROW_SYM,
+		JuliaTypes.ARROW_SYM,
+		JuliaTypes.DOT_SYM,
+		JuliaTypes.DOUBLE_COLON,
+		JuliaTypes.COLON_SYM,
+		JuliaTypes.TRANSPOSE_SYM,
+		JuliaTypes.FACTORISE_SYM,
+		JuliaTypes.EXPONENT_SYM,
+		JuliaTypes.EQUALS_SYM,
+		JuliaTypes.NOT_SYM,
+		JuliaTypes.BITWISE_NOT_SYM,
+		JuliaTypes.BITWISE_AND_SYM,
+		JuliaTypes.BITWISE_OR_SYM,
+		JuliaTypes.BITWISE_XOR_SYM,
+		JuliaTypes.REMAINDER_SYM,
+		JuliaTypes.SUBTYPE_SYM,
+		JuliaTypes.INTERPOLATE_SYM,
+		JuliaTypes.INVERSE_DIV_SYM,
+		JuliaTypes.IS_SYM,
+		JuliaTypes.ISNT_SYM,
+		JuliaTypes.LAMBDA_ABSTRACTION,
+		JuliaTypes.SLICE_SYM,
+		JuliaTypes.LESS_THAN_SYM,
+		JuliaTypes.LESS_THAN_OR_EQUAL_SYM,
+		JuliaTypes.USHR_SYM,
+		JuliaTypes.AND_SYM,
+		JuliaTypes.OR_SYM,
+		JuliaTypes.INVERSE_PIPE_SYM,
+		JuliaTypes.PIPE_SYM,
+		JuliaTypes.SHL_SYM,
+		JuliaTypes.SHR_SYM,
+		JuliaTypes.PLUS_SYM,
+		JuliaTypes.MINUS_SYM,
+		JuliaTypes.MULTIPLY_SYM,
+		JuliaTypes.UNEQUAL_SYM,
+		JuliaTypes.IN_SYM,
+		JuliaTypes.FRACTION_SYM,
+		JuliaTypes.GREATER_THAN_SYM,
+		JuliaTypes.GREATER_THAN_OR_EQUAL_SYM,
+		JuliaTypes.DIVIDE_SYM
+	)
 	private val KEYWORDS_LIST = listOf(
 		JuliaTypes.END_KEYWORD,
 		JuliaTypes.MODULE_KEYWORD,
