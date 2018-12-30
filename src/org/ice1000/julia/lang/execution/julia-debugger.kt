@@ -15,9 +15,10 @@ import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.*
-import com.intellij.terminal.TerminalExecutionConsole
+import com.intellij.terminal.*
 import com.intellij.xdebugger.*
 import com.intellij.xdebugger.breakpoints.XLineBreakpointTypeBase
 import com.intellij.xdebugger.evaluation.*
@@ -50,7 +51,7 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 
 	override fun sessionInitialized() {
 		super.sessionInitialized()
-		val filePath = env.getUserData(JULIA_DEBUG_FILE_KEY).let { Paths.get(it) } ?: return
+		val filePath = env.getUserData(JULIA_DEBUG_FILE_KEY) ?: return
 
 		ApplicationManager.getApplication().executeOnPooledThread {
 			try {
@@ -59,9 +60,9 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 				WriteCommandAction.runWriteCommandAction(env.project) {
 					val debuggerFile = FileUtil.createTempFile("IntelliJDebugger", ".jl")
 					debuggerFile.writeBytes(javaClass.getResource("IntelliJDebugger.jl").readBytes())
-					processHandler.sendCommandToProcess("""include("${debuggerFile.absolutePath}")""")
+					processHandler.includeFileToProcess(debuggerFile.absolutePath)
 					processHandler.sendCommandToProcess("""_intellij_debug_port=$port;""")
-					processHandler.sendCommandToProcess("""include("$filePath")""")
+					processHandler.includeFileToProcess(filePath)
 				}
 
 				while (true) {
@@ -110,6 +111,9 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 	}
 
 	private fun pause() {
+//		val project = env.project
+//		val con = project.getUserData(JULIA_DEBUG_CONSOLE_VIEW_KEY)
+//		con?.setCursor()
 		ApplicationManager.getApplication().invokeLater {
 			session.breakpointReached(breakpoints.first(), null, JuliaDebugSuspendContext(debugStack))
 		}
@@ -144,8 +148,8 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 	}
 
 	override fun resume(context: XSuspendContext?) {
-		val filePath = env.getUserData(JULIA_DEBUG_FILE_KEY).let { Paths.get(it) } ?: return
-		processHandler.sendCommandToProcess("""include("$filePath")""")
+		val filePath = env.getUserData(JULIA_DEBUG_FILE_KEY) ?: return
+		processHandler.includeFileToProcess(filePath)
 		pause()
 	}
 
@@ -194,6 +198,11 @@ class JuliaLineBreakpointType : XLineBreakpointTypeBase(ID, NAME, JuliaEditorsPr
 		private const val NAME = "julia-line-breakpoint"
 	}
 }
+
+fun ProcessHandler.includeFileToProcess(filePath: String) =
+	sendCommandToProcess("""include("${filePath.toUnixPath()}")""")
+
+fun String.toUnixPath() = if (SystemInfo.isWindows) this.replace('\\', '/') else this
 
 fun ProcessHandler.sendCommandToProcess(command: String) {
 	val processInputOS = processInput ?: return

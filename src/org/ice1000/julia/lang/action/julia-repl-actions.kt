@@ -21,6 +21,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.execution.*
 import org.ice1000.julia.lang.module.*
 import java.awt.Font
 import java.awt.event.KeyAdapter
@@ -61,7 +62,7 @@ class JuliaIncludeRunFileToReplAction : JuliaSendCodeToReplAction(
 			.getInstance()
 			.getDocument(virtualFile)
 			?.let(FileDocumentManager.getInstance()::saveDocument)
-		return """include("${virtualFile.path}")"""
+		return """include("${virtualFile.path.toUnixPath()}")"""
 	}
 }
 
@@ -120,7 +121,7 @@ class JuliaReplRunner(
 			val pyFile = FileUtil.createTempFile("backend_interagg", ".py")
 			jlFile.writeBytes(javaClass.getResource("IntelliJ.jl").readBytes())
 			pyFile.writeBytes(javaClass.getResource("backend_interagg.py").readBytes())
-			executor.sendCommandToProcess("""include("${jlFile.absolutePath}")""", false)
+			executor.sendCommandToProcess("""include("${jlFile.absolutePath.toUnixPath()}")""", false)
 		}
 	}
 
