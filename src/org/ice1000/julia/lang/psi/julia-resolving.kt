@@ -155,7 +155,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 						element.text,
 						function.paramsText,
 						function.returnType,
-						InsertHandler<LookupElement> { context, _: LookupElement ->
+						InsertHandler { context, _: LookupElement ->
 							val editor = context.editor
 							editor.document.insertString(editor.caretModel.offset, "()")
 							editor.caretModel.moveCaretRelatively(1, 0, false, false, true)
