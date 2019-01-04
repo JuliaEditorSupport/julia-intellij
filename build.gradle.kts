@@ -71,8 +71,8 @@ java {
 }
 
 tasks.withType<PatchPluginXmlTask> {
-	changeNotes(file("res/META-INF/change-notes.html").readText())
-	pluginDescription(file("res/META-INF/description.html").readText())
+	changeNotes(file("change-notes.html").readText())
+	pluginDescription(file("description.html").readText())
 	version(pluginComingVersion)
 	pluginId(packageName)
 }
