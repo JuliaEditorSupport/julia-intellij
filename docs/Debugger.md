@@ -1,9 +1,10 @@
+# Julia Debugger
 This is an English version documentation for our Julia Debugger in Julia IntelliJ plugin.
 Our debugger is a wrapper based on [Keno Fischer](https://github.com/Keno)'s [DebuggerFramework](https://github.com/Keno/DebuggerFramework.jl) and [ASTInterpreter2](https://github.com/Keno/ASTInterpreter2.jl). 
 
 **First of all, pay our respects to Keno!**
 
-# Overview
+## Overview
 ![gif](https://user-images.githubusercontent.com/20026798/50418049-670a7080-0864-11e9-96cf-d0ebc5b26431.gif)
 
 ## Installation & Usage (from github repositoriy)
@@ -12,19 +13,19 @@ Install IntelliJ IDEA (or other JetBrains IntelliJ platform IDEs such as PyCharm
 open `Settings (Preferences for macOS) | Plugins | Browse repositories`,
 install Julia plugin, and create a Julia project.
 
-# Setup Julia in IntelliJ or see other docs
+## Setup Julia in IntelliJ or see other docs
 
 + [English video instruction on YouTube](https://www.youtube.com/watch?v=gjRhvPBiasU)
 + [Chinese video instruction on Bilibili](https://www.bilibili.com/video/av20155813)
 
-# Dependencies
+## Dependencies
 - ASTInterpreter2#master
 - DebuggerFramework#master
 - JSON
 - Julia 0.7+
 > (the master is needed for debugger)
 
-## add packages
+### add packages
 ```julia
 (v1.0) pkg> add DebuggerFramework#master
 (v1.0) pkg> add ASTInterpreter2#master
@@ -53,12 +54,12 @@ then you'll notice that the `Debug` button at upper right corner is avalible, wh
 **Note!!!** 
 > If you use this debugger in **Windows**, the first time you run the debugger may froze your IDE about 2 minutes tested in my PC, while it'll become normal at the second time. **So we strongly recommend that you'd better not use this debugger in Windows.**
 
-# Debug mode
+## Debug mode
 **Relayout** your debug panel like this by dragging:
 
 ![relayout](https://user-images.githubusercontent.com/20026798/50675140-172b6680-1027-11e9-93cb-a25370a37667.jpg)
 You can see call stackframes at the left of panel and local variables at right.
-# Functions
+## Functions
 ![step over](https://user-images.githubusercontent.com/20026798/50675203-77baa380-1027-11e9-8e14-e712ae9556b6.jpg)
 - **Step over :** Run next call in current file. The `nc` command for DebuggerFramework.
 - **Step into :** Run the next call into a deeper stackframes. The `sg` command for DebuggerFramework.
@@ -66,8 +67,8 @@ You can see call stackframes at the left of panel and local variables at right.
 - **Step out :** Run out of current stackframes. `finish` command.
 - <del>**Run to cursor**(unsupported currently). Do not try this button.</del>
 - **Rerun**: Rerun the Julia program and debug.
-- **Resume ▌▶**: Rerun the debug when debug session is not terminated. (**Note that** debug session will not exit until you press the **Red Stop Rectangle Button**)
+- **Resume |▶**: Rerun the debug when debug session is not terminated. (**Note that** debug session will not exit until you press the **Red Stop Rectangle Button**)
 
-# Thanks to
+## Thanks to
 - [DebuggerFramework.jl](https://github.com/Keno/DebuggerFramework.jl)
 - [ASTInterpreter2.jl](https://github.com/Keno/ASTInterpreter2.jl)
