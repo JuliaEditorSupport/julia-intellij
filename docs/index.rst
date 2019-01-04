@@ -22,6 +22,17 @@ Readme
 
    MainPage
 
+.. _debugger:
+
+########
+Debugger
+########
+
+.. toctree::
+   :maxdepth: 2
+
+   Debugger
+
 .. _features:
 
 ########
