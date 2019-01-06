@@ -9,6 +9,7 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.javascript.debugger.execution.DebuggableProgramRunner
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.EditorFactory
@@ -16,9 +17,10 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.*
 import com.intellij.terminal.*
+import com.intellij.util.io.createFile
+import com.intellij.util.io.exists
 import com.intellij.xdebugger.*
 import com.intellij.xdebugger.breakpoints.XLineBreakpointTypeBase
 import com.intellij.xdebugger.evaluation.*
@@ -28,8 +30,10 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
 import org.jetbrains.debugger.DebuggableRunConfiguration
 import org.jetbrains.debugger.SourceInfo
+import org.jetbrains.rpc.LOG
 import java.io.*
 import java.net.*
+import java.nio.file.Path
 import java.nio.file.Paths
 
 /**
@@ -37,6 +41,11 @@ import java.nio.file.Paths
  * @author zxj5470
  * @date 2018/09/22
  */
+val Project.breakpoints
+	get() = XDebuggerManager.getInstance(this)
+		.breakpointManager
+		.getBreakpoints(JuliaLineBreakpointType::class.java)
+
 class JuliaDebugProcess(socketAddress: InetSocketAddress,
 												session: XDebugSession,
 												val executionResult: ExecutionResult?,
@@ -44,76 +53,70 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 	override fun getEditorsProvider(): XDebuggerEditorsProvider = JuliaEditorsProvider()
 	lateinit var socket: ServerSocket
 	val debugStack = JuliaDebugExecutionStack(emptyList())
-	val breakpoints
-		get() = XDebuggerManager.getInstance(session.project)
-			.breakpointManager
-			.getBreakpoints(JuliaLineBreakpointType::class.java)
 
 	override fun sessionInitialized() {
 		super.sessionInitialized()
 		val filePath = env.getUserData(JULIA_DEBUG_FILE_KEY) ?: return
 
 		ApplicationManager.getApplication().executeOnPooledThread {
-			try {
-				socket = ServerSocket(0)
-				val port = socket.localPort
-				WriteCommandAction.runWriteCommandAction(env.project) {
-					val debuggerFile = FileUtil.createTempFile("IntelliJDebugger", ".jl")
-					debuggerFile.writeBytes(javaClass.getResource("IntelliJDebugger.jl").readBytes())
-					processHandler.includeFileToProcess(debuggerFile.absolutePath)
-					processHandler.sendCommandToProcess("""_intellij_debug_port=$port;""")
-					processHandler.includeFileToProcess(filePath)
-				}
+			socket = ServerSocket(0)
+			val port = socket.localPort
+			WriteCommandAction.runWriteCommandAction(env.project) {
+				val debuggerFile = Paths.get(PathManager.getPluginsPath(), "julia-intellij", "IntelliJDebugger.jl").apply {
+					if (!exists()) createFile()
+				}.toFile()
+				debuggerFile.writeBytes(javaClass.getResource("IntelliJDebugger.jl").readBytes())
+				debuggerFile.appendText("\n_intellij_debug_port=$port\n")
+				processHandler.includeFileToProcess(debuggerFile.absolutePath)
+				processHandler.includeFileToProcess(filePath)
+			}
 
-				while (true) {
+			while (true) {
+				try {
 					val connectionSocket = socket.accept()
 					val inFromClient = BufferedReader(InputStreamReader(connectionSocket.getInputStream()))
 					val text = inFromClient.readLine()
-					try {
-						val debugData = Gson().fromJson(text, JuliaDebugFrameValue::class.java)
-						val sdkHomeCache = env.project.juliaSettings.settings.basePath
-						val projectDir = env.project.guessProjectDir() ?: break
-						val fileSystem = projectDir.fileSystem
-
-						val topFrame = debugData.next
-						val currentFile = fileSystem.findFileByPath(topFrame.file)
-							?: fileSystem.findFileByPath(Paths.get(sdkHomeCache).resolve(topFrame.file).toString())
-						val currentPosition = currentFile?.let { SourceInfo(it, topFrame.line - 1) }
-
-						val list = debugData.frames.map { stack ->
-							val virtualFile = fileSystem.findFileByPath(stack.stack.file)
-								?: fileSystem.findFileByPath(Paths.get(sdkHomeCache).resolve(stack.stack.file).toString())
-							val source = virtualFile?.let { SourceInfo(virtualFile, line = stack.stack.line - 1, functionName = stack.stack.function) }
-							stack.vars.map {
-								JuliaDebugValue(it.name, it.type, it.value, sourceInfo = source)
-							}
-						}
-						list.first().first().sourceInfo = currentPosition
-						val top = JuliaVariableStackFrame(env.project, list.first())
-						val stackFrame = JuliaDebugExecutionStack(list.map { JuliaVariableStackFrame(env.project, it) })
-						session.setCurrentStackFrame(stackFrame, top)
-						session.updateExecutionPosition()
+					val debugData = try {
+						Gson().fromJson(text, JuliaDebugFrameValue::class.java)
 					} catch (e: Exception) {
 						e.printStackTrace()
+						null
+					} ?: continue
+
+					val sdkHomeCache = env.project.juliaSettings.settings.basePath
+					val projectDir = env.project.guessProjectDir() ?: break
+					val fileSystem = projectDir.fileSystem
+
+					val topFrame = debugData.next
+					val currentFile = fileSystem.findFileByPath(topFrame.file)
+						?: fileSystem.findFileByPath(Paths.get(sdkHomeCache).resolve(topFrame.file).toString())
+					val currentPosition = currentFile?.let { SourceInfo(it, topFrame.line - 1) }
+
+					val list = debugData.frames.map { stack ->
+						val virtualFile = fileSystem.findFileByPath(stack.stack.file)
+							?: fileSystem.findFileByPath(Paths.get(sdkHomeCache).resolve(stack.stack.file).toString())
+						val source = virtualFile?.let { SourceInfo(virtualFile, line = stack.stack.line - 1, functionName = stack.stack.function) }
+						stack.vars.map {
+							JuliaDebugValue(it.name, it.type, it.value, sourceInfo = source)
+						}
 					}
+					if (list.isEmpty() || list.first().isEmpty()) continue
+					list.first().first().sourceInfo = currentPosition
+					val top = JuliaVariableStackFrame(env.project, list.first())
+					val stackFrame = JuliaDebugExecutionStack(list.map { JuliaVariableStackFrame(env.project, it) })
+					session.setCurrentStackFrame(stackFrame, top)
+					session.updateExecutionPosition()
+				} catch (e: Exception) {
+					LOG.error(e.message)
 				}
-			} catch (e: SocketException) {
-				e.printStackTrace()
-				session.stop()
-				socket.close()
-			} catch (e: Exception) {
-				e.printStackTrace()
-				session.stop()
-				socket.close()
 			}
 		}
 		pause()
 	}
 
 	private fun pause() {
-//		val project = env.project
-//		val con = project.getUserData(JULIA_DEBUG_CONSOLE_VIEW_KEY)
-//		con?.setCursor()
+		val project = env.project
+		val breakpoints = project.breakpoints
 		ApplicationManager.getApplication().invokeLater {
 			session.breakpointReached(breakpoints.first(), null, JuliaDebugSuspendContext(debugStack))
 		}
@@ -159,9 +162,9 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 	}
 
 	override fun stop() {
-		processHandler.sendCommandToProcess("q")
-		session.stop()
-		processHandler.destroyProcess()
+		processHandler.sendCommandToProcess("exit()")
+//		session.stop()
+//		processHandler.destroyProcess()
 		if (::socket.isInitialized)
 			socket.close()
 	}

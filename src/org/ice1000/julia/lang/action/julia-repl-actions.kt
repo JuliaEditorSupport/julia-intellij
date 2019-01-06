@@ -8,6 +8,7 @@ import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
 import com.intellij.notification.*
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.util.EditorUtil
@@ -16,9 +17,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.*
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
+import com.intellij.util.io.createFile
+import com.intellij.util.io.exists
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.execution.*
@@ -26,6 +28,8 @@ import org.ice1000.julia.lang.module.*
 import java.awt.Font
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
 
 abstract class JuliaSendCodeToReplAction(
@@ -117,10 +121,21 @@ class JuliaReplRunner(
 
 	fun useSciMode() {
 		WriteCommandAction.runWriteCommandAction(project) {
-			val jlFile = FileUtil.createTempFile("IntelliJ", ".jl")
-			val pyFile = FileUtil.createTempFile("backend_interagg", ".py")
-			jlFile.writeBytes(javaClass.getResource("IntelliJ.jl").readBytes())
-			pyFile.writeBytes(javaClass.getResource("backend_interagg.py").readBytes())
+			val jlFile = Paths.get(PathManager.getPluginsPath(), "julia-intellij", "IntelliJ.jl").apply {
+				if (!exists()) createFile()
+				val bytes = this@JuliaReplRunner.javaClass.getResource("IntelliJ.jl").readBytes()
+				if (!Files.readAllBytes(this)!!.contentEquals(bytes)) {
+					this.toFile().writeBytes(bytes)
+				}
+			}.toFile()
+
+			Paths.get(PathManager.getPluginsPath(), "julia-intellij", "backend_interagg.py").apply {
+				if (!exists()) createFile()
+				val bytes = this@JuliaReplRunner.javaClass.getResource("backend_interagg.py").readBytes()
+				if (!Files.readAllBytes(this)!!.contentEquals(bytes)) {
+					this.toFile().writeBytes(bytes)
+				}
+			}
 			executor.sendCommandToProcess("""include("${jlFile.absolutePath.toUnixPath()}")""", false)
 		}
 	}

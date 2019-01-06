@@ -57,15 +57,11 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 		JuliaDebugProcess(socketAddress, session, executionResult, environment)
 
 	override fun canRun(executorId: String, profile: RunProfile): Boolean {
-		if (executorId == DefaultRunExecutor.EXECUTOR_ID) {
-			return true
-		} else if (executorId == DefaultDebugExecutor.EXECUTOR_ID) {
-			val breakpoints = XDebuggerManager.getInstance(project)
-				.breakpointManager
-				.getBreakpoints(JuliaLineBreakpointType::class.java)
-			return breakpoints.isNotEmpty()
+		return when (executorId) {
+			DefaultRunExecutor.EXECUTOR_ID -> true
+			DefaultDebugExecutor.EXECUTOR_ID -> project.breakpoints.isNotEmpty() // can't run debug without breakpoints
+			else -> super.canRun(executorId, profile)
 		}
-		return super.canRun(executorId, profile)
 	}
 
 	override fun getConfigurationEditor() = JuliaRunConfigurationEditorImpl(this, project)
