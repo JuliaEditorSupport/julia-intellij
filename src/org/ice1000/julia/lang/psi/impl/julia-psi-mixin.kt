@@ -6,6 +6,7 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.*
@@ -115,12 +116,7 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 			.also { typeParamsTextCache = it }
 
 	override val paramsText: String
-		get() = paramsTextCache ?: functionSignature
-			?.typedNamedVariableList
-			?.joinToString { it.text.substringBefore("=") }
-			.orEmpty()
-			.let { "($it)" }
-			.replaceCommaWithSemi(functionSignature?.typedNamedVariableList?.indexOfFirst { it.text.contains('=') })
+		get() = paramsTextCache ?: calculateParamsText(functionSignature)
 			.also { paramsTextCache = it }
 
 	override fun subtreeChanged() {
@@ -140,23 +136,19 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	}
 }
 
-/**
- * @param index means which comma will be replaced.
- */
-fun String.replaceCommaWithSemi(index: Int?): String {
-	// null or -1 => no `keyword arguments`, and 0 means no simple arguments so that we don't need to replace with.
-	if (index == null || index == -1 || index == 0) return this
-	var count = 0
-	// the position of `,` will be replaced.
-	var range = 0
-	for (i in this.indices) {
-		if (this[i] == ',') count++
-		if (count == index) {
-			range = i
-			break
+fun calculateParamsText(expr: PsiElement?): String {
+	return SyntaxTraverser
+		.psiTraverser()
+		.children(expr)
+		.joinToString(separator = "", prefix = "(", postfix = ")") {
+			if (it is JuliaTypedNamedVariable)
+				PsiTreeUtil.findChildOfType(it.typeAnnotation, JuliaSymbol::class.java)?.text ?: "Any"
+			else when (it.elementType) {
+				JuliaTypes.COMMA_SYM,
+				JuliaTypes.SEMICOLON_SYM -> "${it.text} "
+				else -> ""
+			}
 		}
-	}
-	return this.replaceRange(range, range + 1, ";")
 }
 
 abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCompactFunction {
@@ -177,9 +169,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 			.also { typeParamsTextCache = it }
 
 	override val paramsText: String
-		get() = paramsTextCache ?: functionSignature
-			.typedNamedVariableList
-			.joinToString(prefix = "(", postfix = ")") { it.typeAnnotation?.exprList?.joinToString(".") ?: "Any" }
+		get() = paramsTextCache ?: calculateParamsText(functionSignature)
 			.also { paramsTextCache = it }
 
 	override fun subtreeChanged() {
@@ -424,7 +414,4 @@ class JuliaReferenceManager(val psiManager: PsiManager, val dumbService: DumbSer
 			return ServiceManager.getService(project, JuliaReferenceManager::class.java)
 		}
 	}
-
-
-
 }

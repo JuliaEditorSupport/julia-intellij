@@ -1,2 +1,5 @@
 recommonmark
+sphinx==1.6.5
+sphinx-rtd-theme<0.3
+readthedocs-sphinx-ext<0.6
 -e git+https://github.com/JuliaCN/JuliaDoc.git#egg=JuliaDoc

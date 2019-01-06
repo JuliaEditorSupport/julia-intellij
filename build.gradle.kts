@@ -21,7 +21,7 @@ val commitHash = kotlin.run {
 	output.trim()
 }
 
-val pluginComingVersion = "0.3.6"
+val pluginComingVersion = "0.3.7"
 val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
 val packageName = "org.ice1000.julia"
 val kotlinVersion = "1.2.70"
@@ -45,8 +45,8 @@ allprojects {
 		when (System.getProperty("user.name")) {
 			"ice1000" -> {
 				val root = "/home/ice1000/.local/share/JetBrains/Toolbox/apps"
-				localPath = "$root/IDEA-U/ch-0/183.4284.148"
-				alternativeIdePath = "$root/PyCharm-C/ch-0/183.4284.139"
+				localPath = "$root/IDEA-U/ch-0/183.4886.37"
+				alternativeIdePath = "$root/PyCharm-C/ch-0/183.4886.43"
 			}
 			"hoshino" -> version = "2018.2.1"
 			"zxj5470" -> {
@@ -71,8 +71,8 @@ java {
 }
 
 tasks.withType<PatchPluginXmlTask> {
-	changeNotes(file("res/META-INF/change-notes.html").readText())
-	pluginDescription(file("res/META-INF/description.html").readText())
+	changeNotes(file("change-notes.html").readText())
+	pluginDescription(file("description.html").readText())
 	version(pluginComingVersion)
 	pluginId(packageName)
 }

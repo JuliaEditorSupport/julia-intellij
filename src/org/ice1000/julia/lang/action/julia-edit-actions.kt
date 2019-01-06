@@ -124,6 +124,7 @@ class JuliaUnicodeInputAction : JuliaAction(
 	}
 
 	override fun actionPerformed(e: AnActionEvent) {
+		if (!e.presentation.isEnabledAndVisible) return
 		val editor = CommonDataKeys.EDITOR.getData(e.dataContext)
 		val project = e.project ?: return
 		actionInvoke(editor, project)

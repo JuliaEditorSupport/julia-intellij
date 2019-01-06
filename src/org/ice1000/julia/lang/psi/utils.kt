@@ -29,3 +29,5 @@ fun treeWalkUp(
 fun <A, B, C, D, E> tuple5(a: A, b: B, c: C, d: D, e: E? = null) = Tuple5(a, b, c, d, e)
 
 data class Tuple5<out A, out B, out C, out D, out E>(val a: A, val b: B, val c: C, val d: D, val e: E)
+
+val PsiElement.elementType get() = node.elementType
