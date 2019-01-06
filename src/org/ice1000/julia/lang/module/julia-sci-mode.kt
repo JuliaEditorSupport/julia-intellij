@@ -40,6 +40,7 @@ import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.execution.JuliaEditorsProvider
 import org.jetbrains.debugger.SourceInfo
+import org.jetbrains.rpc.LOG
 import java.awt.*
 import java.awt.event.MouseEvent
 import java.awt.image.*
@@ -502,8 +503,12 @@ class JuliaDebugValue(name: String,
 		val icon =
 			when {
 				type == "function" -> JuliaIcons.JULIA_FUNCTION_ICON
-				type.contains("Array{") -> {
-					valuePresentation = json.parse(value).asJsonArray.toString()
+				type.contains(ARRAY_TYPE) -> {
+					try {
+						valuePresentation = json.parse(value).asJsonArray.toString()
+					} catch (e: Exception) {
+						LOG.error(e.message + "when parsing: $value")
+					}
 					JuliaIcons.JULIA_VARIABLE_ICON
 				}
 				else -> JuliaIcons.JULIA_VARIABLE_ICON
@@ -517,29 +522,41 @@ class JuliaDebugValue(name: String,
 		val childrenList = XValueChildrenList()
 		when {
 			type.contains("EnvDict") || type.contains("Dict{") -> {
-				json.parse(value).asJsonObject.apply {
-					keySet().forEach { key ->
-						childrenList.add(
-							JuliaDebugValue(
-								name = key,
-								value = this[key].asString,
-								parent = this@JuliaDebugValue))
+				try {
+					json.parse(value).asJsonObject.apply {
+						keySet().forEach { key ->
+							childrenList.add(
+								JuliaDebugValue(
+									name = key,
+									value = this[key].asString,
+									parent = this@JuliaDebugValue))
+						}
 					}
+				} catch (e: Exception) {
+					LOG.error(e.message + "when parsing: $value")
 				}
 			}
-			type.contains("Array{") -> {
-				json.parse(value).asJsonArray.forEachIndexed { index, it ->
-					val name =
-						if (type.endsWith(",2}")) "[Row ${index + 1}]"
-						else "[${index + 1}]"
-					arrays(it, childrenList, name)
+			type.contains(ARRAY_TYPE) -> {
+				try {
+					json.parse(value).asJsonArray.forEachIndexed { index, it ->
+						val name =
+							if (type.endsWith(",2}")) "[Row ${index + 1}]"
+							else "[${index + 1}]"
+						arrays(it, childrenList, name)
+					}
+				} catch (e: Exception) {
+					LOG.error(e.message + "when parsing: $value")
 				}
 			}
 			type == ARRAY_ITEM_TYPE -> {
-				json.parse(value).asJsonArray.forEachIndexed { index, it ->
-					// Do we need to add `Row` for High dimensional arrays?
-					val name = "[${index + 1}]"
-					arrays(it, childrenList, name)
+				try {
+					json.parse(value).asJsonArray.forEachIndexed { index, it ->
+						// Do we need to add `Row` for High dimensional arrays?
+						val name = "[${index + 1}]"
+						arrays(it, childrenList, name)
+					}
+				} catch (e: Exception) {
+					LOG.error(e.message + "when parsing: $value")
 				}
 			}
 		}
@@ -559,3 +576,4 @@ class JuliaDebugValue(name: String,
 
 private val json = JsonParser()
 const val ARRAY_ITEM_TYPE = "ArrayItem"
+const val ARRAY_TYPE = "-element Array{"
