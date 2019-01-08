@@ -45,7 +45,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 	var colorOption = true
 	var unsafeFloatOption = false
 	var handleSignalOption = false
-	var startupFileOption = false
+	var startupFileOption = true
 	var historyOption = false
 	var launchReplOption = false
 	var optimizationLevel = 3
