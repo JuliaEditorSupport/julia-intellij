@@ -162,7 +162,7 @@ globalStatement ::=
 
 typeAnnotation ::=
  DOUBLE_COLON endOfLine
- primaryExpr (DOT_SYM primaryExpr)* endOfLine
+ symbol (DOT_SYM symbol)* endOfLine
  typeParameters?
 
 typedNamedVariable ::=
@@ -184,7 +184,7 @@ userType ::= primaryExpr typeParameters?
 typeAlias ::= TYPEALIAS_KEYWORD symbol typeParameters? userType { extends=expr }
 
 private expressionList ::= expr (commaSep expr)*
-namedParameter ::= symbol endOfLine EQ_SYM endOfLine expr
+//namedParameter ::= symbol endOfLine EQ_SYM endOfLine expr
 
 // lowest
 applyMacroOp ::= macroSymbol expr expr*// BUG: `expr+` is useless, and I don't know why~
@@ -367,7 +367,7 @@ andOp ::= expr AND_SYM endOfLine expr
 // ->
 // level 5
 lambda ::=
- (symbol | tuple | LEFT_BRACKET RIGHT_BRACKET)
+ (symbol typeAnnotation? | tuple | LEFT_BRACKET RIGHT_BRACKET)
   LAMBDA_ABSTRACTION expr {
 	rightAssociative=true
 	extends=expr
@@ -474,7 +474,7 @@ miscExponentOp ::= expr MISC_EXPONENT_SYM endOfLine expr
 
 // ::
 // level 13.5
-typeOp ::= expr DOUBLE_COLON endOfLine expr
+typeOp ::= expr DOUBLE_COLON endOfLine type
 
 // level 15
 private unaryLevel ::=
