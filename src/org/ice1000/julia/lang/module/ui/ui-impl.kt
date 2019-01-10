@@ -247,7 +247,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 			override fun run(indicator: ProgressIndicator) {
 				indicator.text = JuliaBundle.message("julia.messages.package.names.loading")
 
-				val beforeVersion07 = compareVersion(settings.version, "0.7.0") < 0
+				val beforeVersion07 = '.' in settings.version && compareVersion(settings.version, "0.7.0") < 0
 				var envdir = ""
 				val namesList: List<String> = if (beforeVersion07) {
 					packageNamesList(settings.importPath).collect(Collectors.toList())

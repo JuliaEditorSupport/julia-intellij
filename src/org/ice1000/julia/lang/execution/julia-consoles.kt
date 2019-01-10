@@ -28,8 +28,9 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 
 	// Filter.Result(startPoint, entireLength, null)
 	override fun applyFilter(line: String, entireLength: Int): Filter.Result? {
+		if (project.isDisposed) return null
 		val projectDir = project.guessProjectDir()
-		if (project.isDisposed || projectDir == null) return null
+		if (projectDir == null) return null
 		if (!line.startsWith(" [") && !line.startsWith(JULIA_IN_EXPR_STARTING_AT)) return null
 		val startPoint = entireLength - line.length
 		val fileSystem = projectDir.fileSystem
