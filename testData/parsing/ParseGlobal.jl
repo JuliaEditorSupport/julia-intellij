@@ -10,4 +10,6 @@ global a=b=1
 
 f(x)=global a=1
 
+==(x, y) = x + y == 0
+
 println(23333)

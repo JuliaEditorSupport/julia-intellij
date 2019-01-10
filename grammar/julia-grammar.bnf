@@ -40,9 +40,13 @@ private privateUnaryOpAsSymbol::=
 
 opAsSymbol ::= privateOpAsSymbol
 private privateOpAsSymbol::=
- privateUnaryOpAsSymbol
+	privateOpSymbols
+ | keywordsAsOp
+ | typeAnnotationAsOp
+private privateOpSymbols::= privateUnaryOpAsSymbol | privateOperaSymbols
+private privateOperaSymbols ::=
 //   SEMICOLON_SYM |
- | QUESTION_SYM
+QUESTION_SYM
  | SUBTYPE_SYM
  | INVERSE_DIV_SYM
  | IS_SYM
@@ -84,8 +88,6 @@ private privateOpAsSymbol::=
  | BITWISE_NOT_SYM
  | ASSIGN_SYM
  | COLON_SYM
- | keywordsAsOp
- | typeAnnotationAsOp
 
 comment ::= blockComment | LINE_COMMENT
 private blockComment ::= BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | blockComment)* BLOCK_COMMENT_END
@@ -218,13 +220,13 @@ expr ::=
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaExprMixin'
 }
 
-memberAccessOp ::= expr DOT_SYM expr
+memberAccessOp ::= expr DOT_SYM expr{rightAssociative=true}
 
 memberAccess ::=
    IN_KEYWORD
  | UNION_KEYWORD
  | opAsSymbol
- | symbolAndMacroSymbol (DOT_SYM symbolAndMacroSymbol)*
+ | symbolAndMacroSymbol (DOT_SYM symbolAndMacroSymbol)*{rightAssociative=true}
 
 private access ::= (DOT_SYM | DOUBLE_DOT_SYM | SLICE_SYM)? memberAccess
 private symbolAndMacroSymbol ::= symbol | macroSymbol
@@ -358,11 +360,11 @@ miscArrowsOp ::= expr (SPECIAL_ARROW_SYM | MISC_ARROW_SYM) endOfLine expr
 
 // ||
 // level 3
-orOp ::= expr OR_SYM endOfLine expr
+orOp ::= expr endOfLine OR_SYM endOfLine expr
 
 // &&
 // level 4
-andOp ::= expr AND_SYM endOfLine expr
+andOp ::= expr endOfLine AND_SYM endOfLine expr
 
 // ->
 // level 5
@@ -438,8 +440,12 @@ transposeOp ::= expr TRANSPOSE_SYM
 private multiplyLevel ::=
    multiplyLevelOp
  | implicitMultiplyOp
+ | stringLikeMultiplyOp
 
 multiplyLevelOp ::= expr multiplyLevelOperator endOfLine expr
+stringLikeMultiplyOp ::= stringValue (endOfLine MULTIPLY_SYM endOfLine stringValue)+
+private stringValue::= string | memberAccess
+//multiplyLevelOp ::= expr multiplyLevelOperator endOfLine expr
 multiplyLevelOperator ::=
    MULTIPLY_SYM
  | DIVIDE_SYM
