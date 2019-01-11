@@ -694,7 +694,7 @@ ifExpr ::=
  END_KEYWORD{pin=1}
 
 elseIfClause ::= ELSEIF_KEYWORD expr endOfLine
- statements{pin=1}
+ <<elseIfLazyParseableBlockImpl>>{pin=1}
 
 elseClause ::= ELSE_KEYWORD <<elseLazyParseableBlockImpl>>{pin=1}
 
@@ -731,9 +731,9 @@ multiIndexer ::= tuple infixIndexer endOfLine expr
 whileExpr ::=
  WHILE_KEYWORD endOfLine
   expr endOfLine
-   statements
+   whileLazyBlock
  END_KEYWORD { pin=1 extends=expr }
-//private whileLazyBlock::= <<whileLazyBlockImpl>>
+private whileLazyBlock::= <<whileLazyBlockImpl>>
 
 returnExpr ::= RETURN_KEYWORD (expr (COMMA_SYM expr)*)?
 
@@ -753,7 +753,7 @@ catchClause ::=
 }
 
 finallyClause ::=
- FINALLY_KEYWORD statements{pin=1}
+ FINALLY_KEYWORD <<whileLazyBlockImpl>>{pin=1}
 
 private typeAnnotationAsOp::=
 	LEFT_BRACKET typeAnnotation RIGHT_BRACKET
