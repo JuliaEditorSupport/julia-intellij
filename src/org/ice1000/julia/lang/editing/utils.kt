@@ -41,11 +41,11 @@ fun PsiElement.presentText(): String = when (this) {
 	is JuliaFile -> originalFile.name
 	is JuliaIfExpr -> "if ${children.getOrNull(1)?.text.orEmpty()}"
 	is JuliaElseClause -> "else"
-	is JuliaElseIfClause -> "elseif ${statements.exprList.firstOrNull()?.text.orEmpty()}"
+	is JuliaElseIfClause -> "elseif ${statements?.run { exprList.firstOrNull()?.text.orEmpty() }}"
 	is JuliaAssignOp -> exprList.first().let { if (it is JuliaSymbolLhs) it.symbolList.last().text else it.text }
 	is JuliaWhileExpr -> "while ${expr?.text.orEmpty()}"
 	is JuliaTypeDeclaration -> "type ${exprList.first().text}"
-	is JuliaModuleDeclaration -> "module ${symbol.text}"
+	is JuliaModuleDeclaration -> "module ${symbol?.text ?: ""}"
 	is IJuliaFunctionDeclaration -> toText
 	is JuliaTypeOp -> exprList.first().text
 	else -> cutText(text, LONG_TEXT_MAX)

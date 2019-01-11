@@ -14,6 +14,7 @@ import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.*
 import org.jetbrains.annotations.Nls
 import java.io.*
+import java.lang.IllegalStateException
 import java.net.ServerSocket
 
 class JuliaProjectComponent(private val project: Project) : ProjectComponent {
@@ -140,7 +141,12 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 }
 
 val Project.withJulia: Boolean
-	get() = this.guessProjectDir()?.run { getChildrenWithDepth(4).any { it.name.endsWith(".jl") } }.orFalse()
+	get() = try {
+		this.guessProjectDir()
+	} catch (e: IllegalStateException) {
+		@Suppress("deprecation")
+		this.baseDir
+	}?.run { getChildrenWithDepth(4).any { it.name.endsWith(".jl") } }.orFalse()
 
 fun VirtualFile.getChildrenWithDepth(depth: Int): Sequence<VirtualFile> {
 	if (depth == 0) return emptySequence()

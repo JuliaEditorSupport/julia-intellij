@@ -87,7 +87,7 @@ abstract class JuliaTypedNamedVariableMixin(node: ASTNode) : JuliaDeclaration(no
 	override val startPoint: PsiElement
 		get() = parent.parent.let {
 			when (it) {
-				is JuliaFunction -> it.statements
+				is JuliaFunction -> it.statements ?: it.lastChild
 				is JuliaCompactFunction -> it.lastChild
 				else -> it
 			}
