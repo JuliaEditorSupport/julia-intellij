@@ -159,9 +159,7 @@ OTHERWISE=[^]
 <INSIDE_VERSION,
  INSIDE_RAW_STR> [^\"]+ { return JuliaTypes.REGULAR_STRING_PART_LITERAL; }
 
-<YYINITIAL, LONG_TEMPLATE> end {
-  return JuliaTypes.END_KEYWORD;
-}
+<YYINITIAL, LONG_TEMPLATE> end { return JuliaTypes.END_KEYWORD; }
 
 <YYINITIAL, LONG_TEMPLATE> break { return JuliaTypes.BREAK_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> where { return JuliaTypes.WHERE_KEYWORD; }
@@ -183,9 +181,7 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> using { return JuliaTypes.USING_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> elseif { return JuliaTypes.ELSEIF_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> else { return JuliaTypes.ELSE_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> for {
-  return JuliaTypes.FOR_KEYWORD;
-}
+<YYINITIAL, LONG_TEMPLATE> for { return JuliaTypes.FOR_KEYWORD; }
 
 <YYINITIAL, LONG_TEMPLATE> while { return JuliaTypes.WHILE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> return { return JuliaTypes.RETURN_KEYWORD; }
