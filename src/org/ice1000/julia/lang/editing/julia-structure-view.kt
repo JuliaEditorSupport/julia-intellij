@@ -27,6 +27,7 @@ class JuliaStructureViewModel(root: PsiFile, editor: Editor?) :
 			JuliaModuleDeclaration::class.java,
 			IJuliaFunctionDeclaration::class.java,
 			JuliaTypeDeclaration::class.java,
+			JuliaForExpr::class.java,
 			JuliaIfExpr::class.java,
 			JuliaElseIfClause::class.java,
 			JuliaElseClause::class.java,

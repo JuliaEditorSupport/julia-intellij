@@ -3,6 +3,7 @@
 package org.ice1000.julia.lang.psi.impl
 
 import com.intellij.psi.*
+import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
 import org.ice1000.julia.lang.psi.*
@@ -61,4 +62,14 @@ fun PsiElement.childrenBefore(type: IElementType): List<PsiElement> {
 		if (next.node.elementType == type) return ret
 		ret += next
 	}
+}
+
+class JuliaLazyParseableBlockImpl(type: IElementType, buffer: CharSequence?) : LazyParseablePsiElement(type, buffer), JuliaLazyParseableBlock {
+	override val tokenType: IElementType
+		get() = elementType
+
+	override val statements: JuliaStatements?
+		get() = findChildByClass(JuliaStatements::class.java)
+
+	override fun toString(): String = tokenType.toString()
 }

@@ -39,13 +39,14 @@ val PsiElement.isFieldInTypeDeclaration: Boolean
 
 fun PsiElement.presentText(): String = when (this) {
 	is JuliaFile -> originalFile.name
-	is JuliaIfExpr -> "if ${children.getOrNull(1)?.text.orEmpty()}"
+	is JuliaForExpr -> "for ${multiIndexerList.joinToString { it.text }}"
+	is JuliaIfExpr -> "if ${expr?.text.orEmpty()}"
 	is JuliaElseClause -> "else"
-	is JuliaElseIfClause -> "elseif ${statements?.run { exprList.firstOrNull()?.text.orEmpty() }}"
+	is JuliaElseIfClause -> "elseif ${expr?.text.orEmpty()}"
 	is JuliaAssignOp -> exprList.first().let { if (it is JuliaSymbolLhs) it.symbolList.last().text else it.text }
 	is JuliaWhileExpr -> "while ${expr?.text.orEmpty()}"
 	is JuliaTypeDeclaration -> "type ${exprList.first().text}"
-	is JuliaModuleDeclaration -> "module ${symbol?.text ?: ""}"
+	is JuliaModuleDeclaration -> "module ${symbol?.text.orEmpty()}"
 	is IJuliaFunctionDeclaration -> toText
 	is JuliaTypeOp -> exprList.first().text
 	else -> cutText(text, LONG_TEXT_MAX)

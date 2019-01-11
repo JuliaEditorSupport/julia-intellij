@@ -4,6 +4,7 @@
   // ref: https://github.com/JuliaLang/julia/blob/master/src/julia-parser.scm
   // https://raw.githubusercontent.com/JuliaLang/julia/master/src/julia-parser.scm
   parserClass='org.ice1000.julia.lang.JuliaParser'
+  parserUtilClass='org.ice1000.julia.lang.parsing.JuliaGeneratedParserUtilBase'
   extends='com.intellij.extapi.psi.ASTWrapperPsiElement'
   psiClassPrefix='Julia'
   psiImplClassSuffix='Impl'
@@ -159,14 +160,6 @@ private statement ::=
  | function
  | multiAssignOp
  | expr
-// {recoverWhile="top_level_recover"}
-
-//private top_level_recover ::= !(symbol
-//| MODULE_KEYWORD
-//| IMPORT_KEYWORD | IMPORTALL_KEYWORD | EXPORT_KEYWORD
-//| TYPE_KEYWORD
-//| GLOBAL_KEYWORD
-//| FUNCTION_KEYWORD)
 
 moduleDeclaration ::=
  (BAREMODULE_KEYWORD | MODULE_KEYWORD) symbol endOfLine
@@ -703,7 +696,7 @@ ifExpr ::=
 elseIfClause ::= ELSEIF_KEYWORD expr endOfLine
  statements{pin=1}
 
-elseClause ::= ELSE_KEYWORD statements{pin=1}
+elseClause ::= ELSE_KEYWORD <<elseLazyParseableBlockImpl>>{pin=1}
 
 forComprehension ::=
  LEFT_M_BRACKET endOfLine
@@ -740,6 +733,7 @@ whileExpr ::=
   expr endOfLine
    statements
  END_KEYWORD { pin=1 extends=expr }
+//private whileLazyBlock::= <<whileLazyBlockImpl>>
 
 returnExpr ::= RETURN_KEYWORD (expr (COMMA_SYM expr)*)?
 

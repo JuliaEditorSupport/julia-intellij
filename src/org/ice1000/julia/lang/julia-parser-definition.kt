@@ -7,6 +7,7 @@ import com.intellij.psi.*
 import com.intellij.psi.stubs.PsiFileStub
 import com.intellij.psi.tree.*
 import org.ice1000.julia.lang.psi.JuliaTypes
+import org.ice1000.julia.lang.psi.impl.JuliaLazyParseableBlockImpl
 
 class JuliaLexerAdapter : FlexAdapter(JuliaLexer())
 
@@ -31,6 +32,8 @@ open class JuliaParserDefinition : ParserDefinition {
 
 class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE) {
 	companion object TokenHolder {
+		@JvmField val LAZY_PARSEABLE_BLOCK: IElementType = JuliaLazyParseableBlockElementType()
+
 		@JvmField val COMMENTS = TokenSet.create(
 			JuliaTypes.BLOCK_COMMENT_BODY,
 			JuliaTypes.BLOCK_COMMENT_START,
@@ -112,6 +115,20 @@ class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.
 			.getInstance(project)
 			.createFileFromText(JuliaLanguage.INSTANCE, code)
 			.firstChild
+	}
+
+	class JuliaLazyParseableBlockElementType : IReparseableElementType("JuliaStatementsImpl(STATEMENTS)", JuliaLanguage.INSTANCE) {
+		override fun createNode(text: CharSequence?): ASTNode? = JuliaLazyParseableBlockImpl(this, text)
+
+		override fun parseContents(lazyParseableBlock: ASTNode): ASTNode? {
+			val builder = PsiBuilderFactory.getInstance().createBuilder(lazyParseableBlock.treeParent.psi.project,
+				lazyParseableBlock,
+				JuliaLexerAdapter(),
+				language,
+				lazyParseableBlock.chars)
+			JuliaParser().parseLight(JuliaTypes.STATEMENTS, builder)
+			return builder.treeBuilt.firstChildNode
+		}
 	}
 }
 
