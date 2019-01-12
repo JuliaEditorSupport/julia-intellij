@@ -131,6 +131,9 @@
 		<codeInsight.template.postfixTemplateProvider
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaPostfixTemplateProvider"/>
+		<codeInsight.typeInfo
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.editing.JuliaExpressionTypeProvider"/>
 		<codeInsight.parameterNameHints
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaInlayParameterHintsProvider"/>

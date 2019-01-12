@@ -1,11 +1,11 @@
 package org.ice1000.julia.lang.editing
 
 import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.lang.ExpressionTypeProvider
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.*
 import com.intellij.util.SystemProperties
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor.CompletionHolder.builtins
@@ -329,4 +329,22 @@ $JULIA_DOC_SURROUNDING
 					JuliaBundle.message("julia.lint.float-literal-replace", state[1])))
 		}
 	}
+}
+
+// TODO: needs stub
+class JuliaExpressionTypeProvider : ExpressionTypeProvider<JuliaExpr>() {
+	override fun getInformationHint(element: JuliaExpr): String {
+		val type = element.type
+		val text = type ?: "<unknown>"
+		return text
+	}
+
+	override fun getExpressionsAt(elementAt: PsiElement): MutableList<JuliaExpr> {
+		return SyntaxTraverser.psiApi().parents(elementAt).filter(JuliaExpr::class.java).filter {
+			it is JuliaSymbol || it is JuliaFloatLit || it is JuliaInteger || it is JuliaString || it is JuliaMemberAccess
+		}.toList()
+	}
+
+	override fun getErrorHint(): String = "<unknown type>"
+
 }
