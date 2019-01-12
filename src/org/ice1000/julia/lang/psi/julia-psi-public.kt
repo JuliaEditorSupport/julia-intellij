@@ -29,5 +29,6 @@ enum class JuliaSymbolKind(val isDeclaration: Boolean) {
 	CatchSymbol(true),
 	IndexParameter(true),
 	LambdaParameter(true),
+	KeywordParameterName(false),
 	Unknown(false)
 }

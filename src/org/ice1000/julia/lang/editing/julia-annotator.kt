@@ -68,7 +68,8 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 
 	private fun function(
 		element: JuliaFunction, holder: AnnotationHolder, settings: JuliaSettings) {
-		val statements = element.statements?.run { exprList + moduleDeclarationList } ?: return
+		val statements = element.statements?.run { exprList + moduleDeclarationList }
+			?: return
 		val signature = element.functionSignature
 		val signatureText = signature?.text ?: "()"
 		val typeParamsText = element.typeParameters?.text.orEmpty()
@@ -191,10 +192,10 @@ $JULIA_DOC_SURROUNDING
 				.textAttributes = JuliaHighlighter.FUNCTION_PARAMETER
 			JuliaSymbolKind.TypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_NAME
+			JuliaSymbolKind.KeywordParameterName -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.KEYWORD_ARGUMENT
 		}
 		when {
-			element.isKeywordParameterName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.KEYWORD_ARGUMENT
 			element.isConstName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.CONST_NAME
 			element.isQuoteCall -> holder.createInfoAnnotation(element.parent
@@ -337,7 +338,3 @@ private val JuliaSymbol.isConstName: Boolean
 
 private val JuliaSymbol.isConstNameRef: Boolean
 	get() = (reference?.resolve() as? JuliaSymbol)?.isConstName.orFalse()
-
-private val JuliaSymbol.isKeywordParameterName: Boolean
-	get() = (parent is JuliaAssignOp) && this === parent.firstChild && (parent.parent is JuliaArguments)
-		|| (parent is JuliaSpliceOp) && this === parent.firstChild && (parent.parent is JuliaArguments)

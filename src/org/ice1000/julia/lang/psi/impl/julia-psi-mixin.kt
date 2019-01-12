@@ -293,6 +293,10 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			parent.parent is JuliaMultiIndexer -> JuliaSymbolKind.IndexParameter
 		parent is JuliaAssignOp && this === parent.firstChild ||
 			parent is JuliaSymbolLhs -> JuliaSymbolKind.VariableName
+		(parent is JuliaAssignOp) && this === parent.firstChild &&
+			(parent.parent is JuliaArguments) ||
+			(parent is JuliaSpliceOp) && this === parent.firstChild &&
+			(parent.parent is JuliaArguments) -> JuliaSymbolKind.KeywordParameterName
 		else -> JuliaSymbolKind.Unknown
 	}
 
