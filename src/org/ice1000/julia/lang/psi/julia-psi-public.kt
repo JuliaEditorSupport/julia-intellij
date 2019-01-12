@@ -12,3 +12,22 @@ interface IJuliaBlock : JuliaPsiCompositeElement {
 interface JuliaPsiCompositeElement : NavigatablePsiElement {
 	val tokenType: IElementType
 }
+
+enum class JuliaSymbolKind(val isDeclaration: Boolean) {
+	Field(false), // TODO
+	FunctionName(true),
+	ApplyFunctionName(false),
+	MacroName(true),
+	ModuleName(true),
+	TypeName(true),
+	TypeParameterName(true),
+	AbstractTypeName(true),
+	PrimitiveTypeName(true),
+	FunctionParameter(true),
+	VariableName(true),
+	GlobalName(true),
+	CatchSymbol(true),
+	IndexParameter(true),
+	LambdaParameter(true),
+	Unknown(false)
+}

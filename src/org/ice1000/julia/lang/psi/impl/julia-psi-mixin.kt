@@ -219,22 +219,24 @@ abstract class JuliaStatementsMixin(node: ASTNode) : ASTWrapperPsiElement(node),
 
 interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	// check if they are declarations
-	val isField: Boolean
-	val isFunctionName: Boolean
-	val isApplyFunctionName: Boolean
-	val isMacroName: Boolean
-	val isModuleName: Boolean
-	val isTypeName: Boolean
-	val isTypeParameterName: Boolean
-	val isAbstractTypeName: Boolean
-	val isPrimitiveTypeName: Boolean
-	val isFunctionParameter: Boolean
-	val isVariableName: Boolean
-	val isGlobalName: Boolean
-	val isCatchSymbol: Boolean
-	val isDeclaration: Boolean
-	val isIndexParameter: Boolean
-	val isLambdaParameter: Boolean
+	val isField: Boolean get() = symbolKind == JuliaSymbolKind.Field
+	val isFunctionName: Boolean get() = symbolKind == JuliaSymbolKind.FunctionName
+	val isApplyFunctionName: Boolean get() = symbolKind == JuliaSymbolKind.ApplyFunctionName
+	val isMacroName: Boolean get() = symbolKind == JuliaSymbolKind.MacroName
+	val isModuleName: Boolean get() = symbolKind == JuliaSymbolKind.ModuleName
+	val isTypeName: Boolean get() = symbolKind == JuliaSymbolKind.TypeName
+	val isTypeParameterName: Boolean get() = symbolKind == JuliaSymbolKind.TypeParameterName
+	val isAbstractTypeName: Boolean get() = symbolKind == JuliaSymbolKind.AbstractTypeName
+	val isPrimitiveTypeName: Boolean get() = symbolKind == JuliaSymbolKind.PrimitiveTypeName
+	val isFunctionParameter: Boolean get() = symbolKind == JuliaSymbolKind.FunctionParameter
+	val isVariableName: Boolean get() = symbolKind == JuliaSymbolKind.VariableName
+	val isGlobalName: Boolean get() = symbolKind == JuliaSymbolKind.GlobalName
+	val isCatchSymbol: Boolean get() = symbolKind == JuliaSymbolKind.CatchSymbol
+	val isDeclaration: Boolean get() = symbolKind.isDeclaration
+	val isIndexParameter: Boolean get() = symbolKind == JuliaSymbolKind.IndexParameter
+	val isLambdaParameter: Boolean get() = symbolKind == JuliaSymbolKind.LambdaParameter
+
+	val symbolKind: JuliaSymbolKind
 }
 
 interface IJuliaTypeDeclaration : JuliaExpr, PsiNameIdentifierOwner, DocStringOwner
@@ -276,65 +278,43 @@ sealed class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), Ps
 }
 
 abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaSymbol {
-	final override val isField: Boolean by lazy {
-		this !== parent.children.firstOrNull { it is JuliaSymbol } &&
-			parent is JuliaTypeDeclaration
-	}
-	final override val isFunctionName by lazy {
-		(parent is JuliaCompactFunction && this === parent.firstChild) ||
-			parent is JuliaFunction
-	}
-	final override val isApplyFunctionName by lazy {
-		(parent is JuliaApplyFunctionOp) && this === parent.firstChild
-	}
-	final override val isMacroName get() = parent is JuliaMacro
-	final override val isModuleName get() = parent is JuliaModuleDeclaration
-	final override val isTypeName by lazy {
-		parent is JuliaTypeOp && this === parent.children.getOrNull(1) ||
-			parent is JuliaTypeAlias ||
-			parent is JuliaType ||
-			parent is JuliaTypeAnnotation ||
-			parent is JuliaTypeDeclaration ||
-			parent is JuliaAbstractTypeDeclaration ||
-			parent is JuliaArray
-	}
-	final override val isTypeParameterName by lazy {
-		parent is JuliaTypeParameters ||
-			parent.parent is JuliaType ||
-			parent is JuliaWhereClause ||
-			parent is JuliaUnarySubtypeOp
-	}
-	final override val isAbstractTypeName get() = parent is JuliaAbstractTypeDeclaration
-	final override val isPrimitiveTypeName get() = parent is JuliaPrimitiveTypeDeclaration
-	final override val isFunctionParameter
-		get() = parent is JuliaTypedNamedVariable && this === parent.firstChild
+	override val symbolKind: JuliaSymbolKind by lazy {
+		if (this !== parent.children.firstOrNull { it is JuliaSymbol } &&
+			parent is JuliaTypeDeclaration) JuliaSymbolKind.Field
+		else if (parent is JuliaCompactFunction && this === parent.firstChild ||
+			parent is JuliaFunction) JuliaSymbolKind.FunctionName
+		else if (parent is JuliaApplyFunctionOp && this === parent.firstChild)
+			JuliaSymbolKind.ApplyFunctionName
+		else if (parent is JuliaMacro) JuliaSymbolKind.MacroName
+		else if (parent is JuliaModuleDeclaration) JuliaSymbolKind.ModuleName
+		else if (parent is JuliaTypeOp && this === parent.children.getOrNull(1) ||
+				parent is JuliaTypeAlias ||
+				parent is JuliaType ||
+				parent is JuliaTypeAnnotation ||
+				parent is JuliaTypeDeclaration ||
+				parent is JuliaAbstractTypeDeclaration ||
+				parent is JuliaArray) JuliaSymbolKind.TypeName
+		else if (parent is JuliaTypeParameters ||
+				parent.parent is JuliaType ||
+				parent is JuliaWhereClause ||
+				parent is JuliaUnarySubtypeOp) JuliaSymbolKind.TypeParameterName
+		else if (parent is JuliaAbstractTypeDeclaration)
+			JuliaSymbolKind.AbstractTypeName
+		else if (parent is JuliaPrimitiveTypeDeclaration)
+			JuliaSymbolKind.PrimitiveTypeName
+		else if (parent is JuliaTypedNamedVariable && this === parent.firstChild)
+			JuliaSymbolKind.FunctionParameter
 
-	final override val isGlobalName: Boolean get() = parent is JuliaGlobalStatement
-	final override val isCatchSymbol: Boolean get() = parent is JuliaCatchClause
-	final override val isLambdaParameter: Boolean by lazy {
-		parent is JuliaLambda || (parent is JuliaTuple && parent.parent is JuliaLambda)
-	}
-	final override val isIndexParameter: Boolean by lazy {
-		parent is JuliaSingleIndexer ||
-			parent.parent is JuliaMultiIndexer
-	}
-	final override val isVariableName by lazy {
-		parent is JuliaAssignOp && this === parent.firstChild ||
-			parent is JuliaSymbolLhs
-	}
-	final override val isDeclaration by lazy {
-		isFunctionName ||
-			isVariableName ||
-			isFunctionParameter ||
-			isMacroName ||
-			isModuleName ||
-			isTypeName ||
-			isAbstractTypeName ||
-			isGlobalName ||
-			isPrimitiveTypeName ||
-			isCatchSymbol ||
-			isIndexParameter ||
-			isLambdaParameter
+		else if (parent is JuliaGlobalStatement) JuliaSymbolKind.GlobalName
+		else if (parent is JuliaCatchClause) JuliaSymbolKind.CatchSymbol
+		else if (parent is JuliaLambda ||
+			parent is JuliaTuple && parent.parent is JuliaLambda)
+			JuliaSymbolKind.LambdaParameter
+		else if (parent is JuliaSingleIndexer || parent.parent is JuliaMultiIndexer)
+			JuliaSymbolKind.IndexParameter
+		else if (parent is JuliaAssignOp && this === parent.firstChild ||
+			parent is JuliaSymbolLhs) JuliaSymbolKind.VariableName
+		else JuliaSymbolKind.Unknown
 	}
 
 	override var type: Type? = null
