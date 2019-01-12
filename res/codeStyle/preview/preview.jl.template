@@ -1,0 +1,16 @@
+module Format
+    struct A
+        v::Int
+        function A(a, b)
+            if a > 10
+                println(b)
+            end
+            new(a + b)
+        end
+    end
+    function a(n)
+        if n > 10
+            println(n)
+        end
+    end
+end

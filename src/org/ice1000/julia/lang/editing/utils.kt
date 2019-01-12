@@ -45,10 +45,10 @@ fun PsiElement.presentText(): String = when (this) {
 	is JuliaElseIfClause -> "elseif ${expr?.text.orEmpty()}"
 	is JuliaAssignOp -> exprList.first().let { if (it is JuliaSymbolLhs) it.symbolList.last().text else it.text }
 	is JuliaWhileExpr -> "while ${expr?.text.orEmpty()}"
-	is JuliaTypeDeclaration -> "type ${exprList.first().text}"
+	is JuliaTypeDeclaration -> "type ${exprList.firstOrNull()?.text.orEmpty()}"
 	is JuliaModuleDeclaration -> "module ${symbol?.text.orEmpty()}"
 	is IJuliaFunctionDeclaration -> toText
-	is JuliaTypeOp -> exprList.first().text
+	is JuliaTypeOp -> exprList.firstOrNull()?.text.orEmpty()
 	else -> cutText(text, LONG_TEXT_MAX)
 }
 

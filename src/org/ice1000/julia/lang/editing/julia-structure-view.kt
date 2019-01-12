@@ -109,7 +109,7 @@ class JuliaCustomFoldingBuilder : CustomFoldingBuilder() {
 
 	override fun isRegionCollapsedByDefault(node: ASTNode) = false
 	override fun buildLanguageFoldRegions(descriptors: MutableList<FoldingDescriptor>, root: PsiElement, document: Document, quick: Boolean) {
-		if (root !is JuliaFile || root.hasError) return
+		if (root !is JuliaFile) return
 
 		PsiTreeUtil.findChildrenOfType(root, JuliaStatements::class.java).flatMap {
 			PsiTreeUtil.findChildrenOfAnyType(it, *foldingNeeded).map {
