@@ -45,7 +45,7 @@ allprojects {
 		when (System.getProperty("user.name")) {
 			"ice1000" -> {
 				val root = "/home/ice1000/.local/share/JetBrains/Toolbox/apps"
-				localPath = "$root/IDEA-U/ch-0/183.4886.37"
+				localPath = "$root/IDEA-C/ch-0/183.5153.38"
 				alternativeIdePath = "$root/PyCharm-C/ch-0/183.4886.43"
 			}
 			"hoshino" -> version = "2018.2.1"
@@ -77,15 +77,15 @@ tasks.withType<PatchPluginXmlTask> {
 	pluginId(packageName)
 }
 
-java.sourceSets {
-	"main" {
+sourceSets {
+	getByName("main") {
 		withConvention(KotlinSourceSet::class) {
 			listOf(java, kotlin).forEach { it.srcDirs("src", "gen") }
 		}
 		resources.srcDirs("res")
 	}
 
-	"test" {
+	getByName("test") {
 		withConvention(KotlinSourceSet::class) {
 			listOf(java, kotlin).forEach { it.srcDirs("test") }
 		}
