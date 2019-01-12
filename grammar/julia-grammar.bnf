@@ -551,6 +551,7 @@ private primaryExpr ::=
  | symbol
  | macroSymbol
  | bracketedExpr
+ | bracketedComprehensionExpr
 
 // (a+b)
 bracketedExpr ::=
@@ -558,6 +559,10 @@ bracketedExpr ::=
   (opAsSymbol | unaryOpAsSymbol)?
    statements endOfLine (COMMA_SYM endOfLine)? (FOR_KEYWORD expr IN_KEYWORD expr)*
  RIGHT_BRACKET
+
+// (x for x in arr)
+bracketedComprehensionExpr::=
+	LEFT_BRACKET comprehensionElement+ RIGHT_BRACKET
 
 whereClause ::= WHERE_KEYWORD afterWhere
 

@@ -197,7 +197,6 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> immutable { return JuliaTypes.IMMUTABLE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> mutable { return JuliaTypes.MUTABLE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> union {
-
   return noInAndUnion ? JuliaTypes.SYM : JuliaTypes.UNION_KEYWORD;
 }
 
