@@ -2,17 +2,21 @@ package org.ice1000.julia.lang.editing
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.*
+import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate
 import com.intellij.ide.IconProvider
 import com.intellij.lang.*
 import com.intellij.lang.cacheBuilder.DefaultWordsScanner
 import com.intellij.lang.findUsages.FindUsagesProvider
 import com.intellij.lang.refactoring.RefactoringSupportProvider
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.InputValidatorEx
+import com.intellij.openapi.util.Ref
 import com.intellij.psi.*
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
@@ -200,6 +204,7 @@ class JuliaTypedHandlerDelegate : TypedHandlerDelegate() {
 class JuliaPairBackspaceHandler : BackspaceHandlerDelegate() {
 	/**
 	 * [JuliaTypes.TRANSPOSE_SYM] is `'`, because char has no `_START` and `_END` Token.
+	 * TODO: work as [JavaBackspaceHandler] to fix some bugs.
 	 */
 	override fun beforeCharDeleted(c: Char, file: PsiFile, editor: Editor) {
 		if (c !in "\"`'(" || file !is JuliaFile || !CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) return
@@ -224,6 +229,59 @@ class JuliaPairBackspaceHandler : BackspaceHandlerDelegate() {
 
 	override fun charDeleted(c: Char, file: PsiFile, editor: Editor): Boolean {
 		return false
+	}
+}
+
+/**
+ * TODO: delete blanks and make s(t)m(u)a(p)r(i)t(d) indent. ( `|` is the cursor)
+ * ```
+ * if x>0
+ *     dosth()
+ *     |end
+ * ```
+ * become
+ * ```
+ * if x>0
+ *     dosth()
+ * end
+ * ```
+ */
+class JuliaIndentBackspaceHandler : BackspaceHandlerDelegate() {
+	override fun beforeCharDeleted(c: Char, file: PsiFile, editor: Editor) {
+		if (c !in " \t" || file !is JuliaFile) return
+		// TODO
+		return
+	}
+
+	override fun charDeleted(c: Char, file: PsiFile, editor: Editor): Boolean {
+		// TODO
+		return false
+	}
+
+}
+
+/**
+ * TODO: press ENTER. ( `|` is the cursor)
+ * ```
+ * if x>0
+ * ```
+ *
+ * become
+ *
+ * ```
+ * if x>0
+ *     |
+ * end
+ * ```
+ * TODO: match indent to next line (if needed)
+ */
+class JuliaEnterAfterUnmatchedEndHandler : EnterHandlerDelegate {
+	override fun postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): EnterHandlerDelegate.Result {
+		return EnterHandlerDelegate.Result.Continue
+	}
+
+	override fun preprocessEnter(file: PsiFile, editor: Editor, caretOffset: Ref<Int>, caretAdvance: Ref<Int>, dataContext: DataContext, originalHandler: EditorActionHandler?): EnterHandlerDelegate.Result {
+		return EnterHandlerDelegate.Result.Continue
 	}
 }
 

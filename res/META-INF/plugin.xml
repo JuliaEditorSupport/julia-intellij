@@ -44,6 +44,7 @@
 		<additionalLibraryRootsProvider implementation="org.ice1000.julia.lang.module.JuliaStdLibraryProvider"/>
 		<stubElementTypeHolder class="org.ice1000.julia.lang.psi.JuliaTypes"/>
 		<typedHandler implementation="org.ice1000.julia.lang.editing.JuliaTypedHandlerDelegate"/>
+		<enterHandlerDelegate implementation="org.ice1000.julia.lang.editing.JuliaEnterAfterUnmatchedEndHandler"/>
 		<languageInjector implementation="org.ice1000.julia.lang.editing.JuliaLanguageInjector"/>
 		<lang.refactoringSupport
 			language="Julia"
@@ -58,6 +59,7 @@
 			fileType="Julia"
 			className="org.ice1000.julia.lang.editing.JuliaQuoteHandler"/>
 		<backspaceHandlerDelegate implementation="org.ice1000.julia.lang.editing.JuliaPairBackspaceHandler"/>
+		<backspaceHandlerDelegate implementation="org.ice1000.julia.lang.editing.JuliaIndentBackspaceHandler"/>
 		<spellchecker.support
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaSpellCheckingStrategy"/>
