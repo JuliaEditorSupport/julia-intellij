@@ -264,10 +264,13 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 	private fun findSymbolKind(): JuliaSymbolKind = when {
 		this !== parent.children.firstOrNull { it is JuliaSymbol } &&
 			parent is JuliaTypeDeclaration -> JuliaSymbolKind.Field
+
 		parent is JuliaCompactFunction && this === parent.firstChild ||
 			parent is JuliaFunction -> JuliaSymbolKind.FunctionName
+
 		parent is JuliaApplyFunctionOp &&
 			this === parent.firstChild -> JuliaSymbolKind.ApplyFunctionName
+
 		parent is JuliaMacro -> JuliaSymbolKind.MacroName
 		parent is JuliaModuleDeclaration -> JuliaSymbolKind.ModuleName
 		parent is JuliaTypeOp && this === parent.children.getOrNull(1) ||
@@ -277,22 +280,28 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			parent is JuliaTypeDeclaration ||
 			parent is JuliaAbstractTypeDeclaration ||
 			parent is JuliaArray -> JuliaSymbolKind.TypeName
+
 		parent is JuliaTypeParameters ||
 			parent.parent is JuliaType ||
 			parent is JuliaWhereClause ||
 			parent is JuliaUnarySubtypeOp -> JuliaSymbolKind.TypeParameterName
 		parent is JuliaAbstractTypeDeclaration -> JuliaSymbolKind.AbstractTypeName
 		parent is JuliaPrimitiveTypeDeclaration -> JuliaSymbolKind.PrimitiveTypeName
+
 		parent is JuliaTypedNamedVariable &&
 			this === parent.firstChild -> JuliaSymbolKind.FunctionParameter
 		parent is JuliaGlobalStatement -> JuliaSymbolKind.GlobalName
 		parent is JuliaCatchClause -> JuliaSymbolKind.CatchSymbol
+
 		parent is JuliaTuple && parent.parent is JuliaLambda ||
 			parent is JuliaLambda -> JuliaSymbolKind.LambdaParameter
+
 		parent is JuliaSingleIndexer ||
 			parent.parent is JuliaMultiIndexer -> JuliaSymbolKind.IndexParameter
+
 		parent is JuliaAssignOp && this === parent.firstChild ||
 			parent is JuliaSymbolLhs -> JuliaSymbolKind.VariableName
+
 		(parent is JuliaAssignOp) && this === parent.firstChild &&
 			(parent.parent is JuliaArguments) ||
 			(parent is JuliaSpliceOp) && this === parent.firstChild &&
@@ -371,10 +380,10 @@ abstract class JuliaLambdaMixin(node: ASTNode) : JuliaDeclaration(node), JuliaLa
 	}.orFalse() && super.processDeclarations(processor, substitutor, lastParent, place)
 }
 
-class JuliaReferenceManager(val psiManager: PsiManager, val dumbService: DumbService) {
-	companion object {
-		fun getInstance(project: Project): JuliaReferenceManager {
-			return ServiceManager.getService(project, JuliaReferenceManager::class.java)
-		}
-	}
-}
+//class JuliaReferenceManager(val psiManager: PsiManager, val dumbService: DumbService) {
+//	companion object {
+//		fun getInstance(project: Project): JuliaReferenceManager {
+//			return ServiceManager.getService(project, JuliaReferenceManager::class.java)
+//		}
+//	}
+//}

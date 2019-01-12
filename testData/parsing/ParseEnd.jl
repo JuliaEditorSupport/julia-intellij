@@ -16,3 +16,12 @@ a[end]
 a[1-end+1]
 a[1+end-1]
 a[2*end]
+
+if a isa Array
+    if a isa Array
+        println(a[end])
+        a[2*end]
+    end
+end
+
+println(a)

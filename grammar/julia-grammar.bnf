@@ -158,7 +158,7 @@ private statement ::=
  | typeDeclaration
  | compactFunction
  | function
- | multiAssignOp
+ | multiAssignOp // in the situation it won't be regarded as `typedNamedVariable`
  | expr
 
 moduleDeclaration ::=
@@ -552,6 +552,7 @@ private primaryExpr ::=
  | macroSymbol
  | bracketedExpr
 
+// (a+b)
 bracketedExpr ::=
  LEFT_BRACKET endOfLine
   (opAsSymbol | unaryOpAsSymbol)?
@@ -617,7 +618,7 @@ function ::=
    (typeParameters endOfLine)?
    (functionSignature endOfLine)?
    (whereClause endOfLine)*
-  statements
+  <<lazyBlockNotParseEndImpl>>
  END_KEYWORD {
 	pin=1
 	extends=expr
@@ -631,7 +632,7 @@ private typeKeywords ::= TYPE_KEYWORD | STRUCT_KEYWORD
 typeDeclaration ::=
  (typeModifiers? typeKeywords | typeModifiers) endOfLine
   symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? SEMICOLON_SYM? endOfLine
-  statements
+  <<lazyBlockNotParseEndImpl>>
  END_KEYWORD {
  	pin=1
 	extends=expr
@@ -653,7 +654,7 @@ macro ::=
  MACRO_KEYWORD endOfLine
     symbol endOfLine
    untypedVariables endOfLine
-  statements
+  <<lazyBlockNotParseEndImpl>>
  END_KEYWORD {
 	pin=1
 	extends=expr
@@ -663,11 +664,11 @@ macro ::=
 
 let ::= LET_KEYWORD endOfLine assignLevelOp (commaSep assignLevelOp)* statements END_KEYWORD? { pin=1 extends=expr }
 
-block ::= BEGIN_KEYWORD statements END_KEYWORD { pin=1 }
+block ::= BEGIN_KEYWORD <<lazyBlockNotParseEndImpl>> END_KEYWORD { pin=1 }
 
-colonBlock ::= COLON_BEGIN_SYM statements RIGHT_BRACKET
+colonBlock ::= COLON_BEGIN_SYM <<lazyBlockParseEndImpl>> RIGHT_BRACKET
 
-doBlock ::= DO_KEYWORD statements END_KEYWORD { pin=1 }
+doBlock ::= DO_KEYWORD <<lazyBlockNotParseEndImpl>> END_KEYWORD { pin=1 }
 
 breakExpr ::= BREAK_KEYWORD
 
@@ -696,7 +697,7 @@ ifExpr ::=
 elseIfClause ::= ELSEIF_KEYWORD expr endOfLine
  <<elseIfLazyParseableBlockImpl>>{pin=1}
 
-elseClause ::= ELSE_KEYWORD <<elseLazyParseableBlockImpl>>{pin=1}
+elseClause ::= ELSE_KEYWORD <<lazyBlockNotParseEndImpl>>{pin=1}
 
 forComprehension ::=
  LEFT_M_BRACKET endOfLine
@@ -733,7 +734,7 @@ whileExpr ::=
   expr endOfLine
    whileLazyBlock
  END_KEYWORD { pin=1 extends=expr }
-private whileLazyBlock::= <<whileLazyBlockImpl>>
+private whileLazyBlock::= <<lazyBlockNotParseEndImpl>>
 
 returnExpr ::= RETURN_KEYWORD (expr (COMMA_SYM expr)*)?
 
@@ -753,7 +754,7 @@ catchClause ::=
 }
 
 finallyClause ::=
- FINALLY_KEYWORD <<whileLazyBlockImpl>>{pin=1}
+ FINALLY_KEYWORD <<lazyBlockNotParseEndImpl>>{pin=1}
 
 private typeAnnotationAsOp::=
 	LEFT_BRACKET typeAnnotation RIGHT_BRACKET

@@ -12,8 +12,7 @@ import org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor.Completion
 import org.ice1000.julia.lang.module.JuliaSettings
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.*
-import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
-import org.ice1000.julia.lang.psi.impl.docString
+import org.ice1000.julia.lang.psi.impl.*
 import java.math.BigInteger
 import java.math.BigInteger.ONE
 import java.math.BigInteger.ZERO
@@ -194,6 +193,8 @@ $JULIA_DOC_SURROUNDING
 				.textAttributes = JuliaHighlighter.TYPE_NAME
 			JuliaSymbolKind.KeywordParameterName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.KEYWORD_ARGUMENT
+			else -> {
+			}
 		}
 		when {
 			element.isConstName -> holder.createInfoAnnotation(element, null)
@@ -329,12 +330,3 @@ $JULIA_DOC_SURROUNDING
 		}
 	}
 }
-
-private val JuliaSymbol.isQuoteCall: Boolean
-	get() = (parent is JuliaQuoteOp) || (parent is JuliaExprWrapper && parent.parent is JuliaQuoteIndexing)
-
-private val JuliaSymbol.isConstName: Boolean
-	get() = (parent is JuliaSymbolLhs) || isConstNameRef
-
-private val JuliaSymbol.isConstNameRef: Boolean
-	get() = (reference?.resolve() as? JuliaSymbol)?.isConstName.orFalse()
