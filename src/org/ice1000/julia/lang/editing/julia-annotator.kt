@@ -83,7 +83,8 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 					JuliaBundle.message("julia.lint.replace-compact-function")))
 			statements.size == 1 -> {
 				val expression = statements.first().let {
-					(it as? JuliaReturnExpr)?.exprList?.joinToString(", ") { it.text } ?: it.text
+					(it as? JuliaReturnExpr)?.exprList?.joinToString(", ") { it.text }
+						?: it.text
 				}
 				if (expression.length <= settings.maxCharacterToConvertToCompact)
 					holder.createWeakWarningAnnotation(
@@ -114,7 +115,8 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		val signatureTextPart = signature?.run { typedNamedVariableList.takeIf { it.isNotEmpty() } }?.run {
 			"# Arguments\n\n${joinToString("\n") {
 				//                    这是一根被卡在石头里的宝剑 XD ⇊⇊⇊
-				"- `${it.exprList.firstOrNull()?.text.orEmpty()}${it.typeAnnotation?.text ?: "::Any"}`:"
+				"- `${it.exprList.firstOrNull()?.text.orEmpty()}${it.typeAnnotation?.text
+					?: "::Any"}`:"
 			}}"
 		}.orEmpty()
 		holder.createInfoAnnotation(identifier, JuliaBundle.message("julia.lint.no-doc-string-function"))
@@ -174,19 +176,23 @@ $JULIA_DOC_SURROUNDING
 	}
 
 	private fun symbol(element: JuliaSymbol, holder: AnnotationHolder) {
-		when {
-			element.isModuleName -> holder.createInfoAnnotation(element, null)
+		when (element.symbolKind) {
+			JuliaSymbolKind.ModuleName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
-			element.isMacroName -> definition(element, holder, JuliaHighlighter.MACRO_NAME)
-			element.isFunctionName -> definition(element, holder, JuliaHighlighter.FUNCTION_NAME)
-			element.isAbstractTypeName -> holder.createInfoAnnotation(element, null)
+			JuliaSymbolKind.MacroName -> definition(element, holder, JuliaHighlighter.MACRO_NAME)
+			JuliaSymbolKind.FunctionName -> definition(element, holder, JuliaHighlighter.FUNCTION_NAME)
+			JuliaSymbolKind.AbstractTypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
-			element.isPrimitiveTypeName -> holder.createInfoAnnotation(element, null)
+			JuliaSymbolKind.PrimitiveTypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
-			element.isTypeParameterName -> holder.createInfoAnnotation(element, null)
+			JuliaSymbolKind.TypeParameterName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_PARAMETER_NAME
-			element.isFunctionParameter -> holder.createInfoAnnotation(element, null)
+			JuliaSymbolKind.FunctionParameter -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.FUNCTION_PARAMETER
+			JuliaSymbolKind.TypeName -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.TYPE_NAME
+		}
+		when {
 			element.isKeywordParameterName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.KEYWORD_ARGUMENT
 			element.isConstName -> holder.createInfoAnnotation(element, null)
@@ -194,11 +200,10 @@ $JULIA_DOC_SURROUNDING
 			element.isQuoteCall -> holder.createInfoAnnotation(element.parent
 				.let { if (it is JuliaQuoteOp) it else it.parent }, null)
 				.textAttributes = JuliaHighlighter.QUOTE_NAME
-			element.isTypeName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.TYPE_NAME
-			element.text in arrayOf("in", "where", "isa", "end") -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
 		}
+		if (element.text in arrayOf("in", "where", "isa", "end"))
+			holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
 	}
 
 	private fun applyFunction(

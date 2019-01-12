@@ -5,12 +5,10 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
-import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.ProcessingContext
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.impl.*
@@ -24,7 +22,7 @@ class JuliaSymbolRef(
 	private val symbol: JuliaAbstractSymbol,
 	private var refTo: PsiElement? = null) : PsiPolyVariantReference {
 	private val range = TextRange(0, element.textLength)
-	private val isDeclaration = (element as? JuliaSymbol)?.isDeclaration.orFalse()
+	private val isDeclaration = (element as? JuliaSymbol)?.symbolKind?.isDeclaration.orFalse()
 	private val resolver by lazy {
 		when (symbol) {
 			is JuliaMacroSymbolMixin -> macroResolver
@@ -77,20 +75,18 @@ abstract class ResolveProcessor<ResolveResult>(private val place: PsiElement) : 
 	override fun handleEvent(event: PsiScopeProcessor.Event, o: Any?) = Unit
 	override fun <T : Any?> getHint(hintKey: Key<T>): T? = null
 	protected val PsiElement.hasNoError get() = (this as? StubBasedPsiElement<*>)?.stub != null || !PsiTreeUtil.hasErrorElements(this)
-	fun isInScope(element: PsiElement) = when {
-		element !is JuliaSymbol -> false
-		element.isFunctionParameter -> PsiTreeUtil.isAncestor(
+	fun isInScope(element: PsiElement) = element is JuliaSymbol && when (element.symbolKind) {
+		JuliaSymbolKind.FunctionParameter -> PsiTreeUtil.isAncestor(
 			PsiTreeUtil.getParentOfType(element, IJuliaFunctionDeclaration::class.java), place, true)
-		element.isCatchSymbol -> PsiTreeUtil.isAncestor(
+		JuliaSymbolKind.CatchSymbol -> PsiTreeUtil.isAncestor(
 			PsiTreeUtil.getParentOfType(element, JuliaCatchClause::class.java), place, true)
-		element.isIndexParameter -> PsiTreeUtil.isAncestor(
+		JuliaSymbolKind.IndexParameter -> PsiTreeUtil.isAncestor(
 			PsiTreeUtil.getParentOfType(element, JuliaForExpr::class.java)
 				?: PsiTreeUtil.getParentOfType(element, JuliaForComprehension::class.java), place, true)
-		element.isLambdaParameter -> PsiTreeUtil.isAncestor(
+		JuliaSymbolKind.LambdaParameter -> PsiTreeUtil.isAncestor(
 			PsiTreeUtil.getParentOfType(element, JuliaLambda::class.java), place, false)
-		element.isDeclaration -> PsiTreeUtil.isAncestor(
-			PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), place, false)
-		else -> false
+		else -> element.symbolKind.isDeclaration &&
+			PsiTreeUtil.isAncestor(PsiTreeUtil.getParentOfType(element, JuliaStatements::class.java), place, false)
 	}
 }
 
@@ -106,7 +102,7 @@ open class SymbolResolveProcessor(
 	override fun execute(element: PsiElement, resolveState: ResolveState) = when {
 		candidateSet.isNotEmpty() -> false
 		element is JuliaSymbol -> {
-			val accessible = accessible(element) && element.isDeclaration
+			val accessible = accessible(element) && element.symbolKind.isDeclaration
 			if (accessible) candidateSet += PsiElementResolveResult(element, element.hasNoError)
 			!accessible
 		}
@@ -128,28 +124,33 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 	override val candidateSet = ArrayList<LookupElementBuilder>(20)
 	override fun execute(element: PsiElement, resolveState: ResolveState): Boolean {
 		if (element is JuliaSymbol) {
-			val (icon: Icon, value: String, tail: String?, type: Type?, handler: InsertHandler<LookupElement>?) = when {
-				element.isVariableName ||
-					element.isCatchSymbol ||
-					element.isIndexParameter -> tuple5(
+			val (icon: Icon,
+				value: String,
+				tail: String?,
+				type: Type?,
+				handler: InsertHandler<LookupElement>?
+			) = when (element.symbolKind) {
+				JuliaSymbolKind.VariableName,
+				JuliaSymbolKind.CatchSymbol,
+				JuliaSymbolKind.IndexParameter -> tuple5(
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,
 					element.type ?: UNKNOWN_VALUE_PLACEHOLDER
 				)
-				element.isModuleName -> tuple5(
+				JuliaSymbolKind.ModuleName -> tuple5(
 					JuliaIcons.JULIA_MODULE_ICON,
 					element.text,
 					null,
 					element.containingFile.name.let { "in $it" }
 				)
-				element.isMacroName -> tuple5(
+				JuliaSymbolKind.MacroName -> tuple5(
 					JuliaIcons.JULIA_MACRO_ICON,
 					"@${element.text}",
 					null,
 					null
 				)
-				element.isFunctionName -> (element.parent as? IJuliaFunctionDeclaration)?.let { function ->
+				JuliaSymbolKind.FunctionName -> (element.parent as? IJuliaFunctionDeclaration)?.let { function ->
 					tuple5(
 						JuliaIcons.JULIA_FUNCTION_ICON,
 						element.text,
@@ -160,24 +161,25 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 							editor.document.insertString(editor.caretModel.offset, "()")
 							editor.caretModel.moveCaretRelatively(1, 0, false, false, true)
 						})
-				} ?: tuple5<Icon, String, String?, String?, InsertHandler<LookupElement>?>(
-					JuliaIcons.JULIA_FUNCTION_ICON, element.text, null, null)
-				element.isTypeName ||
-					element.isPrimitiveTypeName ||
-					element.isAbstractTypeName -> tuple5(
+				}
+					?: tuple5<Icon, String, String?, String?, InsertHandler<LookupElement>?>(
+						JuliaIcons.JULIA_FUNCTION_ICON, element.text, null, null)
+				JuliaSymbolKind.TypeName,
+				JuliaSymbolKind.PrimitiveTypeName,
+				JuliaSymbolKind.AbstractTypeName -> tuple5(
 					JuliaIcons.JULIA_TYPE_ICON,
 					element.text,
 					null,
 					null
 				)
-				element.isFunctionParameter ||
-					element.isLambdaParameter -> tuple5(
+				JuliaSymbolKind.FunctionParameter,
+				JuliaSymbolKind.LambdaParameter -> tuple5(
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,
 					element.type
 				)
-				element.isGlobalName -> tuple5(
+				JuliaSymbolKind.GlobalName -> tuple5(
 					JuliaIcons.JULIA_VARIABLE_ICON,
 					element.text,
 					null,
@@ -185,7 +187,7 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 				)
 				else -> return true
 			}
-			if (element.isDeclaration && element.hasNoError && isInScope(element))
+			if (element.symbolKind.isDeclaration && element.hasNoError && isInScope(element))
 				candidateSet += LookupElementBuilder
 					.create(value)
 					.withIcon(icon)

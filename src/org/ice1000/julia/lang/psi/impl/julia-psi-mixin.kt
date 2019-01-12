@@ -6,7 +6,6 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.*
@@ -218,24 +217,6 @@ abstract class JuliaStatementsMixin(node: ASTNode) : ASTWrapperPsiElement(node),
 }
 
 interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
-	// check if they are declarations
-	val isField: Boolean get() = symbolKind == JuliaSymbolKind.Field
-	val isFunctionName: Boolean get() = symbolKind == JuliaSymbolKind.FunctionName
-	val isApplyFunctionName: Boolean get() = symbolKind == JuliaSymbolKind.ApplyFunctionName
-	val isMacroName: Boolean get() = symbolKind == JuliaSymbolKind.MacroName
-	val isModuleName: Boolean get() = symbolKind == JuliaSymbolKind.ModuleName
-	val isTypeName: Boolean get() = symbolKind == JuliaSymbolKind.TypeName
-	val isTypeParameterName: Boolean get() = symbolKind == JuliaSymbolKind.TypeParameterName
-	val isAbstractTypeName: Boolean get() = symbolKind == JuliaSymbolKind.AbstractTypeName
-	val isPrimitiveTypeName: Boolean get() = symbolKind == JuliaSymbolKind.PrimitiveTypeName
-	val isFunctionParameter: Boolean get() = symbolKind == JuliaSymbolKind.FunctionParameter
-	val isVariableName: Boolean get() = symbolKind == JuliaSymbolKind.VariableName
-	val isGlobalName: Boolean get() = symbolKind == JuliaSymbolKind.GlobalName
-	val isCatchSymbol: Boolean get() = symbolKind == JuliaSymbolKind.CatchSymbol
-	val isDeclaration: Boolean get() = symbolKind.isDeclaration
-	val isIndexParameter: Boolean get() = symbolKind == JuliaSymbolKind.IndexParameter
-	val isLambdaParameter: Boolean get() = symbolKind == JuliaSymbolKind.LambdaParameter
-
 	val symbolKind: JuliaSymbolKind
 }
 
@@ -278,47 +259,45 @@ sealed class JuliaAbstractSymbol(node: ASTNode) : ASTWrapperPsiElement(node), Ps
 }
 
 abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), JuliaSymbol {
-	override val symbolKind: JuliaSymbolKind by lazy {
-		if (this !== parent.children.firstOrNull { it is JuliaSymbol } &&
-			parent is JuliaTypeDeclaration) JuliaSymbolKind.Field
-		else if (parent is JuliaCompactFunction && this === parent.firstChild ||
-			parent is JuliaFunction) JuliaSymbolKind.FunctionName
-		else if (parent is JuliaApplyFunctionOp && this === parent.firstChild)
-			JuliaSymbolKind.ApplyFunctionName
-		else if (parent is JuliaMacro) JuliaSymbolKind.MacroName
-		else if (parent is JuliaModuleDeclaration) JuliaSymbolKind.ModuleName
-		else if (parent is JuliaTypeOp && this === parent.children.getOrNull(1) ||
-				parent is JuliaTypeAlias ||
-				parent is JuliaType ||
-				parent is JuliaTypeAnnotation ||
-				parent is JuliaTypeDeclaration ||
-				parent is JuliaAbstractTypeDeclaration ||
-				parent is JuliaArray) JuliaSymbolKind.TypeName
-		else if (parent is JuliaTypeParameters ||
-				parent.parent is JuliaType ||
-				parent is JuliaWhereClause ||
-				parent is JuliaUnarySubtypeOp) JuliaSymbolKind.TypeParameterName
-		else if (parent is JuliaAbstractTypeDeclaration)
-			JuliaSymbolKind.AbstractTypeName
-		else if (parent is JuliaPrimitiveTypeDeclaration)
-			JuliaSymbolKind.PrimitiveTypeName
-		else if (parent is JuliaTypedNamedVariable && this === parent.firstChild)
-			JuliaSymbolKind.FunctionParameter
+	override val symbolKind: JuliaSymbolKind by lazy(::findSymbolKind)
 
-		else if (parent is JuliaGlobalStatement) JuliaSymbolKind.GlobalName
-		else if (parent is JuliaCatchClause) JuliaSymbolKind.CatchSymbol
-		else if (parent is JuliaLambda ||
-			parent is JuliaTuple && parent.parent is JuliaLambda)
-			JuliaSymbolKind.LambdaParameter
-		else if (parent is JuliaSingleIndexer || parent.parent is JuliaMultiIndexer)
-			JuliaSymbolKind.IndexParameter
-		else if (parent is JuliaAssignOp && this === parent.firstChild ||
-			parent is JuliaSymbolLhs) JuliaSymbolKind.VariableName
-		else JuliaSymbolKind.Unknown
+	private fun findSymbolKind(): JuliaSymbolKind = when {
+		this !== parent.children.firstOrNull { it is JuliaSymbol } &&
+			parent is JuliaTypeDeclaration -> JuliaSymbolKind.Field
+		parent is JuliaCompactFunction && this === parent.firstChild ||
+			parent is JuliaFunction -> JuliaSymbolKind.FunctionName
+		parent is JuliaApplyFunctionOp &&
+			this === parent.firstChild -> JuliaSymbolKind.ApplyFunctionName
+		parent is JuliaMacro -> JuliaSymbolKind.MacroName
+		parent is JuliaModuleDeclaration -> JuliaSymbolKind.ModuleName
+		parent is JuliaTypeOp && this === parent.children.getOrNull(1) ||
+			parent is JuliaTypeAlias ||
+			parent is JuliaType ||
+			parent is JuliaTypeAnnotation ||
+			parent is JuliaTypeDeclaration ||
+			parent is JuliaAbstractTypeDeclaration ||
+			parent is JuliaArray -> JuliaSymbolKind.TypeName
+		parent is JuliaTypeParameters ||
+			parent.parent is JuliaType ||
+			parent is JuliaWhereClause ||
+			parent is JuliaUnarySubtypeOp -> JuliaSymbolKind.TypeParameterName
+		parent is JuliaAbstractTypeDeclaration -> JuliaSymbolKind.AbstractTypeName
+		parent is JuliaPrimitiveTypeDeclaration -> JuliaSymbolKind.PrimitiveTypeName
+		parent is JuliaTypedNamedVariable &&
+			this === parent.firstChild -> JuliaSymbolKind.FunctionParameter
+		parent is JuliaGlobalStatement -> JuliaSymbolKind.GlobalName
+		parent is JuliaCatchClause -> JuliaSymbolKind.CatchSymbol
+		parent is JuliaTuple && parent.parent is JuliaLambda ||
+			parent is JuliaLambda -> JuliaSymbolKind.LambdaParameter
+		parent is JuliaSingleIndexer ||
+			parent.parent is JuliaMultiIndexer -> JuliaSymbolKind.IndexParameter
+		parent is JuliaAssignOp && this === parent.firstChild ||
+			parent is JuliaSymbolLhs -> JuliaSymbolKind.VariableName
+		else -> JuliaSymbolKind.Unknown
 	}
 
 	override var type: Type? = null
-		get() = if (isVariableName) PsiTreeUtil
+		get() = if (symbolKind == JuliaSymbolKind.VariableName) PsiTreeUtil
 			.getParentOfType(this, JuliaAssignOp::class.java, true, JuliaStatements::class.java)
 			?.children
 			?.lastOrNull { it is JuliaExpr }

@@ -16,8 +16,6 @@ import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.psi.*
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
-import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy
-import com.intellij.spellchecker.tokenizer.Tokenizer
 import com.intellij.ui.breadcrumbs.BreadcrumbsProvider
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
@@ -175,7 +173,7 @@ class JuliaFindUsagesProvider : FindUsagesProvider {
 	override fun getDescriptiveName(element: PsiElement) = if (element.canBeNamed) element.presentText() else ""
 	override fun getType(element: PsiElement) = if (element.canBeNamed) element.text else ""
 	override fun canFindUsagesFor(element: PsiElement) =
-		element.let { it as? PsiNameIdentifierOwner }?.run { nameIdentifier as? JuliaSymbol }?.isDeclaration.orFalse()
+		element.let { it as? PsiNameIdentifierOwner }?.run { nameIdentifier as? JuliaSymbol }?.let { it.symbolKind.isDeclaration }.orFalse()
 }
 
 class JuliaRefactoringSupportProvider : RefactoringSupportProvider() {
