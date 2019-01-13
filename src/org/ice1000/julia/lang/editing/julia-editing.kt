@@ -8,8 +8,9 @@ import com.intellij.lang.*
 import com.intellij.lang.cacheBuilder.DefaultWordsScanner
 import com.intellij.lang.findUsages.FindUsagesProvider
 import com.intellij.lang.refactoring.RefactoringSupportProvider
+import com.intellij.lexer.Lexer
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.*
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
@@ -17,7 +18,13 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.util.Ref
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.*
+import com.intellij.psi.impl.cache.impl.*
+import com.intellij.psi.impl.cache.impl.id.LexerBasedIdIndexer
+import com.intellij.psi.impl.cache.impl.todo.LexerBasedTodoIndexer
+import com.intellij.psi.impl.search.IndexPatternBuilder
+import com.intellij.psi.search.UsageSearchContext
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
 import com.intellij.ui.breadcrumbs.BreadcrumbsProvider
@@ -85,6 +92,38 @@ class JuliaCommenter : Commenter {
 	override fun getBlockCommentSuffix() = JULIA_BLOCK_COMMENT_END
 	override fun getLineCommentPrefix() = "# "
 }
+
+class JuliaTodoIndexer : LexerBasedTodoIndexer() {
+	override fun createLexer(consumer: OccurrenceConsumer): Lexer = JuliaIdIndexer.createIndexingLexer(consumer)
+}
+
+class JuliaIdIndexer : LexerBasedIdIndexer() {
+	override fun createLexer(consumer: OccurrenceConsumer): Lexer {
+		return createIndexingLexer(consumer)
+	}
+
+	companion object {
+		fun createIndexingLexer(consumer: OccurrenceConsumer): Lexer {
+			return JuliaFilterLexer(JuliaLexerAdapter(), consumer)
+		}
+	}
+}
+
+class JuliaFilterLexer(originalLexer: Lexer, table: OccurrenceConsumer) : BaseFilterLexer(originalLexer, table) {
+	override fun advance() {
+		scanWordsInToken(UsageSearchContext.IN_COMMENTS.toInt(), false, false)
+		advanceTodoItemCountsInToken()
+		myDelegate.advance()
+	}
+}
+
+class JuliaTodoIndexPatternBuilder : IndexPatternBuilder {
+	override fun getIndexingLexer(file: PsiFile): Lexer? = if (file is JuliaFile) JuliaLexerAdapter() else null
+	override fun getCommentTokenSet(file: PsiFile): TokenSet? = if (file is JuliaFile) JuliaTokenType.COMMENTS else null
+	override fun getCommentStartDelta(tokenType: IElementType?) = 0
+	override fun getCommentEndDelta(tokenType: IElementType?) = 0
+}
+
 
 const val TEXT_MAX = 16
 const val LONG_TEXT_MAX = 24
@@ -257,33 +296,86 @@ class JuliaIndentBackspaceHandler : BackspaceHandlerDelegate() {
 		// TODO
 		return false
 	}
-
 }
 
-/**
- * TODO: press ENTER. ( `|` is the cursor)
- * ```
- * if x>0
- * ```
- *
- * become
- *
- * ```
- * if x>0
- *     |
- * end
- * ```
- * TODO: match indent to next line (if needed)
- */
 class JuliaEnterAfterUnmatchedEndHandler : EnterHandlerDelegate {
 	override fun postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): EnterHandlerDelegate.Result {
-		return EnterHandlerDelegate.Result.Continue
+		if (file !is JuliaFile) return EnterHandlerDelegate.Result.Continue
+		val indentSize = 4
+
+		val document = editor.document
+		val caretModel = editor.caretModel
+		val pos = caretModel.logicalPosition
+		val offset = caretModel.offset
+		val lineStartOffset = document.getLineStartOffset(pos.line)
+		val lineEndOffset = document.getLineEndOffset(pos.line)
+		val lineStringAfter = document.charsSequence.substring(offset, lineEndOffset)
+		// `previous` is `current` before ENTER pressed.
+		val previousLineStartOffset = document.getLineStartOffset(pos.line - 1)
+		val previousLineEndOffset = document.getLineEndOffset(pos.line - 1)
+		val previousLine = document.charsSequence.substring(previousLineStartOffset, previousLineEndOffset)
+
+		if (lineStringAfter.afterIsDeletable()) { // end, else, elseif...
+			val lineStart = document.charsSequence.substring(lineStartOffset, lineEndOffset + 4)
+			return when {
+				previousLine.trim().beforeIsIndentable() -> {
+					EnterHandlerDelegate.Result.Continue
+				}
+				lineStart.isBlank() -> {
+					document.deleteString(lineStartOffset, lineStartOffset + indentSize)
+					EnterHandlerDelegate.Result.Stop
+				}
+				lineStart.startsWith('\t') -> {
+					document.deleteString(lineStartOffset, lineStartOffset + 1)
+					EnterHandlerDelegate.Result.Stop
+				}
+				else -> EnterHandlerDelegate.Result.Continue
+			}
+		}
+
+		// insert indent when previousLine beforeIsIndentable to first line of indentStatements
+		// note: `previousLine` is the `currentLine` before ENTER pressed.
+		if (previousLine.trimStart().beforeIsIndentable()) {
+			if (pos.line == 0) return EnterHandlerDelegate.Result.Continue
+			val previousLineStart4Chars = document.charsSequence.substring(previousLineStartOffset, previousLineStartOffset + 4)
+			// depends on previous' indent
+			return when {
+				previousLineStart4Chars.isBlank() -> {
+					document.insertString(lineStartOffset, StringUtil.repeat(" ", indentSize))
+					EnterHandlerDelegate.Result.Stop
+				}
+				previousLineStart4Chars.startsWith('\t') -> {
+					document.insertString(lineStartOffset, "\t")
+					EnterHandlerDelegate.Result.Stop
+				}
+				else -> {
+					document.insertString(lineStartOffset, StringUtil.repeat(" ", indentSize))
+					EnterHandlerDelegate.Result.Stop
+				}
+			}
+		} else {
+			return EnterHandlerDelegate.Result.Continue
+		}
 	}
 
 	override fun preprocessEnter(file: PsiFile, editor: Editor, caretOffset: Ref<Int>, caretAdvance: Ref<Int>, dataContext: DataContext, originalHandler: EditorActionHandler?): EnterHandlerDelegate.Result {
 		return EnterHandlerDelegate.Result.Continue
 	}
 }
+
+private fun String.afterIsDeletable(): Boolean = this.trim() == "end"
+	|| this.startsWith("elseif ") || this.startsWith("elseif(")
+	|| this.trim() == ("else")
+
+private fun String.beforeIsIndentable(): Boolean =
+	this.startsWith("module ")
+		|| this.startsWith("function ") || this.startsWith("primitive ")
+		|| this.startsWith("type ") || this.startsWith("abstract ")
+		|| this.startsWith("immutable ") || this.startsWith("mutable ")
+		|| this.startsWith("if ") || this.startsWith("if(")
+		|| this.startsWith("else")
+		|| this.startsWith("elseif ") || this.startsWith("elseif(")
+		|| this.startsWith("while ") || this.startsWith("while(")
 
 /**
  * this class seems never used.

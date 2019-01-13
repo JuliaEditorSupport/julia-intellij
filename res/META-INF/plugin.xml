@@ -46,6 +46,10 @@
 		<typedHandler implementation="org.ice1000.julia.lang.editing.JuliaTypedHandlerDelegate"/>
 		<enterHandlerDelegate implementation="org.ice1000.julia.lang.editing.JuliaEnterAfterUnmatchedEndHandler"/>
 		<languageInjector implementation="org.ice1000.julia.lang.editing.JuliaLanguageInjector"/>
+		<!--comments with `to do`-->
+		<idIndexer filetype="Julia" implementationClass="org.ice1000.julia.lang.editing.JuliaIdIndexer"/>
+		<todoIndexer filetype="Julia" implementationClass="org.ice1000.julia.lang.editing.JuliaTodoIndexer"/>
+		<indexPatternBuilder implementation="org.ice1000.julia.lang.editing.JuliaTodoIndexPatternBuilder"/>
 		<lang.refactoringSupport
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaRefactoringSupportProvider"/>
@@ -109,9 +113,9 @@
 		<!--anchor="left"-->
 		<!--factoryClass="org.ice1000.julia.lang.editing.JuliaDocumentWindowImpl"/>-->
 		<toolWindow id="JuliaSciView"
-		            anchor="right"
-		            icon="/icons/julia.png"
-		            factoryClass="org.ice1000.julia.lang.module.JuliaSciToolWindowFactory"/>
+								anchor="right"
+								icon="/icons/julia.png"
+								factoryClass="org.ice1000.julia.lang.module.JuliaSciToolWindowFactory"/>
 		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaSciToolWindow"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaSciToolWindow"/>
