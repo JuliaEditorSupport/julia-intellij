@@ -203,9 +203,20 @@ $JULIA_DOC_SURROUNDING
 				.let { if (it is JuliaQuoteOp) it else it.parent }, null)
 				.textAttributes = JuliaHighlighter.QUOTE_NAME
 		}
-		if (element.text in arrayOf("in", "where", "isa", "end"))
-			holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
+		element.text.let {
+			if (it in arrayOf("in", "where", "end"))
+				holder.createInfoAnnotation(element, null)
+					.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
+			// TODO: `builtins` need stub later
+			else if (it.isNotEmpty() && it[0].isUpperCase() && it in builtins) {
+				holder.createInfoAnnotation(element, null)
+					.textAttributes = JuliaHighlighter.TYPE_NAME
+			}
+			else if(it in arrayOf("nothing")){
+				holder.createInfoAnnotation(element, null)
+					.textAttributes = JuliaHighlighter.KEYWORD
+			}
+		}
 	}
 
 	private fun applyFunction(

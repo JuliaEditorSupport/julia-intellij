@@ -126,6 +126,4 @@ class JuliaCustomFoldingBuilder : CustomFoldingBuilder() {
 	 */
 	override fun getLanguagePlaceholderText(node: ASTNode, range: TextRange): String = "..."
 
-	private val PsiElement.hasError get() = PsiTreeUtil.hasErrorElements(this)
-
 }
