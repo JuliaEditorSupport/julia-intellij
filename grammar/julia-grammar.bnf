@@ -154,6 +154,7 @@ statements ::= semi* (statement (semi+ statement)*)? semi* {
 private statement ::=
    moduleDeclaration
  | importExpr
+ | importAllExpr
  | export
  | typeDeclaration
  | compactFunction

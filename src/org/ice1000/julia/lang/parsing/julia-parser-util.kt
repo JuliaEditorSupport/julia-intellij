@@ -66,7 +66,9 @@ object JuliaGeneratedParserUtilBase : GeneratedParserUtilBase() {
 					builder.advanceLexer()
 				}
 				in endTokenTypes -> {
-					braceCount--
+					if (parStack.empty()) {
+						braceCount--
+					}
 					advance(braceCount, builder, parseEnd)
 					forStack.tryPop()
 				}
