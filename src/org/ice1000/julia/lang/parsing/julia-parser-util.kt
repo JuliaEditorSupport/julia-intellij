@@ -111,50 +111,6 @@ object JuliaGeneratedParserUtilBase : GeneratedParserUtilBase() {
 		return parseBlockLazy(builder, parseEnd = true) != null
 	}
 
-
-	/**
-	 * parseEnd false
-	 */
-	@JvmStatic
-	fun elseIfLazyParseableBlockImpl(builder: PsiBuilder, level: Int): Boolean {
-		val marker: PsiBuilder.Marker? = builder.mark()
-		val foldableTokenTypes = PAIRS
-		val endTokenTypes = listOf(ELSEIF_KEYWORD, ELSE_KEYWORD, END_KEYWORD)
-		val stack = Stack<IElementType>()
-		var braceCount = 1
-		loop@ while (braceCount > 0 && !builder.eof()) {
-			val tokenType = builder.tokenType
-			when (tokenType) {
-				in foldableTokenTypes -> {
-					braceCount++
-					builder.advanceLexer()
-					if (tokenType == IF_KEYWORD) {
-						stack.push(tokenType)
-					}
-				}
-				in endTokenTypes -> {
-					val top = stack.tryPop()
-					if (top == null) {
-						braceCount--
-						advance(braceCount, builder)
-						continue@loop
-					}
-					if (top == IF_KEYWORD && tokenType == END_KEYWORD) {
-						stack.pop()
-					}
-				}
-				else -> builder.advanceLexer()
-			}
-		}
-
-		marker?.collapse(LAZY_PARSEABLE_BLOCK)
-		if (braceCount > 0) {
-			marker?.setCustomEdgeTokenBinders(null, WhitespacesBinders.GREEDY_RIGHT_BINDER)
-		}
-
-		return marker != null
-	}
-
 	private fun advance(braceCount: Int, builder: PsiBuilder, parseEnd: Boolean = false) {
 		if (parseEnd || braceCount != 0) {
 			builder.advanceLexer()

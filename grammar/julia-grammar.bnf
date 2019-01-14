@@ -700,9 +700,9 @@ ifExpr ::=
  END_KEYWORD{pin=1}
 
 elseIfClause ::= ELSEIF_KEYWORD expr endOfLine
- <<elseIfLazyParseableBlockImpl>>{pin=1}
+ statements{pin=1}
 
-elseClause ::= ELSE_KEYWORD <<lazyBlockNotParseEndImpl>>{pin=1}
+elseClause ::= ELSE_KEYWORD statements{pin=1}
 
 forComprehension ::=
  LEFT_M_BRACKET endOfLine
