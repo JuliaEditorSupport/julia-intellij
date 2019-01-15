@@ -4,16 +4,18 @@ import com.intellij.lang.*
 import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
-import com.intellij.psi.stubs.PsiFileStub
+import com.intellij.psi.stubs.*
 import com.intellij.psi.tree.*
-import org.ice1000.julia.lang.psi.JuliaTypes
+import org.ice1000.julia.lang.JuliaElementType.Companion.LAZY_PARSEABLE_BLOCK
+import org.ice1000.julia.lang.JuliaElementType.Companion.TYPE_DECLARATION
+import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.JuliaLazyParseableBlockImpl
 
 class JuliaLexerAdapter : FlexAdapter(JuliaLexer())
 
 open class JuliaParserDefinition : ParserDefinition {
 	private companion object {
-		private val FILE = IFileElementType(JuliaLanguage.INSTANCE)
+		private val FILE = IStubFileElementType<PsiFileStubImpl<JuliaFile>>(JuliaLanguage.INSTANCE)
 	}
 
 	override fun createParser(project: Project?): PsiParser = JuliaParser()
@@ -32,7 +34,6 @@ open class JuliaParserDefinition : ParserDefinition {
 
 class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE) {
 	companion object TokenHolder {
-		@JvmField val LAZY_PARSEABLE_BLOCK: IElementType = JuliaLazyParseableBlockElementType()
 
 		@JvmField val COMMENTS = TokenSet.create(
 			JuliaTypes.BLOCK_COMMENT_BODY,
@@ -111,12 +112,15 @@ class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.
 		@JvmField val CONCATENATABLE_TOKENS = TokenSet.orSet(COMMENTS, STRINGS)
 		// Cannot use TokenSet.WHITE_SPACE since PhpStorm doesn't have such field
 		@JvmField val WHITE_SPACE = TokenSet.create(TokenType.WHITE_SPACE)
+
 		fun fromText(code: String, project: Project): PsiElement = PsiFileFactory
 			.getInstance(project)
 			.createFileFromText(JuliaLanguage.INSTANCE, code)
 			.firstChild
 	}
+}
 
+class JuliaElementType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE) {
 	class JuliaLazyParseableBlockElementType : IReparseableElementType("JuliaStatementsImpl(STATEMENTS)", JuliaLanguage.INSTANCE) {
 		override fun createNode(text: CharSequence?): ASTNode? = JuliaLazyParseableBlockImpl(this, text)
 
@@ -130,6 +134,17 @@ class JuliaTokenType(debugName: String) : IElementType(debugName, JuliaLanguage.
 			return builder.treeBuilt.firstChildNode
 		}
 	}
-}
 
-class JuliaElementType(debugName: String) : IElementType(debugName, JuliaLanguage.INSTANCE)
+	companion object {
+		@JvmField val LAZY_PARSEABLE_BLOCK = JuliaLazyParseableBlockElementType()
+		@JvmField val TYPE_DECLARATION = JuliaTypeDeclarationType("TYPE_DECLARATION")
+		@JvmStatic
+		fun createType(debugName: String): IElementType {
+			return when (debugName) {
+				"LAZY_PARSEABLE_BLOCK" -> LAZY_PARSEABLE_BLOCK
+				"TYPE_DECLARATION" -> TYPE_DECLARATION
+				else -> JuliaElementType(debugName)
+			}
+		}
+	}
+}

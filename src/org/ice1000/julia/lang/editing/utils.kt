@@ -1,13 +1,17 @@
 package org.ice1000.julia.lang.editing
 
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
+import com.intellij.util.PsiIconUtil
+import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 import java.lang.IllegalArgumentException
 import java.math.BigInteger
+import javax.swing.Icon
 
 /**
  * Used in treeViewTokens
@@ -50,6 +54,22 @@ fun PsiElement.presentText(): String = when (this) {
 	is IJuliaFunctionDeclaration -> toText
 	is JuliaTypeOp -> exprList.firstOrNull()?.text.orEmpty()
 	else -> cutText(text, LONG_TEXT_MAX)
+}
+
+fun PsiElement.getIcon(): Icon = when (this) {
+	is JuliaFile -> PsiIconUtil.getProvidersIcon(this, 0) ?: JuliaIcons.JULIA_ICON
+	is IJuliaFunctionDeclaration -> JuliaIcons.JULIA_FUNCTION_ICON
+	is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
+	is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
+	is JuliaWhileExpr -> JuliaIcons.JULIA_WHILE_ICON
+	is JuliaTypeOp -> JuliaIcons.JULIA_VARIABLE_ICON
+	is JuliaIfExpr -> JuliaIcons.JULIA_IF_ICON
+	is JuliaAssignOp ->
+		if (this.exprList.firstOrNull()?.let { it.firstChild.node.elementType == JuliaTypes.CONST_KEYWORD }.orFalse())
+			JuliaIcons.JULIA_CONST_ICON
+		else JuliaIcons.JULIA_VARIABLE_ICON
+	is JuliaSymbol -> if (this.isFieldInTypeDeclaration) JuliaIcons.JULIA_VARIABLE_ICON else JuliaIcons.JULIA_BIG_ICON
+	else -> JuliaIcons.JULIA_BIG_ICON
 }
 
 fun checkIntType(value: BigInteger): String = when (value) {

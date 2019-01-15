@@ -5,16 +5,40 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.ProcessingContext
 import icons.JuliaIcons
-import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
 import kotlin.streams.toList
+
 
 open class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
 	override fun addCompletions(
 		parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) =
 		list.forEach(result::addElement)
+}
+
+class JuliaStubCompletionProvider : CompletionProvider<CompletionParameters>() {
+	override fun addCompletions(
+		parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+		val text = parameters.originalPosition?.text ?: return
+		val project = parameters.editor.project ?: return
+		val keys = JuliaTypeDeclarationIndex.getAllKeys(project)
+		keys
+			.filter { it.contains(text, true) }
+			.forEach { str ->
+				val k = JuliaTypeDeclarationIndex.findElementsByName(project, str)
+				k.forEach {
+					result.addElement(LookupElementBuilder
+						.create(str)
+						.withIcon(JuliaIcons.JULIA_TYPE_ICON)
+						.withTypeText(it.containingFile.presentText(), true)
+						.prioritized(0))
+				}
+			}
+	}
 }
 
 class JuliaBasicCompletionContributor : CompletionContributor() {
@@ -113,8 +137,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 						!in builtinV06 -> "1.0 Predefined symbol"
 						else -> "Predefined symbol"
 					}, true)
-				.prioritized(BUILTIN_TAB_PRIORITY
-				)
+				.prioritized(BUILTIN_TAB_PRIORITY)
 		}
 
 		private val where = listOf(
@@ -150,6 +173,12 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 				.andNot(psiElement().withParent(JuliaString::class.java))
 				.andNot(psiElement().withParent(JuliaComment::class.java)),
 			JuliaCompletionProvider(builtinFunction))
+		extend(CompletionType.BASIC,
+			psiElement()
+				.inside(JuliaStatements::class.java)
+				.andNot(psiElement().withParent(JuliaString::class.java))
+				.andNot(psiElement().withParent(JuliaComment::class.java)),
+			JuliaStubCompletionProvider())
 		extend(CompletionType.BASIC,
 			psiElement()
 				.inside(JuliaStatements::class.java)

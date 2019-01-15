@@ -199,6 +199,10 @@ $JULIA_DOC_SURROUNDING
 		when {
 			element.isConstName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.CONST_NAME
+			element.isTypeNameRef -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.TYPE_NAME
+			element.isModuleNameRef -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.MODULE_NAME
 			element.isQuoteCall -> holder.createInfoAnnotation(element.parent
 				.let { if (it is JuliaQuoteOp) it else it.parent }, null)
 				.textAttributes = JuliaHighlighter.QUOTE_NAME
@@ -211,8 +215,7 @@ $JULIA_DOC_SURROUNDING
 			else if (it.isNotEmpty() && it[0].isUpperCase() && it in builtins) {
 				holder.createInfoAnnotation(element, null)
 					.textAttributes = JuliaHighlighter.TYPE_NAME
-			}
-			else if(it in arrayOf("nothing")){
+			} else if (it in arrayOf("nothing")) {
 				holder.createInfoAnnotation(element, null)
 					.textAttributes = JuliaHighlighter.KEYWORD
 			}
@@ -228,7 +231,11 @@ $JULIA_DOC_SURROUNDING
 				in builtins -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.BUILTIN_NAME
 				else -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.FUNCTION_CALL
 			}
+			when {
+				name.isTypeNameRef -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.TYPE_NAME
+			}
 		}
+
 	}
 
 	private fun string(string: JuliaString, holder: AnnotationHolder) = string.children

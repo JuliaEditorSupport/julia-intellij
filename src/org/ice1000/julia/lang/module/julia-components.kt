@@ -48,7 +48,7 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 					JuliaBundle.message("julia.messages.notify.invalid-julia.content"),
 					NotificationType.WARNING)
 		}
-		syncJuliaLibrary()
+		project.syncJuliaLibrary()
 		val useSciView = true
 		if (useSciView) {
 			plotSocket = ServerSocket(0)

@@ -1,12 +1,12 @@
 package org.ice1000.julia.lang.psi.impl
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.components.ServiceManager
-import com.intellij.openapi.project.DumbService
-import com.intellij.openapi.project.Project
 import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.stubs.IStubElementType
+import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
@@ -220,11 +220,14 @@ interface IJuliaSymbol : JuliaExpr, PsiNameIdentifierOwner {
 	val symbolKind: JuliaSymbolKind
 }
 
-interface IJuliaTypeDeclaration : JuliaExpr, PsiNameIdentifierOwner, DocStringOwner
+interface IJuliaTypeDeclaration : PsiNameIdentifierOwner, DocStringOwner
 
-abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), JuliaTypeDeclaration {
-	private var nameCache: JuliaExpr? = null
-	override fun getNameIdentifier() = nameCache ?: exprList.firstOrNull()?.also { nameCache = it }
+abstract class JuliaTypeDeclarationMixin : StubBasedPsiElementBase<JuliaTypeDeclarationClassStub>, JuliaTypeDeclaration {
+	constructor(node: ASTNode) : super(node)
+	constructor(stub: JuliaTypeDeclarationClassStub, stubType: IStubElementType<StubElement<*>, PsiElement>) : super(stub, stubType)
+
+	var nameCache: JuliaExpr? = null
+	override fun getNameIdentifier() = nameCache ?: children.firstOrNull { it is JuliaSymbol }?.also { nameCache = it as JuliaExpr }
 	override fun setName(name: String) = also { nameIdentifier?.replace(JuliaTokenType.fromText(name, project)) }
 	override fun getName() = nameIdentifier?.text
 	override fun processDeclarations(
@@ -236,6 +239,8 @@ abstract class JuliaTypeDeclarationMixin(node: ASTNode) : JuliaExprMixin(node), 
 		nameCache = null
 		super.subtreeChanged()
 	}
+
+	override fun toString(): String = "JuliaTypeDeclarationImpl(TYPE_DECLARATION)"
 }
 
 /**

@@ -17,6 +17,7 @@
   tokenTypeClass='org.ice1000.julia.lang.JuliaTokenType'
   elementTypeHolderClass='org.ice1000.julia.lang.psi.JuliaTypes'
   elementTypeClass='org.ice1000.julia.lang.JuliaElementType'
+  elementTypeFactory='org.ice1000.julia.lang.JuliaElementType.createType'
   generateFirstCheck=50
 }
 
@@ -546,7 +547,6 @@ private primaryExpr ::=
  | using
  | abstractTypeDeclaration
  | primitiveTypeDeclaration
- | typeDeclaration
  | typeAlias
  | symbolLhs
  | symbol
@@ -641,7 +641,7 @@ typeDeclaration ::=
   <<lazyBlockNotParseEndImpl>>
  END_KEYWORD {
  	pin=1
-	extends=expr
+	stubClass='org.ice1000.julia.lang.psi.JuliaTypeDeclarationClassStub'
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaTypeDeclaration']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaTypeDeclarationMixin'
 }

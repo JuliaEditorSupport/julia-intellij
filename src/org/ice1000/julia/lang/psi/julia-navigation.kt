@@ -1,10 +1,15 @@
 package org.ice1000.julia.lang.psi
 
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
+import com.intellij.navigation.ChooseByNameContributor
+import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.ex.VirtualFileManagerEx
 import com.intellij.psi.*
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.util.ArrayUtil
 import java.io.File
 
 /**

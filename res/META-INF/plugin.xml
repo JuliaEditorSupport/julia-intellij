@@ -50,6 +50,9 @@
 		<idIndexer filetype="Julia" implementationClass="org.ice1000.julia.lang.editing.JuliaIdIndexer"/>
 		<todoIndexer filetype="Julia" implementationClass="org.ice1000.julia.lang.editing.JuliaTodoIndexer"/>
 		<indexPatternBuilder implementation="org.ice1000.julia.lang.editing.JuliaTodoIndexPatternBuilder"/>
+		<!--stub-->
+		<stubElementTypeHolder class="org.ice1000.julia.lang.psi.JuliaTypes"/>
+		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaTypeDeclarationIndex"/>
 		<lang.refactoringSupport
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaRefactoringSupportProvider"/>

@@ -4,7 +4,7 @@ import com.intellij.lang.*
 import com.intellij.lang.parser.GeneratedParserUtilBase
 import com.intellij.psi.tree.IElementType
 import com.intellij.util.containers.Stack
-import org.ice1000.julia.lang.JuliaTokenType.TokenHolder.LAZY_PARSEABLE_BLOCK
+import org.ice1000.julia.lang.JuliaElementType.Companion.LAZY_PARSEABLE_BLOCK
 import org.ice1000.julia.lang.psi.JuliaTypes.*
 
 @Suppress("UNUSED_PARAMETER")

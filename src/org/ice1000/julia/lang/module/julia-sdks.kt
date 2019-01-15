@@ -8,7 +8,6 @@ import com.intellij.openapi.roots.SyntheticLibrary
 import com.intellij.openapi.roots.libraries.*
 import com.intellij.openapi.roots.libraries.ui.LibraryEditorComponent
 import com.intellij.openapi.roots.libraries.ui.LibraryPropertiesEditor
-import com.intellij.openapi.util.Condition
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.xmlb.XmlSerializerUtil
@@ -104,32 +103,44 @@ class JuliaStdLibraryProvider : AdditionalLibraryRootsProvider() {
 		if (dir != null) list.add(StdLibrary("Julia $version", dir))
 
 		try {
-//			packages
+			val settings = project.juliaSettings.settings
+			val beforeVersion07 = '.' in settings.version && compareVersion(settings.version, "0.7.0") < 0
+			if (beforeVersion07) {
+				val pkgdir = printJulia(juliaPath, timeLimit = 5000L, expr = "Pkg.dir()")
+					.first
+					.firstOrNull()?.trim('"')
+				val pkgFile = Paths.get(pkgdir).toFile()
+				val pkgVirtualFile = VfsUtil.findFileByIoFile(pkgFile, true)
+				if (pkgVirtualFile != null) {
+					list.add(StdLibrary("Julia Packages", pkgVirtualFile, JuliaLibraryType.PKG))
+				}
+			} else {
+				val userHome = System.getProperty("user.home")
+				val pkgFile = Paths.get(userHome, ".julia", "packages").toFile()
+				val pkgVirtualFile = VfsUtil.findFileByIoFile(pkgFile, true)
+				if (pkgVirtualFile != null) {
+					list.add(StdLibrary("Julia Packages", pkgVirtualFile, JuliaLibraryType.PKG))
+				}
+			}
 		} finally {
 			return list
 		}
 	}
 
+	enum class JuliaLibraryType {
+		PKG, SDK
+	}
+
 	class StdLibrary(private val name: String,
-									 private val root: VirtualFile) : SyntheticLibrary(), ItemPresentation {
+									 private val root: VirtualFile,
+									 private val type: JuliaLibraryType = JuliaLibraryType.SDK) : SyntheticLibrary(), ItemPresentation {
 		private val roots = root.children.asList()
 		override fun hashCode() = root.hashCode()
 		override fun equals(other: Any?): Boolean = other is StdLibrary && other.root == root
 		override fun getSourceRoots() = roots
 		override fun getLocationString() = ""
-		override fun getIcon(p0: Boolean): Icon = JuliaIcons.JULIA_BIG_ICON
+		override fun getIcon(p0: Boolean): Icon = if (type == JuliaLibraryType.SDK) JuliaIcons.JULIA_BIG_ICON else JuliaIcons.JULIA_ICON
 		override fun getPresentableText() = name
-		override fun getExcludedRoots(): MutableSet<VirtualFile> {
-			return roots.asSequence().filter { !it.isDirectory && !it.name.endsWith(".jl") }.toMutableSet()
-		}
 
-		override fun getExcludeFileCondition(): Condition<VirtualFile>? {
-			return Condition {
-				// if true, excluded.
-				// ignore the directory name with some dirName
-				(it.isDirectory && it.name in arrayOf("test", "docs", "deps"))
-					|| !it.name.endsWith(".jl")
-			}
-		}
 	}
 }

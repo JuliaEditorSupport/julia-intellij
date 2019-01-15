@@ -45,22 +45,7 @@ class JuliaStructureViewModel(root: PsiFile, editor: Editor?) :
 class JuliaStructureViewElement(private val root: NavigatablePsiElement) :
 	StructureViewTreeElement, ItemPresentation, SortableTreeElement, Navigatable by root {
 	override fun getLocationString() = ""
-	override fun getIcon(open: Boolean) = when (root) {
-		is JuliaFile -> PsiIconUtil.getProvidersIcon(root, 0)
-		is IJuliaFunctionDeclaration -> JuliaIcons.JULIA_FUNCTION_ICON
-		is JuliaModuleDeclaration -> JuliaIcons.JULIA_MODULE_ICON
-		is JuliaTypeDeclaration -> JuliaIcons.JULIA_TYPE_ICON
-		is JuliaWhileExpr -> JuliaIcons.JULIA_WHILE_ICON
-		is JuliaTypeOp -> JuliaIcons.JULIA_VARIABLE_ICON
-		is JuliaIfExpr -> JuliaIcons.JULIA_IF_ICON
-		is JuliaAssignOp ->
-			if (root.exprList.firstOrNull()?.let { it.firstChild.node.elementType == JuliaTypes.CONST_KEYWORD }.orFalse())
-				JuliaIcons.JULIA_CONST_ICON
-			else JuliaIcons.JULIA_VARIABLE_ICON
-		is JuliaSymbol -> if (root.isFieldInTypeDeclaration) JuliaIcons.JULIA_VARIABLE_ICON else JuliaIcons.JULIA_BIG_ICON
-		else -> JuliaIcons.JULIA_BIG_ICON
-	}
-
+	override fun getIcon(open: Boolean) = root.getIcon()
 	override fun getPresentableText() = cutText(root.presentText(), 60)
 	override fun getPresentation() = this
 	override fun getValue() = root

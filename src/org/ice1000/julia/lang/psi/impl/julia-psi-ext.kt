@@ -14,6 +14,12 @@ val IJuliaSymbol.isConstName: Boolean
 val IJuliaSymbol.isConstNameRef: Boolean
 	get() = (reference?.resolve() as? JuliaSymbol)?.isConstName.orFalse()
 
+val IJuliaSymbol.isTypeNameRef: Boolean
+	get() = (reference?.resolve() as? JuliaSymbol)?.symbolKind == JuliaSymbolKind.TypeName
+
+val IJuliaSymbol.isModuleNameRef: Boolean
+	get() = (reference?.resolve() as? JuliaSymbol)?.symbolKind == JuliaSymbolKind.ModuleName
+
 /**
  * since function body is nullable~
  */

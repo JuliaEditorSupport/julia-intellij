@@ -1,9 +1,12 @@
 package org.ice1000.julia.lang.psi
 
 import com.intellij.openapi.progress.ProgressIndicatorProvider
-import com.intellij.psi.PsiElement
-import com.intellij.psi.ResolveState
+import com.intellij.psi.*
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.search.FileTypeIndex
+import com.intellij.psi.search.GlobalSearchScope
+import org.ice1000.julia.lang.JuliaFile
+import org.ice1000.julia.lang.JuliaFileType
 
 typealias Type = String // TODO temp
 

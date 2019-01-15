@@ -3,11 +3,12 @@
 
 package org.ice1000.julia.lang.module
 
+import com.intellij.execution.AlternativeSdkRootsProvider
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.WriteAction
+import com.intellij.openapi.application.*
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -16,7 +17,6 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TextComponentAccessor
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.stubs.StubIndex
 import com.intellij.ui.ComboboxWithBrowseButton
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
@@ -25,6 +25,11 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 import javax.swing.JComboBox
+import com.intellij.openapi.projectRoots.SdkModificator
+import com.intellij.openapi.projectRoots.ui.ProjectJdksEditor
+import com.intellij.openapi.roots.ModuleRootModificationUtil
+import com.intellij.openapi.roots.ProjectRootManager
+
 
 /**
  * Can be used in test cases.
@@ -220,24 +225,22 @@ object JuliaUTF8Control : ResourceBundle.Control() {
 	}
 }
 
-fun syncJuliaLibrary() {
-	val pjt = ProjectJdkTable.getInstance()
-	pjt.findJdk(JuliaSdkType.instance.presentableName)?.apply {
-		ApplicationManager.getApplication().runWriteAction { pjt.removeJdk(this) }
+// These code doesn't work at all when `apply` settings.
+fun Project.syncJuliaLibrary() {
+	val sdkTable = ProjectJdkTable.getInstance()
+	val juliaSDK = JuliaSdkType.instance
+	val oldSDK = sdkTable.findJdk(juliaSDK.presentableName)
+	val newSDK = ProjectJdkImpl(juliaSDK.presentableName, juliaSDK)
+	if (oldSDK != null) {
+		ProjectJdkTable.getInstance().updateJdk(oldSDK, newSDK)
+	} else {
+		ProjectJdkTable.getInstance().addJdk(newSDK)
 	}
-	ProjectJdkImpl(JuliaSdkType.instance.presentableName, JuliaSdkType.instance).apply {
-		ApplicationManager.getApplication().runWriteAction { pjt.addJdk(this) }
-	}
+	AlternativeSdkRootsProvider.reindexIfNeeded(this)
 }
 
 fun Project.reloadSdkAndIndex() {
 	if (withJulia) {
 		syncJuliaLibrary()
-		var needsToReIndex = false
-		if (needsToReIndex) {
-			WriteAction.run<RuntimeException> {
-				StubIndex.getInstance().forceRebuild(Throwable("Julia language level changed."))
-			}
-		}
 	}
 }
