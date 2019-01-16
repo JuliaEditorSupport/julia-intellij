@@ -138,10 +138,12 @@ class JuliaElementType(debugName: String) : IElementType(debugName, JuliaLanguag
 	companion object {
 		@JvmField val LAZY_PARSEABLE_BLOCK = JuliaLazyParseableBlockElementType()
 		@JvmField val TYPE_DECLARATION = JuliaTypeDeclarationType("TYPE_DECLARATION")
+		@JvmField val MODULE_DECLARATION = JuliaModuleDeclarationType("MODULE_DECLARATION")
 		@JvmStatic
 		fun createType(debugName: String): IElementType {
 			return when (debugName) {
 				"LAZY_PARSEABLE_BLOCK" -> LAZY_PARSEABLE_BLOCK
+				"MODULE_DECLARATION" -> MODULE_DECLARATION
 				"TYPE_DECLARATION" -> TYPE_DECLARATION
 				else -> JuliaElementType(debugName)
 			}

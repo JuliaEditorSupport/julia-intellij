@@ -9,8 +9,7 @@ import com.intellij.psi.*
 import com.intellij.util.SystemProperties
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor.CompletionHolder.builtins
-import org.ice1000.julia.lang.module.JuliaSettings
-import org.ice1000.julia.lang.module.juliaSettings
+import org.ice1000.julia.lang.module.*
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.*
 import java.math.BigInteger
@@ -34,6 +33,7 @@ class JuliaAnnotator : Annotator {
 		when (element) {
 			is JuliaFunction -> function(element, holder, settings)
 			is JuliaCompactFunction -> compactFunction(element, holder, settings)
+			is JuliaImportAllExpr -> importAll(element, holder, settings)
 			is JuliaApplyFunctionOp -> applyFunction(element, holder)
 			is JuliaSymbol -> symbol(element, holder)
 			is JuliaTypeAlias -> typeAlias(element, holder)
@@ -137,6 +137,19 @@ $JULIA_DOC_SURROUNDING
 """, JuliaBundle.message("julia.lint.insert-doc-string"), true))
 	}
 
+	private fun importAll(element: JuliaImportAllExpr, holder: AnnotationHolder, settings: JuliaSettings) {
+		val version = settings.version
+		if (version.isEmpty() || compareVersion(version, "0.7.0") < 0) {
+			// warning underline
+			holder.createWeakWarningAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
+		} else if (compareVersion(version, "1.0.0") < 0) {
+			// warning background
+			holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
+		} else {
+			holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
+		}
+	}
+
 	private fun plusLevelOp(element: JuliaPlusLevelOp, holder: AnnotationHolder) {
 		when (element.plusLevelOperator.text) {
 			"$" -> holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
@@ -157,6 +170,10 @@ $JULIA_DOC_SURROUNDING
 					element.text.let { it.removeRange(it.indexOf("::"), it.indexOf("=")) },
 					JuliaBundle.message("julia.lint.variable.type-declarations.global-error-replace")
 				))
+		}
+		val rightElement = element.exprList.lastOrNull() ?: return
+		if (rightElement is JuliaUsing || rightElement is JuliaImportExpr) {
+			holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.variable.assign-from-nothing.warning"))
 		}
 	}
 

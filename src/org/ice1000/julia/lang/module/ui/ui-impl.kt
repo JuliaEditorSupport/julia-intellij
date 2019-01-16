@@ -12,6 +12,7 @@ import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.platform.ProjectGeneratorPeer
+import com.intellij.psi.stubs.StubIndex
 import com.intellij.ui.components.labels.LinkListener
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
@@ -148,6 +149,12 @@ class JuliaProjectConfigurableImpl(val project: Project) : JuliaProjectConfigura
 				settings.importPath = importPathField.text
 			}
 		}
+		juliaExeField.comboBox.addActionListener {
+			val exePath = juliaExeField.comboBox.selectedItem as? String ?: return@addActionListener
+			importPathField.text = importPathOf(exePath, 800L)
+			version.text = versionOf(exePath, 800L)
+			tryGetBase(exePath)?.let { basePathField.text = it }
+		}
 		unicodeInputCheckBox.addChangeListener { globalUnicodeCheckBox.isEnabled = unicodeInputCheckBox.isSelected }
 		globalUnicodeCheckBox.isSelected = globalSettings.globalUnicodeInput
 		unicodeInputCheckBox.isSelected = settings.unicodeEnabled
@@ -163,6 +170,7 @@ class JuliaProjectConfigurableImpl(val project: Project) : JuliaProjectConfigura
 		importPathField.text = importPathOf(exePath, 800L)
 		version.text = versionOf(exePath, 800L)
 		tryGetBase(exePath)?.let { basePathField.text = it }
+		StubIndex.getInstance().forceRebuild(RuntimeException("Rebuild Index Error!"))
 	}
 
 	override fun getDisplayName() = JuliaBundle.message("julia.name")

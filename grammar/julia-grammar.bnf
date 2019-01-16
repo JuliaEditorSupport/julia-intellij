@@ -168,6 +168,7 @@ moduleDeclaration ::=
   statements
  END_KEYWORD {
 	pin=1
+	stubClass='org.ice1000.julia.lang.psi.JuliaModuleDeclarationClassStub'
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaModuleDeclaration']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaModuleDeclarationMixin'
 }

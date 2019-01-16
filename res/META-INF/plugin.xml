@@ -53,6 +53,7 @@
 		<!--stub-->
 		<stubElementTypeHolder class="org.ice1000.julia.lang.psi.JuliaTypes"/>
 		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaTypeDeclarationIndex"/>
+		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaModuleDeclarationIndex"/>
 		<lang.refactoringSupport
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaRefactoringSupportProvider"/>

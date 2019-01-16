@@ -227,7 +227,9 @@ abstract class JuliaTypeDeclarationMixin : StubBasedPsiElementBase<JuliaTypeDecl
 	constructor(stub: JuliaTypeDeclarationClassStub, stubType: IStubElementType<StubElement<*>, PsiElement>) : super(stub, stubType)
 
 	var nameCache: JuliaExpr? = null
-	override fun getNameIdentifier() = nameCache ?: children.firstOrNull { it is JuliaSymbol }?.also { nameCache = it as JuliaExpr }
+	override fun getNameIdentifier() = nameCache
+		?: children.firstOrNull { it is JuliaSymbol }?.also { nameCache = it as JuliaExpr }
+
 	override fun setName(name: String) = also { nameIdentifier?.replace(JuliaTokenType.fromText(name, project)) }
 	override fun getName() = nameIdentifier?.text
 	override fun processDeclarations(
@@ -277,7 +279,12 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			this === parent.firstChild -> JuliaSymbolKind.ApplyFunctionName
 
 		parent is JuliaMacro -> JuliaSymbolKind.MacroName
-		parent is JuliaModuleDeclaration -> JuliaSymbolKind.ModuleName
+
+		parent is JuliaModuleDeclaration ||
+			(parent is JuliaMemberAccess &&
+			this === parent.firstChild &&
+			parent.parent is JuliaUsing) -> JuliaSymbolKind.ModuleName
+
 		parent is JuliaTypeOp && this === parent.children.getOrNull(1) ||
 			parent is JuliaTypeAlias ||
 			parent is JuliaType ||
@@ -344,8 +351,17 @@ abstract class JuliaExprMixin(node: ASTNode) : ASTWrapperPsiElement(node), Julia
 
 interface IJuliaModuleDeclaration : PsiNameIdentifierOwner, DocStringOwner
 
-abstract class JuliaModuleDeclarationMixin(node: ASTNode) : JuliaDeclaration(node), JuliaModuleDeclaration {
+abstract class JuliaModuleDeclarationMixin : StubBasedPsiElementBase<JuliaModuleDeclarationClassStub>, JuliaModuleDeclaration {
+	constructor(node: ASTNode) : super(node)
+	constructor(stub: JuliaModuleDeclarationClassStub, stubType: IStubElementType<StubElement<*>, PsiElement>) : super(stub, stubType)
+
+	override fun setName(newName: String) = also {
+		nameIdentifier?.replace(JuliaTokenType.fromText(newName, project))
+	}
+
+	override fun getName(): String? = nameIdentifier?.text.orEmpty()
 	override fun getNameIdentifier() = symbol
+	override fun toString(): String = "JuliaModuleDeclarationImpl(MODULE_DECLARATION)"
 }
 
 abstract class JuliaCatchDeclarationMixin(node: ASTNode) : JuliaDeclaration(node), JuliaCatchClause {
