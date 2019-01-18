@@ -3,7 +3,6 @@
 
 package org.ice1000.julia.lang.module
 
-import com.intellij.execution.AlternativeSdkRootsProvider
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.application.*
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -236,7 +235,6 @@ fun Project.syncJuliaLibrary() {
 	} else {
 		ProjectJdkTable.getInstance().addJdk(newSDK)
 	}
-	AlternativeSdkRootsProvider.reindexIfNeeded(this)
 }
 
 fun Project.reloadSdkAndIndex() {

@@ -8,6 +8,7 @@ import com.intellij.openapi.roots.SyntheticLibrary
 import com.intellij.openapi.roots.libraries.*
 import com.intellij.openapi.roots.libraries.ui.LibraryEditorComponent
 import com.intellij.openapi.roots.libraries.ui.LibraryPropertiesEditor
+import com.intellij.openapi.util.Condition
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.xmlb.XmlSerializerUtil
@@ -131,6 +132,11 @@ class JuliaStdLibraryProvider : AdditionalLibraryRootsProvider() {
 		PKG, SDK
 	}
 
+
+	companion object {
+		val EXCLUDE_NAMES = arrayOf("test", "deps", "docs")
+	}
+
 	class StdLibrary(private val name: String,
 									 private val root: VirtualFile,
 									 private val type: JuliaLibraryType = JuliaLibraryType.SDK) : SyntheticLibrary(), ItemPresentation {
@@ -141,6 +147,14 @@ class JuliaStdLibraryProvider : AdditionalLibraryRootsProvider() {
 		override fun getLocationString() = ""
 		override fun getIcon(p0: Boolean): Icon = if (type == JuliaLibraryType.SDK) JuliaIcons.JULIA_BIG_ICON else JuliaIcons.JULIA_ICON
 		override fun getPresentableText() = name
+		override fun getExcludeFileCondition(): Condition<VirtualFile>? {
+			return Condition { file ->
+				when {
+					file.isDirectory -> file.name in EXCLUDE_NAMES || file.parent.name == "base"
+					else -> !file.name.endsWith(".jl")
+				}
+			}
+		}
 
 	}
 }
