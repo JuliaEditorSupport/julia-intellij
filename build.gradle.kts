@@ -73,7 +73,7 @@ java {
 tasks.withType<PatchPluginXmlTask> {
 	changeNotes(file("change-notes.html").readText())
 	pluginDescription(file("description.html").readText())
-	version(pluginComingVersion)
+	version(pluginVersion)
 	pluginId(packageName)
 }
 
