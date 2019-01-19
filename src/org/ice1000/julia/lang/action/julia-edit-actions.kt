@@ -131,8 +131,8 @@ class JuliaUnicodeInputAction : JuliaAction(
 	}
 
 	override fun update(e: AnActionEvent) {
-		e.presentation.isEnabledAndVisible = juliaGlobalSettings.globalUnicodeInput ||
-			(fileType(e) && e.project?.run { juliaSettings.settings.unicodeEnabled }.orFalse())
+		e.presentation.isEnabledAndVisible = juliaGlobalSettings.globalUnicodeInput || CommonDataKeys.EDITOR.getData(e.dataContext) != null
+		(fileType(e) && e.project?.run { juliaSettings.settings.unicodeEnabled }.orFalse())
 	}
 }
 
