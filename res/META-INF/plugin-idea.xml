@@ -1,0 +1,5 @@
+<idea-plugin>
+	<extensions defaultExtensionNs="com.intellij">
+		<additionalLibraryRootsProvider implementation="org.ice1000.julia.lang.module.JuliaStdLibraryProvider"/>
+	</extensions>
+</idea-plugin>

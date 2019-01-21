@@ -7,6 +7,7 @@
 	<depends>org.intellij.plugins.markdown</depends>
 	<depends optional="true" config-file="plugin-clion.xml">com.intellij.modules.clion</depends>
 	<depends optional="true" config-file="plugin-goland.xml">com.intellij.modules.go</depends>
+	<depends optional="true" config-file="plugin-idea.xml">com.intellij.modules.idea</depends>
 	<extensions defaultExtensionNs="com.intellij">
 		<liveTemplateContext implementation="org.ice1000.julia.lang.editing.JuliaTemplateContextType$Base"/>
 		<liveTemplateContext implementation="org.ice1000.julia.lang.editing.JuliaTemplateContextType$Module"/>
@@ -41,7 +42,6 @@
 		<sdkType implementation="org.ice1000.julia.lang.module.JuliaSdkType"/>
 		<library.presentationProvider implementation="org.ice1000.julia.lang.module.JuliaSdkLibraryPresentationProvider"/>
 		<library.type implementation="org.ice1000.julia.lang.module.JuliaLibraryType"/>
-		<!--<additionalLibraryRootsProvider implementation="org.ice1000.julia.lang.module.JuliaStdLibraryProvider"/>-->
 		<stubElementTypeHolder class="org.ice1000.julia.lang.psi.JuliaTypes"/>
 		<typedHandler implementation="org.ice1000.julia.lang.editing.JuliaTypedHandlerDelegate"/>
 		<enterHandlerDelegate implementation="org.ice1000.julia.lang.editing.JuliaEnterAfterUnmatchedEndHandler"/>

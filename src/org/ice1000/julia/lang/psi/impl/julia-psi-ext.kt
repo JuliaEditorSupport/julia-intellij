@@ -20,6 +20,11 @@ val IJuliaSymbol.isTypeNameRef: Boolean
 val IJuliaSymbol.isModuleNameRef: Boolean
 	get() = (reference?.resolve() as? JuliaSymbol)?.symbolKind == JuliaSymbolKind.ModuleName
 
+val IJuliaSymbol.isInUsingExpr: Boolean
+	get() = this.parent is JuliaMemberAccess && this.parent.parent is JuliaUsing
+
+val IJuliaSymbol.typeFoundFromStub: Boolean
+	get() = JuliaTypeDeclarationIndex.findElementsByName(this.project, this.text).isNotEmpty()
 /**
  * since function body is nullable~
  */

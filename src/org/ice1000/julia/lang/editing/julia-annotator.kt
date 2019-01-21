@@ -249,7 +249,8 @@ $JULIA_DOC_SURROUNDING
 				else -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.FUNCTION_CALL
 			}
 			when {
-				name.isTypeNameRef -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.TYPE_NAME
+				name.isTypeNameRef || name.typeFoundFromStub
+				-> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.TYPE_NAME
 			}
 		}
 

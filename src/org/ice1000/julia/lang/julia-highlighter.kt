@@ -302,7 +302,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
     BLOCK COMMENT
 =#
 module <moduleName>ice1000</moduleName>
-using Printf
+using <moduleName>Printf</moduleName>
 
 NaN32 # (Float32)
 (1 + 3.2)::<primitiveTypeName>Float64</primitiveTypeName>

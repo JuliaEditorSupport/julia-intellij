@@ -8,8 +8,10 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.IStubElementType
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
+import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
+import javax.swing.Icon
 
 interface DocStringOwner : PsiElement
 
@@ -232,6 +234,7 @@ abstract class JuliaTypeDeclarationMixin : StubBasedPsiElementBase<JuliaTypeDecl
 
 	override fun setName(name: String) = also { nameIdentifier?.replace(JuliaTokenType.fromText(name, project)) }
 	override fun getName() = nameIdentifier?.text
+	override fun getIcon(flags: Int): Icon? = JuliaIcons.JULIA_TYPE_ICON
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
 		nameIdentifier?.let { processor.execute(it, state) }.orFalse() &&
@@ -354,6 +357,8 @@ interface IJuliaModuleDeclaration : PsiNameIdentifierOwner, DocStringOwner
 abstract class JuliaModuleDeclarationMixin : StubBasedPsiElementBase<JuliaModuleDeclarationClassStub>, JuliaModuleDeclaration {
 	constructor(node: ASTNode) : super(node)
 	constructor(stub: JuliaModuleDeclarationClassStub, stubType: IStubElementType<StubElement<*>, PsiElement>) : super(stub, stubType)
+
+	override fun getIcon(flags: Int): Icon? = JuliaIcons.JULIA_MODULE_ICON
 
 	override fun setName(newName: String) = also {
 		nameIdentifier?.replace(JuliaTokenType.fromText(newName, project))

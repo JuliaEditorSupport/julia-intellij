@@ -6,6 +6,7 @@ import com.intellij.notification.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VirtualFile
@@ -41,7 +42,8 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 	}
 
 	fun setupJulia() {
-		if (!project.withJulia) return
+		if (ModuleManager.getInstance(project).findModuleByName("Julia") == null
+			&& !project.withJulia) return
 		if (!validateJulia(project.juliaSettings.settings) && PlatformUtils.isIntelliJ()) {
 			notify(
 					JuliaBundle.message("julia.messages.notify.invalid-julia.title"),

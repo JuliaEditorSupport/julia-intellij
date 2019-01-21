@@ -1,15 +1,11 @@
 package org.ice1000.julia.lang.psi
 
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
-import com.intellij.navigation.ChooseByNameContributor
-import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.ex.VirtualFileManagerEx
 import com.intellij.psi.*
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.ArrayUtil
+import org.ice1000.julia.lang.psi.impl.*
 import java.io.File
 
 /**
@@ -46,11 +42,22 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 			}
 		} else if (elementType == JuliaTypes.SYM) {
 			val juliaSymbol = sourceElement.parent as? JuliaSymbol ?: return null
-			if (juliaSymbol.symbolKind == JuliaSymbolKind.ApplyFunctionName) {
-//				 TODO: stub branch
-//				val ele: JuliaFunction = findElement(project, juliaSymbol.text)
-//					?: return null
-//				return arrayOf(ele)
+			return when (juliaSymbol.symbolKind) {
+				JuliaSymbolKind.ApplyFunctionName -> {
+					JuliaTypeDeclarationIndex.findElementsByName(project, juliaSymbol.text).toTypedArray()
+				}
+				JuliaSymbolKind.ModuleName -> {
+					if (juliaSymbol.isInUsingExpr) {
+						// a stupid cast if I use `if`
+						JuliaModuleDeclarationIndex.findElementsByName(project, juliaSymbol.text).toTypedArray() as Array<PsiElement>
+					} else {
+						//not in usingExpr means in `module xxx`, its navigator should be in findUsage
+						null
+					}
+				}
+				// should be in findUsage but not here
+				JuliaSymbolKind.TypeName -> null
+				else -> null
 			}
 		}
 		return null
