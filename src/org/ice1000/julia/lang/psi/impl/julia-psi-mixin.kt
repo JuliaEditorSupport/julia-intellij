@@ -163,6 +163,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 	override val returnType: Type get() = body?.type ?: UNKNOWN_VALUE_PLACEHOLDER
 	private var typeParamsTextCache: String? = null
 	override fun getNameIdentifier() = exprList.firstOrNull()
+	override fun getIcon(flags: Int): Icon? = JuliaIcons.JULIA_FUNCTION_ICON
 	override val typeParamsText: String
 		get() = typeParamsTextCache ?: typeParameters?.exprList
 			?.joinToString(prefix = "{", postfix = "}") { it.text }

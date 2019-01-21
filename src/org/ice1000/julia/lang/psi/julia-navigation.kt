@@ -9,6 +9,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.ex.VirtualFileManagerEx
 import com.intellij.psi.*
+import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.module.languageServer
 import org.ice1000.julia.lang.psi.impl.*
 import java.io.File
@@ -61,7 +62,8 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 							val document = FileDocumentManager.getInstance().getDocument(vf) ?: return@mapNotNull null
 							val psiOffset = document.getLineStartOffset(line - 1)
 							val psiFile = PsiManager.getInstance(project).findFile(vf) ?: return@mapNotNull null
-							psiFile.findElementAt(psiOffset)
+							val elem = psiFile.findElementAt(psiOffset + 1) ?: return@mapNotNull null
+							PsiTreeUtil.getNonStrictParentOfType(elem, JuliaCompactFunction::class.java, JuliaFunction::class.java)
 						}.toTypedArray()
 					} catch (e: Exception) {
 						e.printStackTrace()
