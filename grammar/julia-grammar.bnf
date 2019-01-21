@@ -36,9 +36,9 @@ macroSymbol ::= MACRO_SYM {
 unaryOpAsSymbol ::= privateUnaryOpAsSymbol
 opAsSymbol ::= privateOpAsSymbol
 
+// Can `DOT` be a symbol?
 private privateUnaryOpAsSymbol::=
    MINUS_SYM
- | DOT_SYM
  | PLUS_SYM
  | NOT_SYM
  | INTERPOLATE_SYM
@@ -301,6 +301,7 @@ ternaryOp ::= expr QUESTION_SYM endOfLine rangeOp { pin=2 }
 private suffixedExpr ::=
    applyFunctionOp
  | applyIndexOp
+ | dotApplyFunctionOp
  | memberAccessOp
 // | applyWhereOp
  | type
@@ -344,6 +345,7 @@ applyIndexOp ::= expr LEFT_M_BRACKET
  RIGHT_M_BRACKET
 
 //applyWhereOp ::= expr whereClause
+dotApplyFunctionOp::= expr DOT_SYM privateOpSymbols expr{pin=3}
 
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine
@@ -485,7 +487,6 @@ private fractionLevel ::=
 fractionOp ::= expr FRACTION_SYM endOfLine expr
 inOp ::= expr (IN_KEYWORD | IN_SYM) endOfLine expr
 isaOp::= expr ISA_KEYWORD expr
-
 // ^ .^
 private exponentLevel ::=
    miscExponentOp
@@ -689,7 +690,7 @@ export ::=
 importAllExpr ::=
  IMPORTALL_KEYWORD access { pin=1 extends=expr }
 
-private imported ::= access (COLON_SYM symbolAndMacroSymbol)? (commaSep access)*
+private imported ::= access (COLON_SYM endOfLine symbolAndMacroSymbol)? (commaSep access)*
 
 importExpr ::= IMPORT_KEYWORD endOfLine imported { pin=1 extends=expr }
 using ::= USING_KEYWORD endOfLine imported { pin=1 extends=expr }

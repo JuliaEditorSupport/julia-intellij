@@ -224,55 +224,55 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> \|\| { return JuliaTypes.OR_SYM; }
 <YYINITIAL, LONG_TEMPLATE> -->? { return JuliaTypes.SPECIAL_ARROW_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \~ { return JuliaTypes.BITWISE_NOT_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \\\\= { return JuliaTypes.FACTORISE_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \\\\ { return JuliaTypes.FACTORISE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \\= { return JuliaTypes.INVERSE_DIV_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \\ { return JuliaTypes.INVERSE_DIV_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \! { return JuliaTypes.NOT_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? (===|≡) { return JuliaTypes.IS_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? (\!==|≢) { return JuliaTypes.ISNT_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \|> { return JuliaTypes.PIPE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? <\| { return JuliaTypes.INVERSE_PIPE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? %= { return JuliaTypes.REMAINDER_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? % { return JuliaTypes.REMAINDER_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? <<= { return JuliaTypes.SHL_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? >>= { return JuliaTypes.SHR_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? >>>= { return JuliaTypes.USHR_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? << { return JuliaTypes.SHL_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? >> { return JuliaTypes.SHR_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? >>> { return JuliaTypes.USHR_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \/\/= { return JuliaTypes.FRACTION_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \/\/ { return JuliaTypes.FRACTION_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? (\/=|÷=) { return JuliaTypes.DIVIDE_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? (\/|÷) { return JuliaTypes.DIVIDE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \^= { return JuliaTypes.EXPONENT_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \*= { return JuliaTypes.MULTIPLY_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \+= { return JuliaTypes.PLUS_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \^ { return JuliaTypes.EXPONENT_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \* { return JuliaTypes.MULTIPLY_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \+ { return JuliaTypes.PLUS_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? -= { return JuliaTypes.MINUS_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? == { return JuliaTypes.EQUALS_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? - { return JuliaTypes.MINUS_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? (\!=|≠) { return JuliaTypes.UNEQUAL_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? > { return JuliaTypes.GREATER_THAN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? < { return JuliaTypes.LESS_THAN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? (>=|≥) { return JuliaTypes.GREATER_THAN_OR_EQUAL_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? (<=|≤) { return JuliaTypes.LESS_THAN_OR_EQUAL_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? ' { return JuliaTypes.TRANSPOSE_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? = { return JuliaTypes.ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \&= { return JuliaTypes.BITWISE_AND_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \|= { return JuliaTypes.BITWISE_OR_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \& { return JuliaTypes.BITWISE_AND_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? \| { return JuliaTypes.BITWISE_OR_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? (\$=|⊻=) { return JuliaTypes.BITWISE_XOR_ASSIGN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? (\$|⊻) { return JuliaTypes.BITWISE_XOR_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? ∈ { return JuliaTypes.IN_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? {MISC_ARROW_SYM} { return JuliaTypes.MISC_ARROW_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? {MISC_COMPARISON_SYM} { return JuliaTypes.MISC_COMPARISON_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? {MISC_PLUS_SYM} { return JuliaTypes.MISC_PLUS_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? {MISC_MULTIPLY_SYM} { return JuliaTypes.MISC_MULTIPLY_SYM; }
-<YYINITIAL, LONG_TEMPLATE> \.? {MISC_EXPONENT_SYM} { return JuliaTypes.MISC_EXPONENT_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \\\\= { return JuliaTypes.FACTORISE_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \\\\ { return JuliaTypes.FACTORISE_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \\= { return JuliaTypes.INVERSE_DIV_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \\ { return JuliaTypes.INVERSE_DIV_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \! { return JuliaTypes.NOT_SYM; }
+<YYINITIAL, LONG_TEMPLATE> (===|≡) { return JuliaTypes.IS_SYM; }
+<YYINITIAL, LONG_TEMPLATE> (\!==|≢) { return JuliaTypes.ISNT_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \|> { return JuliaTypes.PIPE_SYM; }
+<YYINITIAL, LONG_TEMPLATE> <\| { return JuliaTypes.INVERSE_PIPE_SYM; }
+<YYINITIAL, LONG_TEMPLATE> %= { return JuliaTypes.REMAINDER_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> % { return JuliaTypes.REMAINDER_SYM; }
+<YYINITIAL, LONG_TEMPLATE> <<= { return JuliaTypes.SHL_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> >>= { return JuliaTypes.SHR_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> >>>= { return JuliaTypes.USHR_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> << { return JuliaTypes.SHL_SYM; }
+<YYINITIAL, LONG_TEMPLATE> >> { return JuliaTypes.SHR_SYM; }
+<YYINITIAL, LONG_TEMPLATE> >>> { return JuliaTypes.USHR_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \/\/= { return JuliaTypes.FRACTION_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \/\/ { return JuliaTypes.FRACTION_SYM; }
+<YYINITIAL, LONG_TEMPLATE> (\/=|÷=) { return JuliaTypes.DIVIDE_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> (\/|÷) { return JuliaTypes.DIVIDE_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \^= { return JuliaTypes.EXPONENT_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \*= { return JuliaTypes.MULTIPLY_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \+= { return JuliaTypes.PLUS_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \^ { return JuliaTypes.EXPONENT_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \* { return JuliaTypes.MULTIPLY_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \+ { return JuliaTypes.PLUS_SYM; }
+<YYINITIAL, LONG_TEMPLATE> -= { return JuliaTypes.MINUS_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> == { return JuliaTypes.EQUALS_SYM; }
+<YYINITIAL, LONG_TEMPLATE> - { return JuliaTypes.MINUS_SYM; }
+<YYINITIAL, LONG_TEMPLATE> (\!=|≠) { return JuliaTypes.UNEQUAL_SYM; }
+<YYINITIAL, LONG_TEMPLATE> > { return JuliaTypes.GREATER_THAN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> < { return JuliaTypes.LESS_THAN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> (>=|≥) { return JuliaTypes.GREATER_THAN_OR_EQUAL_SYM; }
+<YYINITIAL, LONG_TEMPLATE> (<=|≤) { return JuliaTypes.LESS_THAN_OR_EQUAL_SYM; }
+<YYINITIAL, LONG_TEMPLATE> ' { return JuliaTypes.TRANSPOSE_SYM; }
+<YYINITIAL, LONG_TEMPLATE> = { return JuliaTypes.ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \&= { return JuliaTypes.BITWISE_AND_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \|= { return JuliaTypes.BITWISE_OR_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \& { return JuliaTypes.BITWISE_AND_SYM; }
+<YYINITIAL, LONG_TEMPLATE> \| { return JuliaTypes.BITWISE_OR_SYM; }
+<YYINITIAL, LONG_TEMPLATE> (\$=|⊻=) { return JuliaTypes.BITWISE_XOR_ASSIGN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> (\$|⊻) { return JuliaTypes.BITWISE_XOR_SYM; }
+<YYINITIAL, LONG_TEMPLATE> ∈ { return JuliaTypes.IN_SYM; }
+<YYINITIAL, LONG_TEMPLATE> {MISC_ARROW_SYM} { return JuliaTypes.MISC_ARROW_SYM; }
+<YYINITIAL, LONG_TEMPLATE> {MISC_COMPARISON_SYM} { return JuliaTypes.MISC_COMPARISON_SYM; }
+<YYINITIAL, LONG_TEMPLATE> {MISC_PLUS_SYM} { return JuliaTypes.MISC_PLUS_SYM; }
+<YYINITIAL, LONG_TEMPLATE> {MISC_MULTIPLY_SYM} { return JuliaTypes.MISC_MULTIPLY_SYM; }
+<YYINITIAL, LONG_TEMPLATE> {MISC_EXPONENT_SYM} { return JuliaTypes.MISC_EXPONENT_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \. { return JuliaTypes.DOT_SYM; }
 <YYINITIAL, LONG_TEMPLATE> \.\. { return JuliaTypes.DOUBLE_DOT_SYM; }
 
