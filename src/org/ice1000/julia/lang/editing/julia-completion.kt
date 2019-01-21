@@ -133,12 +133,12 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		private val builtinV06 by lazy {
 			this::class.java.getResource("builtin-v0.6.txt")
 				.openStream()
-				.bufferedReader().lines().flatMap { it.split(" ").stream() }.toList()
+				.bufferedReader().lines().toList()
 		}
 		private val builtinV10 by lazy {
 			this::class.java.getResource("builtin-v1.0.txt")
 				.openStream()
-				.bufferedReader().lines().flatMap { it.split(" ").stream() }.toList()
+				.bufferedReader().lines().toList()
 		}
 
 		val builtins by lazy {

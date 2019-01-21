@@ -1,10 +1,15 @@
 package org.ice1000.julia.lang.psi
 
+import com.google.gson.JsonParser
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.ex.VirtualFileManagerEx
 import com.intellij.psi.*
+import org.ice1000.julia.lang.module.languageServer
 import org.ice1000.julia.lang.psi.impl.*
 import java.io.File
 
@@ -44,7 +49,24 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 			val juliaSymbol = sourceElement.parent as? JuliaSymbol ?: return null
 			return when (juliaSymbol.symbolKind) {
 				JuliaSymbolKind.ApplyFunctionName -> {
-					JuliaTypeDeclarationIndex.findElementsByName(project, juliaSymbol.text).toTypedArray()
+					val ret = project.languageServer.searchByName(juliaSymbol.text) ?: return null
+					return try {
+						val unescaped = StringUtil.unescapeStringCharacters(ret.trim('"'))
+						val json = JsonParser().parse(unescaped)
+						json.asJsonArray.mapNotNull {
+							val each = it.asJsonArray
+							val file = each[0].asString.let(::File)
+							val line = each[1].asInt
+							val vf = LocalFileSystem.getInstance().findFileByIoFile(file) ?: return@mapNotNull null
+							val document = FileDocumentManager.getInstance().getDocument(vf) ?: return@mapNotNull null
+							val psiOffset = document.getLineStartOffset(line - 1)
+							val psiFile = PsiManager.getInstance(project).findFile(vf) ?: return@mapNotNull null
+							psiFile.findElementAt(psiOffset)
+						}.toTypedArray()
+					} catch (e: Exception) {
+						e.printStackTrace()
+						null
+					}
 				}
 				JuliaSymbolKind.ModuleName -> {
 					if (juliaSymbol.isInUsingExpr) {

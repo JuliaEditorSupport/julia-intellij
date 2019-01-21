@@ -23,6 +23,9 @@ interface JuliaGlobalSettingsService {
 val Project.juliaSettings: JuliaProjectSettingsService
 	get() = ServiceManager.getService(this, JuliaProjectSettingsService::class.java)
 
+val Project.languageServer: JuliaLanguageServerService
+	get() = JuliaLanguageServerService.getInstance(this)
+
 val juliaGlobalSettings: JuliaGlobalSettingsService
 	get() = ServiceManager.getService(JuliaGlobalSettingsService::class.java)
 

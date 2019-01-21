@@ -194,7 +194,7 @@ typedNamedVariable ::=
 typeParameters ::=
  LEFT_B_BRACKET endOfLine
   (expr whereClause?)? (commaSep (expr whereClause?)?)* endOfLine
- RIGHT_B_BRACKET
+ RIGHT_B_BRACKET{pin=1}
 
 userType ::= primaryExpr typeParameters?
 typeAlias ::= TYPEALIAS_KEYWORD symbol typeParameters? userType { extends=expr }
@@ -515,7 +515,7 @@ unarySubtypeOp ::= SUBTYPE_SYM endOfLine expr
 unaryMinusOp ::= MINUS_SYM endOfLine expr
 unaryInterpolateOp ::= INTERPOLATE_SYM endOfLine expr
 notOp ::= NOT_SYM endOfLine expr
-unaryPlusOp ::= PLUS_SYM endOfLine expr
+unaryPlusOp ::= PLUS_SYM endOfLine expr?
 
 private primaryExpr ::=
    string

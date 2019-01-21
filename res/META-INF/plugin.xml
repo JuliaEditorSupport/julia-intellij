@@ -126,6 +126,9 @@
 		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
+		<projectService
+			serviceInterface="org.ice1000.julia.lang.module.JuliaLanguageServerService"
+			serviceImplementation="org.ice1000.julia.lang.module.JuliaLanguageServerService"/>
 		<applicationService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaGlobalSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaGlobalSettingsServiceImpl"/>
