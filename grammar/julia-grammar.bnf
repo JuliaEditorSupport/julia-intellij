@@ -501,7 +501,8 @@ typeOp ::= expr DOUBLE_COLON endOfLine type
 
 // level 15
 private unaryLevel ::=
-   unaryPlusOp
+OpAsSymbol
+ | unaryPlusOp
  | unaryMinusOp
  | unaryTypeOp
  | unarySubtypeOp
@@ -516,6 +517,7 @@ unaryMinusOp ::= MINUS_SYM endOfLine expr
 unaryInterpolateOp ::= INTERPOLATE_SYM endOfLine expr
 notOp ::= NOT_SYM endOfLine expr
 unaryPlusOp ::= PLUS_SYM endOfLine expr?
+OpAsSymbol::= PLUS_SYM{extends=expr}
 
 private primaryExpr ::=
    string

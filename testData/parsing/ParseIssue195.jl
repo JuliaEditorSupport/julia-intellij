@@ -76,3 +76,6 @@ filter(f, As::AbstractArray) = As[map(f, As)::AbstractArray{Bool}]
 map(f, As)::AbstractArray{Bool}
 
 findmax(a) = _findmax(a, :)
+
+:(a{*})
+:(a{+})
