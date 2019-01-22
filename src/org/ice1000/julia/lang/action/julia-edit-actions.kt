@@ -5,8 +5,10 @@ import com.intellij.codeInsight.lookup.*
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
@@ -18,9 +20,12 @@ import com.intellij.util.textCompletion.TextCompletionProvider
 import com.intellij.util.textCompletion.TextFieldWithCompletion
 import com.intellij.util.ui.JBUI
 import icons.JuliaIcons
+import org.apache.commons.lang.StringEscapeUtils
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
 import java.awt.event.KeyEvent
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import javax.swing.JLabel
 
 class JuliaTryEvaluateAction : JuliaAction(
@@ -103,13 +108,14 @@ class JuliaUnicodeInputAction : JuliaAction(
 			popup.addListener(object : JBPopupListener {
 				// due to that this function is not `default` in older idea versions
 				override fun beforeShown(event: LightweightWindowEvent) = Unit
+
 				override fun onClosed(event: LightweightWindowEvent) {
 					CommandProcessor.getInstance().executeCommand(project, {
 						if (null != editor) ApplicationManager.getApplication().runWriteAction {
 							editor.document.insertString(editor.caretModel.offset, field.text.let {
-								when(it){
-									"''","\"\""->it.replaceFirst(it[0],'\\')
-									else-> it.replace("\'","\\'").replace("\"","\\'")
+								when (it) {
+									"''", "\"\"" -> it.replaceFirst(it[0], '\\')
+									else -> it.replace("\'", "\\'").replace("\"", "\\'")
 								}
 							})
 							editor.caretModel.moveCaretRelatively(field.text.length, 0, false, false, true)
@@ -142,47 +148,64 @@ class JuliaDocumentFormatAction : JuliaAction(
 	JuliaBundle.message("julia.actions.doc-format.description")), DumbAware {
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.project ?: return
-		val settings = project.juliaSettings.settings
 		val file = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
+		// TODO (idk why the progress is invisible)
 		ProgressManager.getInstance().runProcessWithProgressSynchronously({
-			ApplicationManager.getApplication().run { invokeAndWait { runReadAction { read(file, settings, project) } } }
+			ApplicationManager.getApplication().run { invokeAndWait { runReadAction { read(file, project) } } }
 		}, JuliaBundle.message("julia.messages.doc-format.running"), false, project)
 	}
 
-	private fun read(file: VirtualFile, settings: JuliaSettings, project: Project) {
-		val content = file.inputStream.reader().readText().replace(Regex.fromLiteral("\"\\")) {
-			when (it.value) {
-				"\"" -> "\\\""
-				"\\" -> "\\\\"
-				else -> it.value
+	private fun read(file: VirtualFile, project: Project) {
+		FileDocumentManager
+			.getInstance()
+			.getDocument(file)
+			?.let(FileDocumentManager.getInstance()::saveDocument)
+		//language=Julia
+		val code = """using DocumentFormat: format
+try
+    read("${file.path}",String) |> format
+catch e
+prtinln("__INTELLIJ__"*repr(e))
+end
+"""
+		var stdout = ""
+		val executor = Executors.newCachedThreadPool()
+		val future = executor.submit {
+			try {
+				ReadAction.compute<String?, Throwable> {
+					project.languageServer.format(code)?.also { stdout = it }
+				}
+			} catch (e: Exception) {
+				e.printStackTrace()
 			}
 		}
-		//language=Julia
-		val (stdout, stderr) = executeJulia("${settings.exePath} -q",
-			"""using DocumentFormat: format
-println(format($JULIA_DOC_SURROUNDING$content$JULIA_DOC_SURROUNDING))
-exit()
-""",
-			50000L)
-		ApplicationManager.getApplication().let {
-			it.invokeAndWait {
-				it.runWriteAction { write(stderr, project, file, stdout) }
-				LocalFileSystem.getInstance().refreshFiles(listOf(file))
+		try {
+			future.get(10000, TimeUnit.MILLISECONDS)
+			ApplicationManager.getApplication().let {
+				it.invokeAndWait {
+					it.runWriteAction { write(project, file, stdout) }
+					LocalFileSystem.getInstance().refreshFiles(listOf(file))
+				}
 			}
+		} catch (e: Exception) {
+			e.printStackTrace()
 		}
 	}
 
-	private fun write(stderr: List<String>, project: Project, file: VirtualFile, stdout: List<String>) {
-		if (stderr.isNotEmpty()) ApplicationManager.getApplication().invokeLater {
+	private fun write(project: Project, file: VirtualFile, stdout: String) {
+		val errInfo = stdout.substringAfter("__INTELLIJ__")
+		if (errInfo !== stdout) ApplicationManager.getApplication().invokeLater {
 			Messages.showDialog(
 				project,
-				stderr.joinToString("\n"),
+				errInfo,
 				JuliaBundle.message("julia.messages.doc-format.error"),
 				arrayOf(JuliaBundle.message("julia.yes")),
 				0, JuliaIcons.JOJO_ICON)
-		} else file.getOutputStream(this).bufferedWriter().use {
-			it.append(stdout.joinToString("\n"))
-			it.flush()
+		} else if (errInfo.isNotEmpty()) {
+			file.getOutputStream(this).bufferedWriter().use {
+				it.append(StringEscapeUtils.unescapeJava(stdout.trim('"')))
+				it.flush()
+			}
 		}
 	}
 }

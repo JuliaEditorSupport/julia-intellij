@@ -10,13 +10,13 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.ex.VirtualFileManagerEx
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
+import org.apache.commons.lang.StringEscapeUtils
 import org.ice1000.julia.lang.module.languageServer
 import org.ice1000.julia.lang.psi.impl.IJuliaSymbol
 import org.ice1000.julia.lang.psi.impl.isInUsingExpr
@@ -66,21 +66,27 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 						try {
 							ReadAction.compute<Array<PsiElement>?, Throwable> {
 								project.languageServer.searchFunctionsByName(juliaSymbol.text)?.let { ret ->
-									val unescaped = StringUtil.unescapeStringCharacters(ret.trim('"'))
+									if (ret.startsWith("__INTELLIJ__")) return@compute null
+									val unescaped = StringEscapeUtils.unescapeJava(ret.trim('"'))
 									println(unescaped)
-									val json = jsonParser.parse(unescaped)
-									json.asJsonArray.mapNotNull {
-										val each = it.asJsonArray
-										val file = each[0].asString.let(::File)
-										val line = each[1].asInt
-										val vf = LocalFileSystem.getInstance().findFileByIoFile(file) ?: return@mapNotNull null
-										val document = FileDocumentManager.getInstance().getDocument(vf) ?: return@mapNotNull null
-										val psiOffset = document.getLineStartOffset(line - 1)
-										val psiFile = PsiManager.getInstance(project).findFile(vf) ?: return@mapNotNull null
-										val elem = psiFile.findElementAt(psiOffset + 1) ?: return@mapNotNull null
-										PsiTreeUtil.getNonStrictParentOfType(elem, JuliaCompactFunction::class.java, JuliaFunction::class.java)
-									}.toTypedArray().also { result = it }
-								}
+									try {
+										val json = jsonParser.parse(unescaped)
+										json.asJsonArray.mapNotNull {
+											val each = it.asJsonArray
+											val file = each[0].asString.let(::File)
+											val line = each[1].asInt
+											val vf = LocalFileSystem.getInstance().findFileByIoFile(file) ?: return@mapNotNull null
+											val document = FileDocumentManager.getInstance().getDocument(vf) ?: return@mapNotNull null
+											val psiOffset = document.getLineStartOffset(line - 1)
+											val psiFile = PsiManager.getInstance(project).findFile(vf) ?: return@mapNotNull null
+											val elem = psiFile.findElementAt(psiOffset + 1) ?: return@mapNotNull null
+											PsiTreeUtil.getNonStrictParentOfType(elem, JuliaCompactFunction::class.java, JuliaFunction::class.java)
+										}.toTypedArray().also { result = it }
+									} catch (e: Exception) {
+										e.printStackTrace()
+										result
+									}
+								} ?: result
 							}
 						} catch (e: Exception) {
 							e.printStackTrace()
