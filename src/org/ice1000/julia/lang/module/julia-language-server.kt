@@ -3,12 +3,18 @@ package org.ice1000.julia.lang.module
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
+import org.jetbrains.rpc.LOG
 
 class JuliaLanguageServerService(val project: Project) : Disposable {
-	var myProcess: Process?
+	var myProcess: Process? = null
+
 	init {
-		val process: Process = Runtime.getRuntime().exec(project.juliaSettings.settings.exePath)
-		myProcess = process
+		try {
+			val process: Process = Runtime.getRuntime().exec(project.juliaSettings.settings.exePath)
+			myProcess = process
+		} catch (e: Exception) {
+			LOG.error(e)
+		}
 	}
 
 	override fun dispose() {
