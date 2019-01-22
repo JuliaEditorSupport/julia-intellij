@@ -5,19 +5,20 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 
 /**
- * shouldn't use `use` in outputStream
+ * + should use `try` expression when sending codes to language server.
+ * + shouldn't use `use` in (IO)Stream
  * @property juliaSettings JuliaProjectSettingsService
  * @property myProcess Process?
  * @constructor
  */
 class JuliaLanguageServerService(val juliaSettings: JuliaProjectSettingsService) : Disposable {
-	var myProcess: Process? = null
+	private var myProcess: Process? = null
 
 	init {
 		recheckProcess()
 	}
 
-	fun recheckProcess() {
+	private fun recheckProcess() {
 		if (myProcess != null) return
 		val exePath = juliaSettings.settings.exePath
 		if (exePath.isNotBlank())
@@ -35,7 +36,7 @@ class JuliaLanguageServerService(val juliaSettings: JuliaProjectSettingsService)
 		}
 	}
 
-	fun format(command: String): String? {
+	fun sendCommand(command: String): String? {
 		recheckProcess()
 		val process = myProcess ?: return null
 		val outputStream = process.outputStream

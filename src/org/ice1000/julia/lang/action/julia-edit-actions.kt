@@ -173,7 +173,7 @@ end
 		val future = executor.submit {
 			try {
 				ReadAction.compute<String?, Throwable> {
-					project.languageServer.format(code)?.also { stdout = it }
+					project.languageServer.sendCommand(code)?.also { stdout = it }
 				}
 			} catch (e: Exception) {
 				e.printStackTrace()

@@ -574,6 +574,7 @@ whereClause ::= WHERE_KEYWORD afterWhere
 
 private keywordsAsOp ::=
   ISA_KEYWORD | MODULE_KEYWORD | WHERE_KEYWORD | UNION_KEYWORD | IN_KEYWORD
+  | ABSTRACT_KEYWORD | MUTABLE_KEYWORD | IMMUTABLE_KEYWORD
 
 private afterWhere ::=
    (symbol | LEFT_B_BRACKET symbol RIGHT_B_BRACKET)
@@ -645,7 +646,6 @@ typeDeclaration ::=
   symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? SEMICOLON_SYM? endOfLine
   <<lazyBlockNotParseEndImpl>>
  END_KEYWORD {
- 	pin=1
 	stubClass='org.ice1000.julia.lang.psi.JuliaTypeDeclarationClassStub'
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaTypeDeclaration']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaTypeDeclarationMixin'
@@ -654,7 +654,7 @@ typeDeclaration ::=
 abstractTypeDeclaration ::=
  ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
   symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
- END_KEYWORD { pin=1 extends=expr }
+ END_KEYWORD { extends=expr }
 
 primitiveTypeDeclaration ::=
  PRIMITIVE_KEYWORD TYPE_KEYWORD endOfLine
