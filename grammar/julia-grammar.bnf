@@ -426,7 +426,7 @@ compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
 quoteOp ::= COLON_SYM quotable
 private quotable ::=
    unaryOpAsSymbol
- | opAsSymbol
+ | opAsSymbol+
  | QUOTE_KEYWORD
  | (LEFT_BRACKET quotable RIGHT_BRACKET)
  | primaryExpr
