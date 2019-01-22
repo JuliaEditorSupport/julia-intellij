@@ -151,8 +151,10 @@ $JULIA_DOC_SURROUNDING
 	}
 
 	private fun plusLevelOp(element: JuliaPlusLevelOp, holder: AnnotationHolder) {
-		when (element.plusLevelOperator.text) {
-			"$" -> holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
+		val plusLevelOperator = element.plusLevelOperator
+		val text = plusLevelOperator.text
+		when (text) {
+			"$" -> holder.createWarningAnnotation(plusLevelOperator, JuliaBundle.message("julia.lint.xor-hint", text)).run {
 				highlightType = ProblemHighlightType.LIKE_DEPRECATED
 				registerFix(JuliaReplaceWithTextIntention(element, "xor(${element.firstChild.text}, ${element.lastChild.text})",
 					JuliaBundle.message("julia.lint.xor-replace-xor", element.firstChild.text, element.lastChild.text)))
