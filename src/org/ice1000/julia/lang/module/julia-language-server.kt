@@ -4,22 +4,25 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import org.jetbrains.rpc.LOG
+import java.nio.file.Files
+import java.nio.file.Paths
 
-class JuliaLanguageServerService(val project: Project) : Disposable {
+class JuliaLanguageServerService(val juliaSettings: JuliaProjectSettingsService) : Disposable {
 	var myProcess: Process? = null
 
 	init {
-		try {
-			val process: Process = Runtime.getRuntime().exec(project.juliaSettings.settings.exePath)
-			myProcess = process
-		} catch (e: Exception) {
-			LOG.error(e)
-		}
+		recheckProcess()
+	}
+
+	fun recheckProcess() {
+		if (myProcess != null) return
+		val exePath = juliaSettings.settings.exePath
+		if (exePath.isNotBlank() && Files.isExecutable(Paths.get(exePath)))
+			myProcess = Runtime.getRuntime().exec(exePath)
 	}
 
 	override fun dispose() {
-		val process = myProcess ?: return
-		process.destroy()
+		myProcess?.destroy()
 	}
 
 	companion object {
@@ -30,6 +33,7 @@ class JuliaLanguageServerService(val project: Project) : Disposable {
 	}
 
 	fun searchByName(name: String): String? {
+		recheckProcess()
 		val process = myProcess ?: return null
 		val command = "using JSON;methods($name) |> collect .|> functionloc |> json\n"
 		val outputStream = process.outputStream
