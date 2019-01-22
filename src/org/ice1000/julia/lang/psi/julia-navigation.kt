@@ -1,16 +1,14 @@
 package org.ice1000.julia.lang.psi
 
 import com.google.gson.JsonParser
-import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerProvider
-import com.intellij.codeInsight.daemon.NavigateAction
-import com.intellij.codeInsight.daemon.impl.MarkerType
+import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -20,9 +18,11 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.module.languageServer
+import org.ice1000.julia.lang.psi.impl.IJuliaSymbol
 import org.ice1000.julia.lang.psi.impl.isInUsingExpr
 import java.io.File
-import javax.swing.Icon
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * Goto JuliaFile in a string by Ctrl/Meta + Click
@@ -60,23 +60,36 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 			val juliaSymbol = sourceElement.parent as? JuliaSymbol ?: return null
 			return when (juliaSymbol.symbolKind) {
 				JuliaSymbolKind.ApplyFunctionName -> {
-					val ret = project.languageServer.searchFunctionsByName(juliaSymbol.text) ?: return null
+					val executor = Executors.newCachedThreadPool()
+					var result: Array<PsiElement>? = null
+					val future = executor.submit {
+						try {
+							ReadAction.compute<Array<PsiElement>?, Throwable> {
+								project.languageServer.searchFunctionsByName(juliaSymbol.text)?.let { ret ->
+									val unescaped = StringUtil.unescapeStringCharacters(ret.trim('"'))
+									println(unescaped)
+									val json = jsonParser.parse(unescaped)
+									json.asJsonArray.mapNotNull {
+										val each = it.asJsonArray
+										val file = each[0].asString.let(::File)
+										val line = each[1].asInt
+										val vf = LocalFileSystem.getInstance().findFileByIoFile(file) ?: return@mapNotNull null
+										val document = FileDocumentManager.getInstance().getDocument(vf) ?: return@mapNotNull null
+										val psiOffset = document.getLineStartOffset(line - 1)
+										val psiFile = PsiManager.getInstance(project).findFile(vf) ?: return@mapNotNull null
+										val elem = psiFile.findElementAt(psiOffset + 1) ?: return@mapNotNull null
+										PsiTreeUtil.getNonStrictParentOfType(elem, JuliaCompactFunction::class.java, JuliaFunction::class.java)
+									}.toTypedArray().also { result = it }
+								}
+							}
+						} catch (e: Exception) {
+							e.printStackTrace()
+						}
+					}
 					return try {
-						val unescaped = StringUtil.unescapeStringCharacters(ret.trim('"'))
-						val json = JsonParser().parse(unescaped)
-						json.asJsonArray.mapNotNull {
-							val each = it.asJsonArray
-							val file = each[0].asString.let(::File)
-							val line = each[1].asInt
-							val vf = LocalFileSystem.getInstance().findFileByIoFile(file) ?: return@mapNotNull null
-							val document = FileDocumentManager.getInstance().getDocument(vf) ?: return@mapNotNull null
-							val psiOffset = document.getLineStartOffset(line - 1)
-							val psiFile = PsiManager.getInstance(project).findFile(vf) ?: return@mapNotNull null
-							val elem = psiFile.findElementAt(psiOffset + 1) ?: return@mapNotNull null
-							PsiTreeUtil.getNonStrictParentOfType(elem, JuliaCompactFunction::class.java, JuliaFunction::class.java)
-						}.toTypedArray()
-					} catch (e: Exception) {
-						e.printStackTrace()
+						future?.get(5000, TimeUnit.MILLISECONDS)
+						result
+					} catch (ignored: Throwable) {
 						null
 					}
 				}
@@ -97,24 +110,25 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 		return null
 	}
 
+	companion object {
+		val jsonParser = JsonParser()
+	}
+
 	override fun getActionText(context: DataContext): String? = null
 }
 
 class JuliaLineMarkerProvider : LineMarkerProvider {
 	override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
-		val icon = AllIcons.Gutter.OverridenMethod
-		if (element is JuliaAbstractTypeDeclaration) {
-			val info = ArrowUpLineMarkerInfo(element, icon, MarkerType.SUBCLASSED_CLASS, Pass.LINE_MARKERS)
-			return NavigateAction.setNavigateAction<PsiElement>(info, "Go to subtypes", null)
-		}
-		return null
+		val icon = AllIcons.Gutter.OverridenMethod // ↓
+		if (element is IJuliaSymbol && element.parent is JuliaAbstractTypeDeclaration) {
+			val builder = NavigationGutterIconBuilder
+				.create(icon)
+				.setTooltipText("Please Click name to navigate to Subtypes")
+				.setTarget(element)
+			return builder.createLineMarkerInfo(element)
+		} else return null
 	}
 
 	override fun collectSlowLineMarkers(elements: MutableList<PsiElement>, result: MutableCollection<LineMarkerInfo<PsiElement>>) {
-
 	}
-
-	class ArrowUpLineMarkerInfo(element: PsiElement, icon: Icon, markerType: MarkerType, passId: Int)
-		: LineMarkerInfo<PsiElement>(element, element.textRange, icon, passId, markerType.tooltip,
-		markerType.navigationHandler, GutterIconRenderer.Alignment.LEFT)
 }

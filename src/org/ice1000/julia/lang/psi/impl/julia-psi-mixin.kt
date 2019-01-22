@@ -10,6 +10,7 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.editing.toText
 import org.ice1000.julia.lang.psi.*
 import javax.swing.Icon
 
@@ -160,6 +161,7 @@ abstract class JuliaCompactFunctionMixin(node: ASTNode) : JuliaDeclaration(node)
 			return field
 		}
 
+	override fun getName(): String = this.toText
 	private var paramsTextCache: String? = null
 	override val returnType: Type get() = body?.type ?: UNKNOWN_VALUE_PLACEHOLDER
 	private var typeParamsTextCache: String? = null

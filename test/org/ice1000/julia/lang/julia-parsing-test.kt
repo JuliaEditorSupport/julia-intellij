@@ -55,6 +55,7 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION,
 	fun testParseEolAfterWhere() = doTest(true)
 	fun testParseJuliac() = doTest(true)
 	fun testRegex() = doTest(true)
+	fun testParseRed() = doTest(true)
 	fun testParseFor() = doTest(true)
 	fun testParseLet() = doTest(true)
 	fun testParseEscapeInsideRegEx() = doTest(true)

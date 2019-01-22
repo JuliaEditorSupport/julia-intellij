@@ -316,7 +316,9 @@ class JuliaEnterAfterUnmatchedEndHandler : EnterHandlerDelegate {
 		val previousLine = document.charsSequence.substring(previousLineStartOffset, previousLineEndOffset)
 
 		if (lineStringAfter.afterIsDeletable()) { // end, else, elseif...
-			val lineStart = document.charsSequence.substring(lineStartOffset, lineEndOffset + 4)
+
+			val lineStart = tryRun { document.charsSequence.substring(lineStartOffset, lineEndOffset + 4) }
+				?: return EnterHandlerDelegate.Result.Continue
 			return when {
 				previousLine.trim().beforeIsIndentable() -> {
 					EnterHandlerDelegate.Result.Continue

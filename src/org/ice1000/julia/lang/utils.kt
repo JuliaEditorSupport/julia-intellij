@@ -14,6 +14,14 @@ inline fun forceRun(lambda: () -> Unit) {
 	}
 }
 
+inline fun <T> tryRun(lambda: () -> T): T? {
+	return try {
+		lambda()
+	} catch (e: Throwable) {
+		null
+	}
+}
+
 fun printJulia(
 	exePath: String, timeLimit: Long = 2000L, expr: String) =
 	executeJulia(exePath, null, timeLimit, "--print", expr)

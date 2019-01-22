@@ -36,7 +36,7 @@ val PsiElement.canBeNamed
 		this is JuliaAssignOp ||
 		this is JuliaSymbol
 
-val IJuliaFunctionDeclaration.toText get() = "$name$typeParamsText$paramsText"
+val IJuliaFunctionDeclaration.toText get() = "${nameIdentifier?.text.orEmpty()}$typeParamsText$paramsText"
 
 val PsiElement.isFieldInTypeDeclaration: Boolean
 	get() = parent is JuliaStatements && parent.parent is JuliaTypeDeclaration

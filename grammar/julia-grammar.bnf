@@ -423,12 +423,13 @@ colonSymBegins::= COLON_SYM endOfLine LEFT_BRACKET
 colonOp ::= expr colonSymBegins expr RIGHT_BRACKET
 spliceOp ::= expr SLICE_SYM
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
-quoteOp ::= COLON_SYM endOfLine quotable
+quoteOp ::= COLON_SYM quotable
 private quotable ::=
    unaryOpAsSymbol
  | opAsSymbol
  | QUOTE_KEYWORD
- | expr
+ | (LEFT_BRACKET quotable RIGHT_BRACKET)
+ | primaryExpr
 
 // + - etc
 plusLevelOp ::= expr plusLevelOperator endOfLine expr
