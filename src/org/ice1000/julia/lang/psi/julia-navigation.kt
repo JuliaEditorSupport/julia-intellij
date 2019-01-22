@@ -1,18 +1,28 @@
 package org.ice1000.julia.lang.psi
 
 import com.google.gson.JsonParser
+import com.intellij.codeHighlighting.Pass
+import com.intellij.codeInsight.daemon.LineMarkerInfo
+import com.intellij.codeInsight.daemon.LineMarkerProvider
+import com.intellij.codeInsight.daemon.NavigateAction
+import com.intellij.codeInsight.daemon.impl.MarkerType
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.ex.VirtualFileManagerEx
-import com.intellij.psi.*
+import com.intellij.psi.PsiDirectory
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.module.languageServer
-import org.ice1000.julia.lang.psi.impl.*
+import org.ice1000.julia.lang.psi.impl.isInUsingExpr
 import java.io.File
+import javax.swing.Icon
 
 /**
  * Goto JuliaFile in a string by Ctrl/Meta + Click
@@ -50,7 +60,7 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 			val juliaSymbol = sourceElement.parent as? JuliaSymbol ?: return null
 			return when (juliaSymbol.symbolKind) {
 				JuliaSymbolKind.ApplyFunctionName -> {
-					val ret = project.languageServer.searchByName(juliaSymbol.text) ?: return null
+					val ret = project.languageServer.searchFunctionsByName(juliaSymbol.text) ?: return null
 					return try {
 						val unescaped = StringUtil.unescapeStringCharacters(ret.trim('"'))
 						val json = JsonParser().parse(unescaped)
@@ -88,4 +98,23 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 	}
 
 	override fun getActionText(context: DataContext): String? = null
+}
+
+class JuliaLineMarkerProvider : LineMarkerProvider {
+	override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
+		val icon = AllIcons.Gutter.OverridenMethod
+		if (element is JuliaAbstractTypeDeclaration) {
+			val info = ArrowUpLineMarkerInfo(element, icon, MarkerType.SUBCLASSED_CLASS, Pass.LINE_MARKERS)
+			return NavigateAction.setNavigateAction<PsiElement>(info, "Go to subtypes", null)
+		}
+		return null
+	}
+
+	override fun collectSlowLineMarkers(elements: MutableList<PsiElement>, result: MutableCollection<LineMarkerInfo<PsiElement>>) {
+
+	}
+
+	class ArrowUpLineMarkerInfo(element: PsiElement, icon: Icon, markerType: MarkerType, passId: Int)
+		: LineMarkerInfo<PsiElement>(element, element.textRange, icon, passId, markerType.tooltip,
+		markerType.navigationHandler, GutterIconRenderer.Alignment.LEFT)
 }

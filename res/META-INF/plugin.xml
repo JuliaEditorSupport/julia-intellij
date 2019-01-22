@@ -153,6 +153,9 @@
 		<codeInsight.parameterInfo
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaParameterInfo"/>
+		<codeInsight.lineMarkerProvider
+			language="Julia"
+			implementationClass="org.ice1000.julia.lang.psi.JuliaLineMarkerProvider"/>
 		<projectConfigurable
 			groupId="language"
 			id="Julia.Configuration"

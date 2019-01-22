@@ -17,7 +17,7 @@ class JuliaLanguageServerService(val juliaSettings: JuliaProjectSettingsService)
 	fun recheckProcess() {
 		if (myProcess != null) return
 		val exePath = juliaSettings.settings.exePath
-		if (exePath.isNotBlank() && Files.isExecutable(Paths.get(exePath)))
+		if (exePath.isNotBlank())
 			myProcess = Runtime.getRuntime().exec(exePath)
 	}
 
@@ -32,7 +32,7 @@ class JuliaLanguageServerService(val juliaSettings: JuliaProjectSettingsService)
 		}
 	}
 
-	fun searchByName(name: String): String? {
+	fun searchFunctionsByName(name: String): String? {
 		recheckProcess()
 		val process = myProcess ?: return null
 		val command = "using JSON;methods($name) |> collect .|> functionloc |> json\n"
@@ -40,6 +40,17 @@ class JuliaLanguageServerService(val juliaSettings: JuliaProjectSettingsService)
 		val inputStream = process.inputStream
 		outputStream.write(command.toByteArray())
 		outputStream.flush()
-		return inputStream.bufferedReader().readText().trim()
+		return inputStream.bufferedReader().readLine()
+	}
+
+	fun searchSubTypesByName(name: String): String? {
+		recheckProcess()
+		val process = myProcess ?: return null
+		val command = "using JSON;subtypes($name) |> json\n"
+		val outputStream = process.outputStream
+		val inputStream = process.inputStream
+		outputStream.write(command.toByteArray())
+		outputStream.flush()
+		return inputStream.bufferedReader().readLine()
 	}
 }
