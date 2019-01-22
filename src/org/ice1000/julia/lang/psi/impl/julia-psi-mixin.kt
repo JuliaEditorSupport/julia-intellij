@@ -109,6 +109,7 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	private var paramsTextCache: String? = null
 	private var typeParamsTextCache: String? = null
 	override val returnType: Type get() = UNKNOWN_VALUE_PLACEHOLDER
+	override fun getIcon(flags: Int): Icon? = JuliaIcons.JULIA_FUNCTION_ICON
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
 	override val typeParamsText: String
 		get() = typeParamsTextCache ?: typeParameters?.exprList

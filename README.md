@@ -48,11 +48,17 @@ To learn about the test summery, visit https://circleci.com/build-insights/gh/ic
 
 ## Screenshots
 
+### Execution
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17880.png)
-![](https://plugins.jetbrains.com/files/10413/screenshot_17879.png)
+
+### Doc-String
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17881.png)
-![](https://plugins.jetbrains.com/files/10413/screenshot_17891.png)
+
+### Refactoring and Editing
+![](https://plugins.jetbrains.com/files/10413/screenshot_17879.png)
 ![](https://plugins.jetbrains.com/files/10413/screenshot_17932.png)
+
+### Package Manager
 ![](https://github.com/zxj5470/julia-intellij-docs-cn/blob/master/screenshots/pkg-manager.gif?raw=true)
 
 ### Plots
