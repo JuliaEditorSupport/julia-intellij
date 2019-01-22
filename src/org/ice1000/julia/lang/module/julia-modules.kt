@@ -46,7 +46,7 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 				inheritSdk()
 				contentEntries.firstOrNull()?.apply setupRoot@{
 					val project = module.project
-					val baseDir = project.guessProjectDir()
+					val baseDir = file ?: project.guessProjectDir()
 						?: run {
 							errorNotification(project, "Created project does not have a root directory.")
 							return@setupRoot
