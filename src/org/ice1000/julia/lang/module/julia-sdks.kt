@@ -95,33 +95,29 @@ class JuliaStdLibraryProvider : AdditionalLibraryRootsProvider() {
 	override fun getAdditionalProjectLibraries(project: Project): Collection<StdLibrary> {
 		if (!project.withJulia) return emptyList()
 
-		val base = project.juliaSettings.settings.basePath
-		val version = project.juliaSettings.settings.version
+		val settings = project.juliaSettings.settings
+		val base = settings.basePath
+		val version = settings.version
 		val list = linkedSetOf<StdLibrary>()
 
-		val sharePath = Paths.get(base, "..").toFile()
+		val sharePath = Paths.get(base).parent.toFile()
 		val dir = VfsUtil.findFileByIoFile(sharePath, true)
 		if (dir != null) list.add(StdLibrary("Julia $version", dir))
 
 		try {
-			val settings = project.juliaSettings.settings
 			val beforeVersion07 = '.' in settings.version && compareVersion(settings.version, "0.7.0") < 0
-			if (beforeVersion07) {
+			val pkgFile = if (beforeVersion07) {
 				val pkgdir = printJulia(juliaPath, timeLimit = 5000L, expr = "Pkg.dir()")
 					.first
 					.firstOrNull()?.trim('"')
-				val pkgFile = Paths.get(pkgdir).toFile()
-				val pkgVirtualFile = VfsUtil.findFileByIoFile(pkgFile, true)
-				if (pkgVirtualFile != null) {
-					list.add(StdLibrary("Julia Packages", pkgVirtualFile, JuliaLibraryType.PKG))
-				}
+				Paths.get(pkgdir).toFile()
 			} else {
 				val userHome = System.getProperty("user.home")
-				val pkgFile = Paths.get(userHome, ".julia", "packages").toFile()
-				val pkgVirtualFile = VfsUtil.findFileByIoFile(pkgFile, true)
-				if (pkgVirtualFile != null) {
-					list.add(StdLibrary("Julia Packages", pkgVirtualFile, JuliaLibraryType.PKG))
-				}
+				Paths.get(userHome, ".julia", "packages").toFile()
+			}
+			val pkgVirtualFile = VfsUtil.findFileByIoFile(pkgFile, true)
+			if (pkgVirtualFile != null) {
+				list.add(StdLibrary("Julia Packages", pkgVirtualFile, JuliaLibraryType.PKG))
 			}
 		} finally {
 			return list
@@ -147,12 +143,10 @@ class JuliaStdLibraryProvider : AdditionalLibraryRootsProvider() {
 		override fun getLocationString() = ""
 		override fun getIcon(p0: Boolean): Icon = if (type == JuliaLibraryType.SDK) JuliaIcons.JULIA_BIG_ICON else JuliaIcons.JULIA_ICON
 		override fun getPresentableText() = name
-		override fun getExcludeFileCondition(): Condition<VirtualFile>? {
-			return Condition { file ->
-				when {
-					file.isDirectory -> file.name in EXCLUDE_NAMES || file.parent.name == "base"
-					else -> !file.name.endsWith(".jl")
-				}
+		override fun getExcludeFileCondition(): Condition<VirtualFile>? = Condition { file ->
+			when {
+				file.isDirectory -> file.name in EXCLUDE_NAMES || file.parent.name == "base"
+				else -> !file.name.endsWith(".jl")
 			}
 		}
 

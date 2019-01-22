@@ -40,6 +40,6 @@ class JuliaLanguageServerService(val juliaSettings: JuliaProjectSettingsService)
 		val inputStream = process.inputStream
 		outputStream.write(command.toByteArray())
 		outputStream.flush()
-		return inputStream.bufferedReader().readLine()
+		return inputStream.bufferedReader().readText().trim()
 	}
 }

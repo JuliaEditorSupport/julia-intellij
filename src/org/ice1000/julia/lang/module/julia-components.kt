@@ -143,11 +143,11 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 }
 
 val Project.withJulia: Boolean
-	get() = try {
-		this.guessProjectDir()
-	} catch (e: IllegalStateException) {
+	get() = if (isDefault) {
 		@Suppress("deprecation")
-		this.baseDir
+		baseDir
+	} else {
+		this.guessProjectDir()
 	}?.run { getChildrenWithDepth(4).any { it.name.endsWith(".jl") } }.orFalse()
 
 fun VirtualFile.getChildrenWithDepth(depth: Int): Sequence<VirtualFile> {
