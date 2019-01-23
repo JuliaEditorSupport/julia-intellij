@@ -14,10 +14,10 @@
 		<liveTemplateContext implementation="org.ice1000.julia.lang.editing.JuliaTemplateContextType$Comment"/>
 		<liveTemplateContext implementation="org.ice1000.julia.lang.editing.JuliaTemplateContextType$Function"/>
 		<liveTemplateContext implementation="org.ice1000.julia.lang.editing.JuliaTemplateContextType$Class"/>
-		<internalFileTemplate name="Julia Module"/>
-		<internalFileTemplate name="Julia Function"/>
-		<internalFileTemplate name="Julia Type"/>
-		<internalFileTemplate name="Julia File"/>
+		<!--<internalFileTemplate name="Julia Module"/>-->
+		<!--<internalFileTemplate name="Julia Function"/>-->
+		<!--<internalFileTemplate name="Julia Type"/>-->
+		<!--<internalFileTemplate name="Julia File"/>-->
 		<gotoDeclarationHandler implementation="org.ice1000.julia.lang.psi.JuliaGotoDeclarationHandler"/>
 		<!--<gotoClassContributor implementation="org.ice1000.julia.lang.psi.JuliaModuleNavigationContributor"/>-->
 		<additionalTextAttributes scheme="Darcula" file="/colorSchemes/JuliaDark.xml"/>
