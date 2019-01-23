@@ -22,6 +22,7 @@ import com.intellij.util.ui.JBUI
 import icons.JuliaIcons
 import org.apache.commons.lang.StringEscapeUtils
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.execution.toUnixPath
 import org.ice1000.julia.lang.module.*
 import java.awt.event.KeyEvent
 import java.util.concurrent.Executors
@@ -163,9 +164,9 @@ class JuliaDocumentFormatAction : JuliaAction(
 		//language=Julia
 		val code = """using DocumentFormat: format
 try
-    read("${file.path}",String) |> format
+    read("${file.path.toUnixPath()}",String) |> format
 catch e
-prtinln("__INTELLIJ__"*repr(e))
+    println("__INTELLIJ__"*repr(e))
 end
 """
 		var stdout = ""
