@@ -386,7 +386,7 @@ andOp ::= expr endOfLine AND_SYM endOfLine expr
 // ->
 // level 5
 lambda ::=
- (symbol typeAnnotation? | tuple | LEFT_BRACKET RIGHT_BRACKET)
+ (symbol typeAnnotation? | functionSignature)
   LAMBDA_ABSTRACTION expr {
 	rightAssociative=true
 	extends=expr
