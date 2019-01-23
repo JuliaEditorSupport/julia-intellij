@@ -16,3 +16,6 @@ scaled_ticks = optimize_ticks(sf(amin),sf(amax);
 
 # 3
 const TicksArgs = Union{AVec{T}, Tuple{AVec{T}, AVec{S}}, Symbol} where {T<:Real, S<:AbstractString}
+
+# 9
+minorticks[amin .<= minorticks .<= amax]
