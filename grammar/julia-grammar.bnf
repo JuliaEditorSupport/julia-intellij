@@ -301,7 +301,6 @@ ternaryOp ::= expr QUESTION_SYM endOfLine rangeOp { pin=2 }
 private suffixedExpr ::=
    applyFunctionOp
  | applyIndexOp
- | dotApplyFunctionOp
  | memberAccessOp
 // | applyWhereOp
  | type
@@ -460,6 +459,7 @@ private multiplyLevel ::=
    multiplyLevelOp
  | implicitMultiplyOp
  | stringLikeMultiplyOp
+ | dotApplyFunctionOp
 
 multiplyLevelOp ::= expr multiplyLevelOperator endOfLine expr
 stringLikeMultiplyOp ::= stringValue (endOfLine MULTIPLY_SYM endOfLine stringValue)+

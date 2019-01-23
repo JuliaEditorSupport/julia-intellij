@@ -11,3 +11,7 @@ function bnd(out::Set{Any})
         a => @error "emmmm"
     end
 end
+
+#307
+[1,2,3] * transpose([1,2,4])
+[1,2,3] .* transpose([1,2,4])
