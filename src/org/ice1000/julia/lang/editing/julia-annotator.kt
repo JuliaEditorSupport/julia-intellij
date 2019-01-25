@@ -67,28 +67,29 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 
 	private fun function(
 		element: JuliaFunction, holder: AnnotationHolder, settings: JuliaSettings) {
-		val statements = element.statements?.run { exprList + moduleDeclarationList }
-			?: return
+		val statements = element.statements?.children?.filter { it is JuliaExpr } ?: return
 		val signature = element.functionSignature
-		val signatureText = signature?.text ?: "()"
+		val signatureText = signature?.text?.trim() ?: "()"
 		val typeParamsText = element.typeParameters?.text.orEmpty()
 		val where = element.whereClauseList
-		val name = element.name
+		val nameIdentifier = element.nameIdentifier ?: return
+		val name = nameIdentifier.text
 		if (where.isEmpty()) when {
 			statements.isEmpty() -> holder.createWeakWarningAnnotation(
-				element.firstChild,
+				nameIdentifier,
 				JuliaBundle.message("julia.lint.empty-function"))
 				.registerFix(JuliaReplaceWithTextIntention(element,
 					"$name$typeParamsText$signatureText = ()",
 					JuliaBundle.message("julia.lint.replace-compact-function")))
 			statements.size == 1 -> {
-				val expression = statements.first().let {
+				// use last. Because typeOf will become the first when function with typeOp
+				val expression = statements.last().let {
 					(it as? JuliaReturnExpr)?.exprList?.joinToString(", ") { it.text }
 						?: it.text
-				}
+				}.trim()
 				if (expression.length <= settings.maxCharacterToConvertToCompact)
 					holder.createWeakWarningAnnotation(
-						element.firstChild,
+						nameIdentifier,
 						JuliaBundle.message("julia.lint.lonely-function"))
 						.registerFix(JuliaReplaceWithTextIntention(element,
 							"$name$typeParamsText$signatureText = $expression",
@@ -204,8 +205,10 @@ $JULIA_DOC_SURROUNDING
 				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
 			JuliaSymbolKind.PrimitiveTypeName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
-			JuliaSymbolKind.TypeParameterName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.TYPE_PARAMETER_NAME
+			JuliaSymbolKind.TypeParameterName -> {
+				holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.TYPE_PARAMETER_NAME
+				return
+			}
 			JuliaSymbolKind.FunctionParameter -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.FUNCTION_PARAMETER
 			JuliaSymbolKind.TypeName -> holder.createInfoAnnotation(element, null)

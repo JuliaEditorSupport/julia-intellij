@@ -111,6 +111,7 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 	private var typeParamsTextCache: String? = null
 	override val returnType: Type get() = UNKNOWN_VALUE_PLACEHOLDER
 	override fun getIcon(flags: Int): Icon? = JuliaIcons.JULIA_FUNCTION_ICON
+	override fun getName(): String = this.toText
 	override fun getNameIdentifier() = children.firstOrNull { it is JuliaSymbol } as JuliaSymbol?
 	override val typeParamsText: String
 		get() = typeParamsTextCache ?: typeParameters?.exprList
@@ -144,9 +145,13 @@ fun calculateParamsText(expr: PsiElement?): String {
 		.psiTraverser()
 		.children(expr)
 		.joinToString(separator = "", prefix = "(", postfix = ")") {
-			if (it is JuliaTypedNamedVariable)
-				PsiTreeUtil.findChildOfType(it.typeAnnotation, JuliaSymbol::class.java)?.text ?: "Any"
-			else when (it.elementType) {
+			if (it is JuliaTypedNamedVariable) {
+				if (it.text.startsWith("::")) {
+					it.text
+				} else
+					PsiTreeUtil.findChildOfType(it.typeAnnotation, JuliaSymbol::class.java)?.text
+						?: "Any${if (it.text.endsWith("...")) "..."; else ""}"
+			} else when (it.elementType) {
 				JuliaTypes.COMMA_SYM,
 				JuliaTypes.SEMICOLON_SYM -> "${it.text} "
 				else -> ""
@@ -239,10 +244,10 @@ abstract class JuliaTypeDeclarationMixin : StubBasedPsiElementBase<JuliaTypeDecl
 	override fun setName(name: String) = also { nameIdentifier?.replace(JuliaTokenType.fromText(name, project)) }
 	override fun getName() = nameIdentifier?.text
 	override fun getIcon(flags: Int): Icon? = JuliaIcons.JULIA_TYPE_ICON
-	override fun processDeclarations(
-		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		nameIdentifier?.let { processor.execute(it, state) }.orFalse() &&
-			super.processDeclarations(processor, state, lastParent, place)
+//	override fun processDeclarations(
+//		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+//		nameIdentifier?.let { processor.execute(it, state) }.orFalse() &&
+//			super.processDeclarations(processor, state, lastParent, place)
 
 	override fun subtreeChanged() {
 		nameCache = null
@@ -289,11 +294,16 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 
 		parent is JuliaModuleDeclaration ||
 			(parent is JuliaMemberAccess &&
-			this === parent.firstChild &&
-			parent.parent is JuliaUsing) -> JuliaSymbolKind.ModuleName
+				this === parent.firstChild &&
+				parent.parent is JuliaUsing) /*TODO function Base.xxx*/ -> JuliaSymbolKind.ModuleName
 
 		parent is JuliaAbstractTypeDeclaration -> JuliaSymbolKind.AbstractTypeName
 		parent is JuliaPrimitiveTypeDeclaration -> JuliaSymbolKind.PrimitiveTypeName
+
+		parent is JuliaTypeParameters ||
+			parent.parent is JuliaType ||
+			parent is JuliaWhereClause ||
+			parent is JuliaUnarySubtypeOp -> JuliaSymbolKind.TypeParameterName
 
 		parent is JuliaTypeOp && this === parent.children.getOrNull(1) ||
 			parent is JuliaTypeAlias ||
@@ -303,10 +313,6 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			parent is JuliaAbstractTypeDeclaration ||
 			parent is JuliaArray -> JuliaSymbolKind.TypeName
 
-		parent is JuliaTypeParameters ||
-			parent.parent is JuliaType ||
-			parent is JuliaWhereClause ||
-			parent is JuliaUnarySubtypeOp -> JuliaSymbolKind.TypeParameterName
 
 		parent is JuliaTypedNamedVariable &&
 			this === parent.firstChild -> JuliaSymbolKind.FunctionParameter

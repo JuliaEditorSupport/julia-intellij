@@ -60,6 +60,7 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 			val juliaSymbol = sourceElement.parent as? JuliaSymbol ?: return null
 			return when (juliaSymbol.symbolKind) {
 				JuliaSymbolKind.ApplyFunctionName -> {
+					if (juliaSymbol.text in IGNORED) return null
 					val executor = Executors.newCachedThreadPool()
 					var result: Array<PsiElement>? = null
 					val future = executor.submit {
@@ -68,7 +69,6 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 								project.languageServer.searchFunctionsByName(juliaSymbol.text)?.let { ret ->
 									if (ret.startsWith("__INTELLIJ__")) return@compute null
 									val unescaped = StringEscapeUtils.unescapeJava(ret.trim('"'))
-									println(unescaped)
 									try {
 										val json = jsonParser.parse(unescaped)
 										json.asJsonArray.mapNotNull {
@@ -118,6 +118,7 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 
 	companion object {
 		val jsonParser = JsonParser()
+		val IGNORED = arrayOf("ccall", "throw")
 	}
 
 	override fun getActionText(context: DataContext): String? = null

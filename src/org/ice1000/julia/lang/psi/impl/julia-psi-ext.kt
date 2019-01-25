@@ -28,5 +28,5 @@ val IJuliaSymbol.typeFoundFromStub: Boolean
 /**
  * since function body is nullable~
  */
-val JuliaFunction.statements: JuliaStatements?
-	get() = PsiTreeUtil.findChildOfType(this, JuliaStatements::class.java)
+val JuliaFunction.statements: JuliaLazyParseableBlockImpl?
+	get() = PsiTreeUtil.findChildOfType(this, JuliaLazyParseableBlockImpl::class.java)
