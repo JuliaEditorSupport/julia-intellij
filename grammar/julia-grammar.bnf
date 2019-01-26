@@ -366,10 +366,10 @@ arguments ::=
  (commaSep)?
  (symbol SLICE_SYM)?{pin=1}
 
-private symbolLhsInternal ::= symbol | LEFT_BRACKET symbol RIGHT_BRACKET
+private symbolLhsInternal ::= interpolateSymbolAsOp | symbol | LEFT_BRACKET symbol RIGHT_BRACKET
 symbolLhs ::=
  ((LOCAL_KEYWORD | CONST_KEYWORD) endOfLine)
- symbolLhsInternal (commaSep symbolLhsInternal)* { extends=expr }
+ symbolLhsInternal (commaSep symbolLhsInternal)* { extends=expr pin=1 }
 
 // All reserved but unassigned
 // level 2.5

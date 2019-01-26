@@ -38,3 +38,10 @@ function retry(f::Function;  delays=ExponentialBackOff(), check=nothing)
         return f(args...; kwargs...)
     end
 end
+
+ident_cmp(a::Integer, b::String ) = isempty(b) ? +1 : -1
+
+:(const assn = _)
+:(const $assn = _)
+:(const assn = $_)
+:(const $assn = $_)
