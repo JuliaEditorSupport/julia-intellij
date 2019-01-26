@@ -714,7 +714,7 @@ FILE
             PsiElement(SYM)('a')
           JuliaTypeParametersImpl(TYPE_PARAMETERS)
             PsiElement(LEFT_B_BRACKET)('{')
-            JuliaSymbolImpl(SYMBOL)
+            JuliaOpAsSymbolImpl(OP_AS_SYMBOL)
               PsiElement(MULTIPLY_SYM)('*')
             PsiElement(RIGHT_B_BRACKET)('}')
         PsiElement(RIGHT_BRACKET)(')')
