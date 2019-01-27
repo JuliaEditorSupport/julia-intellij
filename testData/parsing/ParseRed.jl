@@ -45,3 +45,5 @@ ident_cmp(a::Integer, b::String ) = isempty(b) ? +1 : -1
 :(const $assn = _)
 :(const assn = $_)
 :(const $assn = $_)
+
+@forward Foo.bar f, g, h

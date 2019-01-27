@@ -163,6 +163,7 @@ private statement ::=
  | compactFunction
  | function
  | multiAssignOp // in the situation it won't be regarded as `typedNamedVariable`
+ | expressionList
  | expr
 
 moduleDeclaration ::=
