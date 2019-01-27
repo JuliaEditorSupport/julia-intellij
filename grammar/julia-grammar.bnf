@@ -197,7 +197,11 @@ typeParameters ::=
  LEFT_B_BRACKET endOfLine
   ((typeParameterSymbol whereClause?)? (commaSep (typeParameterSymbol whereClause?)?)* endOfLine)
  RIGHT_B_BRACKET{pin=1}
-private typeParameterSymbol::= unarySubtypeOp|opAsSymbol|unaryPlusOp|expr
+private typeParameterSymbol::= unarySubtypeOp
+| quoteOp
+| opAsSymbol
+| unaryPlusOp
+| expr
 
 userType ::= primaryExpr typeParameters?
 typeAlias ::= TYPEALIAS_KEYWORD symbol typeParameters? userType { extends=expr }
@@ -655,7 +659,7 @@ typeDeclaration ::=
 
 abstractTypeDeclaration ::=
  ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
-  symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? endOfLine
+  symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? SEMICOLON_SYM? endOfLine
  END_KEYWORD { extends=expr }
 
 primitiveTypeDeclaration ::=
