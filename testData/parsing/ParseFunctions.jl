@@ -85,6 +85,8 @@ filter(x -> x > 5, [3, 4, 5, 6, 7]) # => [6, 7]
 [add_10(i) for i in [1, 2, 3]] # => [11, 12, 13]
 
 Pointy{:x}(1)
+X{(1, 2)}(1)
+X{Int}(1)
 
 WeakKeyDict1(ps::Pair{K}...)             where {K}   = WeakKeyDict{K,Any}(ps)
 # WeakKeyDict2(ps::Pair{K} where K)             where {K}   = WeakKeyDict{K,Any}(ps)
