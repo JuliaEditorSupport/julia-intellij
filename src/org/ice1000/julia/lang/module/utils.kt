@@ -230,10 +230,12 @@ fun Project.syncJuliaLibrary() {
 	val juliaSDK = JuliaSdkType.instance
 	val oldSDK = sdkTable.findJdk(juliaSDK.presentableName)
 	val newSDK = ProjectJdkImpl(juliaSDK.presentableName, juliaSDK)
-	if (oldSDK != null) {
-		ProjectJdkTable.getInstance().updateJdk(oldSDK, newSDK)
-	} else {
-		ProjectJdkTable.getInstance().addJdk(newSDK)
+	ApplicationManager.getApplication().runWriteAction {
+		if (oldSDK == null) {
+			ProjectJdkTable.getInstance().addJdk(newSDK)
+		} else {
+			ProjectJdkTable.getInstance().updateJdk(oldSDK, newSDK)
+		}
 	}
 }
 
