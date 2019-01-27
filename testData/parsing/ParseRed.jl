@@ -47,3 +47,13 @@ ident_cmp(a::Integer, b::String ) = isempty(b) ? +1 : -1
 :(const $assn = $_)
 
 @forward Foo.bar f, g, h
+
+
+patternOr  = (p1, p2) -> body ->
+    let p1 = p1(body), p2 = p2(body)
+        tmp = mangle(Infras)
+        @format [tmp, p1, p2] quote
+            tmp = p1
+            tmp === failed ? p2 : tmp
+        end
+    end

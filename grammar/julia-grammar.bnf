@@ -394,9 +394,10 @@ andOp ::= expr endOfLine AND_SYM endOfLine expr
 // ->
 // level 5
 lambda ::=
- (symbol typeAnnotation? | functionSignature)
-  LAMBDA_ABSTRACTION expr {
+ (symbol typeAnnotation? | functionSignature) endOfLine
+  LAMBDA_ABSTRACTION endOfLine expr {
 	rightAssociative=true
+	pin=3
 	extends=expr
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaLambdaMixin'
 }
@@ -778,4 +779,4 @@ private typeAnnotationAsOp::=
 	LEFT_BRACKET typeAnnotation RIGHT_BRACKET
 private interpolateAsOp ::=
 	LEFT_BRACKET interpolateSymbolAsOp RIGHT_BRACKET
-private interpolateSymbolAsOp::= INTERPOLATE_SYM SYM{pin=1}
+private interpolateSymbolAsOp::= INTERPOLATE_SYM SYM?{pin=1}
