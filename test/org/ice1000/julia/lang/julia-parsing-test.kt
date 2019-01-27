@@ -30,6 +30,7 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION,
 	fun testParseIssue135() = doTest(true)
 	fun testParseIssue188() = doTest(true)
 	fun testParseIssue195() = doTest(true)
+	fun testParseIssue196() = doTest(true)
 	fun testParseIssue204() = doTest(true)
 	fun testParseIssue206() = doTest(true)
 	fun testParseIssue207() = doTest(true)
