@@ -62,8 +62,8 @@ QUESTION_SYM
  | SLICE_SYM
  | LESS_THAN_SYM
  | LESS_THAN_OR_EQUAL_SYM
- | AND_SYM
- | OR_SYM
+// | AND_SYM
+// | OR_SYM
  | PIPE_SYM
  | INVRESE_PIPE_SYM
  | SHL_SYM
@@ -200,6 +200,8 @@ typeParameters ::=
  RIGHT_B_BRACKET{pin=1}
 private typeParameterSymbol::= unarySubtypeOp
 | quoteOp
+| interpolateSymbolAsOp
+| exprInterpolateOp
 | opAsSymbol
 | unaryPlusOp
 | expr
@@ -434,6 +436,7 @@ compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
 quoteOp ::= COLON_SYM quotable
 private quotable ::=
    unaryOpAsSymbol
+ | interpolateAsOp // unbracketed is useless, and idk why
  | opAsSymbol+
  | QUOTE_KEYWORD
  | (LEFT_BRACKET quotable RIGHT_BRACKET)
@@ -516,6 +519,7 @@ private unaryLevel ::=
  | unaryMinusOp
  | unaryTypeOp
  | unarySubtypeOp
+ | exprInterpolateOp
  | unaryInterpolateOp
  | notOp
  | bitWiseNotOp
@@ -525,6 +529,7 @@ unaryTypeOp ::= DOUBLE_COLON endOfLine expr
 unarySubtypeOp ::= SUBTYPE_SYM endOfLine expr
 unaryMinusOp ::= MINUS_SYM endOfLine expr
 unaryInterpolateOp ::= INTERPOLATE_SYM endOfLine expr
+exprInterpolateOp ::= EXPR_INTERPOLATE_START endOfLine expr SLICE_SYM? RIGHT_BRACKET
 notOp ::= NOT_SYM endOfLine expr
 unaryPlusOp ::= PLUS_SYM endOfLine expr
 
@@ -779,4 +784,4 @@ private typeAnnotationAsOp::=
 	LEFT_BRACKET typeAnnotation RIGHT_BRACKET
 private interpolateAsOp ::=
 	LEFT_BRACKET interpolateSymbolAsOp RIGHT_BRACKET
-private interpolateSymbolAsOp::= INTERPOLATE_SYM SYM?{pin=1}
+private interpolateSymbolAsOp::= INTERPOLATE_SYM (SYM SLICE_SYM?)?{pin=1}

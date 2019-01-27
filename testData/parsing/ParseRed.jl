@@ -47,7 +47,7 @@ ident_cmp(a::Integer, b::String ) = isempty(b) ? +1 : -1
 :(const $assn = $_)
 
 @forward Foo.bar f, g, h
-
+using MLStyle.toolz: ($)
 
 patternOr  = (p1, p2) -> body ->
     let p1 = p1(body), p2 = p2(body)
@@ -57,3 +57,14 @@ patternOr  = (p1, p2) -> body ->
             tmp === failed ? p2 : tmp
         end
     end
+
+$(a)
+
+:(typename1{a}) => typename
+:(typename2{$}) => typename
+:(typename3{$a}) => typename
+:($typename4{$a}) => typename
+:($typename5{$(a)}) => typename
+:($typename6{$(a...)}) => typename
+
+:($typename) => typename

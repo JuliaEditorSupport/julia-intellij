@@ -371,6 +371,8 @@ OTHERWISE=[^]
   return JuliaTypes.STRING_INTERPOLATE_START;
 }
 
+{LONG_TEMPLATE_START} {return JuliaTypes.EXPR_INTERPOLATE_START;}
+
 <SHORT_TEMPLATE> {SIMPLE_SYMBOL} { dehugify(); return JuliaTypes.SYM; }
 
 {OTHERWISE} { return TokenType.BAD_CHARACTER; }
