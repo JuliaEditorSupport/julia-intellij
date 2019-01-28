@@ -48,27 +48,38 @@ object JuliaGeneratedParserUtilBase : GeneratedParserUtilBase() {
 			val tokenType = builder.tokenType
 			when (tokenType) {
 				in foldableTokenTypes -> {
-					if (tokenType == FOR_KEYWORD || tokenType == BEGIN_KEYWORD) {
-						if (parStack.tryPeek() == null) { // no pairs, then forExpr
+					when (tokenType) {
+						FUNCTION_KEYWORD -> {
+							braceCount++
+							if (!parStack.isEmpty())
+								lastFoldableBeginStack.push(tokenType)
+						}
+						FOR_KEYWORD, BEGIN_KEYWORD -> if (parStack.isEmpty()) { // no pairs, then bracketedExpr forExpr
 							braceCount++
 						} else {
 							lastFoldableBeginStack.push(tokenType) // forComprehension
 						}
-					} else if (tokenType == MODULE_KEYWORD) {
-						if (lastToken != DOT_SYM) {
+						MODULE_KEYWORD -> if (lastToken != DOT_SYM) { // xxx.module
 							braceCount++
 						}
-					} else {
-						braceCount++
+						else -> {
+							braceCount++
+							lastFoldableBeginStack.push(tokenType)
+						}
 					}
 					builder.advanceLexer()
 				}
 				in endTokenTypes -> {
 					if (parStack.empty()) {
 						braceCount--
+						lastFoldableBeginStack.tryPop()
+					} else { // in pars
+						if (lastFoldableBeginStack.tryPeek() == FUNCTION_KEYWORD) {
+							braceCount--
+							lastFoldableBeginStack.tryPop()
+						}
 					}
 					advance(braceCount, builder, parseEnd)
-					lastFoldableBeginStack.tryPop()
 				}
 				else -> {
 					if (tokenType in LEFT_BRACKETS) {
@@ -81,7 +92,9 @@ object JuliaGeneratedParserUtilBase : GeneratedParserUtilBase() {
 									(top == LEFT_M_BRACKET && tokenType == RIGHT_M_BRACKET) ||
 									(top == LEFT_B_BRACKET && tokenType == RIGHT_B_BRACKET) -> {
 									parStack.pop()
-									lastFoldableBeginStack.tryPop()
+									if (lastFoldableBeginStack.tryPeek() != FUNCTION_KEYWORD) {
+										lastFoldableBeginStack.tryPop()
+									}
 								}
 							}
 						}
