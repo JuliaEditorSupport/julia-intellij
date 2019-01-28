@@ -96,10 +96,11 @@ class JuliaStdLibraryProvider : AdditionalLibraryRootsProvider() {
 		if (!project.withJulia) return emptyList()
 
 		val settings = project.juliaSettings.settings
-		val base = settings.basePath
+		val base = settings.basePath.takeIf { it.isNotEmpty() } ?: return emptyList()
 		val version = settings.version
 		val list = linkedSetOf<StdLibrary>()
 
+		// it'll cause NPE if `base` is empty, so judge it is not empty before
 		val sharePath = Paths.get(base).parent.toFile()
 		val dir = VfsUtil.findFileByIoFile(sharePath, true)
 		if (dir != null) list.add(StdLibrary("Julia $version", dir))
@@ -117,7 +118,7 @@ class JuliaStdLibraryProvider : AdditionalLibraryRootsProvider() {
 			}
 			val pkgVirtualFile = VfsUtil.findFileByIoFile(pkgFile, true)
 			if (pkgVirtualFile != null) {
-				list.add(StdLibrary("Julia Packages", pkgVirtualFile, JuliaLibraryType.PKG))
+				list.add(StdLibrary("Julia $version Packages", pkgVirtualFile, JuliaLibraryType.PKG))
 			}
 		} finally {
 			return list

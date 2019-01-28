@@ -47,9 +47,17 @@ class JuliaSdkFindTest {
 
 	@Test
 	fun testYourFiles() {
-		if(SystemInfo.isWindows)
-		println(PathEnvironmentVariableUtil.findInPath("julia.exe"))
+		if (SystemInfo.isWindows)
+			println(PathEnvironmentVariableUtil.findInPath("julia.exe"))
 		//return true
 		println(Files.isExecutable(Paths.get("")))
+
+		val file = Paths.get("", "..").toFile()
+		println(file)
+		try {
+			Paths.get("").parent.toFile()
+		} catch (e: NullPointerException) {
+			println("Right. You make NPE when using .parent")
+		}
 	}
 }
