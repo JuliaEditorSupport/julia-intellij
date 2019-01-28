@@ -62,8 +62,8 @@ QUESTION_SYM
  | SLICE_SYM
  | LESS_THAN_SYM
  | LESS_THAN_OR_EQUAL_SYM
-// | AND_SYM
-// | OR_SYM
+ | AND_SYM
+ | OR_SYM
  | PIPE_SYM
  | INVRESE_PIPE_SYM
  | SHL_SYM
@@ -160,8 +160,6 @@ private statement ::=
  | importAllExpr
  | export
  | typeDeclaration
- | compactFunction
- | function
  | multiAssignOp // in the situation it won't be regarded as `typedNamedVariable`
  | expressionList
  | expr

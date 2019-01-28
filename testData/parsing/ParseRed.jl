@@ -68,3 +68,33 @@ $(a)
 :($typename6{$(a...)}) => typename
 
 :($typename) => typename
+
+
+function data()
+    function(body)
+        @format [TARGET, body, ident] quote
+            ident = TARGET.$field
+            body
+        end
+    end ∘ mkPattern(ident, pat, mod)
+end
+
+map($, !, check_if_given_field_names)
+
+# OK
+access_value(body) =
+                @format [body, TARGET, VALUE] quote
+                        (@inline __L__ function (VALUE)
+                               body
+                        end)(TARGET.value)
+                end
+
+# working
+(tag, case, mod) -> begin
+        access_value(body) =
+                @format [body, TARGET, VALUE] quote
+                        (@inline __L__ function (VALUE)
+                                body
+                        end)(TARGET.value)
+                end
+end
