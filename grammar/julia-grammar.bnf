@@ -394,7 +394,7 @@ andOp ::= expr endOfLine AND_SYM endOfLine expr
 // ->
 // level 5
 lambda ::=
- (symbol typeAnnotation? | functionSignature) endOfLine
+ (symbol typeAnnotation? | array | functionSignature ) endOfLine
   LAMBDA_ABSTRACTION endOfLine expr {
 	rightAssociative=true
 	pin=3
@@ -403,7 +403,7 @@ lambda ::=
 }
 
 // level 6
-comparisonLevelOp ::= expr comparisonLevelOperator endOfLine expr
+comparisonLevelOp ::= expr /*endOfLine*/ comparisonLevelOperator endOfLine expr
 comparisonLevelOperator ::=
    LESS_THAN_SYM
  | LESS_THAN_OR_EQUAL_SYM
@@ -432,9 +432,11 @@ colonOp ::= expr colonSymBegins expr RIGHT_BRACKET
 spliceOp ::= expr SLICE_SYM
 compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
 quoteOp ::= COLON_SYM quotable
+private allowQuoteSymbols::= DOUBLE_COLON
 private quotable ::=
    unaryOpAsSymbol
  | interpolateAsOp // unbracketed is useless, and idk why
+ | allowQuoteSymbols
  | opAsSymbol+
  | QUOTE_KEYWORD
  | (LEFT_BRACKET quotable RIGHT_BRACKET)
@@ -527,7 +529,7 @@ unaryTypeOp ::= DOUBLE_COLON endOfLine expr
 unarySubtypeOp ::= SUBTYPE_SYM endOfLine expr
 unaryMinusOp ::= MINUS_SYM endOfLine expr
 unaryInterpolateOp ::= INTERPOLATE_SYM endOfLine expr
-exprInterpolateOp ::= EXPR_INTERPOLATE_START endOfLine expr SLICE_SYM? RIGHT_BRACKET
+exprInterpolateOp ::= EXPR_INTERPOLATE_START endOfLine expr typeAnnotation? SLICE_SYM? RIGHT_BRACKET
 notOp ::= NOT_SYM endOfLine expr
 unaryPlusOp ::= PLUS_SYM endOfLine expr
 
@@ -555,7 +557,7 @@ private primaryExpr ::=
  | tuple
  | macro
  | let
- | block
+ | beginBlock
  | colonBlock
  | export
  | importExpr
@@ -635,6 +637,7 @@ untypedVariables ::=
  RIGHT_BRACKET
 
 function ::=
+// (string endOfLine)? // doc
  FUNCTION_KEYWORD endOfLine
   (SYM DOT_SYM)? // TODO
    (symbol|bracketedFunctionName)? // function Name
@@ -686,7 +689,8 @@ macro ::=
 
 let ::= LET_KEYWORD endOfLine assignLevelOp (commaSep assignLevelOp)* statements END_KEYWORD? { pin=1 extends=expr }
 
-block ::= BEGIN_KEYWORD <<lazyBlockNotParseEndImpl>> END_KEYWORD { pin=1 }
+// `JuliaBlock` name shadowed
+beginBlock ::= BEGIN_KEYWORD <<lazyBlockNotParseEndImpl>> END_KEYWORD { pin=1 }
 
 colonBlock ::= COLON_BEGIN_SYM <<lazyBlockParseEndImpl>> RIGHT_BRACKET
 

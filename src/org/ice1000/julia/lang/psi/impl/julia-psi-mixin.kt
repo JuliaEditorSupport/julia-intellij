@@ -149,8 +149,8 @@ fun calculateParamsText(expr: PsiElement?): String {
 				if (it.text.startsWith("::")) {
 					it.text
 				} else
-					PsiTreeUtil.findChildOfType(it.typeAnnotation, JuliaSymbol::class.java)?.text
-						?: "Any${if (it.text.endsWith("...")) "..."; else ""}"
+					(PsiTreeUtil.findChildOfType(it.typeAnnotation, JuliaSymbol::class.java)?.text
+						?: "Any") + if (it.text.endsWith("...")) "..."; else ""
 			} else when (it.elementType) {
 				JuliaTypes.COMMA_SYM,
 				JuliaTypes.SEMICOLON_SYM -> "${it.text} "
@@ -311,8 +311,7 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			parent is JuliaTypeAnnotation ||
 			parent is JuliaTypeDeclaration ||
 			parent is JuliaAbstractTypeDeclaration ||
-			parent is JuliaArray -> JuliaSymbolKind.TypeName
-
+			(parent is JuliaArray && this === parent.firstChild) -> JuliaSymbolKind.TypeName
 
 		parent is JuliaTypedNamedVariable &&
 			this === parent.firstChild -> JuliaSymbolKind.FunctionParameter

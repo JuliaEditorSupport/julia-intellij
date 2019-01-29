@@ -6,23 +6,40 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.psi.PsiElement
 import com.intellij.ui.content.ContentFactory
+import org.apache.commons.lang.StringEscapeUtils
 import org.ice1000.julia.lang.JuliaBundle
-import org.ice1000.julia.lang.module.juliaSettings
+import org.ice1000.julia.lang.module.*
 import org.ice1000.julia.lang.module.ui.JuliaDocumentWindow
-import org.ice1000.julia.lang.module.validateJulia
-import org.ice1000.julia.lang.psi.impl.DocStringOwner
-import org.ice1000.julia.lang.psi.impl.docString
+import org.ice1000.julia.lang.psi.*
+import org.ice1000.julia.lang.psi.impl.*
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
 
+/**
+ * Win/Linux: Ctrl + Q
+ * MacOS: Ctrl + J
+ */
 class JuliaDocumentProvider : AbstractDocumentationProvider() {
 	override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
 		val symbol = element ?: return null
-		val parent = symbol.parent as? DocStringOwner ?: return null
-		val name = "# ${symbol.text}\n"
-		return parent.docString?.text?.trim('"')?.let {
-			SimplifyJBMarkdownUtil.generateMarkdownHtml(name + it)
+		val parent = symbol.parent as? DocStringOwner
+		return when {
+			// function declaration by written
+			parent != null -> {
+				val name = "# ${symbol.text}\n"
+				parent.docString?.text?.trim('"')?.let {
+					SimplifyJBMarkdownUtil.generateMarkdownHtml(name + it)
+				}
+			}
+			// if Docs.doc can find
+			symbol is JuliaSymbol -> {
+				val ret = symbol.project.languageServer.searchDocsByName(symbol.text) ?: return null
+				val unescaped = StringEscapeUtils.unescapeJava(ret.trim('"'))
+				if (unescaped.startsWith("__INTELLIJ__")) return null
+				SimplifyJBMarkdownUtil.generateMarkdownHtml(unescaped)
+			}
+			else -> null
 		}
 	}
 }

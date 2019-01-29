@@ -31,7 +31,6 @@ import com.intellij.ui.breadcrumbs.BreadcrumbsProvider
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.psi.*
-import org.ice1000.julia.lang.psi.JuliaBlock
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 import javax.swing.Icon
 
@@ -141,7 +140,7 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 		this is JuliaTryCatch ||
 		this is JuliaCatchClause ||
 		this is JuliaFinallyClause ||
-		this is JuliaBlock ||
+		this is JuliaBeginBlock ||
 		this is JuliaElseClause ||
 		this is JuliaElseIfClause ||
 //		this is JuliaUnion ||
@@ -170,7 +169,7 @@ class JuliaBreadCrumbsProvider : BreadcrumbsProvider {
 		is JuliaTryCatch -> "try"
 		is JuliaFinallyClause -> "finally"
 		is JuliaCatchClause -> "catch ${element.symbol}"
-		is JuliaBlock,
+		is JuliaBeginBlock,
 		is JuliaColonBlock -> "block"
 		is JuliaElseClause -> "else"
 		is JuliaElseIfClause -> "elseif"

@@ -38,6 +38,7 @@ class JuliaStyleSettingsProvider : LanguageCodeStyleSettingsProvider() {
 			ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
 			initIndentOptions().apply {
 				INDENT_SIZE = 4
+				USE_TAB_CHARACTER = false
 				CONTINUATION_INDENT_SIZE = INDENT_SIZE
 			}
 		}

@@ -98,3 +98,27 @@ access_value(body) =
                         end)(TARGET.value)
                 end
 end
+
+x.head == :(::)
+
+# endOfLine after expr will cause
+if x ≤ j
+    emmmm
+end
+
+:($(case_name :: Symbol)($param)) => (case_name, nothing, param)
+
+action = @λ begin
+    [] -> nothing
+    [function check_versus end && hd, tl...] ->
+        begin
+            benchmark(hd)
+            action(tl)
+        end
+    [hd, tl...] ->
+        begin
+            @warn "Unknown versus item: $hd"
+            action(hd)
+        end
+end
+

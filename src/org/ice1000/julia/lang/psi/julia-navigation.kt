@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package org.ice1000.julia.lang.psi
 
 import com.google.gson.JsonParser
@@ -67,7 +69,7 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 						try {
 							ReadAction.compute<Array<PsiElement>?, Throwable> {
 								project.languageServer.searchFunctionsByName(juliaSymbol.text)?.let { ret ->
-									if (ret.startsWith("__INTELLIJ__")) return@compute null
+									if (ret.startsWith("__INTELLIJ__")) return@let null
 									val unescaped = StringEscapeUtils.unescapeJava(ret.trim('"'))
 									try {
 										val json = jsonParser.parse(unescaped)
@@ -124,16 +126,39 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 	override fun getActionText(context: DataContext): String? = null
 }
 
+/**
+ * It can't depends on language server but StubIndex.
+ */
 class JuliaLineMarkerProvider : LineMarkerProvider {
+	companion object {
+		val overridenTypeIcon = AllIcons.Gutter.OverridenMethod // ↓
+		val overridingFunctionIcon = AllIcons.Gutter.OverridingMethod // ♂
+	}
+
 	override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
-		val icon = AllIcons.Gutter.OverridenMethod // ↓
-		if (element is IJuliaSymbol && element.parent is JuliaAbstractTypeDeclaration) {
-			val builder = NavigationGutterIconBuilder
-				.create(icon)
-				.setTooltipText("Please Click name to navigate to Subtypes")
-				.setTarget(element)
-			return builder.createLineMarkerInfo(element)
-		} else return null
+		if (element is IJuliaSymbol) {
+			when {
+				element.parent is JuliaAbstractTypeDeclaration -> {
+					val builder = NavigationGutterIconBuilder
+						.create(overridenTypeIcon)
+						.setTooltipText("Please Click name to navigate to Subtypes")
+						.setTarget(element)
+					return builder.createLineMarkerInfo(element)
+				}
+				element.parent is JuliaFunction
+					&& element.prevSibling.elementType == JuliaTypes.DOT_SYM
+					&& element.prevSibling.prevSibling.elementType == JuliaTypes.SYM -> {
+
+					val builder = NavigationGutterIconBuilder
+						.create(overridingFunctionIcon)
+						.setTooltipText("navigate to overrided function. (This feature is still working)")
+						// TODO stubIndex
+						.setTarget(element)
+					return builder.createLineMarkerInfo(element)
+				}
+			}
+		}
+		return null
 	}
 
 	override fun collectSlowLineMarkers(elements: MutableList<PsiElement>, result: MutableCollection<LineMarkerInfo<PsiElement>>) {

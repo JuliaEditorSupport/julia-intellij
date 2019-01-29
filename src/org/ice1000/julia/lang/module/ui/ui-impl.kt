@@ -225,12 +225,13 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 	}
 
 	init {
+		val beforeVersion07 = compareVersion(settings.version, "0.7.0") < 0
 		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
 		val actions = DefaultActionGroup(
-			JuliaAddPkgAction(alternativeExecutables),
-			JuliaRemovePkgAction(alternativeExecutables, packagesList),
+			JuliaAddPkgAction(alternativeExecutables, beforeVersion07,this::loadPackages),
+			JuliaRemovePkgAction(alternativeExecutables, packagesList, beforeVersion07,this::loadPackages),
 			object : AnAction(JuliaIcons.REFRESH_ICON) {
-				override fun actionPerformed(e: AnActionEvent) = loadPackages(false)
+				override fun actionPerformed(e: AnActionEvent) = loadPackages()
 			})
 		actionsPanel.add(ActionManager
 			.getInstance()
@@ -254,7 +255,6 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 				true) {
 			override fun run(indicator: ProgressIndicator) {
 				indicator.text = JuliaBundle.message("julia.messages.package.names.loading")
-
 				val beforeVersion07 = '.' in settings.version && compareVersion(settings.version, "0.7.0") < 0
 				var envdir = ""
 				val namesList: List<String> = if (beforeVersion07) {
@@ -263,7 +263,6 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					envdir = getEnvDir(settings)
 					loadNamesListByEnvFile(settings, envdir)
 				}
-				println(namesList.joinToString(","))
 				val tempData = namesList.map { arrayOf(it) }.toTypedArray()
 				val tempDataModel = JuliaPackageTableModel(tempData, JULIA_TABLE_HEADER_COLUMN)
 				if (default) {
@@ -296,7 +295,6 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 						val versionDir = "v" + settings.version.substringBeforeLast(".")
 						val manifestTomlFile = Paths.get(envdir, versionDir, "Manifest.toml").toFile()
 						var cur = ""
-						var ver = ""
 						val map: Map<String, String> = manifestTomlFile.readLines().mapNotNull {
 							when {
 								it.startsWith("[[") -> {
@@ -304,7 +302,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 									null
 								}
 								it.startsWith("version") -> {
-									ver = it.split(" ").last().trim('"')
+									val ver = it.split(" ").last().trim('"')
 									cur to ver
 								}
 								else -> null
