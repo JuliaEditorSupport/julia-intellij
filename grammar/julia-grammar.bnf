@@ -586,8 +586,15 @@ bracketedComprehensionExpr::=
 whereClause ::= WHERE_KEYWORD afterWhere
 
 private keywordsAsOp ::=
-  ISA_KEYWORD | MODULE_KEYWORD | WHERE_KEYWORD | UNION_KEYWORD | IN_KEYWORD
-  | ABSTRACT_KEYWORD | MUTABLE_KEYWORD | IMMUTABLE_KEYWORD
+  MODULE_KEYWORD
+  | WHERE_KEYWORD
+  | ABSTRACT_KEYWORD
+  | MUTABLE_KEYWORD
+  | IMMUTABLE_KEYWORD // deprecated
+  | functionNameLikeKeywords
+
+private functionNameLikeKeywords::=
+	ISA_KEYWORD | IN_KEYWORD | UNION_KEYWORD
 
 private afterWhere ::=
    (symbol | LEFT_B_BRACKET symbol RIGHT_B_BRACKET)

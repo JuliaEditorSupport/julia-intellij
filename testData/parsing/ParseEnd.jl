@@ -22,6 +22,12 @@ while a isa Array
         println(a[end])
         a[2*end]
     end
+    function test_end()
+        a = [x for x in [1, 4, 0]]
+        function test_end()
+            a = [x for x in [1, 4, 0]]
+        end
+    end
 end
 
 println(a)
