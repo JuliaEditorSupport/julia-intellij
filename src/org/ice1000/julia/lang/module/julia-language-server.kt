@@ -50,7 +50,7 @@ class JuliaLanguageServerService(val juliaSettings: JuliaProjectSettingsService)
 		val process = myProcess ?: return null
 		// language=Julia
 		val command = """
-using JSON;
+using JSON
 try
 methods($name) |> collect .|> functionloc |> json
 catch e
@@ -68,6 +68,24 @@ end
 		recheckProcess()
 		val process = myProcess ?: return null
 		val command = "using JSON;subtypes($name) |> json\n"
+		val outputStream = process.outputStream
+		val inputStream = process.inputStream
+		outputStream.write(command.toByteArray())
+		outputStream.flush()
+		return inputStream.bufferedReader().readLine()
+	}
+
+	fun searchDocsByName(name: String): String? {
+		recheckProcess()
+		val process = myProcess ?: return null
+		// language=Julia
+		val command = """
+try
+    repr(Docs.doc($name))
+catch e
+    println("__INTELLIJ__"*repr(e))
+end
+"""
 		val outputStream = process.outputStream
 		val inputStream = process.inputStream
 		outputStream.write(command.toByteArray())
