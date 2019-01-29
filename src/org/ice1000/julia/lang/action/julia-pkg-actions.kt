@@ -8,12 +8,13 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.ui.ComboboxWithBrowseButton
 import com.intellij.ui.table.JBTable
 import icons.JuliaIcons
-import org.ice1000.julia.lang.JuliaBundle
-import org.ice1000.julia.lang.printJulia
+import org.ice1000.julia.lang.*
 
 class JuliaRemovePkgAction(
 	private val box: ComboboxWithBrowseButton,
-	private val packagesList: JBTable) : AnAction(JuliaIcons.REMOVE_ICON) {
+	private val packagesList: JBTable,
+	private val beforeVersion07: Boolean = true,
+	private val callback: (Boolean) -> Unit = {}) : AnAction(JuliaIcons.REMOVE_ICON) {
 	override fun actionPerformed(e: AnActionEvent) {
 		val project = e.project ?: return
 		val index = packagesList.selectedRow
@@ -33,7 +34,13 @@ class JuliaRemovePkgAction(
 			override fun run(indicator: ProgressIndicator) {
 				indicator.text = JuliaBundle.message("julia.messages.package.remove", removePackageName)
 				//language=Julia
-				printJulia(box.comboBox.selectedItem.toString(), 30_000L, """Pkg.rm("$removePackageName")""")
+				if (beforeVersion07)
+					printJulia(box.comboBox.selectedItem.toString(), 30_000L, """Pkg.rm("$removePackageName")""")
+				else
+					executeCommand(box.comboBox.selectedItem.toString(), """
+using Pkg
+Pkg.rm("$removePackageName")
+""", 30_000L)
 				Messages.showDialog(
 					project,
 					JuliaBundle.message("julia.messages.package.removed", removePackageName),
@@ -41,12 +48,16 @@ class JuliaRemovePkgAction(
 					arrayOf(JuliaBundle.message("julia.yes")),
 					0,
 					JuliaIcons.JOJO_ICON)
+				callback(true)
 			}
 		})
 	}
 }
 
-class JuliaAddPkgAction(private val box: ComboboxWithBrowseButton) : AnAction(JuliaIcons.ADD_ICON) {
+class JuliaAddPkgAction(
+	private val box: ComboboxWithBrowseButton,
+	private val beforeVersion07: Boolean = true,
+	private val callback: (Boolean) -> Unit = {}) : AnAction(JuliaIcons.ADD_ICON) {
 	private var out: Pair<List<String>, List<String>>? = null
 	private var packageName = ""
 	override fun actionPerformed(e: AnActionEvent) {
@@ -68,8 +79,14 @@ class JuliaAddPkgAction(private val box: ComboboxWithBrowseButton) : AnAction(Ju
 				override fun run(indicator: ProgressIndicator) {
 					indicator.text = JuliaBundle.message("julia.messages.package.installing", it)
 					//language=Julia
-					out = printJulia(
-						box.comboBox.selectedItem.toString(), 50_000L, """Pkg.add("$it")""")
+					if (beforeVersion07)
+						printJulia(box.comboBox.selectedItem.toString(), 50_000L, """Pkg.add("$it")""")
+					else
+						executeCommand(box.comboBox.selectedItem.toString(), """
+using Pkg
+Pkg.add("$it")
+exit()
+""", 50_000L)
 				}
 
 				override fun onSuccess() = ApplicationManager.getApplication().invokeLater {
@@ -81,13 +98,16 @@ class JuliaAddPkgAction(private val box: ComboboxWithBrowseButton) : AnAction(Ju
 						arrayOf(JuliaBundle.message("julia.yes")),
 						0,
 						JuliaIcons.JOJO_ICON)
-					if (stdout.isNotEmpty()) Messages.showDialog(
-						project,
-						stdout.joinToString("\n"),
-						JuliaBundle.message("julia.messages.package.installing.title"),
-						arrayOf(JuliaBundle.message("julia.yes")),
-						0,
-						JuliaIcons.JOJO_ICON)
+					if (stdout.isNotEmpty()) {
+						Messages.showDialog(
+							project,
+							stdout.joinToString("\n"),
+							JuliaBundle.message("julia.messages.package.installing.title"),
+							arrayOf(JuliaBundle.message("julia.yes")),
+							0,
+							JuliaIcons.JOJO_ICON)
+						callback(true)
+					}
 				}
 			})
 		}
