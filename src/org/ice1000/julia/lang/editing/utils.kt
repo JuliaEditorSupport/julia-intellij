@@ -21,6 +21,7 @@ val PsiElement.treeViewTokens
 		this is JuliaModuleDeclaration ||
 		this is IJuliaFunctionDeclaration ||
 		this is JuliaTypeDeclaration ||
+		this is JuliaAbstractTypeDeclaration ||
 		this is JuliaIfExpr ||
 		this is JuliaElseIfClause ||
 		this is JuliaElseClause ||
