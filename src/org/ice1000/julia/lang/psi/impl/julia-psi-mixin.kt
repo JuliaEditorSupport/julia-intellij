@@ -293,9 +293,12 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 		parent is JuliaMacro -> JuliaSymbolKind.MacroName
 
 		parent is JuliaModuleDeclaration ||
-			(parent is JuliaMemberAccess &&
-				this === parent.firstChild &&
-				parent.parent is JuliaUsing) /*TODO function Base.xxx*/ -> JuliaSymbolKind.ModuleName
+			(parent is JuliaMemberAccess && this === parent.firstChild &&
+				parent.parent.let { grandpa ->
+					(grandpa is JuliaUsing || grandpa is JuliaImportExpr)
+						&& grandpa.children.firstOrNull { it is JuliaMemberAccess } === parent
+				})
+			/*TODO function Base.xxx*/ -> JuliaSymbolKind.ModuleName
 
 		parent is JuliaAbstractTypeDeclaration -> JuliaSymbolKind.AbstractTypeName
 		parent is JuliaPrimitiveTypeDeclaration -> JuliaSymbolKind.PrimitiveTypeName

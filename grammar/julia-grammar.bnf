@@ -250,6 +250,7 @@ memberAccess ::=
    IN_KEYWORD
  | UNION_KEYWORD
  | opAsSymbol
+ | (LEFT_BRACKET opAsSymbol RIGHT_BRACKET)
  | symbolAndMacroSymbol (DOT_SYM symbolAndMacroSymbol)*{rightAssociative=true}
 
 private access ::= (DOT_SYM | DOUBLE_DOT_SYM | SLICE_SYM)? memberAccess
