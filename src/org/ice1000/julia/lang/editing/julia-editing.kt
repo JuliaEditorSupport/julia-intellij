@@ -305,6 +305,7 @@ class JuliaEnterAfterUnmatchedEndHandler : EnterHandlerDelegate {
 		val document = editor.document
 		val caretModel = editor.caretModel
 		val pos = caretModel.logicalPosition
+		if (pos.line < 1) return EnterHandlerDelegate.Result.Continue
 		val offset = caretModel.offset
 		val lineStartOffset = document.getLineStartOffset(pos.line)
 		val lineEndOffset = document.getLineEndOffset(pos.line)
@@ -316,7 +317,8 @@ class JuliaEnterAfterUnmatchedEndHandler : EnterHandlerDelegate {
 
 		if (lineStringAfter.afterIsDeletable()) { // end, else, elseif...
 
-			val lineStart = tryRun { document.charsSequence.substring(lineStartOffset, lineEndOffset + 4) }
+			val lineStart =
+				tryRun { document.charsSequence.substring(lineStartOffset, lineEndOffset + 4) }
 				?: return EnterHandlerDelegate.Result.Continue
 			return when {
 				previousLine.trim().beforeIsIndentable() -> {
@@ -338,7 +340,9 @@ class JuliaEnterAfterUnmatchedEndHandler : EnterHandlerDelegate {
 		// note: `previousLine` is the `currentLine` before ENTER pressed.
 		if (previousLine.trimStart().beforeIsIndentable()) {
 			if (pos.line == 0) return EnterHandlerDelegate.Result.Continue
-			val previousLineStart4Chars = document.charsSequence.substring(previousLineStartOffset, previousLineStartOffset + 4)
+			val previousLineStart4Chars =
+				tryRun { document.charsSequence.substring(previousLineStartOffset, previousLineStartOffset + 4) }
+					?: return EnterHandlerDelegate.Result.Continue
 			// depends on previous' indent
 			return when {
 				previousLineStart4Chars.isBlank() -> {
