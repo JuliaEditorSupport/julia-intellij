@@ -160,6 +160,7 @@ private statement ::=
  | importAllExpr
  | export
  | typeDeclaration
+ | abstractTypeDeclaration
  | multiAssignOp // in the situation it won't be regarded as `typedNamedVariable`
  | expressionList
  | expr
@@ -564,7 +565,7 @@ private primaryExpr ::=
  | importExpr
  | importAllExpr
  | using
- | abstractTypeDeclaration
+// | abstractTypeDeclaration
  | primitiveTypeDeclaration
  | typeAlias
  | symbolLhs
@@ -676,7 +677,11 @@ typeDeclaration ::=
 abstractTypeDeclaration ::=
  ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
   symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? SEMICOLON_SYM? endOfLine
- END_KEYWORD { extends=expr }
+ END_KEYWORD {
+	stubClass='org.ice1000.julia.lang.psi.JuliaAbstractTypeDeclarationClassStub'
+	implements=['org.ice1000.julia.lang.psi.impl.IJuliaTypeDeclaration']
+	mixin='org.ice1000.julia.lang.psi.impl.JuliaAbstractTypeDeclarationMixin'
+}
 
 primitiveTypeDeclaration ::=
  PRIMITIVE_KEYWORD TYPE_KEYWORD endOfLine

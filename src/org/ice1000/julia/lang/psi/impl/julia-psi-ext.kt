@@ -1,5 +1,7 @@
 package org.ice1000.julia.lang.psi.impl
 
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.orFalse
 import org.ice1000.julia.lang.psi.*
@@ -25,8 +27,27 @@ val IJuliaSymbol.isInUsingExpr: Boolean
 
 val IJuliaSymbol.typeFoundFromStub: Boolean
 	get() = JuliaTypeDeclarationIndex.findElementsByName(this.project, this.text).isNotEmpty()
+
+val IJuliaSymbol.isAbstractTypeRef: Boolean
+	get() = JuliaAbstractTypeDeclarationIndex.findElementsByName(this.project, this.text).isNotEmpty()
 /**
  * since function body is nullable~
  */
 val JuliaFunction.statements: JuliaLazyParseableBlockImpl?
 	get() = PsiTreeUtil.findChildOfType(this, JuliaLazyParseableBlockImpl::class.java)
+
+val PsiElement.isSuperTypeExpr: Boolean
+	get() = this.prevRealSibling?.elementType === JuliaTypes.SUBTYPE_SYM
+
+val PsiElement.prevRealSibling: PsiElement?
+	get() {
+		var pre = this.prevSibling
+		while (pre != null) {
+			if (pre is PsiWhiteSpace) {
+				pre = pre.prevSibling
+			} else {
+				return pre
+			}
+		}
+		return pre
+	}

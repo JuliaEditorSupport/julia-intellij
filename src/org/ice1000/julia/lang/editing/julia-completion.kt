@@ -48,11 +48,24 @@ class JuliaTypeStubCompletionProvider : CompletionProvider<CompletionParameters>
 		keys
 			.filter { it.contains(text, true) }
 			.forEach { str ->
-				val k = JuliaTypeDeclarationIndex.findElementsByName(project, str)
-				k.forEach {
+				val types = JuliaTypeDeclarationIndex.findElementsByName(project, str)
+				types.forEach {
 					result.addElement(LookupElementBuilder
 						.create(str)
 						.withIcon(JuliaIcons.JULIA_TYPE_ICON)
+						.withTypeText(it.containingFile.presentText(), true)
+						.prioritized(0))
+				}
+			}
+		val abstractKeys = JuliaAbstractTypeDeclarationIndex.getAllKeys(project)
+		abstractKeys
+			.filter { it.contains(text, true) }
+			.forEach { str ->
+				val types = JuliaAbstractTypeDeclarationIndex.findElementsByName(project, str)
+				types.forEach {
+					result.addElement(LookupElementBuilder
+						.create(str)
+						.withIcon(JuliaIcons.JULIA_ABSTRACT_TYPE_ICON)
 						.withTypeText(it.containingFile.presentText(), true)
 						.prioritized(0))
 				}

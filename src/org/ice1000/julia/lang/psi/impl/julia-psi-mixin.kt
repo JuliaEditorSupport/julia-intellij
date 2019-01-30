@@ -257,6 +257,30 @@ abstract class JuliaTypeDeclarationMixin : StubBasedPsiElementBase<JuliaTypeDecl
 	override fun toString(): String = "JuliaTypeDeclarationImpl(TYPE_DECLARATION)"
 }
 
+abstract class JuliaAbstractTypeDeclarationMixin : StubBasedPsiElementBase<JuliaAbstractTypeDeclarationClassStub>, JuliaAbstractTypeDeclaration {
+	constructor(node: ASTNode) : super(node)
+	constructor(stub: JuliaAbstractTypeDeclarationClassStub, stubType: IStubElementType<StubElement<*>, PsiElement>) : super(stub, stubType)
+
+	var nameCache: JuliaExpr? = null
+	override fun getNameIdentifier() = nameCache
+		?: children.firstOrNull { it is JuliaSymbol }?.also { nameCache = it as JuliaExpr }
+
+	override fun setName(name: String) = also { nameIdentifier?.replace(JuliaTokenType.fromText(name, project)) }
+	override fun getName() = nameIdentifier?.text
+	override fun getIcon(flags: Int): Icon? = JuliaIcons.JULIA_ABSTRACT_TYPE_ICON
+//	override fun processDeclarations(
+//		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+//		nameIdentifier?.let { processor.execute(it, state) }.orFalse() &&
+//			super.processDeclarations(processor, state, lastParent, place)
+
+	override fun subtreeChanged() {
+		nameCache = null
+		super.subtreeChanged()
+	}
+
+	override fun toString(): String = "JuliaAbstractTypeDeclarationImpl(ABSTRACT_TYPE_DECLARATION)"
+}
+
 /**
  * Just to provide implementation of [PsiNameIdentifierOwner] for [JuliaMacroSymbolMixin]
  * and [JuliaSymbolMixin] (see [JuliaSymbolRef]). (for code reuse purpose)

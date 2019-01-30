@@ -223,6 +223,8 @@ $JULIA_DOC_SURROUNDING
 				.textAttributes = JuliaHighlighter.CONST_NAME
 			element.isTypeNameRef -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_NAME
+			element.isAbstractTypeRef -> holder.createInfoAnnotation(element, null)
+				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
 			element.isModuleNameRef -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
 			element.isQuoteCall -> holder.createInfoAnnotation(element.parent

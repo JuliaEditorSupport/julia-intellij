@@ -52,6 +52,7 @@
 		<indexPatternBuilder implementation="org.ice1000.julia.lang.editing.JuliaTodoIndexPatternBuilder"/>
 		<!--stub-->
 		<stubElementTypeHolder class="org.ice1000.julia.lang.psi.JuliaTypes"/>
+		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaAbstractTypeDeclarationIndex"/>
 		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaTypeDeclarationIndex"/>
 		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaModuleDeclarationIndex"/>
 		<lang.refactoringSupport

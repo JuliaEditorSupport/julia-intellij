@@ -20,8 +20,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang.StringEscapeUtils
 import org.ice1000.julia.lang.module.languageServer
-import org.ice1000.julia.lang.psi.impl.IJuliaSymbol
-import org.ice1000.julia.lang.psi.impl.isInUsingExpr
+import org.ice1000.julia.lang.psi.impl.*
 import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -110,8 +109,10 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 						null
 					}
 				}
-				// should be in findUsage but not here
-				JuliaSymbolKind.TypeName -> null
+				JuliaSymbolKind.TypeName -> {
+					(JuliaTypeDeclarationIndex.findElementsByName(project, juliaSymbol.text) + JuliaAbstractTypeDeclarationIndex.findElementsByName(project, juliaSymbol.text))
+						.toTypedArray()
+				}
 				else -> null
 			}
 		}
@@ -132,10 +133,11 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 class JuliaLineMarkerProvider : LineMarkerProvider {
 	companion object {
 		val overridenTypeIcon = AllIcons.Gutter.OverridenMethod // ↓
-		val overridingFunctionIcon = AllIcons.Gutter.OverridingMethod // ♂
+		val overridingIcon = AllIcons.Gutter.OverridingMethod // ♂
 	}
 
 	override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
+		val project = element.project
 		if (element is IJuliaSymbol) {
 			when {
 				element.parent is JuliaAbstractTypeDeclaration -> {
@@ -148,12 +150,19 @@ class JuliaLineMarkerProvider : LineMarkerProvider {
 				element.parent is JuliaFunction
 					&& element.prevSibling.elementType == JuliaTypes.DOT_SYM
 					&& element.prevSibling.prevSibling.elementType == JuliaTypes.SYM -> {
-
 					val builder = NavigationGutterIconBuilder
-						.create(overridingFunctionIcon)
+						.create(overridingIcon)
 						.setTooltipText("navigate to overrided function. (This feature is still working)")
 						// TODO stubIndex
 						.setTarget(element)
+					return builder.createLineMarkerInfo(element)
+				}
+				element.isSuperTypeExpr || element.parent is JuliaType && element.parent.isSuperTypeExpr -> {
+					val target = JuliaTypeDeclarationIndex.findElementsByName(project, element.text) + JuliaAbstractTypeDeclarationIndex.findElementsByName(project, element.text)
+					val builder = NavigationGutterIconBuilder
+						.create(overridingIcon)
+						.setTooltipText("navigate to overrided type.")
+						.setTargets(target)
 					return builder.createLineMarkerInfo(element)
 				}
 			}
