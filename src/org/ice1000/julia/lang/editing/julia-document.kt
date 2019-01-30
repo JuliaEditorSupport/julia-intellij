@@ -29,7 +29,7 @@ class JuliaDocumentProvider : AbstractDocumentationProvider() {
 			parent != null -> {
 				val name = "# ${symbol.text}\n"
 				parent.docString?.text?.trim('"')?.let {
-					SimplifyJBMarkdownUtil.generateMarkdownHtml(name + it)
+					STYLE_HTML + SimplifyJBMarkdownUtil.generateMarkdownHtml(name + it)
 				}
 			}
 			// if Docs.doc can find
@@ -37,10 +37,16 @@ class JuliaDocumentProvider : AbstractDocumentationProvider() {
 				val ret = symbol.project.languageServer.searchDocsByName(symbol.text) ?: return null
 				val unescaped = StringEscapeUtils.unescapeJava(ret.trim('"'))
 				if (unescaped.startsWith("__INTELLIJ__")) return null
-				SimplifyJBMarkdownUtil.generateMarkdownHtml(unescaped)
+				STYLE_HTML + SimplifyJBMarkdownUtil.generateMarkdownHtml(unescaped)
 			}
 			else -> null
 		}
+	}
+
+	companion object {
+		// language=HTML
+		val STYLE_HTML
+			get() = """<style>code{color:rgb(255,121,198)}</style><script>console.log(2333);</script>"""
 	}
 }
 
