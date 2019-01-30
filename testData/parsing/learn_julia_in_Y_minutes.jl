@@ -4,7 +4,7 @@ function add(x, y)
     x + y
 end
 
-type Lion <: Cat()
+struct Lion <: Cat()
   mane_color::Cat=Cat
 end
 
@@ -337,7 +337,7 @@ end
 #   field::OptionalType
 #   ...
 # end
-type Tiger
+struct Tiger
   taillength::Float64
   coatcolor # not including a type annotation is the same as `::Any`
 end
@@ -370,7 +370,7 @@ typeof("fire") # => ASCIIString
 super(ASCIIString) # => DirectIndexString
 
 
-type Panther <: Cat # Panther is also a subtype of Cat
+struct Panther <: Cat # Panther is also a subtype of Cat
   eye_color
   Panther() = new("green")
   # Panthers will only have this constructor, and no default constructor.
