@@ -6,6 +6,7 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.psi.PsiElement
 import com.intellij.ui.content.ContentFactory
+import com.intellij.util.ui.UIUtil
 import org.apache.commons.lang.StringEscapeUtils
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.module.*
@@ -45,8 +46,13 @@ class JuliaDocumentProvider : AbstractDocumentationProvider() {
 
 	companion object {
 		// language=HTML
-		val STYLE_HTML
-			get() = """<style>code{color:rgb(255,121,198)}</style><script>console.log(2333);</script>"""
+		val STYLE_HTML: String
+			get() =
+				if (UIUtil.isUnderDarcula()) {
+					"""<style>code{color:rgb(255,121,198)}</style>"""
+				} else {
+					"""<style>code{color:rgb(176,55,118)}</style>"""
+				}
 	}
 }
 
