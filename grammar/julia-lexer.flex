@@ -189,9 +189,10 @@ OTHERWISE=[^]
 <YYINITIAL, LONG_TEMPLATE> catch { return JuliaTypes.CATCH_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> finally { return JuliaTypes.FINALLY_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> function { return JuliaTypes.FUNCTION_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> type { return JuliaTypes.TYPE_KEYWORD; }
+// <YYINITIAL, LONG_TEMPLATE> type { return JuliaTypes.TYPE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> abstract[ \n\r\t]+type { return JuliaTypes.ABSTRACT_TYPE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> abstract { return JuliaTypes.ABSTRACT_KEYWORD; }
-<YYINITIAL, LONG_TEMPLATE> primitive { return JuliaTypes.PRIMITIVE_KEYWORD; }
+<YYINITIAL, LONG_TEMPLATE> primitive[ \n\r\t]+type { return JuliaTypes.PRIMITIVE_TYPE_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> struct { return JuliaTypes.STRUCT_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> typealias { return JuliaTypes.TYPEALIAS_KEYWORD; }
 <YYINITIAL, LONG_TEMPLATE> immutable { return JuliaTypes.IMMUTABLE_KEYWORD; }

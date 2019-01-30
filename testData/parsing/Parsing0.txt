@@ -67,7 +67,7 @@ FILE
               PsiElement(SYM)('A')
         PsiElement(EOL)('\n')
         JuliaTypeDeclarationImpl(TYPE_DECLARATION)
-          PsiElement(TYPE_KEYWORD)('type')
+          PsiElement(STRUCT_KEYWORD)('struct')
           JuliaSymbolImpl(SYMBOL)
             PsiElement(SYM)('typeName')
           PsiElement(EOL)('\n')

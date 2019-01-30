@@ -588,8 +588,9 @@ bracketedComprehensionExpr::=
 whereClause ::= WHERE_KEYWORD afterWhere
 
 private keywordsAsOp ::=
-  MODULE_KEYWORD
+    MODULE_KEYWORD
   | WHERE_KEYWORD
+  // TODO: do we really need this?
   | ABSTRACT_KEYWORD
   | MUTABLE_KEYWORD
   | IMMUTABLE_KEYWORD // deprecated
@@ -675,7 +676,7 @@ typeDeclaration ::=
 }
 
 abstractTypeDeclaration ::=
- ABSTRACT_KEYWORD TYPE_KEYWORD endOfLine
+ ABSTRACT_TYPE_KEYWORD endOfLine
   symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? SEMICOLON_SYM? endOfLine
  END_KEYWORD {
 	stubClass='org.ice1000.julia.lang.psi.JuliaAbstractTypeDeclarationClassStub'
@@ -684,7 +685,7 @@ abstractTypeDeclaration ::=
 }
 
 primitiveTypeDeclaration ::=
- PRIMITIVE_KEYWORD TYPE_KEYWORD endOfLine
+ PRIMITIVE_TYPE_KEYWORD endOfLine
   symbol (SUBTYPE_SYM endOfLine expr)? expr endOfLine
  END_KEYWORD { pin=1 extends=expr }
 

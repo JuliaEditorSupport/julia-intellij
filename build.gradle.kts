@@ -58,7 +58,7 @@ allprojects {
 
 		// local developing (!isCI)
 		if (!isCI) {
-			setPlugins("org.intellij.plugins.markdown:183.4284.148")
+			setPlugins("org.intellij.plugins.markdown:191.4212.41")
 		} else {
 			setMarkdownCompileOnly()
 		}

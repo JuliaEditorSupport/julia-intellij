@@ -15,7 +15,7 @@ you see?
  =#
 
 typealias A A
-type typeName
+struct typeName
     function yesYesYesOhMyGod()
     end
 end

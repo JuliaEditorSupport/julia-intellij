@@ -41,7 +41,7 @@ class NewJuliaFile : CreateFileFromTemplateAction(
 		}
 	}
 
-	override fun getActionName(directory: PsiDirectory?, s: String?, s2: String?) =
+	override fun getActionName(directory: PsiDirectory?, s: String, s2: String?) =
 		JuliaBundle.message("julia.actions.new-file.title")
 
 	override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {

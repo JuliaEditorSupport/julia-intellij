@@ -31,7 +31,7 @@ val juliaGlobalSettings: JuliaGlobalSettingsService
 
 @State(
 	name = "JuliaProjectSettings",
-	storages = [Storage(file = "juliaConfig.xml", scheme = StorageScheme.DIRECTORY_BASED)])
+	storages = [Storage(file = "juliaConfig.xml")])
 class JuliaProjectSettingsServiceImpl :
 	JuliaProjectSettingsService, PersistentStateComponent<JuliaSettings> {
 	override val settings = JuliaSettings(replPrompt = "julia> ")
@@ -49,7 +49,7 @@ class JuliaProjectSettingsServiceImpl :
 
 @State(
 	name = "JuliaGlobalSettings2",
-	storages = [Storage(file = "juliaGlobalConfig2.xml", scheme = StorageScheme.DIRECTORY_BASED)])
+	storages = [Storage(file = "juliaGlobalConfig2.xml")])
 class JuliaGlobalSettingsServiceImpl :
 	JuliaGlobalSettingsService, PersistentStateComponent<JuliaGlobalSettings2> {
 	override val knownJuliaExes: MutableSet<String> = hashSetOf()
