@@ -11,14 +11,15 @@ import com.intellij.javascript.debugger.execution.DebuggableProgramRunner
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.openapi.vfs.*
-import com.intellij.terminal.*
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.terminal.TerminalExecutionConsole
 import com.intellij.util.io.createFile
 import com.intellij.util.io.exists
 import com.intellij.xdebugger.*
@@ -30,10 +31,10 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.module.*
 import org.jetbrains.debugger.DebuggableRunConfiguration
 import org.jetbrains.debugger.SourceInfo
-import org.jetbrains.rpc.LOG
-import java.io.*
-import java.net.*
-import java.nio.file.Path
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.InetSocketAddress
+import java.net.ServerSocket
 import java.nio.file.Paths
 
 /**
@@ -50,6 +51,10 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 												session: XDebugSession,
 												val executionResult: ExecutionResult?,
 												val env: ExecutionEnvironment) : XDebugProcess(session) {
+	companion object LoggerHolder {
+		val LOG = Logger.getInstance(JuliaDebugProcess::class.java)
+	}
+
 	override fun getEditorsProvider(): XDebuggerEditorsProvider = JuliaEditorsProvider()
 	lateinit var socket: ServerSocket
 	val debugStack = JuliaDebugExecutionStack(emptyList())
@@ -106,8 +111,8 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 					val stackFrame = JuliaDebugExecutionStack(list.map { JuliaVariableStackFrame(env.project, it) })
 					session.setCurrentStackFrame(stackFrame, top)
 					session.updateExecutionPosition()
-				} catch (e: Exception) {
-					LOG.error(e.message)
+				} catch (e: Throwable) {
+					LOG.error(e)
 				}
 			}
 		}
