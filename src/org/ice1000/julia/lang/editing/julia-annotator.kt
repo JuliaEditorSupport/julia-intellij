@@ -139,15 +139,12 @@ $JULIA_DOC_SURROUNDING
 	}
 
 	private fun importAll(element: JuliaImportAllExpr, holder: AnnotationHolder, settings: JuliaSettings) {
-		val version = settings.version
-		if (version.isEmpty() || compareVersion(version, "0.7.0") < 0) {
-			// warning underline
-			holder.createWeakWarningAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
-		} else if (compareVersion(version, "1.0.0") < 0) {
-			// warning background
-			holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
-		} else {
-			holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
+		when {
+			compareVersion(settings.version, "0.7.0") < 0 -> // warning underline
+				holder.createWeakWarningAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
+			compareVersion(settings.version, "1.0.0") < 0 -> // warning background
+				holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
+			else -> holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
 		}
 	}
 

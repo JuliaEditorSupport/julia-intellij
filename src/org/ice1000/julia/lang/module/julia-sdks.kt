@@ -106,8 +106,7 @@ class JuliaStdLibraryProvider : AdditionalLibraryRootsProvider() {
 		if (dir != null) list.add(StdLibrary("Julia $version", dir))
 
 		try {
-			val beforeVersion07 = '.' in settings.version && compareVersion(settings.version, "0.7.0") < 0
-			val pkgFile = if (beforeVersion07) {
+			val pkgFile = if (compareVersion(settings.version, "0.7.0") < 0) {
 				val pkgdir = printJulia(juliaPath, timeLimit = 5000L, expr = "Pkg.dir()")
 					.first
 					.firstOrNull()?.trim('"')

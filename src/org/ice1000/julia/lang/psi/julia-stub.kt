@@ -14,8 +14,8 @@ class JuliaModuleNavigationContributor : GotoClassContributor {
 	}
 
 	override fun getNames(project: Project, includeNonProjectItems: Boolean) =
-		emptyArray<String>()
-		// StubIndex.getInstance().getAllKeys(JuliaModuleIndex.key, project)?.toTypedArray()
+//		emptyArray<String>()
+		StubIndex.getInstance().getAllKeys(key, project).toTypedArray()
 
 	override fun getItemsByName(
 		name: String,
@@ -26,7 +26,7 @@ class JuliaModuleNavigationContributor : GotoClassContributor {
 			GlobalSearchScope.allScope(project)
 		else
 			GlobalSearchScope.projectScope(project)
-		return StubIndex.getElements(JuliaModuleIndex.key, name, project, scope, JuliaModuleDeclarationMixin::class.java).toTypedArray()
+		return StubIndex.getElements(key, name, project, scope, JuliaModuleDeclarationMixin::class.java).toTypedArray()
 	}
 
 	override fun getQualifiedName(item: NavigationItem?) = (item as? JuliaModuleDeclaration)?.name
