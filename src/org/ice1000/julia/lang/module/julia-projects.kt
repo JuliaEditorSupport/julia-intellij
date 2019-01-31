@@ -29,7 +29,8 @@ class JuliaProjectGenerator : DirectoryProjectGeneratorBase<JuliaSettings>(),
 	CustomStepProjectGenerator<JuliaSettings> {
 	override fun createStep(
 		projectGenerator: DirectoryProjectGenerator<JuliaSettings>,
-		callback: AbstractNewProjectStep.AbstractCallback<JuliaSettings>) = ProjectSettingsStepBase(projectGenerator, AbstractNewProjectStep.AbstractCallback<JuliaSettings>())
+		callback: AbstractNewProjectStep.AbstractCallback<JuliaSettings>
+	) = ProjectSettingsStepBase(projectGenerator, AbstractNewProjectStep.AbstractCallback<JuliaSettings>())
 
 	override fun getLogo() = JuliaIcons.JULIA_BIG_ICON
 	override fun getName() = JuliaBundle.message("julia.name")

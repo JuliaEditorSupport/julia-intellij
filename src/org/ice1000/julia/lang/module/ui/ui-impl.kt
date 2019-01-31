@@ -71,7 +71,7 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
  * PyCharm and other IDEs' `New Project...`
  */
 class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
-	private val settings = JuliaSettings(replPrompt = "julia> ")
+	private val settings = JuliaSettings()
 	private val listeners = ArrayList<ProjectGeneratorPeer.SettingsListener>()
 
 	init {

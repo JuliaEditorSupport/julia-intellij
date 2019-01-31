@@ -46,8 +46,8 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	}
 }
 
-fun validateJuliaSDK(sdkHome: String) = Files.isExecutable(Paths.get(sdkHome, "bin", "julia")) ||
-	Files.isExecutable(Paths.get(sdkHome, "bin", "julia.exe"))
+fun validateJuliaSDK(sdkHome: String) = Files.exists(Paths.get(sdkHome, "bin", "julia")) ||
+	Files.exists(Paths.get(sdkHome, "bin", "julia.exe"))
 
 class JuliaLibraryProperties : LibraryProperties<JuliaLibraryProperties>() {
 	var map: Map<String, List<String>> = TreeMap()
