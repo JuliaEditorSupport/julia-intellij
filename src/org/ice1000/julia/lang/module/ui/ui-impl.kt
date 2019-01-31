@@ -228,7 +228,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		val beforeVersion07 = compareVersion(settings.version, "0.7.0") < 0
 		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
 		val actions = DefaultActionGroup(
-			JuliaAddPkgAction(alternativeExecutables, beforeVersion07,this::loadPackages),
+			JuliaAddPkgAction(alternativeExecutables, beforeVersion07, this::loadPackages),
 			JuliaRemovePkgAction(alternativeExecutables, packagesList, beforeVersion07,this::loadPackages),
 			object : AnAction(JuliaIcons.REFRESH_ICON) {
 				override fun actionPerformed(e: AnActionEvent) = loadPackages()

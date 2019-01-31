@@ -54,14 +54,11 @@ fun versionsList(settings: JuliaSettings) =
 			name.trim(' ', '"') to version.trim(' ', '"').removePrefix("v\"")
 		}
 
-fun loadNamesListByEnvFile(settings: JuliaSettings, envdir: String): List<String> {
-	return try {
-		val versionDir = "v" + settings.version.substringBeforeLast(".")
-		val projectTomlFile = Paths.get(envdir, versionDir, "Project.toml").toFile()
-		projectTomlFile.readLines().mapNotNull { if (it.first() == '[') null else it.substringBefore(" ") }.sorted()
-	} catch (e: NoSuchFileException) {
-		emptyList()
-	}
+fun loadNamesListByEnvFile(settings: JuliaSettings, envdir: String): List<String> = run {
+	val versionDir = "v" + settings.version.substringBeforeLast(".")
+	val projectTomlFile = Paths.get(envdir, versionDir, "Project.toml").toFile()
+	if (!projectTomlFile.exists()) return emptyList()
+	projectTomlFile.readLines().mapNotNull { if (it.first() == '[') null else it.substringBefore(' ') }.sorted()
 }
 
 fun getEnvDir(settings: JuliaSettings): String {
