@@ -71,7 +71,7 @@ class JuliaSetupSdkWizardStepImpl(private val builder: JuliaModuleBuilder) : Jul
  * PyCharm and other IDEs' `New Project...`
  */
 class JuliaProjectGeneratorPeerImpl : JuliaProjectGeneratorPeer() {
-	private val settings = JuliaSettings(replPrompt = "julia> ")
+	private val settings = JuliaSettings()
 	private val listeners = ArrayList<ProjectGeneratorPeer.SettingsListener>()
 
 	init {
@@ -228,7 +228,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		val beforeVersion07 = compareVersion(settings.version, "0.7.0") < 0
 		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
 		val actions = DefaultActionGroup(
-			JuliaAddPkgAction(alternativeExecutables, beforeVersion07,this::loadPackages),
+			JuliaAddPkgAction(alternativeExecutables, beforeVersion07, this::loadPackages),
 			JuliaRemovePkgAction(alternativeExecutables, packagesList, beforeVersion07,this::loadPackages),
 			object : AnAction(JuliaIcons.REFRESH_ICON) {
 				override fun actionPerformed(e: AnActionEvent) = loadPackages()
@@ -255,7 +255,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 				true) {
 			override fun run(indicator: ProgressIndicator) {
 				indicator.text = JuliaBundle.message("julia.messages.package.names.loading")
-				val beforeVersion07 = '.' in settings.version && compareVersion(settings.version, "0.7.0") < 0
+				val beforeVersion07 = compareVersion(settings.version, "0.7.0") < 0
 				var envdir = ""
 				val namesList: List<String> = if (beforeVersion07) {
 					packageNamesList(settings.importPath).collect(Collectors.toList())

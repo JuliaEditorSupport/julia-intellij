@@ -1,11 +1,10 @@
-import org.gradle.language.base.internal.plugins.CleanRule
-import org.jetbrains.grammarkit.GrammarKitPluginExtension
-import org.jetbrains.grammarkit.tasks.*
+import org.jetbrains.grammarkit.tasks.GenerateLexer
+import org.jetbrains.grammarkit.tasks.GenerateParser
 import org.jetbrains.intellij.tasks.PatchPluginXmlTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
-import java.nio.file.*
+import java.nio.file.Paths
 
 val isCI = !System.getenv("CI").isNullOrBlank()
 val commitHash = kotlin.run {
@@ -31,8 +30,8 @@ version = pluginVersion
 
 plugins {
 	java
-	id("org.jetbrains.intellij") version "0.3.12"
-	id("org.jetbrains.grammarkit") version "2018.2.1"
+	id("org.jetbrains.intellij") version "0.4.2"
+	id("org.jetbrains.grammarkit") version "2018.2.2"
 	kotlin("jvm") version "1.2.70"
 }
 
@@ -42,16 +41,17 @@ allprojects {
 	intellij {
 		updateSinceUntilBuild = false
 		instrumentCode = true
-		when (System.getProperty("user.name")) {
+		val username = System.getProperty("user.name")
+		val root = "/home/$username/.local/share/JetBrains/Toolbox/apps"
+		when (username) {
 			"ice1000" -> {
-				val root = "/home/ice1000/.local/share/JetBrains/Toolbox/apps"
-				localPath = "$root/IDEA-C/ch-0/183.5153.38"
-				alternativeIdePath = "$root/PyCharm-C/ch-0/183.4886.43"
+				localPath = "$root/IDEA-C/ch-0/191.4738.6"
+				alternativeIdePath = "$root/PyCharm-C/ch-0/191.4212.43"
 			}
 			"hoshino" -> version = "2018.2.1"
 			"zxj5470" -> {
 				version = "2018.3"
-//				alternativeIdePath = "/home/zxj5470/.local/share/JetBrains/Toolbox/apps/PyCharm-P/ch-0/183.4284.139"
+//				alternativeIdePath = "$root/PyCharm-P/ch-0/183.4284.139"
 			}
 		/* for CI */ else -> version = "2018.3"
 		}
@@ -96,17 +96,17 @@ sourceSets {
 repositories { mavenCentral() }
 
 dependencies {
-	compileOnly(kotlin("stdlib", kotlinVersion))
-	compile(kotlin("stdlib-jdk8", kotlinVersion).toString()) {
+	compileOnly(kotlin(module = "stdlib"))
+	compile(kotlin(module = "stdlib-jdk8").toString()) {
 		exclude(module = "kotlin-runtime")
 		exclude(module = "kotlin-reflect")
 		exclude(module = "kotlin-stdlib")
 	}
-	compile("org.eclipse.mylyn.github", "org.eclipse.egit.github.core", "2.1.5") {
+	compile(group = "org.eclipse.mylyn.github", name = "org.eclipse.egit.github.core", version = "2.1.5") {
 		exclude(module = "gson")
 	}
-	testCompile(kotlin("test-junit", kotlinVersion))
-	testCompile("junit", "junit", "4.12")
+	testCompile(kotlin(module = "test-junit"))
+	testCompile(group = "junit", name = "junit", version = "4.12")
 }
 
 task("displayCommitHash") {
@@ -175,7 +175,7 @@ val cleanGenerated = task("cleanGenerated") {
 
 val sortSpelling = task("sortSpellingFile") {
 	val fileName = "spelling.txt"
-	val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+	val isWindows = "windows" in System.getProperty("os.name").toLowerCase()
 	project.exec {
 		workingDir = file("$projectDir/res/org/ice1000/julia/lang/editing")
 		commandLine = when {

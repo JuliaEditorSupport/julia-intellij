@@ -7,7 +7,6 @@ import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.application.*
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -24,10 +23,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 import javax.swing.JComboBox
-import com.intellij.openapi.projectRoots.SdkModificator
-import com.intellij.openapi.projectRoots.ui.ProjectJdksEditor
-import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.openapi.roots.ProjectRootManager
 
 
 /**
@@ -132,8 +127,15 @@ fun versionOf(exePath: String, timeLimit: Long = 3000L) =
  */
 fun compareVersion(version: String, version2: String): Int {
 	if (version == version2) return 0
-	val (v0, v1, v2) = version.split('.')
-	val (v20, v21, v22) = version2.split('.')
+	val versionSplit = version.substringBefore('-').split('.')
+	val version2Split = version2.substringBefore('-').split('.')
+	if (versionSplit.size < 3) {
+		return if (version2Split.size == 3) -1 else 0
+	} else {
+		if (version2Split.size < 3) return 1
+	}
+	val (v0, v1, v2) = versionSplit
+	val (v20, v21, v22) = version2Split
 	return when {
 		v0 != v20 -> v0.trim('+').toInt() - v20.trim('+').toInt()
 		v1 != v21 -> v1.trim('+').toInt() - v21.trim('+').toInt()
