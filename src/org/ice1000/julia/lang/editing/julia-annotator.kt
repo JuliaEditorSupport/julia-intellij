@@ -171,9 +171,27 @@ $JULIA_DOC_SURROUNDING
 					JuliaBundle.message("julia.lint.variable.type-declarations.global-error-replace")
 				))
 		}
-		val rightElement = element.exprList.lastOrNull() ?: return
-		if (rightElement is JuliaUsing || rightElement is JuliaImportExpr) {
-			holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.variable.assign-from-nothing.warning"))
+		// element after `=` if stupid!
+		val leftElement = element.exprList.firstOrNull()
+		val rightElement = leftElement?.nextRealSibling?.nextRealSibling ?: return
+		when (rightElement) {
+			is JuliaUsing,
+			is JuliaImportExpr,
+			is IJuliaTypeDeclaration ->
+				holder
+					.createWarningAnnotation(element, JuliaBundle.message("julia.lint.variable.assign-from-nothing.warning"))
+					.registerFix(JuliaReplaceWithTextIntention(element,
+						rightElement.text,
+						JuliaBundle.message("julia.lint.variable.assign-from-nothing-replace")
+					))
+			is JuliaModuleDeclaration -> {
+				holder
+					.createErrorAnnotation(element, JuliaBundle.message("julia.lint.variable.assign-to-module-error"))
+					.registerFix(JuliaReplaceWithTextIntention(element,
+						rightElement.text,
+						JuliaBundle.message("julia.lint.variable.assign-from-nothing-replace")
+					))
+			}
 		}
 	}
 

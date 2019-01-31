@@ -51,3 +51,16 @@ val PsiElement.prevRealSibling: PsiElement?
 		}
 		return pre
 	}
+
+val PsiElement.nextRealSibling: PsiElement?
+	get() {
+		var next = this.nextSibling
+		while (next != null) {
+			if (next is PsiWhiteSpace) {
+				next = next.nextSibling
+			} else {
+				return next
+			}
+		}
+		return next
+	}

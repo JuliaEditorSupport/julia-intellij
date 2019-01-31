@@ -81,7 +81,7 @@ end
 		// language=Julia
 		val command = """
 try
-    repr(Docs.doc($name))
+    repr(@doc $name)
 catch e
     println("__INTELLIJ__"*repr(e))
 end

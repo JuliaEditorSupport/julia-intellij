@@ -237,7 +237,7 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			JuliaCompletionProvider(functionInside))
 		extend(CompletionType.BASIC,
 			psiElement()
-				.inside(JuliaUsing::class.java),
+				.inside(JuliaStatements::class.java),
 			JuliaModuleStubCompletionProvider())
 	}
 }

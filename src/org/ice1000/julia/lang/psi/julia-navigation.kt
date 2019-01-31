@@ -141,29 +141,39 @@ class JuliaLineMarkerProvider : LineMarkerProvider {
 		if (element is IJuliaSymbol) {
 			when {
 				element.parent is JuliaAbstractTypeDeclaration -> {
-					val builder = NavigationGutterIconBuilder
+					return NavigationGutterIconBuilder
 						.create(overridenTypeIcon)
 						.setTooltipText("Please Click name to navigate to Subtypes")
 						.setTarget(element)
-					return builder.createLineMarkerInfo(element)
+						.createLineMarkerInfo(element)
 				}
+				// function Base.+
 				element.parent is JuliaFunction
-					&& element.prevSibling.elementType == JuliaTypes.DOT_SYM
-					&& element.prevSibling.prevSibling.elementType == JuliaTypes.SYM -> {
-					val builder = NavigationGutterIconBuilder
-						.create(overridingIcon)
-						.setTooltipText("navigate to overrided function. (This feature is still working)")
-						// TODO stubIndex
-						.setTarget(element)
-					return builder.createLineMarkerInfo(element)
+					&& element.prevSibling?.elementType == JuliaTypes.DOT_SYM
+					&& element.prevSibling?.prevSibling?.elementType == JuliaTypes.SYM -> {
+					val moduleName = element.prevSibling.prevSibling.text
+					val overridingName = element.text
+					val modules = JuliaModuleDeclarationIndex.findElementsByName(project, moduleName)
+					val targets = modules.flatMap { module ->
+						module.statements?.let { stmt ->
+							stmt.children.filter { (it is IJuliaFunctionDeclaration) && it.nameIdentifier?.text == overridingName }
+						} ?: emptyList()
+					}
+					return if (targets.isNotEmpty()) {
+						NavigationGutterIconBuilder
+							.create(overridingIcon)
+							.setTooltipText("navigate to overrided function. (This feature is still working)")
+							.setTargets(targets)
+							.createLineMarkerInfo(element)
+					} else null
 				}
 				element.isSuperTypeExpr || element.parent is JuliaType && element.parent.isSuperTypeExpr -> {
 					val target = JuliaTypeDeclarationIndex.findElementsByName(project, element.text) + JuliaAbstractTypeDeclarationIndex.findElementsByName(project, element.text)
-					val builder = NavigationGutterIconBuilder
+					return NavigationGutterIconBuilder
 						.create(overridingIcon)
 						.setTooltipText("navigate to overrided type.")
 						.setTargets(target)
-					return builder.createLineMarkerInfo(element)
+						.createLineMarkerInfo(element)
 				}
 			}
 		}
