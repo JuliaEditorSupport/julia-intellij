@@ -208,8 +208,12 @@ $JULIA_DOC_SURROUNDING
 			}
 			JuliaSymbolKind.FunctionParameter -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.FUNCTION_PARAMETER
-			JuliaSymbolKind.TypeName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.TYPE_NAME
+			JuliaSymbolKind.TypeName -> {
+				if (element.isAbstractTypeRef) holder.createInfoAnnotation(element, null)
+					.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
+				holder.createInfoAnnotation(element, null)
+					.textAttributes = JuliaHighlighter.TYPE_NAME
+			}
 			JuliaSymbolKind.KeywordParameterName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.KEYWORD_ARGUMENT
 			else -> {
@@ -220,8 +224,12 @@ $JULIA_DOC_SURROUNDING
 				.textAttributes = JuliaHighlighter.CONST_NAME
 			element.isTypeNameRef -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_NAME
-			element.isAbstractTypeRef -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
+			element.isSuperTypeExpr -> {
+				val attr = if (element.isAbstractTypeRef) JuliaHighlighter.ABSTRACT_TYPE_NAME
+				else JuliaHighlighter.TYPE_NAME
+				holder.createInfoAnnotation(element, null)
+					.textAttributes = attr
+			}
 			element.isModuleNameRef -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
 			element.isQuoteCall -> holder.createInfoAnnotation(element.parent

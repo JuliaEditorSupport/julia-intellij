@@ -63,10 +63,10 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 				JuliaSymbolKind.ApplyFunctionName -> {
 					if (juliaSymbol.text in IGNORED) return null
 					val executor = Executors.newCachedThreadPool()
-					var result: Array<PsiElement>? = null
+					val result: MutableCollection<PsiElement> = arrayListOf()
 					val future = executor.submit {
 						try {
-							ReadAction.compute<Array<PsiElement>?, Throwable> {
+							ReadAction.compute<Unit, Throwable> {
 								project.languageServer.searchFunctionsByName(juliaSymbol.text)?.let { ret ->
 									if (ret.startsWith("__INTELLIJ__")) return@let null
 									val unescaped = StringEscapeUtils.unescapeJava(ret.trim('"'))
@@ -82,12 +82,11 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 											val psiFile = PsiManager.getInstance(project).findFile(vf) ?: return@mapNotNull null
 											val elem = psiFile.findElementAt(psiOffset + 1) ?: return@mapNotNull null
 											PsiTreeUtil.getNonStrictParentOfType(elem, JuliaCompactFunction::class.java, JuliaFunction::class.java)
-										}.toTypedArray().also { result = it }
+										}.toTypedArray().also { result.addAll(it) }
 									} catch (e: Exception) {
 										e.printStackTrace()
-										result
 									}
-								} ?: result
+								}
 							}
 						} catch (e: Exception) {
 							e.printStackTrace()
@@ -95,7 +94,8 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 					}
 					return try {
 						future?.get(5000, TimeUnit.MILLISECONDS)
-						result
+						result.addAll(JuliaTypeDeclarationIndex.findElementsByName(project, juliaSymbol.text))
+						result.toTypedArray()
 					} catch (ignored: Throwable) {
 						null
 					}
