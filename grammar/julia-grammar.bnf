@@ -53,6 +53,7 @@ private privateOperaSymbols ::=
 //   SEMICOLON_SYM |
 QUESTION_SYM
  | SUBTYPE_SYM
+ | SUPERTYPE_SYM
  | INVERSE_DIV_SYM
  | IS_SYM
  | ISNT_SYM
@@ -250,8 +251,11 @@ memberAccessOp ::= expr DOT_SYM expr{rightAssociative=true}
 memberAccess ::=
    IN_KEYWORD
  | UNION_KEYWORD
+ | exprInterpolateOp
+ | unaryInterpolateOp
  | opAsSymbol
  | (LEFT_BRACKET opAsSymbol RIGHT_BRACKET)
+ | FLOAT_CONSTANT
  | symbolAndMacroSymbol (DOT_SYM symbolAndMacroSymbol)*{rightAssociative=true}
 
 private access ::= (DOT_SYM | DOUBLE_DOT_SYM | SLICE_SYM)? memberAccess
@@ -416,6 +420,7 @@ comparisonLevelOperator ::=
  | IS_SYM
  | ISNT_SYM
  | SUBTYPE_SYM
+ | SUPERTYPE_SYM
  | MISC_COMPARISON_SYM
 
 // |>
@@ -680,6 +685,7 @@ abstractTypeDeclaration ::=
  ABSTRACT_TYPE_KEYWORD endOfLine
   symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? SEMICOLON_SYM? endOfLine
  END_KEYWORD {
+	pin=1
 	stubClass='org.ice1000.julia.lang.psi.JuliaAbstractTypeDeclarationClassStub'
 	implements=['org.ice1000.julia.lang.psi.impl.IJuliaTypeDeclaration']
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaAbstractTypeDeclarationMixin'
