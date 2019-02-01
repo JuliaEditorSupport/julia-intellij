@@ -4,7 +4,10 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.ExpressionTypeProvider
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.project.Project
 import com.intellij.psi.*
 import com.intellij.util.SystemProperties
 import org.ice1000.julia.lang.*
@@ -45,6 +48,27 @@ class JuliaAnnotator : Annotator {
 			is JuliaString -> string(element, holder)
 			is JuliaVersionNumber -> versionNumber(element, holder)
 			is JuliaFloatLit -> float(element, holder)
+			is JuliaTypeDeclaration -> typeDeclaration(element, holder)
+		}
+	}
+
+	private fun typeDeclaration(element: JuliaTypeDeclaration, holder: AnnotationHolder) {
+		val declarator = element.firstChild
+		if (declarator.text == "type") holder.createErrorAnnotation(declarator, JuliaBundle.message("julia.lint.type-replace-struct")).run {
+			highlightType = ProblemHighlightType.LIKE_DEPRECATED
+			registerFix(object : JuliaIntentionAction(JuliaBundle.message("julia.lint.type-replace-struct-fix")) {
+				override fun invoke(project: Project, editor: Editor, file: PsiFile?) {
+					val document = editor.document
+					if (!document.isWritable) return
+					ApplicationManager.getApplication().runWriteAction {
+						val offset = declarator.textOffset
+						editor.caretModel.moveToOffset(offset)
+						declarator.delete()
+						PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
+						document.insertString(offset, "struct")
+					}
+				}
+			})
 		}
 	}
 
@@ -264,13 +288,6 @@ $JULIA_DOC_SURROUNDING
 				// TODO: `builtins` need stub later
 				it[0].isUpperCase() && it in builtins -> holder.createInfoAnnotation(element, null)
 					.textAttributes = JuliaHighlighter.TYPE_NAME
-				it == "type" && daddy is JuliaTypeDeclaration && daddy.firstChild.let { onichan ->
-					element == onichan || element == onichan.nextSiblingIgnoring(JuliaTypes.EOL, TokenType.WHITE_SPACE)
-				} -> holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.type-replace-struct")).run {
-					textAttributes = JuliaHighlighter.KEYWORD
-					highlightType = ProblemHighlightType.LIKE_DEPRECATED
-					registerFix(JuliaReplaceWithTextIntention(element, "struct", JuliaBundle.message("julia.lint.type-replace-struct-fix")))
-				}
 				it in arrayOf("nothing") -> holder.createInfoAnnotation(element, null)
 					.textAttributes = JuliaHighlighter.KEYWORD
 			}

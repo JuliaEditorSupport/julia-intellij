@@ -35,7 +35,6 @@ object JuliaGeneratedParserUtilBase : GeneratedParserUtilBase() {
 		DO_KEYWORD,
 		WHILE_KEYWORD,
 		FUNCTION_KEYWORD,
-		TYPE_KEYWORD,
 		STRUCT_KEYWORD,
 		MACRO_KEYWORD
 	// TODO
