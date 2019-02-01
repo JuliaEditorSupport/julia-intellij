@@ -673,7 +673,7 @@ private bracketedFunctionName ::= LEFT_BRACKET typedNamedVariable RIGHT_BRACKET
 
 private typeModifiers ::= IMMUTABLE_KEYWORD | MUTABLE_KEYWORD
 // TODO remove `TYPE_KEYWORD`?
-private typeKeywords ::= TYPE_KEYWORD | STRUCT_KEYWORD
+private typeKeywords ::= "type" | STRUCT_KEYWORD
 typeDeclaration ::=
  (typeModifiers? typeKeywords | typeModifiers) endOfLine
   symbol typeParameters? (SUBTYPE_SYM endOfLine expr)? SEMICOLON_SYM? endOfLine
