@@ -237,6 +237,7 @@ $JULIA_DOC_SURROUNDING
 			else -> {
 			}
 		}
+		val daddy = element.parent
 		when {
 			element.isConstName -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.CONST_NAME
@@ -250,20 +251,27 @@ $JULIA_DOC_SURROUNDING
 			}
 			element.isModuleNameRef -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.MODULE_NAME
-			element.isQuoteCall -> holder.createInfoAnnotation(element.parent
+			element.isQuoteCall -> holder.createInfoAnnotation(daddy
 				.let { if (it is JuliaQuoteOp) it else it.parent }, null)
 				.textAttributes = JuliaHighlighter.QUOTE_NAME
 		}
+		// TODO: sometimes you really want Kotlin 1.3 :(
 		element.text.let {
-			if (it in arrayOf("in", "where", "end"))
-				holder.createInfoAnnotation(element, null)
+			when {
+				it.isNullOrBlank() -> return@let
+				it in arrayOf("in", "where", "end") -> holder.createInfoAnnotation(element, null)
 					.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
-			// TODO: `builtins` need stub later
-			else if (it.isNotEmpty() && it[0].isUpperCase() && it in builtins) {
-				holder.createInfoAnnotation(element, null)
+				// TODO: `builtins` need stub later
+				it[0].isUpperCase() && it in builtins -> holder.createInfoAnnotation(element, null)
 					.textAttributes = JuliaHighlighter.TYPE_NAME
-			} else if (it in arrayOf("nothing")) {
-				holder.createInfoAnnotation(element, null)
+				it == "type" && daddy is JuliaTypeDeclaration && daddy.firstChild.let { onichan ->
+					element == onichan || element == onichan.nextSiblingIgnoring(JuliaTypes.EOL, TokenType.WHITE_SPACE)
+				} -> holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.type-replace-struct")).run {
+					textAttributes = JuliaHighlighter.KEYWORD
+					highlightType = ProblemHighlightType.LIKE_DEPRECATED
+					registerFix(JuliaReplaceWithTextIntention(element, "struct", JuliaBundle.message("julia.lint.type-replace-struct-fix")))
+				}
+				it in arrayOf("nothing") -> holder.createInfoAnnotation(element, null)
 					.textAttributes = JuliaHighlighter.KEYWORD
 			}
 		}

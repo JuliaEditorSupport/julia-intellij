@@ -65,6 +65,7 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION,
 	fun testParseImport() = doTest(true)
 	fun testParseGlobal() = doTest(true)
 	fun testParseCharEscape() = doTest(true)
+	fun testSoftKeywordType() = doTest(true)
 
 	fun testComment() {
 		println("我永远喜欢结城明日奈")

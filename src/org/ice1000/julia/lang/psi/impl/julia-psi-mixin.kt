@@ -337,7 +337,6 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			parent is JuliaType ||
 			parent is JuliaTypeAnnotation ||
 			parent is JuliaTypeDeclaration ||
-			parent is JuliaAbstractTypeDeclaration ||
 			(parent is JuliaArray && this === parent.firstChild) -> JuliaSymbolKind.TypeName
 
 		parent is JuliaTypedNamedVariable &&
