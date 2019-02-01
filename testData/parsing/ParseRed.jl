@@ -122,3 +122,4 @@ action = @λ begin
         end
 end
 
+mod.eval(quote struct $case_name end end)
