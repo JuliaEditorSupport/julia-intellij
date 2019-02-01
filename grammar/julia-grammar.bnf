@@ -47,6 +47,7 @@ private privateOpAsSymbol::=
  | keywordsAsOp
  | typeAnnotationAsOp
  | interpolateAsOp
+ | privateExprInterpolateOp
 
 private privateOpSymbols::= privateUnaryOpAsSymbol | privateOperaSymbols
 private privateOperaSymbols ::=
@@ -447,7 +448,7 @@ private quotable ::=
    unaryOpAsSymbol
  | interpolateAsOp // unbracketed is useless, and idk why
  | allowQuoteSymbols
- | opAsSymbol+
+ | opAsSymbol
  | QUOTE_KEYWORD
  | (LEFT_BRACKET quotable RIGHT_BRACKET)
  | primaryExpr
@@ -539,7 +540,8 @@ unaryTypeOp ::= DOUBLE_COLON endOfLine expr
 unarySubtypeOp ::= SUBTYPE_SYM endOfLine expr
 unaryMinusOp ::= MINUS_SYM endOfLine expr
 unaryInterpolateOp ::= INTERPOLATE_SYM endOfLine expr
-exprInterpolateOp ::= EXPR_INTERPOLATE_START endOfLine expr typeAnnotation? SLICE_SYM? RIGHT_BRACKET
+exprInterpolateOp ::= privateExprInterpolateOp
+private privateExprInterpolateOp ::= EXPR_INTERPOLATE_START endOfLine expr typeAnnotation? SLICE_SYM? RIGHT_BRACKET
 notOp ::= NOT_SYM endOfLine expr
 unaryPlusOp ::= PLUS_SYM endOfLine expr
 

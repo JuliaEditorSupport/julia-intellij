@@ -93,3 +93,15 @@ WeakKeyDict1(ps::Pair{K}...)             where {K}   = WeakKeyDict{K,Any}(ps)
 # WeakKeyDict3(ps::Pair{K} where K ...)             where {K}   = WeakKeyDict{K,Any}(ps)
 #
 # WeakKeyDict4(ps::(Pair{K,V} where K)...) where {V}   = WeakKeyDict{Any,V}(ps)
+@eval function $(Symbol("atomic_", opname, "!"))(var::Atomic{T}, val::T) where T<:FloatTypes
+        IT = inttype(T)
+        old = var[]
+        while true
+            new = $op(old, val)
+            cmp = old
+            old = atomic_cas!(var, cmp, new)
+            reinterpret(IT, old) == reinterpret(IT, cmp) && return new
+            # Temporary solution before we have gc transition support in codegen.
+            ccall(:jl_gc_safepoint, Cvoid, ())
+        end
+    end
