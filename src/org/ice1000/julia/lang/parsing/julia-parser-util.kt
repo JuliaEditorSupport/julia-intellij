@@ -10,9 +10,9 @@ import org.ice1000.julia.lang.psi.JuliaTypes.*
 @Suppress("UNUSED_PARAMETER")
 object JuliaGeneratedParserUtilBase : GeneratedParserUtilBase() {
 
-	private val END_SET = listOf(END_KEYWORD)
+	private val END_SET = arrayOf(END_KEYWORD)
 
-	private val PAIRS = listOf(
+	private val PAIRS = arrayOf(
 		LET_KEYWORD,
 		FOR_KEYWORD,
 		MODULE_KEYWORD,
@@ -27,6 +27,20 @@ object JuliaGeneratedParserUtilBase : GeneratedParserUtilBase() {
 		MACRO_KEYWORD
 	)
 
+	private val NORMAL_LEFT = arrayOf(
+		LET_KEYWORD,
+		QUOTE_KEYWORD,
+		IF_KEYWORD,
+		TRY_KEYWORD,
+		DO_KEYWORD,
+		WHILE_KEYWORD,
+		FUNCTION_KEYWORD,
+		TYPE_KEYWORD,
+		STRUCT_KEYWORD,
+		MACRO_KEYWORD
+	// TODO
+	)
+
 	private val LEFT_BRACKETS = listOf(LEFT_BRACKET, LEFT_M_BRACKET, LEFT_B_BRACKET)
 	private val RIGHT_BRACKETS = listOf(RIGHT_BRACKET, RIGHT_M_BRACKET, RIGHT_B_BRACKET)
 
@@ -35,8 +49,8 @@ object JuliaGeneratedParserUtilBase : GeneratedParserUtilBase() {
 	 */
 	@JvmStatic
 	fun parseBlockLazy(builder: PsiBuilder,
-										 foldableTokenTypes: List<IElementType> = PAIRS,
-										 endTokenTypes: List<IElementType> = END_SET,
+										 foldableTokenTypes: Array<IElementType> = PAIRS,
+										 endTokenTypes: Array<IElementType> = END_SET,
 										 parseEnd: Boolean = false): PsiBuilder.Marker? {
 		// ignore itself only once
 		val marker = builder.mark()
@@ -49,7 +63,7 @@ object JuliaGeneratedParserUtilBase : GeneratedParserUtilBase() {
 			when (tokenType) {
 				in foldableTokenTypes -> {
 					when (tokenType) {
-						FUNCTION_KEYWORD -> {
+						in NORMAL_LEFT -> {
 							braceCount++
 							if (!parStack.isEmpty())
 								lastFoldableBeginStack.push(tokenType)
@@ -74,7 +88,7 @@ object JuliaGeneratedParserUtilBase : GeneratedParserUtilBase() {
 						braceCount--
 						lastFoldableBeginStack.tryPop()
 					} else { // in pars
-						if (lastFoldableBeginStack.tryPeek() == FUNCTION_KEYWORD) {
+						if (lastFoldableBeginStack.tryPeek() in NORMAL_LEFT) {
 							braceCount--
 							lastFoldableBeginStack.tryPop()
 						}

@@ -47,6 +47,7 @@ private privateOpAsSymbol::=
  | keywordsAsOp
  | typeAnnotationAsOp
  | interpolateAsOp
+ | privateExprInterpolateOp
 
 private privateOpSymbols::= privateUnaryOpAsSymbol | privateOperaSymbols
 private privateOperaSymbols ::=
@@ -156,15 +157,18 @@ statements ::= semi* (statement (semi+ statement)*)? semi* {
 }
 
 private statement ::=
+statementCanBeAsExpression
+ | multiAssignOp // in the situation it won't be regarded as `typedNamedVariable`
+ | expressionList
+ | expr
+
+private statementCanBeAsExpression::=
    moduleDeclaration
  | importExpr
  | importAllExpr
  | export
  | typeDeclaration
  | abstractTypeDeclaration
- | multiAssignOp // in the situation it won't be regarded as `typedNamedVariable`
- | expressionList
- | expr
 
 moduleDeclaration ::=
  (BAREMODULE_KEYWORD | MODULE_KEYWORD) symbol endOfLine
@@ -284,7 +288,7 @@ assignOp ::= expr commaSep? (EQ_SYM | ASSIGN_SYM) endOfLine statementEvenStupid 
 	mixin='org.ice1000.julia.lang.psi.impl.JuliaAssignOpMixin'
 }
 
-private statementEvenStupid ::= moduleDeclaration | typeDeclaration | abstractTypeDeclaration | expr
+private statementEvenStupid ::= statementCanBeAsExpression | expr
 
 multiAssignOp ::= strictExpressionList commaSep? (EQ_SYM | ASSIGN_SYM) endOfLine expressionList
 assignLevelOp ::= expr assignLevelOperator endOfLine expressionList { rightAssociative=true }
@@ -440,14 +444,15 @@ private quoteLevel ::=
 //colonSymBegins::= COLON_SYM endOfLine LEFT_BRACKET
 //colonOp ::= expr colonSymBegins expr RIGHT_BRACKET
 spliceOp ::= expr SLICE_SYM
-compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (expr endOfLine)* END_KEYWORD
+compoundQuoteOp ::= QUOTE_KEYWORD endOfLine (statementEvenStupid endOfLine)* END_KEYWORD
 quoteOp ::= COLON_SYM quotable
 private allowQuoteSymbols::= DOUBLE_COLON | DOT_SYM | privateOperaSymbols
 private quotable ::=
    unaryOpAsSymbol
+ | statementCanBeAsExpression
  | interpolateAsOp // unbracketed is useless, and idk why
  | allowQuoteSymbols
- | opAsSymbol+
+ | opAsSymbol
  | QUOTE_KEYWORD
  | (LEFT_BRACKET quotable RIGHT_BRACKET)
  | primaryExpr
@@ -539,7 +544,8 @@ unaryTypeOp ::= DOUBLE_COLON endOfLine expr
 unarySubtypeOp ::= SUBTYPE_SYM endOfLine expr
 unaryMinusOp ::= MINUS_SYM endOfLine expr
 unaryInterpolateOp ::= INTERPOLATE_SYM endOfLine expr
-exprInterpolateOp ::= EXPR_INTERPOLATE_START endOfLine expr typeAnnotation? SLICE_SYM? RIGHT_BRACKET
+exprInterpolateOp ::= privateExprInterpolateOp
+private privateExprInterpolateOp ::= EXPR_INTERPOLATE_START endOfLine expr typeAnnotation? SLICE_SYM? RIGHT_BRACKET
 notOp ::= NOT_SYM endOfLine expr
 unaryPlusOp ::= PLUS_SYM endOfLine expr
 
