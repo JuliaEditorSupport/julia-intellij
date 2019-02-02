@@ -165,6 +165,11 @@
 			parentId="Julia.Configuration"
 			displayName="Package Manager"
 			instance="org.ice1000.julia.lang.module.ui.JuliaPackageManagerImpl"/>
+		<projectConfigurable
+			order="last"
+			parentId="Julia.Configuration"
+			displayName="Markdown Settings"
+			instance="org.ice1000.julia.lang.module.ui.JuliaDocumentConfigurableImpl"/>
 		<moduleType
 			id="JULIA_MODULE_TYPE"
 			implementationClass="org.ice1000.julia.lang.module.JuliaModuleType"/>

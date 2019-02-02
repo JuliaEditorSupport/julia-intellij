@@ -6,9 +6,13 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
+import com.intellij.util.ui.ColorIcon
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor.CompletionHolder.STRING_COLORS_PRIORITY
+import org.ice1000.julia.lang.module.JULIA_COLOR_CONSTANTS
 import org.ice1000.julia.lang.psi.*
+import org.ice1000.julia.lang.psi.impl.prevRealSibling
 import kotlin.streams.toList
 
 
@@ -36,6 +40,21 @@ class JuliaModuleStubCompletionProvider : CompletionProvider<CompletionParameter
 						.prioritized(0))
 				}
 			}
+	}
+}
+
+class JuliaColorCompletionProvider : CompletionProvider<CompletionParameters>() {
+	override fun addCompletions(
+		parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+		val psiElement = parameters.originalPosition ?: return
+		val text = psiElement.text ?: return
+		if (psiElement.parent.parent.prevRealSibling?.text != "colorant") return
+		JULIA_COLOR_CONSTANTS.filter { it.key.contains(text) }.forEach {
+			result.addElement(LookupElementBuilder
+				.create(it.key)
+				.withIcon(ColorIcon(20, it.value.toColor()))
+				.prioritized(STRING_COLORS_PRIORITY))
+		}
 	}
 }
 
@@ -84,6 +103,12 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		 * @see [CompletionProcessor]
 		 */
 		const val KEYWORDS_PRIORITY = -0xbabe
+
+		/**
+		 * This completion is lower than [KEYWORDS_PRIORITY]
+		 * @see [CompletionProcessor]
+		 */
+		const val STRING_COLORS_PRIORITY = -0xC101A
 
 		private val statementBegin = listOf(
 			"type ",
@@ -239,6 +264,10 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			psiElement()
 				.inside(JuliaStatements::class.java),
 			JuliaModuleStubCompletionProvider())
+		extend(CompletionType.BASIC,
+			psiElement()
+				.inside(JuliaStringContent::class.java),
+			JuliaColorCompletionProvider())
 	}
 }
 

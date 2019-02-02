@@ -2,9 +2,16 @@ package org.ice1000.julia.lang.module.ui
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.browsers.BrowserLauncher
+import com.intellij.ide.highlighter.HighlighterFactory
 import com.intellij.ide.util.projectWizard.SettingsStep
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.*
+import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.fileEditor.*
+import com.intellij.openapi.fileTypes.*
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.Project
@@ -15,6 +22,7 @@ import com.intellij.platform.ProjectGeneratorPeer
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.ui.components.labels.LinkListener
 import icons.JuliaIcons
+import org.ice1000.julia.lang.JULIA_MARKDOWN_DARCULA_CSS
 import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.action.JuliaAddPkgAction
@@ -229,7 +237,7 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		packagesList.model = JuliaPackageTableModel(emptyArray(), JULIA_TABLE_HEADER_COLUMN)
 		val actions = DefaultActionGroup(
 			JuliaAddPkgAction(alternativeExecutables, beforeVersion07, this::loadPackages),
-			JuliaRemovePkgAction(alternativeExecutables, packagesList, beforeVersion07,this::loadPackages),
+			JuliaRemovePkgAction(alternativeExecutables, packagesList, beforeVersion07, this::loadPackages),
 			object : AnAction(JuliaIcons.REFRESH_ICON) {
 				override fun actionPerformed(e: AnActionEvent) = loadPackages()
 			})
@@ -347,5 +355,78 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 		/**
 		 * TODO packageInfo needs to be cached, see [juliaGlobalSettings]
 		 */
+	}
+}
+
+class JuliaDocumentConfigurableImpl(private val project: Project) : JuliaDocumentConfigurable() {
+	override fun getDisplayName() = JuliaBundle.message("julia.pkg-manager.title")
+
+	private var editorEx: EditorEx? = null
+
+	private fun createEditor(): EditorEx {
+		val editorFactory = EditorFactory.getInstance()
+		val defaultText = juliaGlobalSettings.markdownCssText.takeIf { it.isNotEmpty() } ?: JULIA_MARKDOWN_DARCULA_CSS
+		val editorDocument = editorFactory.createDocument(defaultText)
+		var editor: EditorEx? = null
+		ApplicationManager.getApplication().runWriteAction {
+			editor = editorFactory.createEditor(editorDocument) as EditorEx
+			val e = editor ?: return@runWriteAction
+			fillEditorSettings(e.settings)
+			setHighlighting(e)
+		}
+
+		return editor!!
+	}
+
+	private fun setHighlighting(editor: EditorEx) {
+		val cssFileType = FileTypeManager.getInstance().getFileTypeByExtension("css")
+		if (cssFileType !== UnknownFileType.INSTANCE) {
+			val editorHighlighter = HighlighterFactory.createHighlighter(cssFileType, EditorColorsManager.getInstance().globalScheme, null as Project?)
+			editor.highlighter = editorHighlighter
+		}
+	}
+
+	override fun disposeUIResources() {
+		val editorEx = editorEx ?: return
+		val editorFactory = EditorFactory.getInstance()
+		ApplicationManager.getApplication().runWriteAction {
+			editorFactory.releaseEditor(editorEx)
+		}
+	}
+
+	private fun fillEditorSettings(editorSettings: EditorSettings) {
+		editorSettings.isWhitespacesShown = false
+		editorSettings.isLineMarkerAreaShown = false
+		editorSettings.isIndentGuidesShown = false
+		editorSettings.isLineNumbersShown = true
+		editorSettings.isFoldingOutlineShown = false
+		editorSettings.additionalColumnsCount = 1
+		editorSettings.additionalLinesCount = 1
+		editorSettings.isUseSoftWraps = false
+	}
+
+	override fun createComponent(): JPanel {
+		editorEx = createEditor().apply {
+			contentComponent.isEnabled = true
+			setCaretEnabled(true)
+			editorPanel.add(this.component, "Center")
+		}
+		return mainPanel
+	}
+
+	override fun isModified(): Boolean {
+		val editorEx = editorEx ?: return false
+		return ApplicationManager.getApplication().runReadAction<Boolean> {
+			FileDocumentManager.getInstance().saveDocument(editorEx.document)
+			editorEx.document.text != juliaGlobalSettings.markdownCssText
+		}
+	}
+
+	override fun apply() {
+		val editorEx = editorEx ?: return
+		ApplicationManager.getApplication().runWriteAction {
+			FileDocumentManager.getInstance().saveDocument(editorEx.document)
+			juliaGlobalSettings.markdownCssText = editorEx.document.text
+		}
 	}
 }

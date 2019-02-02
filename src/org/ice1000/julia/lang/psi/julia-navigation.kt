@@ -3,8 +3,8 @@
 package org.ice1000.julia.lang.psi
 
 import com.google.gson.JsonParser
-import com.intellij.codeInsight.daemon.LineMarkerInfo
-import com.intellij.codeInsight.daemon.LineMarkerProvider
+import com.intellij.codeHighlighting.Pass
+import com.intellij.codeInsight.daemon.*
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.icons.AllIcons
@@ -24,6 +24,17 @@ import org.ice1000.julia.lang.psi.impl.*
 import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import com.intellij.util.FunctionUtil
+import com.intellij.util.ui.TwoColorsIcon
+import javax.swing.Icon
+import com.intellij.openapi.editor.markup.GutterIconRenderer
+import com.intellij.psi.util.PsiUtilBase
+import com.intellij.openapi.editor.ElementColorProvider
+import com.intellij.ui.ColorChooser
+import com.intellij.util.ui.ColorIcon
+import org.ice1000.julia.lang.module.JULIA_COLOR_CONSTANTS
+import java.awt.Color
+
 
 /**
  * Goto JuliaFile in a string by Ctrl/Meta + Click
@@ -134,6 +145,8 @@ class JuliaLineMarkerProvider : LineMarkerProvider {
 	companion object {
 		val overridenTypeIcon = AllIcons.Gutter.OverridenMethod // ↓
 		val overridingIcon = AllIcons.Gutter.OverridingMethod // ♂
+		private val mapfileElementColorProvider = JuliaFileElementColorProvider()
+
 	}
 
 	override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
@@ -175,11 +188,104 @@ class JuliaLineMarkerProvider : LineMarkerProvider {
 						.setTargets(target)
 						.createLineMarkerInfo(element)
 				}
+				element.parent is JuliaImplicitMultiplyOp && element.nextRealSibling is JuliaString -> {
+					if (element.text == "colorant") {
+						val stringPart = (element.nextRealSibling as? JuliaString) ?: return null
+						val color = mapfileElementColorProvider.getColorFrom(stringPart) ?: return null
+						val info = MyColorInfo(element, color, mapfileElementColorProvider)
+						NavigateAction.setNavigateAction(info, "Choose color", null)
+						return info
+					}
+				}
 			}
 		}
+
 		return null
 	}
 
 	override fun collectSlowLineMarkers(elements: MutableList<PsiElement>, result: MutableCollection<LineMarkerInfo<PsiElement>>) {
 	}
+
+	private class MyColorInfo internal
+	constructor(element: PsiElement, private val color: Color, colorProvider: ElementColorProvider)
+		: MergeableLineMarkerInfo<PsiElement>(element, element.textRange, ColorIcon(12, color), Pass.UPDATE_ALL, FunctionUtil.nullConstant<Any, String>(),
+		GutterIconNavigationHandler<PsiElement> { e, elt ->
+			if (!elt.isWritable) return@GutterIconNavigationHandler
+
+			val editor = PsiUtilBase.findEditor(element)!!
+			val c = ColorChooser.chooseColor(editor.component, "Choose Color", color, false)
+			if (c != null) {
+				try {
+					colorProvider.setColorTo(element, c)
+				} catch (e: Exception) {
+					e.printStackTrace()
+				}
+			}
+		}, GutterIconRenderer.Alignment.LEFT) {
+
+		override fun canMergeWith(info: MergeableLineMarkerInfo<*>): Boolean = info is MyColorInfo
+
+		override fun getCommonIcon(infos: List<MergeableLineMarkerInfo<*>>): Icon {
+			return if (infos.size == 2 && infos[0] is MyColorInfo && infos[1] is MyColorInfo) {
+				TwoColorsIcon(12, (infos[0] as MyColorInfo).color, (infos[1] as MyColorInfo).color)
+			} else AllIcons.Gutter.Colors
+		}
+	}
 }
+
+class JuliaFileElementColorProvider : ElementColorProvider {
+	override fun setColorTo(element: PsiElement, color: Color) {
+	}
+
+	/**
+	 *
+	 * @param element [PsiElement] which is [JuliaString]
+	 * @return Color?
+	 */
+	override fun getColorFrom(element: PsiElement): Color? {
+		if (element !is JuliaString) return null
+		val content = element.stringContentList.firstOrNull() ?: return null
+		return parseColor(content.text)
+	}
+
+	companion object {
+		@JvmStatic
+		fun parseColor(content: String): Color? {
+			return try {
+				if (content.startsWith('#')) {
+					when {
+						content.length >= 9 -> Color.decode(content.substring(0, 9))
+						content.length >= 7 -> Color.decode(content.substring(0, 7))
+						content.length >= 4 -> Color(content[1].toColorInt(), content[2].toColorInt(), content[3].toColorInt())
+						else -> null
+					}
+				} else {
+					JULIA_COLOR_CONSTANTS[content]?.toColor()
+				}
+			} catch (e: Exception) {
+				e.printStackTrace()
+				null
+			}
+		}
+
+	}
+}
+
+/**
+ * @sample "#FFF" -> Color(255,255,255)
+ * @sample "#EFE" -> Color(238,255,238)
+ * @receiver Char
+ * @return Int
+ */
+private fun Char.toColorInt() = when {
+	this in '0'..'9' -> this - '0'
+	this in 'a'..'f' -> this - 'a' + 10
+	this in 'A'..'F' -> this - 'A' + 10
+	else -> 0
+} * 17
+
+fun Int.toColor() = Color(
+	this shr 16 and 0xFF,
+	this shr 8 and 0xFF,
+	this and 0xFF
+)

@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.ui.content.ContentFactory
 import com.intellij.util.ui.UIUtil
 import org.apache.commons.lang.StringEscapeUtils
+import org.ice1000.julia.lang.JULIA_MARKDOWN_DARCULA_CSS
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.module.*
 import org.ice1000.julia.lang.module.ui.JuliaDocumentWindow
@@ -49,7 +50,8 @@ class JuliaDocumentProvider : AbstractDocumentationProvider() {
 		val STYLE_HTML: String
 			get() =
 				if (UIUtil.isUnderDarcula()) {
-					"""<style>code{color:rgb(255,121,198)}</style>"""
+					val defaultText = juliaGlobalSettings.markdownCssText.takeIf { it.isNotEmpty() } ?: JULIA_MARKDOWN_DARCULA_CSS
+					"<style>$defaultText</style>"
 				} else {
 					"""<style>code{color:rgb(176,55,118)}</style>"""
 				}

@@ -9,7 +9,7 @@ import java.util.*
  */
 class JuliaCharEscapeHintTest {
 	@Test
-	fun testSplitsOf(){
+	fun testSplitsOf() {
 		println("""\xe\asa\s\s"""
 			.splitsOf("\\", 2)
 			.joinToString(","))
@@ -57,4 +57,10 @@ fun String.splitWithLength(len: Int): Array<String> {
 }
 
 fun String.parseToInt() = Integer.parseInt(this, 16)
-infix fun Any?.shouldBe(other: Any?) = assert(this == other)
+
+infix fun Any?.shouldBe(other: Any?) = (this == other).apply {
+	if (!this) {
+		System.err.println("It should be $other but it is ${this@shouldBe}")
+	}
+	assert(this)
+}
