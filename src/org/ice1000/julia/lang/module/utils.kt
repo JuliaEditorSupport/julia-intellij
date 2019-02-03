@@ -18,7 +18,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.ComboboxWithBrowseButton
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.intellij.plugins.markdown.settings.MarkdownCssSettings
 import java.awt.event.ActionListener
 import java.nio.file.Files
 import java.nio.file.Paths
