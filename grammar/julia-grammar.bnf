@@ -47,6 +47,7 @@ private privateOpAsSymbol::=
  | keywordsAsOp
  | typeAnnotationAsOp
  | interpolateAsOp
+ | interpolateSymbolAsOp
  | privateExprInterpolateOp
 
 private privateOpSymbols::= privateUnaryOpAsSymbol | privateOperaSymbols
@@ -530,14 +531,14 @@ typeOp ::= expr DOUBLE_COLON endOfLine type
 // level 15
 private unaryLevel ::=
 //OpAsSymbol
-  unaryPlusOp
- | unaryMinusOp
- | unaryTypeOp
- | unarySubtypeOp
- | exprInterpolateOp
- | unaryInterpolateOp
- | notOp
- | bitWiseNotOp
+  unaryPlusOp // +
+ | unaryMinusOp // -
+ | unaryTypeOp // ::
+ | unarySubtypeOp // <:
+ | exprInterpolateOp // $
+ | unaryInterpolateOp // !
+ | notOp // !
+ | bitWiseNotOp // ~
 
 bitWiseNotOp ::= BITWISE_NOT_SYM endOfLine expr
 unaryTypeOp ::= DOUBLE_COLON endOfLine expr
@@ -579,7 +580,6 @@ private primaryExpr ::=
  | importExpr
  | importAllExpr
  | using
-// | abstractTypeDeclaration
  | primitiveTypeDeclaration
  | typeAlias
  | symbolLhs
