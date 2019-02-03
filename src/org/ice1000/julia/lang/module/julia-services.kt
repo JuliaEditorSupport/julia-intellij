@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.XmlSerializationException
 import com.intellij.util.xmlb.XmlSerializerUtil
 import org.ice1000.julia.lang.JULIA_MARKDOWN_DARCULA_CSS
+import org.ice1000.julia.lang.JULIA_MARKDOWN_INTELLIJ_CSS
 import java.io.File
 
 /**
@@ -19,7 +20,8 @@ interface JuliaGlobalSettingsService {
 	val knownJuliaExes: MutableSet<String>
 	val packagesInfo: MutableSet<InfoData>
 	var globalUnicodeInput: Boolean
-	var markdownCssText: String
+	var darculaThemeCssText: String
+	var intellijThemeCssText: String
 }
 
 val Project.juliaSettings: JuliaProjectSettingsService
@@ -57,7 +59,8 @@ class JuliaGlobalSettingsServiceImpl :
 	override val knownJuliaExes: MutableSet<String> = hashSetOf()
 	override val packagesInfo: MutableSet<InfoData> = hashSetOf()
 	override var globalUnicodeInput: Boolean = false
-	override var markdownCssText: String = JULIA_MARKDOWN_DARCULA_CSS
+	override var darculaThemeCssText: String = JULIA_MARKDOWN_DARCULA_CSS
+	override var intellijThemeCssText: String = JULIA_MARKDOWN_INTELLIJ_CSS
 	private fun invalidate() = knownJuliaExes.removeAll { !validateJuliaExe(it) }
 	override fun getState(): JuliaGlobalSettings2 {
 		invalidate()
@@ -65,13 +68,15 @@ class JuliaGlobalSettingsServiceImpl :
 			globalUnicodeInput,
 			knownJuliaExes.joinToString(File.pathSeparator),
 			packagesInfo.joinToString(File.pathSeparator) { "${it.name} ${it.version} ${it.latestVersion}" },
-			markdownCssText)
+			darculaThemeCssText,
+			intellijThemeCssText)
 	}
 
 	override fun loadState(state: JuliaGlobalSettings2) {
 		invalidate()
 		globalUnicodeInput = state.globalUnicodeInput
-		markdownCssText = state.markdownCssText
+		darculaThemeCssText = state.markdownCssText
+		intellijThemeCssText = state.intellijThemeCssText
 		knownJuliaExes += state.allJuliaExePath.split(File.pathSeparatorChar)
 		state.packagesInfo.split(File.pathSeparatorChar).mapNotNullTo(packagesInfo) {
 			val (name, version, latest) = it

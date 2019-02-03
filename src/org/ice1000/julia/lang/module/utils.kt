@@ -75,7 +75,8 @@ class JuliaGlobalSettings2(
 	var globalUnicodeInput: Boolean = false,
 	var allJuliaExePath: String = "",
 	var packagesInfo: String = "",
-	var markdownCssText: String = "")
+	var markdownCssText: String = "",
+	var intellijThemeCssText: String = "")
 
 class JuliaSettings(
 	var importPath: String = "",

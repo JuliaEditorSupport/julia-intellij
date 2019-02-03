@@ -6,5 +6,6 @@ import javax.swing.*;
 
 public abstract class JuliaDocumentConfigurable implements Configurable {
 	protected JPanel mainPanel;
-	protected JPanel editorPanel;
+	protected JPanel darculaEditorPanel;
+	protected JPanel intellijEditorPanel;
 }

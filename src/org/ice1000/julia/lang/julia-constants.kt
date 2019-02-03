@@ -48,7 +48,11 @@ const val JULIA_IN_EXPR_STARTING_AT_LEN = JULIA_IN_EXPR_STARTING_AT.length
 const val JULIA_VERSION_NUMBER_REGEX_PRE_I = """^(?:|[0-9a-z-]*[a-z-][0-9a-z-]*)$"""
 @Language("CSS")
 const val JULIA_MARKDOWN_DARCULA_CSS = """code{
-    color: rgb(255,121,198)
+    color: #FF79C6
+}"""
+@Language("CSS")
+const val JULIA_MARKDOWN_INTELLIJ_CSS = """code{
+    color: #B03776
 }"""
 @NonNls const val JULIA_DEFAULT_MODULE_NAME = "MyBizarreJuliaModule"
 @NonNls const val JULIA_WEBSITE = "https://julialang.org/downloads/"

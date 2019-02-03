@@ -23,6 +23,7 @@ import com.intellij.psi.stubs.StubIndex
 import com.intellij.ui.components.labels.LinkListener
 import icons.JuliaIcons
 import org.ice1000.julia.lang.JULIA_MARKDOWN_DARCULA_CSS
+import org.ice1000.julia.lang.JULIA_MARKDOWN_INTELLIJ_CSS
 import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.action.JuliaAddPkgAction
@@ -361,11 +362,18 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 class JuliaDocumentConfigurableImpl(private val project: Project) : JuliaDocumentConfigurable() {
 	override fun getDisplayName() = JuliaBundle.message("julia.pkg-manager.title")
 
-	private var editorEx: EditorEx? = null
+	private var darculaEditorEx: EditorEx? = null
+	private var intellijEditorEx: EditorEx? = null
 
-	private fun createEditor(): EditorEx {
+	private fun createEditor(isUnderDarcula: Boolean = true): EditorEx {
 		val editorFactory = EditorFactory.getInstance()
-		val defaultText = juliaGlobalSettings.markdownCssText.takeIf { it.isNotEmpty() } ?: JULIA_MARKDOWN_DARCULA_CSS
+		val defaultText = if (isUnderDarcula) {
+			juliaGlobalSettings.darculaThemeCssText.takeIf { it.isNotEmpty() }
+				?: JULIA_MARKDOWN_DARCULA_CSS
+		} else {
+			juliaGlobalSettings.intellijThemeCssText.takeIf { it.isNotEmpty() }
+				?: JULIA_MARKDOWN_INTELLIJ_CSS
+		}
 		val editorDocument = editorFactory.createDocument(defaultText)
 		var editor: EditorEx? = null
 		ApplicationManager.getApplication().runWriteAction {
@@ -387,10 +395,18 @@ class JuliaDocumentConfigurableImpl(private val project: Project) : JuliaDocumen
 	}
 
 	override fun disposeUIResources() {
-		val editorEx = editorEx ?: return
 		val editorFactory = EditorFactory.getInstance()
-		ApplicationManager.getApplication().runWriteAction {
-			editorFactory.releaseEditor(editorEx)
+
+		darculaEditorEx?.let {
+			ApplicationManager.getApplication().runWriteAction {
+				editorFactory.releaseEditor(it)
+			}
+		}
+
+		intellijEditorEx?.let {
+			ApplicationManager.getApplication().runWriteAction {
+				editorFactory.releaseEditor(it)
+			}
 		}
 	}
 
@@ -406,27 +422,36 @@ class JuliaDocumentConfigurableImpl(private val project: Project) : JuliaDocumen
 	}
 
 	override fun createComponent(): JPanel {
-		editorEx = createEditor().apply {
+		darculaEditorEx = createEditor().apply {
 			contentComponent.isEnabled = true
 			setCaretEnabled(true)
-			editorPanel.add(this.component, "Center")
+			darculaEditorPanel.add(this.component, "Center")
+		}
+		intellijEditorEx = createEditor(isUnderDarcula = false).apply {
+			contentComponent.isEnabled = true
+			setCaretEnabled(true)
+			intellijEditorPanel.add(this.component, "Center")
 		}
 		return mainPanel
 	}
 
 	override fun isModified(): Boolean {
-		val editorEx = editorEx ?: return false
+		val darculaEditorEx = darculaEditorEx ?: return false
+		val intellijEditorEx = intellijEditorEx ?: return false
 		return ApplicationManager.getApplication().runReadAction<Boolean> {
-			FileDocumentManager.getInstance().saveDocument(editorEx.document)
-			editorEx.document.text != juliaGlobalSettings.markdownCssText
+			darculaEditorEx.document.text != juliaGlobalSettings.darculaThemeCssText
+				|| intellijEditorEx.document.text != juliaGlobalSettings.intellijThemeCssText
 		}
 	}
 
 	override fun apply() {
-		val editorEx = editorEx ?: return
+		val darculaEditorEx = darculaEditorEx ?: return
+		val intellijEditorEx = intellijEditorEx ?: return
 		ApplicationManager.getApplication().runWriteAction {
-			FileDocumentManager.getInstance().saveDocument(editorEx.document)
-			juliaGlobalSettings.markdownCssText = editorEx.document.text
+			FileDocumentManager.getInstance().saveDocument(darculaEditorEx.document)
+			FileDocumentManager.getInstance().saveDocument(intellijEditorEx.document)
+			juliaGlobalSettings.darculaThemeCssText = darculaEditorEx.document.text
+			juliaGlobalSettings.intellijThemeCssText = intellijEditorEx.document.text
 		}
 	}
 }
