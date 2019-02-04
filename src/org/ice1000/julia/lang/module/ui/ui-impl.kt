@@ -28,6 +28,7 @@ import org.ice1000.julia.lang.JULIA_TABLE_HEADER_COLUMN
 import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.action.JuliaAddPkgAction
 import org.ice1000.julia.lang.action.JuliaRemovePkgAction
+import org.ice1000.julia.lang.action.errorNotification
 import org.ice1000.julia.lang.module.*
 import java.awt.BorderLayout
 import java.nio.file.Files
@@ -303,30 +304,35 @@ class JuliaPackageManagerImpl(private val project: Project) : JuliaPackageManage
 					} else {
 						val versionDir = "v" + settings.version.substringBeforeLast(".")
 						val manifestTomlFile = Paths.get(envdir, versionDir, "Manifest.toml").toFile()
-						var cur = ""
-						val map: Map<String, String> = manifestTomlFile.readLines().mapNotNull {
-							when {
-								it.startsWith("[[") -> {
-									cur = it.substring(2, it.lastIndex - 1)
-									null
+						if (manifestTomlFile.exists()) {
+							var currentPackage = ""
+							val map: Map<String, String> = manifestTomlFile.readLines().mapNotNull {
+								when {
+									it.startsWith("[[") -> {
+										currentPackage = it.substring(2, it.lastIndex - 1)
+										null
+									}
+									it.startsWith("version") -> {
+										val ver = it.split(" ").last().trim('"')
+										currentPackage to ver
+									}
+									// TODO load its `dependencies`
+									else -> null
 								}
-								it.startsWith("version") -> {
-									val ver = it.split(" ").last().trim('"')
-									cur to ver
-								}
-								else -> null
-							}
-						}.toMap()
-						namesList.asSequence().mapIndexed { index, it ->
-							// process bar indicator percentage
-							indicator.fraction = index / sizeToDouble
-							val currentVersionString = map[it] ?: ""
-							// second column value
-							tempDataModel.setValueAt(currentVersionString, index, 1)
-							it to currentVersionString
-						}.toList()
+							}.toMap()
+							namesList.asSequence().mapIndexed { index, it ->
+								// process bar indicator percentage
+								indicator.fraction = index / sizeToDouble
+								val currentVersionString = map[it] ?: ""
+								// second column value
+								tempDataModel.setValueAt(currentVersionString, index, 1)
+								it to currentVersionString
+							}.toList()
+						} else {
+							errorNotification(project, "Cannot find ${manifestTomlFile.canonicalPath}", "Julia Package Manager")
+							emptyList()
+						}
 					}
-
 				packagesList.model = tempDataModel
 				packagesInfo.clear()
 				versionList.mapTo(packagesInfo) { InfoData(it.first, it.second) }

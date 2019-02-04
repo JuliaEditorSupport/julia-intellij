@@ -84,10 +84,10 @@ class JuliaSendSelectionToReplAction : JuliaSendCodeToReplAction(
 	}
 }
 
-fun errorNotification(project: Project? = null, message: String) {
+fun errorNotification(project: Project? = null, message: String, title: String = JuliaBundle.message("julia.actions.repl.error-title")) {
 	Notifications.Bus.notify(Notification(
 		REPL_ERROR_TAG,
-		JuliaBundle.message("julia.actions.repl.error-title"),
+		title,
 		message,
 		NotificationType.ERROR), project)
 }
