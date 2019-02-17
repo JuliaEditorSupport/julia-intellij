@@ -1,7 +1,11 @@
 package org.ice1000.julia.lang.action
 
-import com.intellij.codeInsight.completion.*
-import com.intellij.codeInsight.lookup.*
+import com.intellij.codeInsight.completion.CompletionParameters
+import com.intellij.codeInsight.completion.CompletionResultSet
+import com.intellij.codeInsight.completion.PlainPrefixMatcher
+import com.intellij.codeInsight.lookup.CharFilter
+import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
@@ -13,7 +17,10 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.ui.popup.*
+import com.intellij.openapi.ui.popup.JBPopup
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.JBPopupListener
+import com.intellij.openapi.ui.popup.LightweightWindowEvent
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.textCompletion.TextCompletionProvider
@@ -21,9 +28,12 @@ import com.intellij.util.textCompletion.TextFieldWithCompletion
 import com.intellij.util.ui.JBUI
 import icons.JuliaIcons
 import org.apache.commons.lang.StringEscapeUtils
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.execution.toUnixPath
-import org.ice1000.julia.lang.module.*
+import org.ice1000.julia.lang.module.juliaGlobalSettings
+import org.ice1000.julia.lang.module.juliaSettings
+import org.ice1000.julia.lang.module.languageServer
+import org.ice1000.julia.lang.orFalse
 import java.awt.event.KeyEvent
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -139,8 +149,9 @@ class JuliaUnicodeInputAction : JuliaAction(
 	}
 
 	override fun update(e: AnActionEvent) {
-		e.presentation.isEnabledAndVisible = juliaGlobalSettings.globalUnicodeInput || CommonDataKeys.EDITOR.getData(e.dataContext) != null
-		(fileType(e) && e.project?.run { juliaSettings.settings.unicodeEnabled }.orFalse())
+		e.presentation.isEnabledAndVisible =
+			(juliaGlobalSettings.globalUnicodeInput && CommonDataKeys.EDITOR.getData(e.dataContext) != null) ||
+				(fileType(e) && e.project?.run { juliaSettings.settings.unicodeEnabled }.orFalse())
 	}
 }
 
