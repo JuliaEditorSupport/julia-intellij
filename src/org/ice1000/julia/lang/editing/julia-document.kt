@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiManager
 import com.intellij.ui.content.ContentFactory
 import com.intellij.util.ui.UIUtil
 import org.apache.commons.lang.StringEscapeUtils
@@ -51,14 +52,11 @@ class JuliaDocumentProvider : AbstractDocumentationProvider() {
 		val STYLE_HTML: String
 			get() =
 				if (UIUtil.isUnderDarcula()) {
-					val defaultText = juliaGlobalSettings.darculaThemeCssText.takeIf { it.isNotEmpty() }
-						?: JULIA_MARKDOWN_DARCULA_CSS
-					"<style>$defaultText</style>"
+					juliaGlobalSettings.darculaThemeCssText.takeIf { it.isNotEmpty() } ?: JULIA_MARKDOWN_DARCULA_CSS
 				} else {
-					val defaultText = juliaGlobalSettings.intellijThemeCssText.takeIf { it.isNotEmpty() }
-						?: JULIA_MARKDOWN_INTELLIJ_CSS
-					"<style>$defaultText</style>"
-				}
+					juliaGlobalSettings.intellijThemeCssText.takeIf { it.isNotEmpty() } ?: JULIA_MARKDOWN_INTELLIJ_CSS
+				}.let { "<style>$it</style>" }
+
 	}
 }
 

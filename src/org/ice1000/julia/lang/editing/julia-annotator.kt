@@ -75,7 +75,8 @@ class JuliaAnnotator : Annotator {
 	private fun compactFunction(
 		element: JuliaCompactFunction, holder: AnnotationHolder, settings: JuliaSettings) {
 		val typeParams = element.typeParameters
-		val name = element.name
+		val nameIdentifier = element.nameIdentifier ?: return
+		val name = nameIdentifier.text
 		val signature = element.functionSignature
 		val functionBody = element.exprList.lastOrNull()?.text.orEmpty()
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.compact-function"))
@@ -83,10 +84,7 @@ class JuliaAnnotator : Annotator {
 				element, """function $name${typeParams?.text.orEmpty()}${element.functionSignature.text}
 ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $functionBody\n"}end""",
 				JuliaBundle.message("julia.lint.replace-ordinary-function")))
-		docStringFunction(element, signature, holder, name, "", signatureText = signature
-			.typedNamedVariableList
-			.joinToString(", ") { it.exprList.firstOrNull()?.text.orEmpty() }
-			.let { "($it)" }, settings = settings)
+		docStringFunction(element, signature, holder, name, "", generateSignature(signature), settings)
 	}
 
 	private fun function(
@@ -120,11 +118,18 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 							JuliaBundle.message("julia.lint.replace-compact-function")))
 			}
 		}
-		docStringFunction(element, signature, holder, name, typeParamsText, signature
+		docStringFunction(element, signature, holder, name, typeParamsText, generateSignature(signature), settings)
+	}
+
+	private fun generateSignature(signature: JuliaFunctionSignature?): String {
+		return signature
 			?.typedNamedVariableList
 			.orEmpty()
-			.joinToString(", ") { it.exprList.firstOrNull()?.text.orEmpty() }
-			.let { "($it)" }, settings)
+			.joinToString(", ") {
+				it.exprList.firstOrNull()?.text.orEmpty() +
+					it.typeAnnotation?.text?.replace(" ", "").takeIf { it != "Any" }.orEmpty()
+			}
+			.let { "($it)" }
 	}
 
 	private fun docStringFunction(

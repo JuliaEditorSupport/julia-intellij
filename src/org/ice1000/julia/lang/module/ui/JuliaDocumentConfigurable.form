@@ -16,6 +16,14 @@
           <text value="Custom CSS (IntelliJ)"/>
         </properties>
       </component>
+      <grid id="13952" binding="intellijEditorPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children/>
+      </grid>
       <grid id="d0fd9" binding="darculaEditorPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -32,14 +40,6 @@
           <text value="Custom CSS (Darcula)"/>
         </properties>
       </component>
-      <grid id="13952" binding="intellijEditorPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
-        <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children/>
-      </grid>
     </children>
   </grid>
 </form>
