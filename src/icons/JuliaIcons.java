@@ -18,7 +18,7 @@ public interface JuliaIcons {
 	@NotNull Icon JULIA_MODULE_ICON = IconLoader.getIcon("/icons/julia_module.png");
 	@NotNull Icon JULIA_TYPE_ICON = IconLoader.getIcon("/icons/julia_type.png");
 	@NotNull
-	Icon JULIA_ABSTRACT_TYPE_ICON = IconLoader.getIcon("icons/svg/julia_abstract_type.png");
+	Icon JULIA_ABSTRACT_TYPE_ICON = IconLoader.getIcon("icons/julia_abstract_type.png");
 	@NotNull Icon JULIA_FUNCTION_ICON = IconLoader.getIcon("/icons/field.png");
 	@NotNull Icon JULIA_VARIABLE_ICON = IconLoader.getIcon("/icons/field_variable.png");
 	@NotNull Icon JULIA_CONST_ICON = IconLoader.getIcon("/icons/const.png");
