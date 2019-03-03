@@ -15,15 +15,15 @@ This is a **work in progress**, some features are implemented partially, there m
   </tr>
   <tr>
     <td>Travis CI (with IdeaC)</td>
-    <td><a href="https://travis-ci.org/ice1000/julia-intellij"><img src="https://travis-ci.org/ice1000/julia-intellij.svg" alt="Travis CI Build status"></a></td>
+    <td><a href="https://travis-ci.org/JuliaEditorSupport/julia-intellij"><img src="https://travis-ci.org/JuliaEditorSupport/julia-intellij.svg" alt="Travis CI Build status"></a></td>
   </tr>
   <tr>
     <td>AppVeyor (on Windows)</td>
-    <td><a href="https://ci.appveyor.com/project/ice1000/julia-intellij"><img src="https://ci.appveyor.com/api/projects/status/jboqu7yt2vhqpmfr?svg=true" alt="AppVeyor Build status"></a></td>
+    <td><a href="https://ci.appveyor.com/project/JuliaEditorSupport/julia-intellij"><img src="https://ci.appveyor.com/api/projects/status/ogmg2msv1564tkcn/branch/master?svg=true" alt="AppVeyor Build status"></a></td>
   </tr>
   <tr>
     <td>CircleCI (with tests)</td>
-    <td><a href="https://circleci.com/gh/ice1000/julia-intellij"><img src="https://circleci.com/gh/ice1000/julia-intellij.svg?style=svg" alt="CircleCI Build status"></a></td>
+    <td><a href="https://circleci.com/gh/JuliaEditorSupport/julia-intellij"><img src="https://circleci.com/gh/JuliaEditorSupport/julia-intellij.svg?style=svg" alt="CircleCI Build status"></a></td>
   </tr>
   <tr>
     <td>CodeShip (branch master)</td>
@@ -38,8 +38,8 @@ open `Settings | Plugins | Browse repositories`,
 install Julia plugin, and create a Julia project.
 
 For detailed use instruction, visit: https://julia-intellij.readthedocs.io/en/latest/<br/>
-To download a nightly build (buggy!), visit https://ci.appveyor.com/project/ice1000/julia-intellij/build/artifacts/ .<br/>
-To learn about the test summery, visit https://circleci.com/build-insights/gh/ice1000/julia-intellij/master .
+To download a nightly build (buggy!), visit https://ci.appveyor.com/project/JuliaEditorSupport/julia-intellij/build/artifacts/ .<br/>
+To learn about the test summery, visit https://circleci.com/build-insights/gh/JuliaEditorSupport/julia-intellij/master .
 
 ### Video Instructions
 
@@ -89,7 +89,7 @@ you'll find 4 related repositories:
 + snefru/juliafy (incomplete syntax highlight, SDK management, file recognizing, only support MacOS)
 + sysint64/intellij-julia (this only recognize your file as a `Julia file`, and do nothing else)
 + satamas/julia-plugin (ditto)
-+ ice1000/julia-intellij (too many [features](https://julia-intellij.readthedocs.io/en/latest/Features.html), can't list here)
++ JuliaEditorSupport/julia-intellij (too many [features](https://julia-intellij.readthedocs.io/en/latest/Features.html), can't list here)
 
 Now you know your choice 😉
 
@@ -100,7 +100,7 @@ Check out [CONTRIBUTING.md](./CONTRIBUTING.md) to learn how to setup the project
 
 ## Contributors
 
-+ [@ice1000](https://github.com/ice1000)
-+ [@zxj5470](https://github.com/zxj5470)
++ [**@ice1000**](https://github.com/ice1000)
++ [**@zxj5470**](https://github.com/zxj5470)
 + [@HoshinoTented](https://github.com/HoshinoTented)
 + [@Hexadecimal](https://github.com/Hexadecimaaal)
