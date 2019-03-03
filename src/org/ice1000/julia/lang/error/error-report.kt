@@ -57,7 +57,7 @@ import javax.crypto.spec.SecretKeySpec
 
 private object AnonymousFeedback {
 	private const val tokenFile = "org/ice1000/julia/lang/error-report/token.bin"
-	private const val gitRepoUser = "ice1000"
+	private const val gitRepoUser = "JuliaEditorSupport"
 	private const val gitRepo = "julia-intellij"
 	private const val issueLabel = "pending"
 
