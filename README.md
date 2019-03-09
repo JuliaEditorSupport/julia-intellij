@@ -70,6 +70,8 @@ To learn about the test summery, visit https://circleci.com/build-insights/gh/Ju
 ### Debugger (nightly-build)
 > based on DebuggerFramework and ASTInterpreter2
 
+[Debugger Usage Documentation](https://zxj5470.github.io/julia/2019/01/04/julia_en.html)
+
 ![](https://user-images.githubusercontent.com/20026798/50418049-670a7080-0864-11e9-96cf-d0ebc5b26431.gif)
 
 ## Compatible IDEs
