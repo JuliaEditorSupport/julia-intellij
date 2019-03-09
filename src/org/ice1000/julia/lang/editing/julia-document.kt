@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiManager
 import com.intellij.ui.content.ContentFactory
 import com.intellij.util.ui.UIUtil
 import org.apache.commons.lang.StringEscapeUtils
@@ -28,23 +27,40 @@ class JuliaDocumentProvider : AbstractDocumentationProvider() {
 	override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
 		val symbol = element ?: return null
 		val parent = symbol.parent as? DocStringOwner
+		val name = "# ${symbol.text}\n"
 		return when {
 			// function declaration by written
 			parent != null -> {
-				val name = "# ${symbol.text}\n"
-				parent.docString?.text?.trim('"')?.let {
-					STYLE_HTML + SimplifyJBMarkdownUtil.generateMarkdownHtml(name + it)
-				}
+				val content = parent.docString?.text
+				buildDocument(content, name)
 			}
-			// if Docs.doc can find
 			symbol is JuliaSymbol -> {
-				val ret = symbol.project.languageServer.searchDocsByName(symbol.text) ?: return null
-				val unescaped = StringEscapeUtils.unescapeJava(ret.trim('"'))
-				if (unescaped.startsWith("__INTELLIJ__")) return null
-				STYLE_HTML + SimplifyJBMarkdownUtil.generateMarkdownHtml(unescaped)
+				// find previous docs
+				val symbolOrLhs = symbol.parent.takeIf { it is JuliaSymbolLhs } ?: symbol
+				when {
+					symbolOrLhs.parent is JuliaAssignOp -> {
+						val stringElement = symbolOrLhs.parent.prevRealSibling?.takeIf { it is JuliaString }
+						return buildDocument(stringElement?.text, name) ?: searchFromLanguageServer(symbol)
+					}
+					else -> // else use LanguageServer
+						return searchFromLanguageServer(symbol)
+				}
 			}
 			else -> null
 		}
+	}
+
+	private fun buildDocument(content: String?, symbolName: String): String? {
+		return content?.trim('"')?.let {
+			STYLE_HTML + SimplifyJBMarkdownUtil.generateMarkdownHtml(symbolName + it)
+		}
+	}
+
+	private fun searchFromLanguageServer(symbol: JuliaSymbol): String? {
+		val ret = symbol.project.languageServer.searchDocsByName(symbol.text) ?: return null
+		val unescaped = StringEscapeUtils.unescapeJava(ret.trim('"'))
+		if (unescaped.startsWith("__INTELLIJ__")) return null
+		else return STYLE_HTML + SimplifyJBMarkdownUtil.generateMarkdownHtml(unescaped)
 	}
 
 	companion object {

@@ -43,7 +43,7 @@ val PsiElement.prevRealSibling: PsiElement?
 	get() {
 		var pre = this.prevSibling
 		while (pre != null) {
-			if (pre is PsiWhiteSpace) {
+			if (pre is PsiWhiteSpace || pre.elementType == JuliaTypes.EOL) {
 				pre = pre.prevSibling
 			} else {
 				return pre

@@ -18,8 +18,8 @@ Install IntelliJ IDEA (or other JetBrains IntelliJ platform IDEs such as PyCharm
 
 ## Dependencies
 
-- ASTInterpreter2#master
-- DebuggerFramework#master
+- ASTInterpreter2#73711a4
+- DebuggerFramework#78d649e
 - JSON
 - Julia 0.7+
 
@@ -27,8 +27,8 @@ Install IntelliJ IDEA (or other JetBrains IntelliJ platform IDEs such as PyCharm
 
 ### add packages
 ```julia
-(v1.0) pkg> add DebuggerFramework#master
-(v1.0) pkg> add ASTInterpreter2#master
+(v1.0) pkg> add DebuggerFramework#78d649e
+(v1.0) pkg> add ASTInterpreter2#73711a4
 (v1.0) pkg> add JSON
 ```
 

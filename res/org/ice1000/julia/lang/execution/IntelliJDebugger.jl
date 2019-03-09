@@ -15,13 +15,13 @@ if VERSION >= v"0.7.0"
     if "DebuggerFramework" in keys(pkgs) && pkgs["DebuggerFramework"] >= v"0.1.2+"
         println("DebuggerFramework version $(pkgs["DebuggerFramework"]) correct.")
     else
-        println("please add latest version DebuggerFramework by `add DebuggerFramework#78d649e` within pkg REPL.")
+        println("please add lagacy version DebuggerFramework by `add DebuggerFramework#78d649e` within pkg REPL.")
     end
 
     if "ASTInterpreter2" in keys(pkgs) && pkgs["ASTInterpreter2"] >= v"0.1.1+"
         println("ASTInterpreter2 version $(pkgs["ASTInterpreter2"]) correct.")
     else
-        println("please add latest version ASTInterpreter2 by `add ASTInterpreter2#73711a4` within pkg REPL.")
+        println("please add lagacy version ASTInterpreter2 by `add ASTInterpreter2#73711a4` within pkg REPL.")
     end
 else # 0.6
     using Compat
