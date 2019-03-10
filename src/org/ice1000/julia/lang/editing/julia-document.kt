@@ -37,9 +37,11 @@ class JuliaDocumentProvider : AbstractDocumentationProvider() {
 			symbol is JuliaSymbol -> {
 				// find previous docs
 				val symbolOrLhs = symbol.parent.takeIf { it is JuliaSymbolLhs } ?: symbol
-				when {
-					symbolOrLhs.parent is JuliaAssignOp -> {
-						val stringElement = symbolOrLhs.parent.prevRealSibling?.takeIf { it is JuliaString }
+				val symbolParent = symbolOrLhs.parent
+				when (symbolParent) {
+					is JuliaAssignOp -> {
+						val par = symbolParent.parent.takeIf { it is JuliaGlobalStatement } ?: symbolParent
+						val stringElement = par.prevRealSibling?.takeIf { it is JuliaString }
 						return buildDocument(stringElement?.text, name) ?: searchFromLanguageServer(symbol)
 					}
 					else -> // else use LanguageServer

@@ -55,13 +55,7 @@ allprojects {
 			}
 		/* for CI */ else -> version = "2018.3"
 		}
-
-		// local developing (!isCI)
-		if (!isCI) {
-			setPlugins("org.intellij.plugins.markdown:191.4212.41")
-		} else {
-			setMarkdownCompileOnly()
-		}
+		setMarkdownDependency()
 	}
 }
 
@@ -203,11 +197,11 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Delete> { dependsOn(cleanGenerated) }
 
-fun setMarkdownCompileOnly() {
+fun setMarkdownDependency() {
 	repositories {
 		maven("https://dl.bintray.com/jetbrains/markdown/")
 	}
 	dependencies {
-		compileOnly("org.jetbrains", "markdown", "0.1.28")
+		compile("org.jetbrains", "markdown", "0.1.31")
 	}
 }
