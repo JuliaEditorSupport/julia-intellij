@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 32 32">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32">
 	<g fill="#9aa7b0">
 		<path style="isolation:isolate" opacity=".7" d="M12 0L4 8h8V0z"/>
 		<path style="isolation:isolate"
-		      d="M14 0v10H4v20h8.338l-.395-3.057 1.033-2.629 2.07-1.297 2.558-.349.871-1.274-1.113-2.852.389-2.78 1.803-1.693 2.24-.713 2.51.212L26 14.641V0z"
-		      opacity=".7"/>
+					d="M14 0v10H4v20h8.338l-.395-3.057 1.033-2.629 2.07-1.297 2.558-.349.871-1.274-1.113-2.852.389-2.78 1.803-1.693 2.24-.713 2.51.212L26 14.641V0z"
+					opacity=".7"/>
 	</g>
 	<g transform="matrix(.59546 0 0 .59546 12.89 13.52)" fill-rule="evenodd" stroke-width=".828">
 		<circle cx="16" cy="8" r="6.586" fill="#6bab5b" stroke="#3b972e"/>
