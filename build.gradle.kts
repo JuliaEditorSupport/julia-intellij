@@ -20,7 +20,7 @@ val commitHash = kotlin.run {
 	output.trim()
 }
 
-val pluginComingVersion = "0.3.12"
+val pluginComingVersion = "0.3.13"
 val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
 val packageName = "org.ice1000.julia"
 val kotlinVersion = "1.2.70"
@@ -65,8 +65,8 @@ java {
 }
 
 tasks.withType<PatchPluginXmlTask> {
-	changeNotes(file("change-notes.html").readText())
-	pluginDescription(file("description.html").readText())
+	changeNotes(file("docs/change-notes.html").readText())
+	pluginDescription(file("docs/description.html").readText())
 	version(pluginVersion)
 	pluginId(packageName)
 }
