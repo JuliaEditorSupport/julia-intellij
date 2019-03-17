@@ -2,7 +2,7 @@
 
 This is a **work in progress**, some features are implemented partially, there may be performance and stability problems.
 
-[![](https://tinyurl.com/y9e4n2zh)](https://github.com/ice1000/julia-intellij)
+[![](https://tinyurl.com/y9e4n2zh)](https://github.com/JuliaEditorSupport/julia-intellij)
 [![JetBrains plugins](https://img.shields.io/jetbrains/plugin/v/10413-julia.svg)](https://plugins.jetbrains.com/plugin/10413-julia)
 [![JetBrains plugins](https://img.shields.io/jetbrains/plugin/d/10413-julia.svg)](https://plugins.jetbrains.com/plugin/10413-julia)
 [![Documentation Status](https://readthedocs.org/projects/julia-intellij/badge/?version=latest)](http://julia-intellij.readthedocs.io/en/latest/?badge=latest)

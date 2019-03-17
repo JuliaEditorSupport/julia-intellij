@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32">
 	<polygon fill="#59A869" fill-rule="evenodd" points="30 16 4 2 4 30"/>
 	<g transform="matrix(.59546 0 0 .59546 12.89 13.52)" fill-rule="evenodd" stroke-width=".828">
 		<circle cx="16" cy="8" r="6.586" fill="#d66661" stroke="#c93d39"/>
