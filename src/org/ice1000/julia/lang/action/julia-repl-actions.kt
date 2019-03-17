@@ -209,14 +209,16 @@ class JuliaReplRunner(
 
 fun GeneralCommandLine.withJuliaSciMode(project: Project) = this
 	.apply {
+		if (!project.juliaSettings.settings.enableSciMode) return@apply
 		val sciPort = project.getUserData(JULIA_SCI_PORT_KEY)
 		val dataPort = project.getUserData(JULIA_DATA_PORT_KEY)
 		if (sciPort == null || dataPort == null) {
-			errorNotification(project, "SciView unavailable, Run again to enable it.")
+			errorNotification(project, JuliaBundle.message("julia.messages.notify.sci-view.unavailable"))
 			project.getComponent(JuliaProjectComponent::class.java).setupJulia()
+		} else {
+			environment[JULIA_INTELLIJ_PLOT_PORT] = sciPort
+			environment[JULIA_INTELLIJ_DATA_PORT] = dataPort
 		}
-		environment[JULIA_INTELLIJ_PLOT_PORT] = sciPort
-		environment[JULIA_INTELLIJ_DATA_PORT] = dataPort
 	}
 
 class CommandExecutor(private val runner: JuliaReplRunner) {

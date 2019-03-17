@@ -84,6 +84,7 @@ class JuliaSettings(
 	var version: String = "",
 	var unicodeEnabled: Boolean = true,
 	var showEvalHint: Boolean = false,
+	var enableSciMode: Boolean = false,
 	var maxCharacterToConvertToCompact: Int = 140,
 	var tryEvaluateTimeLimit: Long = 2500L,
 	var tryEvaluateTextLimit: Int = 320,

@@ -130,6 +130,7 @@ class JuliaProjectConfigurableImpl(val project: Project) : JuliaProjectConfigura
 	init {
 		version.text = settings.version
 		replPromptField.text = settings.replPrompt
+		enableSciModeCheckBox.isSelected = settings.enableSciMode
 		val format = NumberFormat.getIntegerInstance()
 		format.isGroupingUsed = false
 		val factory = DefaultFormatterFactory(NumberFormatter(format))
@@ -192,6 +193,7 @@ class JuliaProjectConfigurableImpl(val project: Project) : JuliaProjectConfigura
 		globalUnicodeCheckBox.isSelected != globalSettings.globalUnicodeInput ||
 		unicodeInputCheckBox.isSelected != settings.unicodeEnabled ||
 		showEvalHintCheckBox.isSelected != settings.showEvalHint ||
+		enableSciModeCheckBox.isSelected != settings.enableSciMode ||
 		settings.maxCharacterToConvertToCompact != (maxCharacterToConvertToCompact.value as Number).toInt() ||
 		settings.tryEvaluateTextLimit != (textLimitField.value as Number).toInt() ||
 		settings.tryEvaluateTimeLimit != (timeLimitField.value as Number).toLong()
@@ -216,6 +218,7 @@ class JuliaProjectConfigurableImpl(val project: Project) : JuliaProjectConfigura
 		settings.replPrompt = replPromptField.text
 		settings.unicodeEnabled = unicodeInputCheckBox.isSelected
 		settings.showEvalHint = showEvalHintCheckBox.isSelected
+		settings.enableSciMode = enableSciModeCheckBox.isSelected
 		project.reloadSdkAndIndex()
 	}
 }

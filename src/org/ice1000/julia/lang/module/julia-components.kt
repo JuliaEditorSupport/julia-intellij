@@ -44,15 +44,15 @@ class JuliaProjectComponent(private val project: Project) : ProjectComponent {
 	fun setupJulia() {
 		if (ModuleManager.getInstance(project).findModuleByName("Julia") == null
 			&& !project.withJulia) return
-		if (!validateJulia(project.juliaSettings.settings) && PlatformUtils.isIntelliJ()) {
+		val settings = project.juliaSettings.settings
+		if (!validateJulia(settings) && PlatformUtils.isIntelliJ()) {
 			notify(
 					JuliaBundle.message("julia.messages.notify.invalid-julia.title"),
 					JuliaBundle.message("julia.messages.notify.invalid-julia.content"),
 					NotificationType.WARNING)
 		}
 		project.syncJuliaLibrary()
-		val useSciView = true
-		if (useSciView) {
+		if (settings.enableSciMode) {
 			plotSocket = ServerSocket(0)
 			dataSocket = ServerSocket(0)
 			project.putUserData(JULIA_SCI_PORT_KEY, plotSocket.localPort.toString())

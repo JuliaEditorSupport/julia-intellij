@@ -45,8 +45,8 @@ allprojects {
 		val root = "/home/$username/.local/share/JetBrains/Toolbox/apps"
 		when (username) {
 			"ice1000" -> {
-				localPath = "$root/IDEA-C/ch-0/191.5849.21"
-				alternativeIdePath = "$root/PyCharm-C/ch-0/191.5849.23"
+				localPath = "$root/IDEA-C/ch-0/191.6183.20"
+				alternativeIdePath = "$root/PyCharm-C/ch-0/191.6183.9"
 			}
 			"hoshino" -> version = "2018.2.1"
 			"zxj5470" -> {
