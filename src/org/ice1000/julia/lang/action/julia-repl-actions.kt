@@ -76,23 +76,16 @@ class JuliaSendSelectionToReplAction : JuliaSendCodeToReplAction(
 	JuliaBundle.message("julia.actions.repl.run-selected.name"),
 	JuliaBundle.message("julia.actions.repl.run-selected.description")), DumbAware {
 
-
 	override fun code(e: AnActionEvent): String? {
-		val editor = CommonDataKeys.EDITOR.getData(e.dataContext)
-		if (editor != null) {
-			val selectionText = getSelectionText(editor)
-			if (selectionText != null) {
-				return selectionText
-			} else {
-				val line = getLineUnderCaret(editor)
-				if (line != null) {
-					moveCaretDown(editor)
-					return line
-				}
-			}
+		val editor = CommonDataKeys.EDITOR.getData(e.dataContext) ?: return null
+		val selectionText = getSelectionText(editor)
+		if (selectionText != null) {
+			return selectionText
+		} else {
+			val line = getLineUnderCaret(editor) ?: return null
+			moveCaretDown(editor)
+			return line
 		}
-
-		return null
 	}
 
 	private fun getLineUnderCaret(editor: Editor): String? {
