@@ -10,6 +10,8 @@ import com.intellij.notification.*
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.editor.markup.TextAttributes
@@ -73,14 +75,67 @@ class JuliaIncludeRunFileToReplAction : JuliaSendCodeToReplAction(
 class JuliaSendSelectionToReplAction : JuliaSendCodeToReplAction(
 	JuliaBundle.message("julia.actions.repl.run-selected.name"),
 	JuliaBundle.message("julia.actions.repl.run-selected.description")), DumbAware {
+
 	override fun code(e: AnActionEvent): String? {
-		val editor = e.getData(CommonDataKeys.EDITOR) ?: return null
-		return editor.selectionModel.selectedText
+		val editor = CommonDataKeys.EDITOR.getData(e.dataContext) ?: return null
+		val selectionText = getSelectionText(editor)
+		if (selectionText != null) {
+			return selectionText
+		} else {
+			val line = getLineUnderCaret(editor) ?: return null
+			moveCaretDown(editor)
+			return line
+		}
 	}
 
-	override fun update(e: AnActionEvent) {
-		super.update(e)
-		e.presentation.isEnabled = e.getData(CommonDataKeys.EDITOR)?.selectionModel?.selectedText != null
+	private fun getLineUnderCaret(editor: Editor): String? {
+		val caretPos = editor.caretModel.visualPosition
+
+		val lines = EditorUtil.calcSurroundingRange(editor, caretPos, caretPos)
+
+		val lineStart = lines.first
+		val nextLineStart = lines.second
+		val start = editor.logicalPositionToOffset(lineStart)
+		val end = editor.logicalPositionToOffset(nextLineStart)
+		if (end <= start) {
+			return null
+		}
+		return editor.document.charsSequence.subSequence(start, end).toString()
+	}
+
+	private fun getSelectionText(editor: Editor): String? {
+		return if (editor.selectionModel.hasSelection()) {
+			editor.selectionModel.selectedText
+		} else {
+			null
+		}
+	}
+
+	private fun moveCaretDown(editor: Editor) {
+		val pos = editor.caretModel.visualPosition
+		val lines = EditorUtil.calcSurroundingRange(editor, pos, pos)
+		val offset = editor.caretModel.offset
+
+		val lineStart = lines.first
+		val nextLineStart = lines.second
+
+		val start = editor.logicalPositionToOffset(lineStart)
+		val end = editor.logicalPositionToOffset(nextLineStart)
+
+		val document = editor.document
+
+		if (nextLineStart.line < document.lineCount) {
+
+			var newOffset = end +offset - start
+
+			val nextLineEndOffset = document . getLineEndOffset(nextLineStart.line);
+			if (newOffset >= nextLineEndOffset) {
+				newOffset = nextLineEndOffset
+			}
+
+			editor.caretModel.moveToOffset(newOffset)
+			editor.scrollingModel.scrollToCaret(ScrollType.RELATIVE)
+		}
 	}
 }
 
