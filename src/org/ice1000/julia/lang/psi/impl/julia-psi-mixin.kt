@@ -26,9 +26,7 @@ interface IJuliaFunctionDeclaration : PsiNameIdentifierOwner, DocStringOwner {
  * Common super class for declaration
  */
 abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameIdentifierOwner {
-	private var refCache: Array<PsiReference>? = null
 	override fun setName(newName: String) = also {
-		references.forEach { it.handleElementRename(newName) }
 		nameIdentifier?.replace(JuliaTokenType.fromText(newName, project))
 	}
 
@@ -37,28 +35,17 @@ abstract class JuliaDeclaration(node: ASTNode) : JuliaExprMixin(node), PsiNameId
 		get() = PsiTreeUtil.getParentOfType(this, JuliaStatements::class.java) ?: parent
 
 	override fun getName() = nameIdentifier?.text.orEmpty()
-	override fun getReferences() = refCache
-		?: nameIdentifier
-			?.let { collectFrom(startPoint, it.text, it) }
-			?.also { refCache = it }
-		?: emptyArray()
-
-	override fun subtreeChanged() {
-		refCache = null
-		super.subtreeChanged()
-	}
 
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		nameIdentifier?.let { processor.execute(it, substitutor) }.orFalse() and
+		nameIdentifier?.let { processor.execute(it, substitutor) }.orTrue() &&
 			processDeclTrivial(processor, substitutor, lastParent, place)
 }
 
 abstract class JuliaForComprehensionMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaForComprehension {
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		comprehensionElementList.all { it.processDeclarations(processor, state, lastParent, place) } and
-			super.processDeclarations(processor, state, lastParent, place)
+		comprehensionElementList.all { it.processDeclarations(processor, state, lastParent, place) }
 
 	override var type: Type? = null
 }
@@ -66,8 +53,7 @@ abstract class JuliaForComprehensionMixin(node: ASTNode) : ASTWrapperPsiElement(
 abstract class JuliaComprehensionElementMixin(node: ASTNode) : ASTWrapperPsiElement(node), JuliaComprehensionElement {
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		singleComprehensionList.all { it.processDeclarations(processor, state, lastParent, place) } and
-			super.processDeclarations(processor, state, lastParent, place)
+		singleComprehensionList.all { it.processDeclarations(processor, state, lastParent, place) }
 }
 
 abstract class JuliaSingleComprehensionMixin(node: ASTNode) : JuliaDeclaration(node), JuliaSingleComprehension {
@@ -76,8 +62,8 @@ abstract class JuliaSingleComprehensionMixin(node: ASTNode) : JuliaDeclaration(n
 
 	override fun processDeclarations(
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-		singleIndexer?.let { processor.execute(it.firstChild, substitutor) }.orFalse() and
-			multiIndexer?.let { it.children.all { processor.execute(it, substitutor) } }.orFalse() and
+		singleIndexer?.let { processor.execute(it.firstChild, substitutor) }.orTrue() &&
+			multiIndexer?.let { it.children.all { processor.execute(it, substitutor) } }.orTrue() &&
 			super.processDeclarations(processor, substitutor, lastParent, place)
 }
 
@@ -133,7 +119,7 @@ abstract class JuliaFunctionMixin(node: ASTNode) : JuliaDeclaration(node), Julia
 		processor: PsiScopeProcessor, substitutor: ResolveState, lastParent: PsiElement?, place: PsiElement) =
 		functionSignature?.run {
 			typedNamedVariableList.all { processor.execute(it.firstChild, substitutor) }
-		}.orFalse() && super.processDeclarations(processor, substitutor, lastParent, place)
+		}.orTrue() && super.processDeclarations(processor, substitutor, lastParent, place)
 
 	override fun toString(): String {
 		return "JuliaFunctionImpl(FUNCTION)"
@@ -244,10 +230,9 @@ abstract class JuliaTypeDeclarationMixin : StubBasedPsiElementBase<JuliaTypeDecl
 	override fun setName(name: String) = also { nameIdentifier?.replace(JuliaTokenType.fromText(name, project)) }
 	override fun getName() = nameIdentifier?.text
 	override fun getIcon(flags: Int): Icon? = JuliaIcons.JULIA_TYPE_ICON
-//	override fun processDeclarations(
-//		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-//		nameIdentifier?.let { processor.execute(it, state) }.orFalse() &&
-//			super.processDeclarations(processor, state, lastParent, place)
+	override fun processDeclarations(
+		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+		nameIdentifier?.let { processor.execute(it, state) }.orTrue()
 
 	override fun subtreeChanged() {
 		nameCache = null
@@ -268,10 +253,9 @@ abstract class JuliaAbstractTypeDeclarationMixin : StubBasedPsiElementBase<Julia
 	override fun setName(name: String) = also { nameIdentifier?.replace(JuliaTokenType.fromText(name, project)) }
 	override fun getName() = nameIdentifier?.text
 	override fun getIcon(flags: Int): Icon? = JuliaIcons.JULIA_ABSTRACT_TYPE_ICON
-//	override fun processDeclarations(
-//		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
-//		nameIdentifier?.let { processor.execute(it, state) }.orFalse() &&
-//			super.processDeclarations(processor, state, lastParent, place)
+	override fun processDeclarations(
+		processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement?, place: PsiElement) =
+		nameIdentifier?.let { processor.execute(it, state) }.orTrue()
 
 	override fun subtreeChanged() {
 		nameCache = null
@@ -439,7 +423,7 @@ abstract class JuliaLambdaMixin(node: ASTNode) : JuliaDeclaration(node), JuliaLa
 					.asReversed()
 					.all { it.processDeclarations(processor, substitutor, lastParent, place) }
 			}
-	}.orFalse() && super.processDeclarations(processor, substitutor, lastParent, place)
+	}.orTrue() && super.processDeclarations(processor, substitutor, lastParent, place)
 }
 
 //class JuliaReferenceManager(val psiManager: PsiManager, val dumbService: DumbService) {

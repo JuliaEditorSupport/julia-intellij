@@ -98,11 +98,11 @@ open class SymbolResolveProcessor(
 	constructor(ref: JuliaSymbolRef, incompleteCode: Boolean) : this(ref.canonicalText, ref.element, incompleteCode)
 
 	override val candidateSet = ArrayList<PsiElementResolveResult>(3)
-	protected open fun accessible(element: PsiElement) = name == element.text && isInScope(element)
+	protected open fun accessible(element: PsiElement) = name == element.text
 	override fun execute(element: PsiElement, resolveState: ResolveState) = when {
 		candidateSet.isNotEmpty() -> false
 		element is JuliaSymbol -> {
-			val accessible = accessible(element) && element.symbolKind.isDeclaration
+			val accessible = accessible(element)
 			if (accessible) candidateSet += PsiElementResolveResult(element, element.hasNoError)
 			!accessible
 		}

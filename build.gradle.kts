@@ -30,9 +30,14 @@ version = pluginVersion
 
 plugins {
 	java
-	id("org.jetbrains.intellij") version "0.4.4"
+	id("org.jetbrains.intellij") version "0.4.6"
 	id("org.jetbrains.grammarkit") version "2018.3.1"
 	kotlin("jvm") version "1.2.70"
+}
+
+fun fromToolbox(path: String) = file(path).listFiles().orEmpty().filter { it.isDirectory }.maxBy {
+	val (major, minor, patch) = it.name.split('.')
+	String.format("%5s%5s%5s", major, minor, patch)
 }
 
 allprojects {
@@ -41,19 +46,20 @@ allprojects {
 	intellij {
 		updateSinceUntilBuild = false
 		instrumentCode = true
-		val username = System.getProperty("user.name")
-		val root = "/home/$username/.local/share/JetBrains/Toolbox/apps"
-		when (username) {
-			"ice1000" -> {
-				localPath = "$root/IDEA-C/ch-0/191.6183.20"
-				alternativeIdePath = "$root/PyCharm-C/ch-0/191.6183.9"
+		val user = System.getProperty("user.name")
+		when (System.getProperty("os.name")) {
+			"Linux" -> {
+				val root = "/home/$user/.local/share/JetBrains/Toolbox/apps"
+				val intellijPath = fromToolbox("$root/IDEA-C/ch-0")
+					?: fromToolbox("$root/IDEA-C-JDK11/ch-0")
+					?: fromToolbox("$root/IDEA-U/ch-0")
+					?: fromToolbox("$root/IDEA-JDK11/ch-0")
+				intellijPath?.absolutePath?.let { localPath = it }
+				val pycharmPath = fromToolbox("$root/PyCharm-C/ch-0")
+					?: fromToolbox("$root/IDEA-C-JDK11/ch-0")
+					?: fromToolbox("$root/IDEA-C/ch-0")
+				pycharmPath?.absolutePath?.let { alternativeIdePath = it }
 			}
-			"hoshino" -> version = "2018.2.1"
-			"zxj5470" -> {
-				version = "2018.3"
-//				alternativeIdePath = "$root/PyCharm-P/ch-0/183.4284.139"
-			}
-		/* for CI */ else -> version = "2018.3"
 		}
 		setMarkdownDependency()
 	}

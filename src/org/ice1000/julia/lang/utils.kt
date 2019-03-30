@@ -103,3 +103,4 @@ fun String.splitsOf(someStr: String, expandSize: Int) = indices
 
 fun Boolean.toYesNo() = if (this) "yes" else "no"
 fun Boolean?.orFalse() = true == this
+fun Boolean?.orTrue() = false != this
