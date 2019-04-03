@@ -30,6 +30,9 @@ val IJuliaSymbol.typeFoundFromStub: Boolean
 
 val IJuliaSymbol.isAbstractTypeRef: Boolean
 	get() = JuliaAbstractTypeDeclarationIndex.findElementsByName(this.project, this.text).isNotEmpty()
+
+val JuliaExpr.refTypeName: String?
+	get() = ((reference as? JuliaSymbolRef)?.resolve() as? JuliaSymbol)?.type
 /**
  * since function body is nullable~
  */

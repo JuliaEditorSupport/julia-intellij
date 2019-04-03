@@ -1,7 +1,6 @@
 package org.ice1000.julia.lang.editing
 
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.PsiIconUtil
 import icons.JuliaIcons
@@ -9,6 +8,7 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.JuliaFile
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
+import org.ice1000.julia.lang.psi.impl.refTypeName
 import java.lang.IllegalArgumentException
 import java.math.BigInteger
 import javax.swing.Icon
@@ -82,7 +82,36 @@ fun checkIntType(value: BigInteger): String = when (value) {
 }.name
 
 object JuliaRValueLiteral {
-	fun integer(elem: PsiElement): String {
+	fun parseAssignedSymbolType(elem: JuliaSymbol): String? {
+		val parent = (elem.parent as? JuliaAssignOp) ?: return null
+		val rValue = parent.exprList.lastOrNull() ?: return null
+		return parseType(rValue)
+	}
+
+	/**
+	 *
+	 * @param elem PsiElement
+	 * @return String? null will not show type hint
+	 */
+	fun parseType(elem: PsiElement): String? {
+		return when (elem) {
+			is JuliaArray -> JuliaRValueLiteral.array(elem)
+			is JuliaInteger -> JuliaRValueLiteral.integer(elem)
+			is JuliaFloatLit -> "Float64"
+			is JuliaCharLit -> "Char"
+			is JuliaCommand -> "Cmd"
+			is JuliaString -> "String"
+			is JuliaVersionNumber -> "VersionNumber"
+			is JuliaExpr -> elem.type.takeIf { it != null }
+			else -> null
+		}?.applyTypeToElement(elem)
+	}
+
+	private fun String?.applyTypeToElement(elem: PsiElement) = apply {
+		(elem as? JuliaExpr)?.type = this
+	}
+
+	fun integer(elem: JuliaInteger): String {
 		val code = elem.text
 		if (code.any { !it.isLetterOrDigit() }) return ""
 		val (base, intText) = when {
@@ -95,13 +124,22 @@ object JuliaRValueLiteral {
 		return checkIntType(value)
 	}
 
-	fun array(elem: PsiElement): String? {
-		(elem as JuliaArray).run {
-			if (this.typeParameters != null) return null
-			// TODO getTypeByElements
-			val elementType = (elem.exprList.firstOrNull() as? JuliaSymbol)?.text ?: ""
-			return "Array{$elementType}"
+	fun array(array: JuliaArray): String? {
+		if (array.typeParameters != null) return null
+		val exprList = array.exprList
+		exprList.forEach { println(it.text) }
+		if (exprList.isEmpty()) return null
+		val firstType = exprList.firstOrNull()?.let { it.type ?: it.refTypeName } ?: return null
+		if (exprList.size == 1) return "Array{$firstType}"
+		// strange code on account of the AST of last element you input is uncertain.
+		val arrayType = if (
+			exprList.subList(0, exprList.lastIndex - 1).all { it.type == firstType || it.refTypeName == firstType }
+			&& parseType(exprList.last()) == firstType
+		) firstType
+		else { // size == 1
+			"Any"
 		}
+		return "Array{$arrayType}"
 	}
 }
 

@@ -11,6 +11,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.editing.JuliaRValueLiteral.parseAssignedSymbolType
 import org.ice1000.julia.lang.psi.impl.*
 import javax.swing.Icon
 
@@ -130,7 +131,12 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 				type: Type?,
 				handler: InsertHandler<LookupElement>?
 			) = when (element.symbolKind) {
-				JuliaSymbolKind.VariableName,
+				JuliaSymbolKind.VariableName -> tuple5(
+					JuliaIcons.JULIA_VARIABLE_ICON,
+					element.text,
+					null,
+					element.type ?: parseAssignedSymbolType(element) ?: UNKNOWN_VALUE_PLACEHOLDER
+				)
 				JuliaSymbolKind.CatchSymbol,
 				JuliaSymbolKind.IndexParameter -> tuple5(
 					JuliaIcons.JULIA_VARIABLE_ICON,

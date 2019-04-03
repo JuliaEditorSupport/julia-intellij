@@ -7,6 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.editing.JuliaRValueLiteral.parseType
 import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.*
 
@@ -59,33 +60,24 @@ enum class JuliaHintType(desc: String, enabled: Boolean) {
 		}
 
 		private fun provideTypeHint(elem: PsiElement): List<InlayInfo> {
-			(elem as? JuliaAssignOp)?.run {
-				val offset = exprList.first().textLength
-				val rValue = exprList.lastOrNull() ?: return emptyList()
-				val type = parseType(rValue) ?: return emptyList()
-				return listOf(InlayInfo("::$type", elem.textOffset + offset))
-			}
-			// function parameters
-			(elem as? JuliaTypedNamedVariable)?.run {
-				if (elem.typeAnnotation != null) return emptyList()
-				val offset = exprList.first().textLength
-				val rValue = exprList.lastOrNull() ?: return emptyList()
-				val type = parseType(rValue) ?: return emptyList()
-				return listOf(InlayInfo("::$type", (elem as PsiElement).textOffset + offset))
-			}
-			return emptyList()
-		}
-
-		private fun parseType(elem: PsiElement): String? {
 			return when (elem) {
-				is JuliaArray -> JuliaRValueLiteral.array(elem)
-				is JuliaInteger -> JuliaRValueLiteral.integer(elem)
-				is JuliaCharLit -> "Char"
-				is JuliaCommand -> "Cmd"
-				is JuliaString -> "String"
-				is JuliaVersionNumber -> "VersionNumber"
-				is JuliaExpr -> elem.type.takeIf { it != null }
-				else -> null
+				is JuliaAssignOp -> {
+					val exprList = elem.exprList
+					val offset = exprList.first().textLength
+					val rValue = exprList.lastOrNull() ?: return emptyList()
+					val type = parseType(rValue) ?: return emptyList()
+					return listOf(InlayInfo("::$type", elem.textOffset + offset))
+				}
+				// function parameters
+				is JuliaTypedNamedVariable -> {
+					if (elem.typeAnnotation != null) return emptyList()
+					val exprList = elem.exprList
+					val offset = exprList.first().textLength
+					val rValue = exprList.lastOrNull() ?: return emptyList()
+					val type = parseType(rValue) ?: return emptyList()
+					return listOf(InlayInfo("::$type", (elem as PsiElement).textOffset + offset))
+				}
+				else -> emptyList()
 			}
 		}
 
