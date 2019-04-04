@@ -268,7 +268,7 @@ $JULIA_DOC_SURROUNDING
 		}
 		val daddy = element.parent
 		when {
-			element.isConstName -> holder.createInfoAnnotation(element, null)
+			element.isConstNameRef -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.CONST_NAME
 			element.isTypeNameRef -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_NAME
