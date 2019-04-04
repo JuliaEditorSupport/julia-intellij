@@ -19,7 +19,7 @@ This is a **work in progress**, some features are implemented partially, there m
   </tr>
   <tr>
     <td>AppVeyor (on Windows)</td>
-    <td><a href="https://ci.appveyor.com/project/JuliaEditorSupport/julia-intellij"><img src="https://ci.appveyor.com/api/projects/status/ogmg2msv1564tkcn/branch/master?svg=true" alt="AppVeyor Build status"></a></td>
+    <td><a href="https://ci.appveyor.com/project/ice1000/julia-intellij-1rpcx"><img src="https://ci.appveyor.com/api/projects/status/kaqscxy5mmvxa2cr/branch/master?svg=true" alt="AppVeyor Build status"></a></td>
   </tr>
   <tr>
     <td>CircleCI (with tests)</td>
@@ -38,7 +38,7 @@ open `Settings | Plugins | Browse repositories`,
 install Julia plugin, and create a Julia project.
 
 For detailed use instruction, visit: https://julia-intellij.readthedocs.io/en/latest/<br/>
-To download a nightly build (buggy!), visit https://ci.appveyor.com/project/JuliaEditorSupport/julia-intellij/build/artifacts/ .<br/>
+To download a nightly build (buggy!), visit https://ci.appveyor.com/project/ice1000/julia-intellij/build/artifacts/ .<br/>
 To learn about the test summery, visit https://circleci.com/build-insights/gh/JuliaEditorSupport/julia-intellij/master .
 
 ### Video Instructions
