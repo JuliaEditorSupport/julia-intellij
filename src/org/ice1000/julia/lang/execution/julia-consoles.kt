@@ -29,14 +29,14 @@ class JuliaConsoleFilter(private val project: Project) : Filter {
 	// Filter.Result(startPoint, entireLength, null)
 	override fun applyFilter(line: String, entireLength: Int): Filter.Result? {
 		if (project.isDisposed) return null
-		val projectDir = project.guessProjectDir()
-		if (projectDir == null) return null
+		val projectDir = project.guessProjectDir() ?: return null
 		if (!line.startsWith(" [") && !line.startsWith(JULIA_IN_EXPR_STARTING_AT)) return null
 		val startPoint = entireLength - line.length
 		val fileSystem = projectDir.fileSystem
 		if (line.startsWith(JULIA_IN_EXPR_STARTING_AT)) {
 			val importantPart = line.substring(JULIA_IN_EXPR_STARTING_AT_LEN).trimEnd()
 			val lastIndex = importantPart.lastIndexOf(':')
+			if (lastIndex < 0) return null
 			val path = importantPart.substring(0, lastIndex)
 			val lineNumber = importantPart.substring(lastIndex + 1).toIntOrNull() ?: return null
 			val resultFile = fileSystem.findFileByPath(path)
