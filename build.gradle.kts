@@ -23,7 +23,6 @@ val commitHash = kotlin.run {
 val pluginComingVersion = "0.3.14"
 val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
 val packageName = "org.ice1000.julia"
-val kotlinVersion = "1.2.70"
 
 group = packageName
 version = pluginVersion
@@ -32,7 +31,7 @@ plugins {
 	java
 	id("org.jetbrains.intellij") version "0.4.6"
 	id("org.jetbrains.grammarkit") version "2018.3.1"
-	kotlin("jvm") version "1.2.70"
+	kotlin("jvm") version "1.3.20"
 }
 
 fun fromToolbox(path: String) = file(path).listFiles().orEmpty().filter { it.isDirectory }.maxBy {
@@ -96,12 +95,7 @@ sourceSets {
 repositories { mavenCentral() }
 
 dependencies {
-	compileOnly(kotlin(module = "stdlib"))
-	compile(kotlin(module = "stdlib-jdk8").toString()) {
-		exclude(module = "kotlin-runtime")
-		exclude(module = "kotlin-reflect")
-		exclude(module = "kotlin-stdlib")
-	}
+	compile(kotlin(module = "stdlib"))
 	compile(group = "org.eclipse.mylyn.github", name = "org.eclipse.egit.github.core", version = "2.1.5") {
 		exclude(module = "gson")
 	}
@@ -195,8 +189,8 @@ tasks.withType<KotlinCompile> {
 	)
 	kotlinOptions {
 		jvmTarget = "1.8"
-		languageVersion = "1.2"
-		apiVersion = "1.2"
+		languageVersion = "1.3"
+		apiVersion = "1.3"
 		freeCompilerArgs = listOf("-Xjvm-default=enable")
 	}
 }
@@ -204,10 +198,10 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Delete> { dependsOn(cleanGenerated) }
 
 fun setMarkdownDependency() {
-	repositories {
-		maven("https://dl.bintray.com/jetbrains/markdown/")
-	}
-	dependencies {
-		compile("org.jetbrains", "markdown", "0.1.31")
-	}
+       repositories {
+               maven("https://dl.bintray.com/jetbrains/markdown/")
+       }
+       dependencies {
+               compile("org.jetbrains", "markdown", "0.1.31")
+       }
 }

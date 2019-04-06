@@ -41,13 +41,15 @@ class JuliaRemovePkgAction(
 using Pkg
 Pkg.rm("$removePackageName")
 """, 30_000L)
-				Messages.showDialog(
-					project,
-					JuliaBundle.message("julia.messages.package.removed", removePackageName),
-					JuliaBundle.message("julia.messages.package.success"),
-					arrayOf(JuliaBundle.message("julia.yes")),
-					0,
-					JuliaIcons.JOJO_ICON)
+				ApplicationManager.getApplication().invokeLater {
+					Messages.showDialog(
+						project,
+						JuliaBundle.message("julia.messages.package.removed", removePackageName),
+						JuliaBundle.message("julia.messages.package.success"),
+						arrayOf(JuliaBundle.message("julia.yes")),
+						0,
+						JuliaIcons.JOJO_ICON)
+				}
 				callback(true)
 			}
 		})
