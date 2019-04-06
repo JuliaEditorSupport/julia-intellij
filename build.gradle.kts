@@ -77,25 +77,25 @@ tasks.withType<PatchPluginXmlTask> {
 }
 
 sourceSets {
-	getByName("main") {
+	main {
 		withConvention(KotlinSourceSet::class) {
 			listOf(java, kotlin).forEach { it.srcDirs("src", "gen") }
 		}
-		resources.srcDirs("res")
+		resources.srcDir("res")
 	}
 
-	getByName("test") {
+	test {
 		withConvention(KotlinSourceSet::class) {
 			listOf(java, kotlin).forEach { it.srcDirs("test") }
 		}
-		resources.srcDirs("testData")
+		resources.srcDir("testData")
 	}
 }
 
 repositories { mavenCentral() }
 
 dependencies {
-	compile(kotlin(module = "stdlib"))
+	compile(kotlin("stdlib-jdk8"))
 	compile(group = "org.eclipse.mylyn.github", name = "org.eclipse.egit.github.core", version = "2.1.5") {
 		exclude(module = "gson")
 	}
