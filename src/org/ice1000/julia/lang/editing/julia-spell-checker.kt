@@ -14,7 +14,6 @@ import org.ice1000.julia.lang.psi.JuliaSymbol
 import org.jdom.Verifier
 import org.jetbrains.annotations.NonNls
 import java.util.regex.Pattern
-import kotlin.streams.toList
 
 class JuliaSpellCheckingStrategy : SpellcheckingStrategy() {
 
@@ -22,7 +21,7 @@ class JuliaSpellCheckingStrategy : SpellcheckingStrategy() {
 		private val juliaWordsRegex by lazy {
 			this::class.java.getResource("spelling.txt")
 				.openStream()
-				.bufferedReader().lines().toList().joinToString("|", prefix = "(", postfix = ")")
+				.bufferedReader().lineSequence().joinToString("|", prefix = "(", postfix = ")")
 		}
 	}
 

@@ -13,8 +13,6 @@ import org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor.Completion
 import org.ice1000.julia.lang.module.JULIA_COLOR_CONSTANTS
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.prevRealSibling
-import kotlin.streams.toList
-
 
 open class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
 	override fun addCompletions(
@@ -171,12 +169,12 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 		private val builtinV06 by lazy {
 			this::class.java.getResource("builtin-v0.6.txt")
 				.openStream()
-				.bufferedReader().lines().toList()
+				.bufferedReader().lineSequence().toList()
 		}
 		private val builtinV10 by lazy {
 			this::class.java.getResource("builtin-v1.0.txt")
 				.openStream()
-				.bufferedReader().lines().toList()
+				.bufferedReader().lineSequence().toList()
 		}
 
 		val builtins by lazy {
