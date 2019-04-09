@@ -336,6 +336,7 @@ exprOrEnd ::=
  | multiplyIndexing
  | spliceIndexing
  | assignLevelOperatorIndexing
+ | dotApplyFunctionOpIndexing
  | rangeIndexing
  | quoteIndexing
  | ternaryOpIndexing
@@ -352,6 +353,8 @@ plusIndexing ::= exprOrEnd plusLevelOperator exprOrEnd
 multiplyIndexing ::= exprOrEnd multiplyLevelOperator exprOrEnd
 spliceIndexing ::= exprOrEnd SLICE_SYM
 assignLevelOperatorIndexing::= exprOrEnd assignLevelOperator exprOrEnd
+dotApplyFunctionOpIndexing::= symbol DOT_SYM privateOpSymbols exprOrEnd{rightAssociative=true}
+
 bracketedExprIndexing ::=
  LEFT_BRACKET endOfLine
   exprOrEnd
@@ -365,7 +368,7 @@ applyIndexOp ::= expr LEFT_M_BRACKET
  RIGHT_M_BRACKET
 
 //applyWhereOp ::= expr whereClause
-dotApplyFunctionOp::= expr DOT_SYM privateOpSymbols expr{pin=3}
+dotApplyFunctionOp::= expr DOT_SYM privateOpSymbols expr{rightAssociative=true}
 
 applyFunctionOp ::=
  expr DOT_SYM? LEFT_BRACKET endOfLine

@@ -144,9 +144,10 @@ object JuliaRValueLiteral {
 }
 
 /**
- * VInt is UInt32, but Kotlin doesn't have it until version 1.3 .
+ * <del>VInt is UInt32, but Kotlin doesn't have it until version 1.3 .</del>
+ * Since we use Kotlin 1.3, we can use [UInt]
  */
-typealias VInt = Long
+typealias VInt = UInt
 
 /**
  * If you are puzzled with the code style for some function in this object, do not ask why it is~
@@ -163,9 +164,9 @@ object JuliaInKotlin {
 		init {
 			val preRegex = Regex(JULIA_VERSION_NUMBER_REGEX_PRE_I, setOf(RegexOption.IGNORE_CASE))
 
-			major >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
-			minor >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
-			patch >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
+//			major >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
+//			minor >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
+//			patch >= 0 || throw(IllegalArgumentException("invalid negative major version: $major"))
 			for (ident in prerelease) {
 				try {
 					val int = ident.toInt()
@@ -209,9 +210,9 @@ object JuliaInKotlin {
 		val regex = Regex(JULIA_VERSION_NUMBER_REGEX_IX, setOf(RegexOption.IGNORE_CASE, RegexOption.COMMENTS))
 		val captures = regex.matchEntire(v)?.groupValues ?: throw(IllegalArgumentException("invalid version string: $v"))
 
-		val major = captures.getOrNull(1)?.parseUInt() ?: 0L
-		val minor = captures.getOrNull(2)?.parseUInt() ?: 0L
-		val patch = captures.getOrNull(3)?.parseUInt() ?: 0L
+		val major = captures.getOrNull(1)?.parseUInt() ?: UInt.MIN_VALUE
+		val minor = captures.getOrNull(2)?.parseUInt() ?: UInt.MIN_VALUE
+		val patch = captures.getOrNull(3)?.parseUInt() ?: UInt.MIN_VALUE
 		val minus = captures.getOrNull(4)
 		var prerl = captures.getOrNull(5)
 		val plus = captures.getOrNull(6)
@@ -235,7 +236,7 @@ object JuliaInKotlin {
 
 	private fun <T> T.parseUInt(): VInt? =
 		try {
-			this.toString().toLong()
+			this.toString().toUInt()
 		} catch (e: Exception) {
 			null
 		}
@@ -249,7 +250,7 @@ object JuliaInKotlin {
 	 * end
 	 */
 	private fun typemax(): VersionNumber {
-		val `∞` = 4294967295L
+		val `∞` = UInt.MAX_VALUE
 		return VersionNumber(`∞`, `∞`, `∞`, emptyList(), listOf(""))
 	}
 }
