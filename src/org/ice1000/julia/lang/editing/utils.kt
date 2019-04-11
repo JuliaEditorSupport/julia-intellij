@@ -83,9 +83,12 @@ fun checkIntType(value: BigInteger): String = when (value) {
 
 object JuliaRValueLiteral {
 	fun parseAssignedSymbolType(elem: JuliaSymbol): String? {
-		val parent = (elem.parent as? JuliaAssignOp) ?: return null
-		val rValue = parent.exprList.lastOrNull() ?: return null
-		return parseType(rValue)
+		val assignOp = (elem.parent as? JuliaAssignOp)
+			// grand means `elem` is SymbolLhs
+			?: (elem.parent.parent as? JuliaAssignOp)
+			?: return null
+		val rightSide = assignOp.exprList.lastOrNull() ?: return null
+		return parseType(rightSide)
 	}
 
 	/**
@@ -127,7 +130,6 @@ object JuliaRValueLiteral {
 	fun array(array: JuliaArray): String? {
 		if (array.typeParameters != null) return null
 		val exprList = array.exprList
-		exprList.forEach { println(it.text) }
 		if (exprList.isEmpty()) return null
 		val firstType = exprList.firstOrNull()?.let { it.type ?: it.refTypeName } ?: return null
 		if (exprList.size == 1) return "Array{$firstType}"

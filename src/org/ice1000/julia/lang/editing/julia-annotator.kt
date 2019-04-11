@@ -268,7 +268,7 @@ $JULIA_DOC_SURROUNDING
 		}
 		val daddy = element.parent
 		when {
-			element.isConstNameRef -> holder.createInfoAnnotation(element, null)
+			element.isConstName || element.isConstNameRef -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.CONST_NAME
 			element.isTypeNameRef -> holder.createInfoAnnotation(element, null)
 				.textAttributes = JuliaHighlighter.TYPE_NAME
@@ -430,7 +430,7 @@ $JULIA_DOC_SURROUNDING
 // TODO: needs stub
 class JuliaExpressionTypeProvider : ExpressionTypeProvider<JuliaExpr>() {
 	override fun getInformationHint(element: JuliaExpr): String {
-		val type = element.type
+		val type = element.type ?: element.reference?.run { resolve() as? JuliaExpr }?.type
 		val text = type ?: "<unknown>"
 		return text
 	}
