@@ -286,6 +286,7 @@ class JuliaColorSettingsPage : ColorSettingsPage {
 			"functionParameter" to JuliaHighlighter.FUNCTION_PARAMETER,
 			"builtinFunction" to JuliaHighlighter.BUILTIN_NAME,
 			"functionCall" to JuliaHighlighter.FUNCTION_CALL,
+			"quoteCall" to JuliaHighlighter.QUOTE_NAME,
 			"binaryOperators" to JuliaHighlighter.OPERATOR
 		)
 	}
@@ -311,6 +312,7 @@ IntOrString = <typeName>Union</typeName>{<typeParameterName>Int</typeParameterNa
 div(5, 2)
 @printf "%d is less than %f" 4.5 5.3
 <builtinFunction>ismatch</builtinFunction>(r"1 \+ 2 = 3", "1 + 2 = $(1 + 2)")
+<quoteCall>:symbol</quoteCall>
 try
     <builtinFunction>println</builtinFunction>("Hello\nWorld '<stringEscapeInvalid>\x</stringEscapeInvalid>jb'" *
     '<charEscapeInvalid>\x</charEscapeInvalid>' * '<charEscape>\a<charEscape>')
