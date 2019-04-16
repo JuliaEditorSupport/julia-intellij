@@ -31,7 +31,7 @@ plugins {
 	java
 	id("org.jetbrains.intellij") version "0.4.6"
 	id("org.jetbrains.grammarkit") version "2018.3.1"
-	kotlin("jvm") version "1.3.20"
+	kotlin("jvm") version "1.3.30"
 }
 
 fun fromToolbox(path: String) = file(path).listFiles().orEmpty().filter { it.isDirectory }.maxBy {
