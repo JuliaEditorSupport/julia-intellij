@@ -177,8 +177,8 @@ class JuliaDebugProcess(socketAddress: InetSocketAddress,
 		processHandler.sendCommandToProcess("exit()")
 //		session.stop()
 //		processHandler.destroyProcess()
-		if (::socket.isInitialized)
-			socket.close()
+//		if (::socket.isInitialized)
+//			socket.close()
 	}
 }
 

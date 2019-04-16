@@ -170,9 +170,9 @@ class CompletionProcessor(place: PsiElement, private val incompleteCode: Boolean
 				}
 					?: tuple5<Icon, String, String?, String?, InsertHandler<LookupElement>?>(
 						JuliaIcons.JULIA_FUNCTION_ICON, element.text, null, null)
-				JuliaSymbolKind.TypeName,
-				JuliaSymbolKind.PrimitiveTypeName,
-				JuliaSymbolKind.AbstractTypeName -> tuple5(
+//				JuliaSymbolKind.TypeName,
+//				JuliaSymbolKind.AbstractTypeName,
+				JuliaSymbolKind.PrimitiveTypeName -> tuple5(
 					JuliaIcons.JULIA_TYPE_ICON,
 					element.text,
 					null,
