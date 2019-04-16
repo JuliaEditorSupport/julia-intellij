@@ -3,6 +3,7 @@ package org.ice1000.julia.lang.module
 import com.google.gson.JsonParser
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.*
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.extensions.PluginId
@@ -15,10 +16,18 @@ import com.intellij.util.PlatformUtils
 import org.ice1000.julia.lang.*
 import org.jetbrains.annotations.Nls
 import java.io.*
-import java.lang.IllegalStateException
 import java.net.ServerSocket
 
-class JuliaProjectComponent(private val project: Project) : ProjectComponent {
+class JuliaProjectComponent(private val project: Project) : ProjectComponent, Disposable {
+	override fun dispose() {
+		if (::plotSocket.isInitialized) {
+			tryRun { plotSocket.close() }
+		}
+		if (::dataSocket.isInitialized) {
+			tryRun { dataSocket.close() }
+		}
+	}
+
 	var isNightlyNotificationShown = false
 	lateinit var plotSocket: ServerSocket
 	lateinit var dataSocket: ServerSocket

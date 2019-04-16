@@ -548,7 +548,7 @@ class JuliaDebugValue(name: String,
 					LOG.error(e.message + "when parsing: $value")
 				}
 			}
-			type == ARRAY_ITEM_TYPE -> {
+			type.contains(ARRAY_ITEM_TYPE) -> {
 				try {
 					json.parse(value).asJsonArray.forEachIndexed { index, it ->
 						// Do we need to add `Row` for High dimensional arrays?
@@ -575,5 +575,5 @@ class JuliaDebugValue(name: String,
 }
 
 private val json = JsonParser()
-const val ARRAY_ITEM_TYPE = "ArrayItem"
-const val ARRAY_TYPE = "-element Array{"
+const val ARRAY_ITEM_TYPE = "_Intellij_ArrayItem"
+const val ARRAY_TYPE = "Array{"

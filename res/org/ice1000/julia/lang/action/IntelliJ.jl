@@ -62,22 +62,22 @@ function _intellij_varinfo(m=Main)
     pattern = "_intellij_"
     rows = Array[ let value = getfield(m, v)
         name = string(v)
-        sz = if VERSION >= v"0.7.0"
-            @eval using Base:summarysize, format_bytes
-            format_bytes(summarysize(value))
+        sz_Int = if VERSION >= v"0.7.0"
+            @eval using Base:summarysize
+            summarysize(value)
             else
                 ""
             end
-        size = value === Main || value === Base || value === Core ? "" : sz
+        size = value === Main || value === Base || value === Core ? 0 : sz_Int
         type_info = summary(value)
         info = type_info
-        if size == "0 bytes" && occursin("typeof(",type_info)
+        if size == 0 && occursin("typeof(",type_info)
             type_info = "function"
         else
-            info = _intellij_stringfy(value)
+            info = (size > 3*1024*1024) ? "<more than 3 MiB data>" : _intellij_stringfy(value)
         end
 
-        String[name, size, info, type_info]
+        String[name, size|>repr, info, type_info]
         end
         for v in sort!(names(m)) if isdefined(m, v) &&
             !occursin(pattern, string(v)) && _intellij_filter_names(v)

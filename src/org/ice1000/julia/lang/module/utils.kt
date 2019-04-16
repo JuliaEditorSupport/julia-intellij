@@ -251,3 +251,18 @@ fun Project.reloadSdkAndIndex() {
 		syncJuliaLibrary()
 	}
 }
+
+const val KiB = 1 shl 10
+const val MiB = 1 shl 20
+
+fun String.summaryBytes() = try {
+	val ret = Integer.parseInt(this)
+	when (ret) {
+		in 1..1023 -> " $ret B"
+		in 1024..3 * 1048576 -> " ${String.format("%.3f", ret.toDouble() / KiB)} KiB"
+//			in MiB..3 * MiB
+		else -> " ${String.format("%.3f", ret.toDouble() / MiB)} MiB"
+	}
+} catch (e: Exception) {
+	""
+}
