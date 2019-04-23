@@ -20,7 +20,7 @@ val commitHash = kotlin.run {
 	output.trim()
 }
 
-val pluginComingVersion = "0.4.0"
+val pluginComingVersion = "0.4.1"
 val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
 val packageName = "org.ice1000.julia"
 
@@ -29,8 +29,8 @@ version = pluginVersion
 
 plugins {
 	java
-	id("org.jetbrains.intellij") version "0.4.6"
-	id("org.jetbrains.grammarkit") version "2018.3.1"
+	id("org.jetbrains.intellij") version "0.4.8"
+	id("org.jetbrains.grammarkit") version "2019.1"
 	kotlin("jvm") version "1.3.30"
 }
 
