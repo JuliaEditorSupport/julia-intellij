@@ -41,8 +41,8 @@ import java.awt.Color
  */
 class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 	override fun getGotoDeclarationTargets(sourceElement: PsiElement?, offset: Int, editor: Editor?): Array<PsiElement>? {
-
-		val project = sourceElement?.project ?: return null
+		sourceElement ?: return null
+		val project = sourceElement.project
 
 		fun arrayOfPsiElements(dir: PsiDirectory, text: String): Array<PsiElement>? {
 			val url = dir.virtualFile.url + File.separator + text
@@ -52,18 +52,21 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 		}
 
 		val elementType = sourceElement.node?.elementType
+		// goto file when click string content
 		if (elementType == JuliaTypes.REGULAR_STRING_PART_LITERAL) {
+
+			val file = sourceElement.containingFile ?: return null
 			val func = sourceElement.parent?.parent?.parent
+
 			if (func is JuliaApplyFunctionOp) {
 				val name = func.exprList.firstOrNull()?.text ?: return null
+				val currentFileDir = file.containingDirectory ?: return null
 				when (name) {
 					"joinpath" -> {
-						val currentFileDir = sourceElement.containingFile.containingDirectory
 						val text = func.exprList.asSequence().filterIsInstance<JuliaString>().joinToString(File.separator) { it.text.trim('\"') }
 						return arrayOfPsiElements(currentFileDir, text)
 					}
 					"include" -> {
-						val currentFileDir = sourceElement.containingFile.containingDirectory
 						return arrayOfPsiElements(currentFileDir, sourceElement.text)
 					}
 				}
