@@ -5,6 +5,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.ProcessingContext
 import com.intellij.util.ui.ColorIcon
 import icons.JuliaIcons
@@ -12,6 +13,7 @@ import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor.CompletionHolder.STRING_COLORS_PRIORITY
 import org.ice1000.julia.lang.module.JULIA_COLOR_CONSTANTS
 import org.ice1000.julia.lang.psi.*
+import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 import org.ice1000.julia.lang.psi.impl.prevRealSibling
 
 open class JuliaCompletionProvider(private val list: List<LookupElement>) : CompletionProvider<CompletionParameters>() {
@@ -26,7 +28,7 @@ class JuliaModuleStubCompletionProvider : CompletionProvider<CompletionParameter
 		val text = parameters.originalPosition?.text ?: return
 		val project = parameters.editor.project ?: return
 		val keys = JuliaModuleDeclarationIndex.getAllKeys(project)
-		keys
+		keys.asSequence()
 			.filter { it.contains(text, true) }
 			.forEach { str ->
 				val k = JuliaModuleDeclarationIndex.findElementsByName(project, str)
@@ -38,6 +40,32 @@ class JuliaModuleStubCompletionProvider : CompletionProvider<CompletionParameter
 						.prioritized(0))
 				}
 			}
+	}
+}
+
+class JuliaUsingMemberAccessCompletionProvider : CompletionProvider<CompletionParameters>() {
+	override fun addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+		val elem = parameters.position
+		val file = elem.containingFile
+		val project = file.project
+		val currentSymbol = elem.parent
+		val moduleSymbol = currentSymbol.parent.firstChild as? JuliaSymbol ?: return
+		if (moduleSymbol.symbolKind != JuliaSymbolKind.ModuleName) return
+		val modules = JuliaModuleDeclarationIndex.get(moduleSymbol.text, project, GlobalSearchScope.allScope(project))
+		for (moduleDeclaration in modules) {
+			val stmts = moduleDeclaration.statements ?: continue
+			stmts.children.asSequence()
+				.filter {
+					it is IJuliaFunctionDeclaration
+				}.forEach {
+					val ident = (it as IJuliaFunctionDeclaration).nameIdentifier?.text ?: return@forEach
+					result.addElement(LookupElementBuilder
+						.create(ident)
+						.withIcon(it.getIcon())
+						.withTypeText(it.containingFile.presentText(), true)
+						.prioritized(0))
+				}
+		}
 	}
 }
 
@@ -211,53 +239,67 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			typeChar in ".([ "
 
 	init {
+		// static
+		// `where`
 		extend(CompletionType.BASIC, psiElement()
 			.inside(JuliaFunction::class.java)
 			.afterLeaf(")")
 			.andNot(psiElement()
 				.withParent(JuliaStatements::class.java)),
 			JuliaCompletionProvider(where))
+		// keywords
 		extend(CompletionType.BASIC,
 			psiElement()
-				.inside(JuliaStatements::class.java).andNot(
-					psiElement().withParent(JuliaString::class.java)),
+				.inside(JuliaStatements::class.java)
+				.andNot(psiElement().withAncestor(2, psiElement(JuliaString::class.java)))
+				.andNot(psiElement().withAncestor(2, psiElement(JuliaComment::class.java)))
+				.andNot(psiElement().withAncestor(3, psiElement(JuliaUsing::class.java))),
 			JuliaCompletionProvider(statementBegin))
+		// functions
 		extend(CompletionType.BASIC,
 			psiElement()
 				.inside(JuliaStatements::class.java)
-				.andNot(psiElement().withParent(JuliaString::class.java))
-				.andNot(psiElement().withParent(JuliaComment::class.java)),
+				.andNot(psiElement().withAncestor(2, psiElement(JuliaString::class.java)))
+				.andNot(psiElement().withAncestor(2, psiElement(JuliaComment::class.java)))
+				.andNot(psiElement().withAncestor(3, psiElement(JuliaUsing::class.java))),
 			JuliaCompletionProvider(builtinFunction))
+		// `catch`, `finally`
 		extend(CompletionType.BASIC,
 			psiElement()
 				.inside(JuliaStatements::class.java)
-				.andNot(psiElement().withParent(JuliaString::class.java))
-				.andNot(psiElement().withParent(JuliaComment::class.java)),
-			JuliaTypeStubCompletionProvider())
-		extend(CompletionType.BASIC,
-			psiElement()
-				.inside(JuliaStatements::class.java)
-				.andNot(psiElement().withParent(JuliaString::class.java)),
+				.andNot(psiElement().withAncestor(2, psiElement(JuliaString::class.java)))
+				.andNot(psiElement().withAncestor(3, psiElement(JuliaUsing::class.java))),
 			JuliaCompletionProvider(tryInside))
+		// `break`, `continue`
 		extend(CompletionType.BASIC,
 			psiElement()
 				.andOr(
 					psiElement().inside(JuliaWhileExpr::class.java),
 					psiElement().inside(JuliaForExpr::class.java))
-				.andNot(psiElement().withParent(JuliaString::class.java)),
+				.andNot(psiElement().withAncestor(2, psiElement(JuliaString::class.java))),
 			JuliaCompletionProvider(loopInside))
+		// `elseif`, `else`
 		extend(CompletionType.BASIC,
 			psiElement()
 				.inside(JuliaIfExpr::class.java)
-				.andNot(psiElement().withParent(JuliaString::class.java)),
+				.andNot(psiElement().withAncestor(2, psiElement(JuliaString::class.java))),
 			JuliaCompletionProvider(ifInside))
 		extend(CompletionType.BASIC,
 			psiElement()
 				.andOr(
 					psiElement().inside(JuliaFunction::class.java),
 					psiElement().inside(JuliaMacro::class.java))
-				.andNot(psiElement().withParent(JuliaString::class.java)),
+				.andNot(psiElement().withAncestor(2, psiElement(JuliaString::class.java))),
 			JuliaCompletionProvider(functionInside))
+
+		// dynamic
+		extend(CompletionType.BASIC,
+			psiElement()
+				.inside(JuliaStatements::class.java)
+				.andNot(psiElement().withAncestor(2, psiElement(JuliaString::class.java)))
+				.andNot(psiElement().withAncestor(2, psiElement(JuliaComment::class.java)))
+				.andNot(psiElement().withAncestor(3, psiElement(JuliaUsing::class.java))),
+			JuliaTypeStubCompletionProvider())
 		extend(CompletionType.BASIC,
 			psiElement()
 				.inside(JuliaStatements::class.java),
@@ -266,6 +308,11 @@ class JuliaBasicCompletionContributor : CompletionContributor() {
 			psiElement()
 				.inside(JuliaStringContent::class.java),
 			JuliaColorCompletionProvider())
+		extend(CompletionType.BASIC,
+			psiElement()
+				.withParent(JuliaSymbol::class.java)
+				.withAncestor(3, psiElement(JuliaUsing::class.java)),
+			JuliaUsingMemberAccessCompletionProvider())
 	}
 }
 
