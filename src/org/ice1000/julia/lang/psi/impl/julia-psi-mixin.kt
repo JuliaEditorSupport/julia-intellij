@@ -304,7 +304,7 @@ abstract class JuliaSymbolMixin(node: ASTNode) : JuliaAbstractSymbol(node), Juli
 			(parent is JuliaMemberAccess && this === parent.firstChild &&
 				parent.parent.let { grandpa ->
 					(grandpa is JuliaUsing || grandpa is JuliaImportExpr)
-						&& grandpa.children.firstOrNull { it is JuliaMemberAccess } === parent
+//						&& grandpa.children.firstOrNull { it is JuliaMemberAccess } === parent
 				})
 			/*TODO function Base.xxx*/ -> JuliaSymbolKind.ModuleName
 
