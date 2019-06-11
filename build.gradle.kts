@@ -45,21 +45,22 @@ allprojects {
 	intellij {
 		updateSinceUntilBuild = false
 		instrumentCode = true
-		val user = System.getProperty("user.name")
-		when (System.getProperty("os.name")) {
-			"Linux" -> {
-				val root = "/home/$user/.local/share/JetBrains/Toolbox/apps"
-				val intellijPath = fromToolbox("$root/IDEA-C/ch-0")
-					?: fromToolbox("$root/IDEA-C-JDK11/ch-0")
-					?: fromToolbox("$root/IDEA-U/ch-0")
-					?: fromToolbox("$root/IDEA-JDK11/ch-0")
-				intellijPath?.absolutePath?.let { localPath = it }
-				val pycharmPath = fromToolbox("$root/PyCharm-C/ch-0")
-					?: fromToolbox("$root/IDEA-C-JDK11/ch-0")
-					?: fromToolbox("$root/IDEA-C/ch-0")
-				pycharmPath?.absolutePath?.let { alternativeIdePath = it }
-			}
-		}
+//		val user = System.getProperty("user.name")
+//		when (System.getProperty("os.name")) {
+//			"Linux" -> {
+//				val root = "/home/$user/.local/share/JetBrains/Toolbox/apps"
+//				val intellijPath = fromToolbox("$root/IDEA-C/ch-0")
+//					?: fromToolbox("$root/IDEA-C-JDK11/ch-0")
+//					?: fromToolbox("$root/IDEA-U/ch-0")
+//					?: fromToolbox("$root/IDEA-JDK11/ch-0")
+//				intellijPath?.absolutePath?.let { localPath = it }
+//				val pycharmPath = fromToolbox("$root/PyCharm-C/ch-0")
+//					?: fromToolbox("$root/IDEA-C-JDK11/ch-0")
+//					?: fromToolbox("$root/IDEA-C/ch-0")
+//				pycharmPath?.absolutePath?.let { alternativeIdePath = it }
+//			}
+//		}
+		version = "2019.1"
 		setMarkdownDependency()
 	}
 }
