@@ -29,9 +29,9 @@ version = pluginVersion
 
 plugins {
 	java
-	id("org.jetbrains.intellij") version "0.4.8"
-	id("org.jetbrains.grammarkit") version "2019.1"
-	kotlin("jvm") version "1.3.30"
+	id("org.jetbrains.intellij") version "0.4.9"
+	id("org.jetbrains.grammarkit") version "2019.2"
+	kotlin("jvm") version "1.3.41"
 }
 
 fun fromToolbox(path: String) = file(path).listFiles().orEmpty().filter { it.isDirectory }.maxBy {
@@ -60,7 +60,7 @@ allprojects {
 //				pycharmPath?.absolutePath?.let { alternativeIdePath = it }
 //			}
 //		}
-		version = "2019.1"
+		version = "2019.2"
 		setMarkdownDependency()
 	}
 }
@@ -93,13 +93,17 @@ sourceSets {
 	}
 }
 
-repositories { mavenCentral() }
+repositories {
+	mavenCentral()
+	maven { setUrl("https://jitpack.io") }
+}
 
 dependencies {
 	compile(kotlin("stdlib-jdk8"))
 	compile(group = "org.eclipse.mylyn.github", name = "org.eclipse.egit.github.core", version = "2.1.5") {
 		exclude(module = "gson")
 	}
+	compile(group = "com.github.ballerina-platform", name="lsp4intellij", version = "0.92.1")
 	testCompile(kotlin(module = "test-junit"))
 	testCompile(group = "junit", name = "junit", version = "4.12")
 }
@@ -117,8 +121,8 @@ task("isCI") {
 }
 
 // Don't specify type explicitly. Will be incorrectly recognized
-val parserRoot = Paths.get("org", "ice1000", "julia", "lang")!!
-val lexerRoot = Paths.get("gen", "org", "ice1000", "julia", "lang")!!
+val parserRoot = Paths.get("org", "ice1000", "julia", "lang")
+val lexerRoot = Paths.get("gen", "org", "ice1000", "julia", "lang")
 fun path(more: Iterable<*>) = more.joinToString(File.separator)
 fun bnf(name: String) = Paths.get("grammar", "$name-grammar.bnf").toString()
 fun flex(name: String) = Paths.get("grammar", "$name-lexer.flex").toString()
@@ -199,10 +203,10 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Delete> { dependsOn(cleanGenerated) }
 
 fun setMarkdownDependency() {
-       repositories {
-               maven("https://dl.bintray.com/jetbrains/markdown/")
-       }
-       dependencies {
-               compile("org.jetbrains", "markdown", "0.1.31")
-       }
+	repositories {
+		maven("https://dl.bintray.com/jetbrains/markdown/")
+	}
+	dependencies {
+		compile("org.jetbrains", "markdown", "0.1.31")
+	}
 }

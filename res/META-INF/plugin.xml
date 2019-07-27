@@ -33,7 +33,9 @@
 		<xdebugger.breakpointType implementation="org.ice1000.julia.lang.execution.JuliaLineBreakpointType"/>
 		<consoleFilterProvider implementation="org.ice1000.julia.lang.execution.JuliaConsoleFilterProvider"/>
 		<console.folding implementation="org.ice1000.julia.lang.execution.JuliaConsoleFolding"/>
+		<!--
 		<moduleConfigurationEditorProvider implementation="org.ice1000.julia.lang.module.JuliaModuleConfigEditor"/>
+		-->
 		<directoryProjectGenerator implementation="org.ice1000.julia.lang.module.JuliaProjectGenerator"/>
 		<iconProvider implementation="org.ice1000.julia.lang.editing.JuliaIconProvider"/>
 		<errorHandler implementation="org.ice1000.julia.lang.error.GitHubErrorReporter"/>
@@ -54,15 +56,33 @@
 		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaAbstractTypeDeclarationIndex"/>
 		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaTypeDeclarationIndex"/>
 		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaModuleDeclarationIndex"/>
+		<!--
+		<localInspection displayName="LSP"
+										 shortName="LSP"
+										 enabledByDefault="true"
+										 implementationClass="org.wso2.lsp4intellij.contributors.inspection.DummyLSPInspection"/>
+		<gotoSymbolContributor implementation="org.wso2.lsp4intellij.contributors.symbol.LSPSymbolContributor"
+													 id="LSPSymbolContributor"/>
+		<renameHandler implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameHandler"
+									 id="LSPRenameHandler" order="first"/>
+		<renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"
+															 id="LSPRenameProcessor" order="first"/>
+													 -->
+		<preloadingActivity implementation="org.ice1000.julia.lang.preload.JuliaPreloadingActivity"
+												id="org.ice1000.julia.lang.preload.JuliaPreloadingActivity" />
 		<lang.refactoringSupport
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaRefactoringSupportProvider"/>
+		<completion.contributor implementationClass="org.wso2.lsp4intellij.contributors.LSPCompletionContributor"
+														id="LSPCompletionContributor" language="Julia"/>
+		<!--
 		<completion.contributor
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor"/>
 		<completion.contributor
 			language="DocumentFormat"
 			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtCompletionContributor"/>
+			-->
 		<quoteHandler
 			fileType="Julia"
 			className="org.ice1000.julia.lang.editing.JuliaQuoteHandler"/>
@@ -250,4 +270,9 @@
 			<keyboard-shortcut first-keystroke="shift ENTER" keymap="$default"/>
 		</action>
 	</actions>
+	<application-components>
+		<component>
+			<implementation-class>org.wso2.lsp4intellij.IntellijLanguageClient</implementation-class>
+		</component>
+	</application-components>
 </idea-plugin>
