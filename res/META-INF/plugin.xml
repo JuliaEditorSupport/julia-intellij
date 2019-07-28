@@ -56,7 +56,6 @@
 		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaAbstractTypeDeclarationIndex"/>
 		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaTypeDeclarationIndex"/>
 		<stubIndex implementation="org.ice1000.julia.lang.psi.JuliaModuleDeclarationIndex"/>
-		<!--
 		<localInspection displayName="LSP"
 										 shortName="LSP"
 										 enabledByDefault="true"
@@ -67,7 +66,6 @@
 									 id="LSPRenameHandler" order="first"/>
 		<renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"
 															 id="LSPRenameProcessor" order="first"/>
-													 -->
 		<preloadingActivity implementation="org.ice1000.julia.lang.preload.JuliaPreloadingActivity"
 												id="org.ice1000.julia.lang.preload.JuliaPreloadingActivity" />
 		<lang.refactoringSupport
@@ -79,10 +77,10 @@
 		<completion.contributor
 			language="Julia"
 			implementationClass="org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor"/>
+			-->
 		<completion.contributor
 			language="DocumentFormat"
 			implementationClass="org.ice1000.julia.lang.docfmt.DocfmtCompletionContributor"/>
-			-->
 		<quoteHandler
 			fileType="Julia"
 			className="org.ice1000.julia.lang.editing.JuliaQuoteHandler"/>
