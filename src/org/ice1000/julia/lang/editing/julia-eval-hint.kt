@@ -65,7 +65,9 @@ enum class JuliaHintType(desc: String, enabled: Boolean) {
 					val exprList = elem.exprList
 					val offset = exprList.first().textLength
 					val rValue = exprList.lastOrNull() ?: return emptyList()
-					val type = parseType(rValue) ?: return emptyList()
+					val parsedType = parseType(rValue)
+					if (rValue.firstChild.text == parsedType) return emptyList() // avoid `a '::T' = T()`
+					val type = parsedType ?: return emptyList()
 					return listOf(InlayInfo("::$type", elem.textOffset + offset))
 				}
 				// function parameters
@@ -104,7 +106,6 @@ class JuliaInlayParameterHintsProvider : InlayParameterHintsProvider {
 	override fun getParameterHints(element: PsiElement) = JuliaHintType.resolveToEnabled(element)?.provideHints(element)
 		?: emptyList()
 
-	override fun canShowHintsWhenDisabled() = true
 	override fun getDefaultBlackList(): Set<String> = emptySet()
 	override fun isBlackListSupported() = false
 	override fun getSupportedOptions() = JuliaHintType.values().map { it.option }
