@@ -14,6 +14,7 @@ import icons.JuliaIcons
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.action.errorNotification
 import org.ice1000.julia.lang.module.ui.JuliaSetupSdkWizardStepImpl
+import javax.swing.JComponent
 
 class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	init {
@@ -78,6 +79,8 @@ class JuliaModuleType : ModuleType<JuliaModuleBuilder>(JULIA_MODULE_ID) {
  * @author: zxj5470
  * @date: 2018/1/29
  */
+
+/*
 class JuliaModuleConfigEditor : ModuleConfigurationEditorProvider {
 	override fun createEditors(state: ModuleConfigurationState): Array<ModuleConfigurationEditor> {
 		val module = state.rootModel?.module ?: return emptyArray()
@@ -95,4 +98,4 @@ class JuliaCompileOutputEditor(state: ModuleConfigurationState) : ModuleElements
 	override fun getDisplayName() = "Paths"
 	override fun getHelpTopic() = editor.helpTopic
 }
-
+*/
