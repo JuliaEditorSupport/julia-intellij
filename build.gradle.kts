@@ -29,40 +29,49 @@ version = pluginVersion
 
 plugins {
 	java
-	id("org.jetbrains.intellij") version "0.4.8"
-	id("org.jetbrains.grammarkit") version "2019.1"
+	id("org.jetbrains.intellij") version "0.4.10"
+	id("org.jetbrains.grammarkit") version "2019.2"
 	kotlin("jvm") version "1.3.30"
 }
 
-fun fromToolbox(path: String) = file(path).listFiles().orEmpty().filter { it.isDirectory }.maxBy {
-	val (major, minor, patch) = it.name.split('.')
-	String.format("%5s%5s%5s", major, minor, patch)
-}
+fun fromToolbox(root: String, ide: String) = file(root)
+	.resolve(ide)
+	.takeIf { it.exists() }
+	?.resolve("ch-0")
+	?.listFiles()
+	.orEmpty()
+	.filterNotNull()
+	.filter { it.isDirectory }
+	.maxBy {
+		val (major, minor, patch) = it.name.split('.')
+		String.format("%5s%5s%5s", major, minor, patch)
+	}
+	?.also { println("Picked: $it") }
 
 allprojects {
 	apply { plugin("org.jetbrains.grammarkit") }
+}
 
-	intellij {
-		updateSinceUntilBuild = false
-		instrumentCode = true
-//		val user = System.getProperty("user.name")
-//		when (System.getProperty("os.name")) {
-//			"Linux" -> {
-//				val root = "/home/$user/.local/share/JetBrains/Toolbox/apps"
-//				val intellijPath = fromToolbox("$root/IDEA-C/ch-0")
-//					?: fromToolbox("$root/IDEA-C-JDK11/ch-0")
-//					?: fromToolbox("$root/IDEA-U/ch-0")
-//					?: fromToolbox("$root/IDEA-JDK11/ch-0")
-//				intellijPath?.absolutePath?.let { localPath = it }
-//				val pycharmPath = fromToolbox("$root/PyCharm-C/ch-0")
-//					?: fromToolbox("$root/IDEA-C-JDK11/ch-0")
-//					?: fromToolbox("$root/IDEA-C/ch-0")
-//				pycharmPath?.absolutePath?.let { alternativeIdePath = it }
-//			}
-//		}
-		version = "2019.1"
-		setMarkdownDependency()
+intellij {
+	updateSinceUntilBuild = false
+	instrumentCode = true
+	val user = System.getProperty("user.name")
+	val os = System.getProperty("os.name")
+	val root = when {
+		os.startsWith("Windows") -> "C:\\Users\\$user\\AppData\\Local\\JetBrains\\Toolbox\\apps"
+		os == "Linux" -> "/home/$user/.local/share/JetBrains/Toolbox/apps"
+		else -> return@intellij
 	}
+	val intellijPath = sequenceOf("IDEA-C-JDK11", "IDEA-C", "IDEA-JDK11", "IDEA-U")
+		.mapNotNull { fromToolbox(root, it) }.firstOrNull()
+	intellijPath?.absolutePath?.let { localPath = it }
+	val pycharmPath = sequenceOf("PyCharm-C", "IDEA-C-JDK11", "IDEA-C", "IDEA-JDK11", "IDEA-U")
+		.mapNotNull { fromToolbox(root, it) }.firstOrNull()
+	pycharmPath?.absolutePath?.let { alternativeIdePath = it }
+
+	if (!isCI) setPlugins("PsiViewer:192-SNAPSHOT", "java")
+	else setPlugins("java")
+	setMarkdownDependency()
 }
 
 java {
@@ -117,8 +126,8 @@ task("isCI") {
 }
 
 // Don't specify type explicitly. Will be incorrectly recognized
-val parserRoot = Paths.get("org", "ice1000", "julia", "lang")!!
-val lexerRoot = Paths.get("gen", "org", "ice1000", "julia", "lang")!!
+val parserRoot = Paths.get("org", "ice1000", "julia", "lang")
+val lexerRoot = Paths.get("gen", "org", "ice1000", "julia", "lang")
 fun path(more: Iterable<*>) = more.joinToString(File.separator)
 fun bnf(name: String) = Paths.get("grammar", "$name-grammar.bnf").toString()
 fun flex(name: String) = Paths.get("grammar", "$name-lexer.flex").toString()
@@ -140,6 +149,7 @@ val genLexer = task<GenerateLexer>("genLexer") {
 	targetDir = path(lexerRoot)
 	targetClass = "JuliaLexer"
 	purgeOldFiles = true
+	dependsOn(genParser)
 }
 
 val genDocfmtParser = task<GenerateParser>("genDocfmtParser") {
@@ -160,6 +170,7 @@ val genDocfmtLexer = task<GenerateLexer>("genDocfmtLexer") {
 	targetDir = path(lexerRoot + "docfmt")
 	targetClass = "DocfmtLexer"
 	purgeOldFiles = true
+	dependsOn(genDocfmtParser)
 }
 
 val cleanGenerated = task("cleanGenerated") {
@@ -199,10 +210,10 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Delete> { dependsOn(cleanGenerated) }
 
 fun setMarkdownDependency() {
-       repositories {
-               maven("https://dl.bintray.com/jetbrains/markdown/")
-       }
-       dependencies {
-               compile("org.jetbrains", "markdown", "0.1.31")
-       }
+	repositories {
+		maven("https://dl.bintray.com/jetbrains/markdown/")
+	}
+	dependencies {
+		compile("org.jetbrains", "markdown", "0.1.31")
+	}
 }
