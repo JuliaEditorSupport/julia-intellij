@@ -1,7 +1,8 @@
 language: java
-jdk: oraclejdk8
+jdk: openjdk8
 sudo: false
 script:
+- jdk_switcher use openjdk8
 - bash gradlew displayCommitHash
 - bash gradlew isCI
 - bash gradlew buildPlugin
