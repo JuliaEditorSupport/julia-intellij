@@ -135,7 +135,7 @@ class JuliaRunConfigurationProducer : RunConfigurationProducer<JuliaRunConfigura
 		configuration.targetFile == context.dataContext.getData(CommonDataKeys.VIRTUAL_FILE)?.path
 
 	override fun setupConfigurationFromContext(
-		configuration: JuliaRunConfiguration, context: ConfigurationContext, ref: Ref<PsiElement>?): Boolean {
+		configuration: JuliaRunConfiguration, context: ConfigurationContext, ref: Ref<PsiElement>): Boolean {
 		val file = context.dataContext.getData(CommonDataKeys.VIRTUAL_FILE)
 		if (file?.fileType != JuliaFileType) return false
 		configuration.targetFile = file.path

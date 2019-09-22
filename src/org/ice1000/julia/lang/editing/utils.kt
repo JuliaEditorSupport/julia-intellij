@@ -105,9 +105,23 @@ object JuliaRValueLiteral {
 			is JuliaCommand -> "Cmd"
 			is JuliaString -> "String"
 			is JuliaVersionNumber -> "VersionNumber"
-			is JuliaExpr -> elem.type.takeIf { it != null }
+			is JuliaExpr -> elem.type.takeIf { it != null } ?: parseStruct(elem)
 			else -> null
 		}?.applyTypeToElement(elem)
+	}
+
+	private fun parseStruct(elem: PsiElement): String? {
+		return when (elem) {
+			is JuliaApplyFunctionOp -> {
+				val ref = elem.firstChild.reference?.resolve()
+				val struct = ref?.parent
+				if (struct !is JuliaTypeDeclaration) null
+				else {
+					struct.nameIdentifier?.text
+				}
+			}
+			else -> null
+		}
 	}
 
 	private fun String?.applyTypeToElement(elem: PsiElement) = apply {
