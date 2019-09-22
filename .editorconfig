@@ -18,3 +18,10 @@ indent_style=space
 [*.jl]
 indent_size = 4
 indent_style = space
+
+[unicode-list.txt]
+charset=utf-8
+end_of_line=lf
+
+[*.flex]
+end_of_line=lf

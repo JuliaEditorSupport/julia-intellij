@@ -93,7 +93,7 @@ SIMPLE_SYMBOL={VALID_CHAR}({VALID_CHAR}|[\d\!])*
 VALID_CHAR=[a-zA-Z_\U0000A0-\U10ffff]
 
 STRING_UNICODE=\\((u{HEXDIGIT}{4})|(x{HEXDIGIT}{2}))
-CHAR_LITERAL='([^\\\'\x00-\x1F\x7F]|\\[^\x00-\x1F\x7F]+)'
+CHAR_LITERAL='([^\\\'\x00-\x1F\x7F]|[a-zA-Z_\u0000A0-\u10ffff])+'
 STRING_ESCAPE=\\[^]
 
 DIGIT=[\d_]

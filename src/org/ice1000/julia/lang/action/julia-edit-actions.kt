@@ -61,7 +61,7 @@ class JuliaUnicodeInputAction : JuliaAction(
 		private val unicodeList: List<LookupElementBuilder> by lazy {
 			JuliaUnicodeInputAction::class.java.classLoader.getResource(unicodeFile)
 				.readText()
-				.split('\n')
+				.lines()
 				.mapNotNull { str ->
 					if (str.isBlank()) return@mapNotNull null
 					val (a, b) = str.split(' ')
@@ -123,13 +123,15 @@ class JuliaUnicodeInputAction : JuliaAction(
 				override fun onClosed(event: LightweightWindowEvent) {
 					CommandProcessor.getInstance().executeCommand(project, {
 						if (null != editor) ApplicationManager.getApplication().runWriteAction {
-							editor.document.insertString(editor.caretModel.offset, field.text.let {
+							val inserted = field.text
+								.let {
 								when (it) {
 									"''", "\"\"" -> it.replaceFirst(it[0], '\\')
 									else -> it.replace("\'", "\\'").replace("\"", "\\'")
 								}
-							})
-							editor.caretModel.moveCaretRelatively(field.text.length, 0, false, false, true)
+							}
+							editor.document.insertString(editor.caretModel.offset, inserted)
+							editor.caretModel.moveCaretRelatively(inserted.length, 0, false, false, true)
 						}
 					}, null, null)
 				}

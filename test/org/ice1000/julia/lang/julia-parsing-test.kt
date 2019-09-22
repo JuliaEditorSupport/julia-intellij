@@ -56,6 +56,7 @@ class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION,
 	// TODO 373
 	fun testParseIssue373() = doTest(true)
 	fun testParseIssue379() = doTest(true)
+	fun testParseIssue426() = doTest(true)
 	fun testParseEnd() = doTest(true)
 	fun testParseEolAfterComma() = doTest(true)
 	fun testParseEolAfterWhere() = doTest(true)
