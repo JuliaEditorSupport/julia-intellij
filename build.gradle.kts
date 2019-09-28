@@ -31,7 +31,7 @@ plugins {
 	java
 	id("org.jetbrains.intellij") version "0.4.10"
 	id("org.jetbrains.grammarkit") version "2019.2"
-	kotlin("jvm") version "1.3.30"
+	kotlin("jvm") version "1.3.50"
 }
 
 fun fromToolbox(root: String, ide: String) = file(root)
@@ -42,6 +42,7 @@ fun fromToolbox(root: String, ide: String) = file(root)
 	.orEmpty()
 	.filterNotNull()
 	.filter { it.isDirectory }
+	.filterNot { it.name.endsWith(".plugins") }
 	.maxBy {
 		val (major, minor, patch) = it.name.split('.')
 		String.format("%5s%5s%5s", major, minor, patch)
@@ -50,6 +51,10 @@ fun fromToolbox(root: String, ide: String) = file(root)
 
 allprojects {
 	apply { plugin("org.jetbrains.grammarkit") }
+}
+
+grammarKit {
+	grammarKitRelease = "07f30a1e7666f36ae780f614b6bbc89690ba36c3"
 }
 
 intellij {
@@ -62,14 +67,14 @@ intellij {
 		os == "Linux" -> "/home/$user/.local/share/JetBrains/Toolbox/apps"
 		else -> return@intellij
 	}
-	val intellijPath = sequenceOf("IDEA-C-JDK11", "IDEA-C", "IDEA-JDK11", "IDEA-U")
+	val intellijPath = sequenceOf("IDEA-C", "IDEA-U")
 		.mapNotNull { fromToolbox(root, it) }.firstOrNull()
 	intellijPath?.absolutePath?.let { localPath = it }
-	val pycharmPath = sequenceOf("PyCharm-C", "IDEA-C-JDK11", "IDEA-C", "IDEA-JDK11", "IDEA-U")
+	val pycharmPath = sequenceOf("PyCharm-C", "IDEA-C", "IDEA-U")
 		.mapNotNull { fromToolbox(root, it) }.firstOrNull()
 	pycharmPath?.absolutePath?.let { alternativeIdePath = it }
 
-	if (!isCI) setPlugins("PsiViewer:192-SNAPSHOT", "java")
+	if (!isCI) setPlugins("PsiViewer:193-SNAPSHOT", "java")
 	else setPlugins("java")
 	setMarkdownDependency()
 }
