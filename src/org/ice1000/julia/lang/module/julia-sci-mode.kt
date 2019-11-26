@@ -87,7 +87,7 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		this.tabs = JuliaSciToolWindow.MyTabs(this.project)
 		this.tabs.tabsPosition = JBTabsPosition.right
 		this.tabs.setPopupGroup(DefaultActionGroup(SaveAsFileAction(), CloseAllPlotsAction()), "unknown", true)
-		this.tabs.isTabDraggingEnabled = true
+		// this.tabs.isTabDraggingEnabled = true
 		this.tabs.addListener(object : TabsListener {
 			override fun tabRemoved(tabToRemove: TabInfo) {
 				this@JuliaSciToolWindow.map.remove(tabToRemove)
