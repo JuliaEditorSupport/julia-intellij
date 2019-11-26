@@ -17,7 +17,7 @@ class DocfmtParserDefinition : ParserDefinition {
 		private val FILE = IFileElementType(DocfmtLanguage.INSTANCE)
 	}
 
-	override fun spaceExistanceTypeBetweenTokens(left: ASTNode?, right: ASTNode?) = ParserDefinition.SpaceRequirements.MAY
+	override fun spaceExistenceTypeBetweenTokens(left: ASTNode?, right: ASTNode?) = ParserDefinition.SpaceRequirements.MAY
 	override fun createParser(project: Project?) = DocfmtParser()
 	override fun createFile(viewProvider: FileViewProvider) = DocfmtFile(viewProvider)
 	override fun createElement(node: ASTNode?): PsiElement = DocfmtTypes.Factory.createElement(node)

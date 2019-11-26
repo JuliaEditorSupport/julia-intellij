@@ -1,7 +1,7 @@
 <idea-plugin>
 	<name>Julia</name>
 	<vendor email="ice1000kotlin@foxmail.com" url="https://ice1000.org">ice1000</vendor>
-	<idea-version since-build="173.0"/>
+	<idea-version since-build="182.0"/>
 
 	<depends>com.intellij.modules.lang</depends>
 	<depends optional="true" config-file="plugin-clion.xml">com.intellij.modules.clion</depends>
@@ -121,13 +121,11 @@
 								icon="/icons/julia.png"
 								factoryClass="org.ice1000.julia.lang.module.JuliaSciToolWindowFactory"/>
 		<projectService
-			serviceInterface="org.ice1000.julia.lang.module.JuliaSciToolWindow"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaSciToolWindow"/>
 		<projectService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaProjectSettingsService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaProjectSettingsServiceImpl"/>
 		<projectService
-			serviceInterface="org.ice1000.julia.lang.module.JuliaLanguageServerService"
 			serviceImplementation="org.ice1000.julia.lang.module.JuliaLanguageServerService"/>
 		<applicationService
 			serviceInterface="org.ice1000.julia.lang.module.JuliaGlobalSettingsService"

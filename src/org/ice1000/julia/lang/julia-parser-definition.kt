@@ -20,10 +20,7 @@ open class JuliaParserDefinition : ParserDefinition {
 
 	override fun createParser(project: Project?): PsiParser = JuliaParser()
 	final override fun createFile(viewProvider: FileViewProvider) = JuliaFile(viewProvider)
-	final override fun spaceExistanceTypeBetweenTokens(
-		left: ASTNode?,
-		right: ASTNode?) = ParserDefinition.SpaceRequirements.MAY
-
+	final override fun spaceExistenceTypeBetweenTokens(left: ASTNode?, right: ASTNode?) = ParserDefinition.SpaceRequirements.MAY
 	final override fun getStringLiteralElements() = JuliaTokenType.STRINGS
 	final override fun getFileNodeType() = FILE
 	final override fun createLexer(project: Project?) = JuliaLexerAdapter()
