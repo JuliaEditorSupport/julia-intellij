@@ -1,4 +1,6 @@
 FILE
   JuliaStatementsImpl(STATEMENTS)
-    JuliaCharLitImpl(CHAR_LIT)
-      PsiElement(CHAR_LITERAL)(''\''')
+    JuliaTransposeOpImpl(TRANSPOSE_OP)
+      JuliaCharLitImpl(CHAR_LIT)
+        PsiElement(CHAR_LITERAL)(''\'')
+      PsiElement(TRANSPOSE_SYM)(''')
