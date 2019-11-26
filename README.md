@@ -15,7 +15,7 @@ This is a **work in progress**, some features are implemented partially, there m
   </tr>
   <tr>
     <td>Travis CI (with IdeaC)</td>
-    <td><a href="https://travis-ci.org/JuliaEditorSupport/julia-intellij"><img src="https://travis-ci.org/JuliaEditorSupport/julia-intellij.svg" alt="Travis CI Build status"></a></td>
+    <td><a href="https://travis-ci.org/JuliaEditorSupport/julia-intellij"><img src="https://api.travis-ci.org/JuliaEditorSupport/julia-intellij.svg?branch=master" alt="Travis CI Build status"></a></td>
   </tr>
   <tr>
     <td>AppVeyor (on Windows)</td>
