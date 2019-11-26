@@ -106,7 +106,7 @@ class JuliaCommandLineState(
 		}
 		ProcessTerminatedListener.attach(handler)
 		val console = JuliaDebugTerminalExecutionConsole(env, handler)
-		console.setAutoNewLineMode(true)
+		// console.setAutoNewLineMode(true)
 		console.attachToProcess(handler)
 		handler.startNotify()
 		env.putUserData(JULIA_DEBUG_FILE_KEY, configuration.targetFile)

@@ -141,8 +141,7 @@ class DocfmtCompletionContributor : CompletionContributor() {
 		private val KEYS = VALID_KEY.map(LookupElementBuilder::create)
 	}
 
-	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) =
-		typeChar in "= \n\t" || super.invokeAutoPopup(position, typeChar)
+	override fun invokeAutoPopup(position: PsiElement, typeChar: Char) = typeChar in "= \n\t"
 
 	init {
 		extend(

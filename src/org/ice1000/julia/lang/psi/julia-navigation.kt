@@ -3,7 +3,6 @@
 package org.ice1000.julia.lang.psi
 
 import com.google.gson.JsonParser
-import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.*
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
@@ -25,13 +24,13 @@ import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import com.intellij.util.FunctionUtil
-import com.intellij.util.ui.TwoColorsIcon
 import javax.swing.Icon
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.openapi.editor.ElementColorProvider
 import com.intellij.ui.ColorChooser
 import com.intellij.util.ui.ColorIcon
+import com.intellij.util.ui.ColorsIcon
 import org.ice1000.julia.lang.module.JULIA_COLOR_CONSTANTS
 import java.awt.Color
 
@@ -107,7 +106,7 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 						}
 					}
 					return try {
-						future?.get(5000, TimeUnit.MILLISECONDS)
+						future.get(5000, TimeUnit.MILLISECONDS)
 						result.addAll(JuliaTypeDeclarationIndex.findElementsByName(project, juliaSymbol.text))
 						result.toTypedArray()
 					} catch (ignored: Throwable) {
@@ -211,7 +210,7 @@ class JuliaLineMarkerProvider : LineMarkerProvider {
 
 	private class MyColorInfo internal
 	constructor(element: PsiElement, private val color: Color, colorProvider: ElementColorProvider)
-		: MergeableLineMarkerInfo<PsiElement>(element, element.textRange, ColorIcon(12, color), Pass.UPDATE_ALL, FunctionUtil.nullConstant<Any, String>(),
+		: MergeableLineMarkerInfo<PsiElement>(element, element.textRange, ColorIcon(12, color), FunctionUtil.nullConstant<Any, String>(),
 		GutterIconNavigationHandler<PsiElement> { e, elt ->
 			if (!elt.isWritable) return@GutterIconNavigationHandler
 
@@ -230,7 +229,7 @@ class JuliaLineMarkerProvider : LineMarkerProvider {
 
 		override fun getCommonIcon(infos: List<MergeableLineMarkerInfo<*>>): Icon {
 			return if (infos.size == 2 && infos[0] is MyColorInfo && infos[1] is MyColorInfo) {
-				TwoColorsIcon(12, (infos[0] as MyColorInfo).color, (infos[1] as MyColorInfo).color)
+				ColorsIcon(12, (infos[0] as MyColorInfo).color, (infos[1] as MyColorInfo).color)
 			} else AllIcons.Gutter.Colors
 		}
 	}

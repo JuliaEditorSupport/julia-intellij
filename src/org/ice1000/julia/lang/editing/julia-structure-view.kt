@@ -4,7 +4,8 @@ import com.intellij.ide.structureView.*
 import com.intellij.ide.util.treeView.smartTree.SortableTreeElement
 import com.intellij.lang.ASTNode
 import com.intellij.lang.PsiStructureViewFactory
-import com.intellij.lang.folding.*
+import com.intellij.lang.folding.CustomFoldingBuilder
+import com.intellij.lang.folding.FoldingDescriptor
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
@@ -12,10 +13,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.pom.Navigatable
 import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.PsiIconUtil
-import icons.JuliaIcons
 import org.ice1000.julia.lang.JuliaFile
-import org.ice1000.julia.lang.orFalse
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.IJuliaFunctionDeclaration
 
@@ -107,10 +105,10 @@ class JuliaCustomFoldingBuilder : CustomFoldingBuilder() {
 	}
 
 	private fun getFold(elem: PsiElement, placeHolder: String?) =
-		NamedFoldingDescriptor(elem.node, elem.textRange, null, placeHolder ?: "...")
+		FoldingDescriptor(elem.node, elem.textRange, null, placeHolder ?: "...")
 
 	/**
-	 * The return String will be overrode by [NamedFoldingDescriptor]'s `placeHolder`.
+	 * The return String will be overrode by [FoldingDescriptor]'s `placeHolder`.
 	 */
 	override fun getLanguagePlaceholderText(node: ASTNode, range: TextRange): String = "..."
 

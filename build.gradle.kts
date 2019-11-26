@@ -57,6 +57,7 @@ grammarKit {
 intellij {
 	updateSinceUntilBuild = false
 	instrumentCode = true
+	downloadSources = true
 	val user = System.getProperty("user.name")
 	val os = System.getProperty("os.name")
 	val root = when {
@@ -73,7 +74,6 @@ intellij {
 
 	if (!isCI) setPlugins("PsiViewer:193-SNAPSHOT", "java")
 	else setPlugins("java")
-	setMarkdownDependency()
 }
 
 java {
@@ -104,13 +104,17 @@ sourceSets {
 	}
 }
 
-repositories { mavenCentral() }
+repositories {
+	mavenCentral()
+	maven("https://dl.bintray.com/jetbrains/markdown/")
+}
 
 dependencies {
 	compile(kotlin("stdlib-jdk8"))
 	compile(group = "org.eclipse.mylyn.github", name = "org.eclipse.egit.github.core", version = "2.1.5") {
 		exclude(module = "gson")
 	}
+	compile("org.jetbrains", "markdown", "0.1.31")
 	testCompile(kotlin(module = "test-junit"))
 	testCompile(group = "junit", name = "junit", version = "4.12")
 }
@@ -210,12 +214,3 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<Delete> { dependsOn(cleanGenerated) }
-
-fun setMarkdownDependency() {
-	repositories {
-		maven("https://dl.bintray.com/jetbrains/markdown/")
-	}
-	dependencies {
-		compile("org.jetbrains", "markdown", "0.1.31")
-	}
-}
