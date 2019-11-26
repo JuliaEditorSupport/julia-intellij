@@ -57,7 +57,10 @@ grammarKit {
 intellij {
 	updateSinceUntilBuild = false
 	instrumentCode = true
-	downloadSources = true
+	if (!isCI) {
+		setPlugins("PsiViewer:193-SNAPSHOT", "java")
+		downloadSources = true
+	} else setPlugins("java")
 	val user = System.getProperty("user.name")
 	val os = System.getProperty("os.name")
 	val root = when {
@@ -71,9 +74,6 @@ intellij {
 	val pycharmPath = sequenceOf("PyCharm-C", "IDEA-C", "IDEA-U")
 		.mapNotNull { fromToolbox(root, it) }.firstOrNull()
 	pycharmPath?.absolutePath?.let { alternativeIdePath = it }
-
-	if (!isCI) setPlugins("PsiViewer:193-SNAPSHOT", "java")
-	else setPlugins("java")
 }
 
 java {
