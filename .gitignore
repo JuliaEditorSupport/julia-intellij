@@ -115,3 +115,6 @@ exportToHTML
 .piggy
 pinpoint_piggy
 grammar/*.scm
+
+.DS_Store
+testData/.DS_Store
