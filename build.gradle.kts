@@ -59,9 +59,12 @@ intellij {
 	updateSinceUntilBuild = false
 	instrumentCode = true
 	if (!isCI) {
-		setPlugins("PsiViewer:193-SNAPSHOT", "java")
+		setPlugins("PsiViewer:203-SNAPSHOT", "java")
 		downloadSources = true
-	} else setPlugins("java")
+	} else {
+		setPlugins("java")
+		version = "2020.3"
+	}
 	val user = System.getProperty("user.name")
 	val os = System.getProperty("os.name")
 	val root = when {
