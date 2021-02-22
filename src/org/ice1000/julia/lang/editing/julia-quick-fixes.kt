@@ -55,7 +55,7 @@ class JuliaInsertTextBeforeIntention(
 	override fun invoke(project: Project, editor: Editor?, file: PsiFile?) {
 		ApplicationManager.getApplication().runWriteAction {
 			element.parent.addBefore(JuliaTokenType.fromText(new, project), element)
-			if (reparse) element.containingFile.virtualFile?.let { FileContentUtil.reparseFiles(it) }
+			if (reparse) element.containingFile.virtualFile?.let { FileContentUtil.reparseFiles(element.project, mutableListOf(it), true) }
 		}
 	}
 }

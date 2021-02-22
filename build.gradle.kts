@@ -1,3 +1,4 @@
+@file:kotlin.Suppress("unsupported")
 import org.jetbrains.grammarkit.tasks.GenerateLexer
 import org.jetbrains.grammarkit.tasks.GenerateParser
 import org.jetbrains.intellij.tasks.PatchPluginXmlTask
@@ -27,7 +28,7 @@ version = pluginVersion
 plugins {
 	java
 	id("org.jetbrains.intellij") version "0.4.14"
-	id("org.jetbrains.grammarkit") version "2019.3"
+	id("org.jetbrains.grammarkit") version "2020.3.2"
 	kotlin("jvm") version "1.3.60"
 }
 
@@ -50,9 +51,9 @@ allprojects {
 	apply { plugin("org.jetbrains.grammarkit") }
 }
 
-grammarKit {
-	grammarKitRelease = "7aecfcd72619e9c241866578e8312f339b4ddbd8"
-}
+//grammarKit {
+//	grammarKitRelease = "7aecfcd72619e9c241866578e8312f339b4ddbd8"
+//}
 
 intellij {
 	updateSinceUntilBuild = false
@@ -68,10 +69,10 @@ intellij {
 		os == "Linux" -> "/home/$user/.local/share/JetBrains/Toolbox/apps"
 		else -> return@intellij
 	}
-	val intellijPath = sequenceOf("IDEA-C", "IDEA-U")
+	val intellijPath = ["IDEA-C", "IDEA-U"]
 		.mapNotNull { fromToolbox(root, it) }.firstOrNull()
 	intellijPath?.absolutePath?.let { localPath = it }
-	val pycharmPath = sequenceOf("PyCharm-C", "IDEA-C", "IDEA-U")
+	val pycharmPath = ["PyCharm-C", "IDEA-C", "IDEA-U"]
 		.mapNotNull { fromToolbox(root, it) }.firstOrNull()
 	pycharmPath?.absolutePath?.let { alternativeIdePath = it }
 }

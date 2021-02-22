@@ -113,8 +113,13 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 
 		if (dockContainer == null) {
 			dockContainer = MyDockContainer(toolWindow)
-			Disposer.register(this.project, dockContainer!!)
-			DockManager.getInstance(this.project).register(dockContainer)
+			val dockContainer = dockContainer?:return
+			val disposer = plotsContent.disposer
+			if(disposer!=null)
+			{
+				Disposer.tryRegister(disposer, dockContainer)
+				DockManager.getInstance(this.project).register(dockContainer, disposer)
+			}
 		}
 	}
 
@@ -156,7 +161,7 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		return entry.key as TabInfo
 	}
 
-	inner class MyDockContainer constructor(private val a: ToolWindow) : DockContainer {
+	inner class MyDockContainer constructor(private val a: ToolWindow) : DockContainer, Disposable {
 		override fun getAcceptArea(): RelativeRectangle = RelativeRectangle(this.a.component)
 		override fun getAcceptAreaFallback(): RelativeRectangle = this.acceptArea
 		override fun getContainerComponent(): JComponent = this.a.component
@@ -177,8 +182,6 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		override fun resetDropOver(content: DockableContent<*>) {}
 		override fun isDisposeWhenEmpty(): Boolean = false
 		override fun dispose() {}
-		override fun showNotify() {}
-		override fun hideNotify() {}
 		private fun factory(content: DockableContent<*>): DockableContentFigureFactory? {
 			return this@JuliaSciToolWindow.list.firstOrNull { it.isApplicable(content) }
 		}
