@@ -332,13 +332,12 @@ class ImageFigure @JvmOverloads constructor(imageVirtualFile: ImageVirtualFile, 
 		fun getImageVirtualFile(): ImageVirtualFile = this.a
 		override fun getBytes(): ByteArray = this.a.content
 		override fun dispose() {
-			Disposer.dispose(this.a)
 			Disposer.dispose(this.fileEditor!!)
 		}
 	}
 }
 
-class ImageVirtualFile : BinaryLightVirtualFile, Disposable {
+class ImageVirtualFile : BinaryLightVirtualFile {
 	var image: BufferedImage? = null
 
 	constructor(simpleFilename: String, width: Int, raw: ByteArray) : super(simpleFilename) {
@@ -362,10 +361,6 @@ class ImageVirtualFile : BinaryLightVirtualFile, Disposable {
 				}
 			}
 		}
-	}
-
-	override fun dispose() {
-		this.image = null
 	}
 
 	companion object {
