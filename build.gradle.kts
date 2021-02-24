@@ -85,7 +85,7 @@ java {
 	targetCompatibility = JavaVersion.VERSION_11
 }
 
-tasks.withType<PatchPluginXmlTask> {
+tasks.withType<PatchPluginXmlTask>().configureEach {
 	changeNotes(file("docs/change-notes.html").readText())
 	pluginDescription(file("docs/description.html").readText())
 	version(pluginVersion)
@@ -123,13 +123,13 @@ dependencies {
 	testCompile(group = "junit", name = "junit", version = "4.12")
 }
 
-task("displayCommitHash") {
+tasks.register("displayCommitHash") {
 	group = "help"
 	description = "Display the newest commit hash"
 	doFirst { println("Commit hash: $commitHash") }
 }
 
-task("isCI") {
+tasks.register("isCI") {
 	group = "help"
 	description = "Check if it's running in a continuous-integration"
 	doFirst { println(if (isCI) "Yes, I'm on a CI." else "No, I'm not on CI.") }
@@ -142,8 +142,8 @@ fun path(more: Iterable<*>) = more.joinToString(File.separator)
 fun bnf(name: String) = Paths.get("grammar", "$name-grammar.bnf").toString()
 fun flex(name: String) = Paths.get("grammar", "$name-lexer.flex").toString()
 
-val genParser = task<GenerateParser>("genParser") {
-	group = tasks["init"].group!!
+val genParser = tasks.register<GenerateParser>("genParser") {
+	group = "code generation"
 	description = "Generate the Parser and PsiElement classes"
 	source = bnf("julia")
 	targetRoot = "gen/"
@@ -152,8 +152,8 @@ val genParser = task<GenerateParser>("genParser") {
 	purgeOldFiles = true
 }
 
-val genLexer = task<GenerateLexer>("genLexer") {
-	group = genParser.group
+val genLexer = tasks.register<GenerateLexer>("genLexer") {
+	group = "code generation"
 	description = "Generate the Lexer"
 	source = flex("julia")
 	targetDir = path(lexerRoot)
@@ -162,8 +162,8 @@ val genLexer = task<GenerateLexer>("genLexer") {
 	dependsOn(genParser)
 }
 
-val genDocfmtParser = task<GenerateParser>("genDocfmtParser") {
-	group = genParser.group
+val genDocfmtParser = tasks.register<GenerateParser>("genDocfmtParser") {
+	group = "code generation"
 	description = "Generate the Parser for DocumentFormat.jl"
 	source = bnf("docfmt")
 	targetRoot = "gen/"
@@ -173,8 +173,8 @@ val genDocfmtParser = task<GenerateParser>("genDocfmtParser") {
 	purgeOldFiles = true
 }
 
-val genDocfmtLexer = task<GenerateLexer>("genDocfmtLexer") {
-	group = genParser.group
+val genDocfmtLexer = tasks.register<GenerateLexer>("genDocfmtLexer") {
+	group = "code generation"
 	description = "Generate the Lexer for DocumentFormat.jl"
 	source = flex("docfmt")
 	targetDir = path(lexerRoot + "docfmt")
@@ -183,13 +183,13 @@ val genDocfmtLexer = task<GenerateLexer>("genDocfmtLexer") {
 	dependsOn(genDocfmtParser)
 }
 
-val cleanGenerated = task("cleanGenerated") {
-	group = tasks["clean"].group
+val cleanGenerated = tasks.register("cleanGenerated") {
+	group = "clean"
 	description = "Remove all generated codes"
 	doFirst { delete("gen") }
 }
 
-val sortSpelling = task("sortSpellingFile") {
+val sortSpelling = tasks.register("sortSpellingFile") {
 	val fileName = "spelling.txt"
 	val isWindows = "windows" in System.getProperty("os.name").toLowerCase()
 	project.exec {
@@ -201,7 +201,7 @@ val sortSpelling = task("sortSpellingFile") {
 	}
 }
 
-tasks.withType<KotlinCompile> {
+tasks.withType<KotlinCompile>().configureEach {
 	dependsOn(
 		genParser,
 		genLexer,
@@ -217,4 +217,4 @@ tasks.withType<KotlinCompile> {
 	}
 }
 
-tasks.withType<Delete> { dependsOn(cleanGenerated) }
+tasks.withType<Delete>().configureEach { dependsOn(cleanGenerated) }
