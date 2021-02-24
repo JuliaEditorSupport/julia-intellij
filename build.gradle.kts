@@ -27,7 +27,7 @@ version = pluginVersion
 
 plugins {
 	java
-	id("org.jetbrains.intellij") version "0.4.14"
+	id("org.jetbrains.intellij") version "0.7.2"
 	id("org.jetbrains.grammarkit") version "2020.3.2"
 	kotlin("jvm") version "1.3.60"
 }
@@ -81,8 +81,8 @@ intellij {
 }
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
 }
 
 tasks.withType<PatchPluginXmlTask> {
@@ -118,7 +118,7 @@ dependencies {
 	compile(group = "org.eclipse.mylyn.github", name = "org.eclipse.egit.github.core", version = "2.1.5") {
 		exclude(module = "gson")
 	}
-	compile("org.jetbrains", "markdown", "0.1.31")
+	compile("org.jetbrains", "markdown", "0.2.0")
 	testCompile(kotlin(module = "test-junit"))
 	testCompile(group = "junit", name = "junit", version = "4.12")
 }
