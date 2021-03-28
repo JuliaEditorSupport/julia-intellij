@@ -37,10 +37,10 @@ class JuliaRemovePkgAction(
 				if (beforeVersion07)
 					printJulia(box.comboBox.selectedItem.toString(), 30_000L, """Pkg.rm("$removePackageName")""")
 				else
-					executeCommand(box.comboBox.selectedItem.toString(), """
+					executeCommand(box.comboBox.selectedItem.toString(), input = """
 using Pkg
 Pkg.rm("$removePackageName")
-""", 30_000L)
+""", timeLimit = 30_000L)
 				ApplicationManager.getApplication().invokeLater {
 					Messages.showDialog(
 						project,
@@ -84,11 +84,11 @@ class JuliaAddPkgAction(
 					if (beforeVersion07)
 						printJulia(box.comboBox.selectedItem.toString(), 50_000L, """Pkg.add("$it")""")
 					else
-						executeCommand(box.comboBox.selectedItem.toString(), """
+						executeCommand(box.comboBox.selectedItem.toString(), input = """
 using Pkg
 Pkg.add("$it")
 exit()
-""", 50_000L)
+""", timeLimit = 50_000L)
 				}
 
 				override fun onSuccess() = ApplicationManager.getApplication().invokeLater {

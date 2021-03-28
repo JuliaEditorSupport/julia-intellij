@@ -4,8 +4,8 @@ import org.ice1000.julia.lang.executeCommand
 
 fun main(args: Array<String>) {
 	if (!System.getenv("CI").isNullOrBlank()) return
-	println(executeCommand("ls", null, 100L).first)
-	println(executeCommand("whereis julia", null, 500L).first)
+	println(executeCommand("ls", input = null, timeLimit = 100L).first)
+	println(executeCommand("whereis julia", input = null, timeLimit = 500L).first)
 	println(juliaPath)
 	println("" in arrayOf(""))
 }

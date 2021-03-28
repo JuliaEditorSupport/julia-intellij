@@ -34,13 +34,15 @@ fun printJulia(
  * @return (stdout, stderr)
  */
 fun executeJulia(
-	exePath: String, code: String? = null, timeLimit: Long = 2000L, vararg params: String) =
+	exePath: String, code: String? = null, timeLimit: Long = 2000L, vararg params: String
+) =
 	executeCommand(
 		"$exePath ${params.joinToString(" ")}",
-		code?.let { "$it\nexit()" },
-		timeLimit)
+		input = code?.let { "$it\nexit()" },
+		timeLimit = timeLimit
+	)
 
-fun executeCommandToFindPath(command: String) = executeCommand(command, null, 500L)
+fun executeCommandToFindPath(command: String) = executeCommand(command, input = null, timeLimit = 500L)
 	.first
 	.firstOrNull()
 	?.split(' ')
@@ -50,7 +52,11 @@ fun executeCommandToFindPath(command: String) = executeCommand(command, null, 50
 		.firstOrNull(::validateJuliaExe)
 
 fun executeCommand(
-	command: String, input: String? = null, timeLimit: Long = 1200L): Pair<List<String>, List<String>> {
+	vararg command: String,
+	input: String? = null,
+	timeLimit: Long = 1200L
+): Pair<List<String>, List<String>> {
+
 	var processRef: Process? = null
 	var output: List<String> = emptyList()
 	var outputErr: List<String> = emptyList()
