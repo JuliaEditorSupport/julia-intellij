@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
+import com.intellij.psi.util.siblings
 import com.intellij.util.SystemProperties
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor.CompletionHolder.builtins
@@ -79,9 +80,14 @@ class JuliaAnnotator : Annotator {
 		val name = nameIdentifier.text
 		val signature = element.functionSignature
 		val functionBody = element.exprList.lastOrNull()?.text.orEmpty()
+
+		val prevSiblings = element.siblings(forward=false).drop(1)
+		val reversedPrevSiblings = prevSiblings.asIterable().reversed()
+		val overloadedFunction = reversedPrevSiblings.joinToString(separator="") { it.text }
+
 		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.compact-function"))
 			.registerFix(JuliaReplaceWithTextIntention(
-				element, """function $name${typeParams?.text.orEmpty()}${element.functionSignature.text}
+				element, """function $overloadedFunction$name${typeParams?.text.orEmpty()}${element.functionSignature.text}
 ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $functionBody\n"}end""",
 				JuliaBundle.message("julia.lint.replace-ordinary-function")))
 		docStringFunction(element, signature, holder, name, "", generateSignature(signature), settings)
@@ -96,26 +102,18 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		val where = element.whereClauseList
 		val nameIdentifier = element.nameIdentifier ?: return
 		val name = nameIdentifier.text
+
+		val functionName = element.childrenBefore(JuliaTypes.FUNCTION_SIGNATURE).joinToString(separator="") { it.text }.trim()
+
 		if (where.isEmpty()) when {
-			statements.isEmpty() -> holder.createWeakWarningAnnotation(
-				nameIdentifier,
-				JuliaBundle.message("julia.lint.empty-function"))
-				.registerFix(JuliaReplaceWithTextIntention(element,
-					"$name$typeParamsText$signatureText = ()",
-					JuliaBundle.message("julia.lint.replace-compact-function")))
+			statements.isEmpty() ->
+				holder.createWeakWarningAnnotation(nameIdentifier, JuliaBundle.message("julia.lint.empty-function")).registerFix(JuliaReplaceWithTextIntention(element, "$functionName$typeParamsText$signatureText = ()", JuliaBundle.message("julia.lint.replace-compact-function")))
+
 			statements.size == 1 -> {
 				// use last. Because typeOf will become the first when function with typeOp
-				val expression = statements.last().let {
-					(it as? JuliaReturnExpr)?.exprList?.joinToString(", ") { it.text }
-						?: it.text
-				}.trim()
+				val expression = statements.last().let { (it as? JuliaReturnExpr)?.exprList?.joinToString(", ") { it.text } ?: it.text }.trim()
 				if (expression.length <= settings.maxCharacterToConvertToCompact)
-					holder.createWeakWarningAnnotation(
-						nameIdentifier,
-						JuliaBundle.message("julia.lint.lonely-function"))
-						.registerFix(JuliaReplaceWithTextIntention(element,
-							"$name$typeParamsText$signatureText = $expression",
-							JuliaBundle.message("julia.lint.replace-compact-function")))
+					holder.createWeakWarningAnnotation(nameIdentifier, JuliaBundle.message("julia.lint.lonely-function")).registerFix(JuliaReplaceWithTextIntention(element, "$functionName$typeParamsText$signatureText = $expression", JuliaBundle.message("julia.lint.replace-compact-function")))
 			}
 		}
 		docStringFunction(element, signature, holder, name, typeParamsText, generateSignature(signature), settings)
