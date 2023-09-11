@@ -12,7 +12,7 @@ import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.vfs.ex.VirtualFileManagerEx
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
@@ -45,7 +45,7 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 
 		fun arrayOfPsiElements(dir: PsiDirectory, text: String): Array<PsiElement>? {
 			val url = dir.virtualFile.url + File.separator + text
-			val vf = VirtualFileManagerEx.getInstance().findFileByUrl(url) ?: return null
+			val vf = VirtualFileManager.getInstance().findFileByUrl(url) ?: return null
 			val f = PsiManager.getInstance(project).findFile(vf) ?: return null
 			return arrayOf(f)
 		}
