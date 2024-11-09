@@ -42,7 +42,7 @@
 		<console.folding implementation="org.ice1000.julia.lang.execution.JuliaConsoleFolding"/>
 		<directoryProjectGenerator implementation="org.ice1000.julia.lang.module.JuliaProjectGenerator"/>
 		<iconProvider implementation="org.ice1000.julia.lang.editing.JuliaIconProvider"/>
-		<errorHandler implementation="org.ice1000.julia.lang.error.GitHubErrorReporter"/>
+		<errorHandler implementation="org.ice1000.julia.lang.error.YoutrackErrorHandler"/>
 		<breadcrumbsInfoProvider implementation="org.ice1000.julia.lang.editing.JuliaBreadCrumbsProvider"/>
 		<sdkType implementation="org.ice1000.julia.lang.module.JuliaSdkType"/>
 		<library.presentationProvider implementation="org.ice1000.julia.lang.module.JuliaSdkLibraryPresentationProvider"/>

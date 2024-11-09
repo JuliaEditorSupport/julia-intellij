@@ -9,9 +9,6 @@ val genRoot = project.file("src/main/gen")
 val resourceRoot = project.file("src/main/resources")
 
 dependencies{
-	implementation(group = "org.eclipse.mylyn.github", name = "org.eclipse.egit.github.core", version = "2.1.5") {
-		exclude(module = "gson")
-	}
 	intellijPlatform{
 		val platformVersionProvider: Provider<String> by rootProject.extra
 		create("IC", platformVersionProvider.get(), useInstaller = properties("useInstaller").get().toBoolean())
