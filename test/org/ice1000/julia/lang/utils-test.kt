@@ -40,7 +40,7 @@ class UtilsKtTest {
 	}
 
 	@Test
-	fun whereIsJulia() = executeCommand("whereis julia", null, 1000)
+	fun whereIsJulia() = executeCommand("whereis julia", input = null, timeLimit = 1000)
 		.first
 		.forEach(::println)
 

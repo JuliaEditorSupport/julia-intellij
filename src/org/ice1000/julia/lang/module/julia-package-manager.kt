@@ -47,7 +47,7 @@ private val packagePredicate = Predicate { dir: Path ->
  */
 @Language("Julia")
 fun versionsList(settings: JuliaSettings) =
-	executeCommand(settings.exePath, "Pkg.installed()", 20_000L)
+	executeCommand(settings.exePath, input = "Pkg.installed()", timeLimit = 20_000L)
 		.first
 		.filter { "=>" in it }
 		.sorted()
@@ -66,7 +66,11 @@ fun loadNamesListByEnvFile(settings: JuliaSettings, envdir: String): List<String
 
 fun getEnvDir(settings: JuliaSettings): String {
 	//language=Julia
-	return executeCommand(settings.exePath, "using Pkg\nPkg.envdir()\nexit()", timeLimit = 4000L)
+	return executeCommand(
+		settings.exePath, "-q", "--startup-file=no", "-E using Pkg;Pkg.envdir()",
+		input = null,
+		timeLimit = 4000L
+	)
 		.first
 		.firstOrNull()
 		.let { it ?: "" }
