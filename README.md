@@ -1,35 +1,14 @@
 # Julia plugin for the IntelliJ Platform
 
+**IMPORTANT:** currently the plugin is in reviving state. I did make it runnable with modern versions of the IDEs,
+but future of the plugin depends on demand and users activity. Report your issues to the tracker.
+
 This is a **work in progress**, some features are implemented partially, there may be performance and stability problems.
 
-[![](https://tinyurl.com/y9e4n2zh)](https://github.com/JuliaEditorSupport/julia-intellij)
 [![JetBrains plugins](https://img.shields.io/jetbrains/plugin/v/10413-julia.svg)](https://plugins.jetbrains.com/plugin/10413-julia)
 [![JetBrains plugins](https://img.shields.io/jetbrains/plugin/d/10413-julia.svg)](https://plugins.jetbrains.com/plugin/10413-julia)
 [![Documentation Status](https://readthedocs.org/projects/julia-intellij/badge/?version=latest)](http://julia-intellij.readthedocs.io/en/latest/?badge=latest)
 [![Join the chat at https://gitter.im/julia-intellij/Lobby](https://badges.gitter.im/julia-intellij/Lobby.svg)](https://gitter.im/julia-intellij/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-<table>
-  <tr>
-    <th>CI</th>
-    <th>Status</th>
-  </tr>
-  <tr>
-    <td>Travis CI (with IdeaC)</td>
-    <td><a href="https://travis-ci.org/JuliaEditorSupport/julia-intellij"><img src="https://api.travis-ci.org/JuliaEditorSupport/julia-intellij.svg?branch=master" alt="Travis CI Build status"></a></td>
-  </tr>
-  <tr>
-    <td>AppVeyor (on Windows)</td>
-    <td><a href="https://ci.appveyor.com/project/ice1000/julia-intellij-1rpcx"><img src="https://ci.appveyor.com/api/projects/status/kaqscxy5mmvxa2cr/branch/master?svg=true" alt="AppVeyor Build status"></a></td>
-  </tr>
-  <tr>
-    <td>CircleCI (with tests)</td>
-    <td><a href="https://circleci.com/gh/JuliaEditorSupport/julia-intellij"><img src="https://circleci.com/gh/JuliaEditorSupport/julia-intellij.svg?style=svg" alt="CircleCI Build status"></a></td>
-  </tr>
-  <tr>
-    <td>CodeShip (branch master)</td>
-    <td><a href="https://app.codeship.com/projects/270342"><img src="https://app.codeship.com/projects/4c89a940-ec81-0135-9688-6eaa099eb415/status?branch=master" alt="CodeShip Build status"></a></td>
-  </tr>
-</table>
 
 ## Installation \& Usage
 
