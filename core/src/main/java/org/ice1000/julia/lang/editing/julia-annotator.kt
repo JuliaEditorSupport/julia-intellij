@@ -1,9 +1,30 @@
+/*
+ *     Julia language support plugin for Intellij-based IDEs.
+ *     Copyright (C) 2024 julia-intellij contributors
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.ice1000.julia.lang.editing
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.ExpressionTypeProvider
+import com.intellij.lang.annotation.AnnotationBuilder
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
+import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.lang.annotation.HighlightSeverity.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
@@ -12,9 +33,12 @@ import com.intellij.psi.*
 import com.intellij.util.SystemProperties
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.editing.JuliaBasicCompletionContributor.CompletionHolder.builtins
-import org.ice1000.julia.lang.module.*
+import org.ice1000.julia.lang.module.JuliaSettings
+import org.ice1000.julia.lang.module.compareVersion
+import org.ice1000.julia.lang.module.juliaSettings
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.impl.*
+import org.jetbrains.annotations.Nls
 import java.math.BigInteger
 import java.math.BigInteger.ONE
 import java.math.BigInteger.ZERO
@@ -54,21 +78,25 @@ class JuliaAnnotator : Annotator {
 
 	private fun typeDeclaration(element: JuliaTypeDeclaration, holder: AnnotationHolder) {
 		val declarator = element.firstChild
-		if (declarator.text == "type") holder.createErrorAnnotation(declarator, JuliaBundle.message("julia.lint.type-replace-struct")).run {
-			highlightType = ProblemHighlightType.LIKE_DEPRECATED
-			registerFix(object : JuliaIntentionAction(JuliaBundle.message("julia.lint.type-replace-struct-fix")) {
-				override fun invoke(project: Project, editor: Editor, file: PsiFile?) {
-					val document = editor.document
-					if (!document.isWritable) return
-					ApplicationManager.getApplication().runWriteAction {
-						val offset = declarator.textOffset
-						editor.caretModel.moveToOffset(offset)
-						declarator.delete()
-						PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
-						document.insertString(offset, "struct")
+		if (declarator.text == "type") {
+			annotation(
+				holder, ERROR, JuliaBundle.message("julia.lint.type-replace-struct"), declarator,
+				highlightType = ProblemHighlightType.LIKE_DEPRECATED
+			) {
+				withFix(object : JuliaIntentionAction(JuliaBundle.message("julia.lint.type-replace-struct-fix")) {
+					override fun invoke(project: Project, editor: Editor, file: PsiFile?) {
+						val document = editor.document
+						if (!document.isWritable) return
+						ApplicationManager.getApplication().runWriteAction {
+							val offset = declarator.textOffset
+							editor.caretModel.moveToOffset(offset)
+							declarator.delete()
+							PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
+							document.insertString(offset, "struct")
+						}
 					}
-				}
-			})
+				})
+			}
 		}
 	}
 
@@ -79,11 +107,15 @@ class JuliaAnnotator : Annotator {
 		val name = nameIdentifier.text
 		val signature = element.functionSignature
 		val functionBody = element.exprList.lastOrNull()?.text.orEmpty()
-		holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.compact-function"))
-			.registerFix(JuliaReplaceWithTextIntention(
+		annotation(holder, INFORMATION, JuliaBundle.message("julia.lint.compact-function"), element) {
+			withFix(
+				JuliaReplaceWithTextIntention(
 				element, """function $name${typeParams?.text.orEmpty()}${element.functionSignature.text}
 ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $functionBody\n"}end""",
-				JuliaBundle.message("julia.lint.replace-ordinary-function")))
+					JuliaBundle.message("julia.lint.replace-ordinary-function")
+				)
+			)
+		}
 		docStringFunction(element, signature, holder, name, "", generateSignature(signature), settings)
 	}
 
@@ -97,12 +129,17 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 		val nameIdentifier = element.nameIdentifier ?: return
 		val name = nameIdentifier.text
 		if (where.isEmpty()) when {
-			statements.isEmpty() -> holder.createWeakWarningAnnotation(
-				nameIdentifier,
-				JuliaBundle.message("julia.lint.empty-function"))
-				.registerFix(JuliaReplaceWithTextIntention(element,
-					"$name$typeParamsText$signatureText = ()",
-					JuliaBundle.message("julia.lint.replace-compact-function")))
+			statements.isEmpty() -> annotation(
+				holder, WEAK_WARNING, JuliaBundle.message("julia.lint.empty-function"), nameIdentifier
+			) {
+				withFix(
+					JuliaReplaceWithTextIntention(
+						element,
+						"$name$typeParamsText$signatureText = ()",
+						JuliaBundle.message("julia.lint.replace-compact-function")
+					)
+				)
+			}
 			statements.size == 1 -> {
 				// use last. Because typeOf will become the first when function with typeOp
 				val expression = statements.last().let {
@@ -110,12 +147,16 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 						?: it.text
 				}.trim()
 				if (expression.length <= settings.maxCharacterToConvertToCompact)
-					holder.createWeakWarningAnnotation(
-						nameIdentifier,
-						JuliaBundle.message("julia.lint.lonely-function"))
-						.registerFix(JuliaReplaceWithTextIntention(element,
-							"$name$typeParamsText$signatureText = $expression",
-							JuliaBundle.message("julia.lint.replace-compact-function")))
+					annotation(holder, WEAK_WARNING, JuliaBundle.message("julia.lint.lonely-function"), nameIdentifier)
+					{
+						withFix(
+							JuliaReplaceWithTextIntention(
+								element,
+								"$name$typeParamsText$signatureText = $expression",
+								JuliaBundle.message("julia.lint.replace-compact-function")
+							)
+						)
+					}
 			}
 		}
 		docStringFunction(element, signature, holder, name, typeParamsText, generateSignature(signature), settings)
@@ -149,8 +190,12 @@ ${if ("()" == functionBody || functionBody.isBlank()) "" else "    return $funct
 					?: "::Any"}`:"
 			}}"
 		}.orEmpty()
-		holder.createInfoAnnotation(identifier, JuliaBundle.message("julia.lint.no-doc-string-function"))
-			.registerFix(JuliaInsertTextBeforeIntention(element, """$JULIA_DOC_SURROUNDING
+		annotation(holder, INFORMATION, JuliaBundle.message("julia.lint.no-doc-string-function"), identifier)
+		{
+			withFix(
+				JuliaInsertTextBeforeIntention(
+					element,
+					"""$JULIA_DOC_SURROUNDING
     $name$typeParamsText$signatureText
 
 - Julia version: ${settings.version}
@@ -164,16 +209,20 @@ $signatureTextPart
 julia>
 ```
 $JULIA_DOC_SURROUNDING
-""", JuliaBundle.message("julia.lint.insert-doc-string"), true))
+""", JuliaBundle.message("julia.lint.insert-doc-string"), true
+				)
+			)
+		}
 	}
 
 	private fun importAll(element: JuliaImportAllExpr, holder: AnnotationHolder, settings: JuliaSettings) {
 		when {
 			compareVersion(settings.version, "0.7.0") < 0 -> // warning underline
-				holder.createWeakWarningAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
+				annotation(holder, WEAK_WARNING, JuliaBundle.message("julia.lint.importall-hint"), element)
 			compareVersion(settings.version, "1.0.0") < 0 -> // warning background
-				holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
-			else -> holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.importall-hint"))
+				annotation(holder, WEAK_WARNING, JuliaBundle.message("julia.lint.importall-hint"), element)
+			else ->
+				annotation(holder, ERROR, JuliaBundle.message("julia.lint.importall-hint"), element)
 		}
 	}
 
@@ -181,24 +230,41 @@ $JULIA_DOC_SURROUNDING
 		val plusLevelOperator = element.plusLevelOperator
 		val text = plusLevelOperator.text
 		when (text) {
-			"$" -> holder.createWarningAnnotation(plusLevelOperator, JuliaBundle.message("julia.lint.xor-hint", text)).run {
+			"$" -> annotation(
+				holder, WARNING, JuliaBundle.message("julia.lint.xor-hint", text), plusLevelOperator,
 				highlightType = ProblemHighlightType.LIKE_DEPRECATED
-				registerFix(JuliaReplaceWithTextIntention(element, "xor(${element.firstChild.text}, ${element.lastChild.text})",
-					JuliaBundle.message("julia.lint.xor-replace-xor", element.firstChild.text, element.lastChild.text)))
-				registerFix(JuliaReplaceWithTextIntention(element, "${element.firstChild.text} \u22bb ${element.lastChild.text}",
-					JuliaBundle.message("julia.lint.xor-replace-22bb", element.firstChild.text, element.lastChild.text)))
+			)
+			{
+				withFix(
+					JuliaReplaceWithTextIntention(
+						element, "xor(${element.firstChild.text}, ${element.lastChild.text})",
+						JuliaBundle.message("julia.lint.xor-replace-xor", element.firstChild.text, element.lastChild.text)
+					)
+				).withFix(
+					JuliaReplaceWithTextIntention(
+						element, "${element.firstChild.text} \u22bb ${element.lastChild.text}",
+						JuliaBundle.message("julia.lint.xor-replace-22bb", element.firstChild.text, element.lastChild.text)
+					)
+				)
 			}
+
 		}
 	}
 
 	private fun assignOp(element: JuliaAssignOp, holder: AnnotationHolder) {
 		// for top-level variable declaration
 		if (element.parent is JuliaStatements && element.parent.parent is JuliaFile && element.exprList.first() is JuliaTypeOp) {
-			holder.createErrorAnnotation(element, JuliaBundle.message("julia.lint.variable.type-declarations.global-error"))
-				.registerFix(JuliaReplaceWithTextIntention(element,
-					element.text.let { it.removeRange(it.indexOf("::"), it.indexOf("=")) },
-					JuliaBundle.message("julia.lint.variable.type-declarations.global-error-replace")
-				))
+			annotation(
+				holder, ERROR, JuliaBundle.message("julia.lint.variable.type-declarations.global-error"), element
+			) {
+				withFix(
+					JuliaReplaceWithTextIntention(
+						element,
+						element.text.let { it.removeRange(it.indexOf("::"), it.indexOf("=")) },
+						JuliaBundle.message("julia.lint.variable.type-declarations.global-error-replace")
+					)
+				)
+			}
 		}
 		// element after `=` if stupid!
 		val leftElement = element.exprList.firstOrNull()
@@ -207,94 +273,126 @@ $JULIA_DOC_SURROUNDING
 			is JuliaUsing,
 			is JuliaImportExpr,
 			is IJuliaTypeDeclaration ->
-				holder
-					.createWarningAnnotation(element, JuliaBundle.message("julia.lint.variable.assign-from-nothing.warning"))
-					.registerFix(JuliaReplaceWithTextIntention(element,
-						rightElement.text,
-						JuliaBundle.message("julia.lint.variable.assign-from-nothing-replace")
-					))
+				annotation(
+					holder, WARNING, JuliaBundle.message("julia.lint.variable.assign-from-nothing.warning"), element
+				) {
+					withFix(
+						JuliaReplaceWithTextIntention(
+							element,
+							rightElement.text,
+							JuliaBundle.message("julia.lint.variable.assign-from-nothing-replace")
+						)
+					)
+				}
 			is JuliaModuleDeclaration -> {
-				holder
-					.createErrorAnnotation(element, JuliaBundle.message("julia.lint.variable.assign-to-module-error"))
-					.registerFix(JuliaReplaceWithTextIntention(element,
-						rightElement.text,
-						JuliaBundle.message("julia.lint.variable.assign-from-nothing-replace")
-					))
+				annotation(holder, ERROR, JuliaBundle.message("julia.lint.variable.assign-to-module-error"), element) {
+					withFix(
+						JuliaReplaceWithTextIntention(
+							element,
+							rightElement.text,
+							JuliaBundle.message("julia.lint.variable.assign-from-nothing-replace")
+						)
+					)
+				}
 			}
 		}
 	}
 
 	private fun assignLevelOp(element: JuliaAssignLevelOp, holder: AnnotationHolder) {
 		when (element.children.getOrNull(1)?.run { text.firstOrNull() }) {
-			'$' -> holder.createWarningAnnotation(element,
-				JuliaBundle.message("julia.lint.xor-hint", element.text)).run {
+			'$' -> annotation(
+				holder, WARNING, JuliaBundle.message("julia.lint.xor-hint", element.text), element,
 				highlightType = ProblemHighlightType.LIKE_DEPRECATED
-				val left = element.firstChild.text
-				val right = element.lastChild.text
-				registerFix(JuliaReplaceWithTextIntention(element, "$left = xor($left, $right)",
-					JuliaBundle.message("julia.lint.xor-is-replace-xor", left, right)))
-				registerFix(JuliaReplaceWithTextIntention(element, "$left \u22bb= $right",
-					JuliaBundle.message("julia.lint.xor-is-replace-22bb", left, right)))
+			) {
+				withFix(
+					JuliaReplaceWithTextIntention(
+						element,
+						"${element.firstChild.text} = xor(${element.firstChild.text}, ${element.lastChild.text})",
+						JuliaBundle.message("julia.lint.xor-is-replace-xor", element.firstChild.text, element.lastChild.text)
+					)
+				).withFix(
+					JuliaReplaceWithTextIntention(
+						element,
+						"${element.firstChild.text} \u22bb= ${element.lastChild.text}",
+						JuliaBundle.message("julia.lint.xor-is-replace-22bb", element.firstChild.text, element.lastChild.text)
+					)
+				)
 			}
 		}
 	}
 
 	private fun symbol(element: JuliaSymbol, holder: AnnotationHolder) {
 		when (element.symbolKind) {
-			JuliaSymbolKind.ModuleName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.MODULE_NAME
+			JuliaSymbolKind.ModuleName -> annotation(holder, INFORMATION, "", element, JuliaHighlighter.MODULE_NAME)
 			JuliaSymbolKind.MacroName -> definition(element, holder, JuliaHighlighter.MACRO_NAME)
 			JuliaSymbolKind.FunctionName -> definition(element, holder, JuliaHighlighter.FUNCTION_NAME)
-			JuliaSymbolKind.AbstractTypeName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
-			JuliaSymbolKind.PrimitiveTypeName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
+			JuliaSymbolKind.AbstractTypeName -> annotation(
+				holder, INFORMATION, "", element, JuliaHighlighter.ABSTRACT_TYPE_NAME
+			)
+
+			JuliaSymbolKind.PrimitiveTypeName -> annotation(
+				holder, INFORMATION, "", element, JuliaHighlighter.PRIMITIVE_TYPE_NAME
+			)
 			JuliaSymbolKind.TypeParameterName -> {
-				holder.createInfoAnnotation(element, null).textAttributes = JuliaHighlighter.TYPE_PARAMETER_NAME
+				annotation(holder, INFORMATION, "", element, JuliaHighlighter.TYPE_PARAMETER_NAME)
 				return
 			}
-			JuliaSymbolKind.FunctionParameter -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.FUNCTION_PARAMETER
+
+			JuliaSymbolKind.FunctionParameter -> annotation(
+				holder, INFORMATION, "", element, JuliaHighlighter.FUNCTION_PARAMETER
+			)
 			JuliaSymbolKind.TypeName -> {
-				if (element.isAbstractTypeRef) holder.createInfoAnnotation(element, null)
-					.textAttributes = JuliaHighlighter.ABSTRACT_TYPE_NAME
-				holder.createInfoAnnotation(element, null)
-					.textAttributes = JuliaHighlighter.TYPE_NAME
+				if (element.isAbstractTypeRef) annotation(
+					holder, INFORMATION, "", element, JuliaHighlighter.ABSTRACT_TYPE_NAME
+				)
+				annotation(holder, INFORMATION, "", element, JuliaHighlighter.TYPE_NAME)
 			}
-			JuliaSymbolKind.KeywordParameterName -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.KEYWORD_ARGUMENT
+
+			JuliaSymbolKind.KeywordParameterName -> annotation(
+				holder, INFORMATION, "", element, JuliaHighlighter.KEYWORD_ARGUMENT
+			)
 			else -> {
 			}
 		}
 		val daddy = element.parent
 		when {
-			element.isConstName || element.isConstNameRef -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.CONST_NAME
-			element.isTypeNameRef -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.TYPE_NAME
+			element.isConstName || element.isConstNameRef -> annotation(
+				holder, INFORMATION, "", element, JuliaHighlighter.CONST_NAME
+			)
+
+			element.isTypeNameRef -> annotation(
+				holder, INFORMATION, "", element, JuliaHighlighter.TYPE_NAME
+			)
 			element.isSuperTypeExpr -> {
 				val attr = if (element.isAbstractTypeRef) JuliaHighlighter.ABSTRACT_TYPE_NAME
 				else JuliaHighlighter.TYPE_NAME
-				holder.createInfoAnnotation(element, null)
-					.textAttributes = attr
+				annotation(holder, INFORMATION, "", element, attr)
 			}
-			element.isModuleNameRef -> holder.createInfoAnnotation(element, null)
-				.textAttributes = JuliaHighlighter.MODULE_NAME
-			element.isQuoteCall -> holder.createInfoAnnotation(daddy
-				.let { if (it is JuliaQuoteOp) it else it.parent }, null)
-				.textAttributes = JuliaHighlighter.QUOTE_NAME
+
+			element.isModuleNameRef -> annotation(
+				holder, INFORMATION, "", element, JuliaHighlighter.MODULE_NAME
+			)
+
+			element.isQuoteCall -> annotation(
+				holder, INFORMATION, "",
+				daddy.let { if (it is JuliaQuoteOp) it else it.parent },
+				JuliaHighlighter.QUOTE_NAME
+			)
 		}
-		// TODO: sometimes you really want Kotlin 1.3 :(
 		element.text.let {
 			when {
 				it.isNullOrBlank() -> return@let
-				it in arrayOf("in", "where", "end") -> holder.createInfoAnnotation(element, null)
-					.textAttributes = JuliaHighlighter.PRIMITIVE_TYPE_NAME
+				it in arrayOf("in", "where", "end") -> annotation(
+					holder, INFORMATION, "", element, JuliaHighlighter.PRIMITIVE_TYPE_NAME
+				)
 				// TODO: `builtins` need stub later
-				it[0].isUpperCase() && it in builtins -> holder.createInfoAnnotation(element, null)
-					.textAttributes = JuliaHighlighter.TYPE_NAME
-				it in arrayOf("nothing") -> holder.createInfoAnnotation(element, null)
-					.textAttributes = JuliaHighlighter.KEYWORD
+				it[0].isUpperCase() && it in builtins -> annotation(
+					holder, INFORMATION, "", element, JuliaHighlighter.TYPE_NAME
+				)
+
+				it in arrayOf("nothing") -> annotation(
+					holder, INFORMATION, "", element, JuliaHighlighter.KEYWORD
+				)
 			}
 		}
 	}
@@ -304,13 +402,13 @@ $JULIA_DOC_SURROUNDING
 		val name = element.exprList.firstOrNull()
 		if (name is JuliaSymbol) {
 			when (name.text) {
-				"new" -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.KEYWORD
-				in builtins -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.BUILTIN_NAME
-				else -> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.FUNCTION_CALL
+				"new" -> annotation(holder, INFORMATION, "", name, JuliaHighlighter.KEYWORD)
+				in builtins -> annotation(holder, INFORMATION, "", name, JuliaHighlighter.BUILTIN_NAME)
+				else -> annotation(holder, INFORMATION, "", name, JuliaHighlighter.FUNCTION_CALL)
 			}
 			when {
 				name.isTypeNameRef || name.typeFoundFromStub
-				-> holder.createInfoAnnotation(name, null).textAttributes = JuliaHighlighter.TYPE_NAME
+					-> annotation(holder, INFORMATION, "", name, JuliaHighlighter.TYPE_NAME)
 			}
 		}
 
@@ -318,7 +416,7 @@ $JULIA_DOC_SURROUNDING
 
 	private fun string(string: JuliaString, holder: AnnotationHolder) = string.children
 		.filter { it.firstChild.node.elementType == JuliaTypes.STRING_ESCAPE && (it.textContains('x') || it.textContains('u')) }
-		.forEach { holder.createErrorAnnotation(it, JuliaBundle.message("julia.lint.invalid-string-escape")) }
+		.forEach { annotation(holder, ERROR, JuliaBundle.message("julia.lint.invalid-string-escape"), it) }
 
 	private fun versionNumber(element: JuliaVersionNumber, holder: AnnotationHolder) {
 		// Alibaba Java Coding Guidelines said
@@ -328,26 +426,34 @@ $JULIA_DOC_SURROUNDING
 			val v = element.stringContentList.joinToString("") { it.text }
 			JuliaInKotlin.VersionNumber(v)
 		} catch (e: Exception) {
-			holder.createErrorAnnotation(element, e.message)
+			annotation(holder, ERROR, e.message ?: "Unknown exception", element)
 		}
 	}
 
 	private fun definition(element: PsiElement, holder: AnnotationHolder, attributesKey: TextAttributesKey) {
-		holder.createInfoAnnotation(element, null).textAttributes = attributesKey
+		annotation(holder, INFORMATION, "", element, attributesKey)
 		val space = element.nextSibling as? PsiWhiteSpace ?: return
-		if (space.nextSibling?.text == "(") holder.createErrorAnnotation(space, JuliaBundle.message("julia.lint.space-function-name"))
-			.registerFix(JuliaRemoveElementIntention(space, JuliaBundle.message("julia.lint.space-function-name-fix")))
+		if (space.nextSibling?.text == "(")
+			annotation(holder, ERROR, JuliaBundle.message("julia.lint.space-function-name"), space) {
+				withFix(JuliaRemoveElementIntention(space, JuliaBundle.message("julia.lint.space-function-name-fix")))
+			}
 	}
 
 	private fun typeAlias(
 		element: JuliaTypeAlias, holder: AnnotationHolder) {
-		holder.createWarningAnnotation(element, JuliaBundle.message("julia.lint.typealias-hint")).run {
-			highlightType = ProblemHighlightType.LIKE_DEPRECATED
-			registerFix(JuliaReplaceWithTextIntention(
-				element,
-				"const ${element.children.firstOrNull()?.text} = ${element.userType?.text}",
-				JuliaBundle.message("julia.lint.typealias-fix")))
+		annotation(
+			holder, WARNING,
+			JuliaBundle.message("julia.lint.typealias-hint"), element, highlightType = ProblemHighlightType.LIKE_DEPRECATED
+		) {
+			withFix(
+				JuliaReplaceWithTextIntention(
+					element,
+					"const ${element.children.firstOrNull()?.text} = ${element.userType?.text}",
+					JuliaBundle.message("julia.lint.typealias-fix")
+				)
+			)
 		}
+
 	}
 
 	private fun char(
@@ -357,35 +463,28 @@ $JULIA_DOC_SURROUNDING
 			0, 1, 2, 3 -> {
 			}
 			// '\n'
-			4 -> if (element.text[2] !in "ux") holder.createInfoAnnotation(element.textRange.narrow(1, 1), null)
-				.textAttributes = JuliaHighlighter.CHAR_ESCAPE
-			else holder.createErrorAnnotation(element.textRange.narrow(1, 1),
-				JuliaBundle.message("julia.lint.invalid-char-escape"))
-				.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
+			4 -> if (element.text[2] !in "ux") charEscapeHighlighting(holder, element)
+			else invalidCharEscapeError(holder, element)
 			// '\x00'
 			6 -> {
 				if (element.text.trimQuotePair().matches(Regex(JULIA_CHAR_SINGLE_UNICODE_X_REGEX)))
-					holder.createInfoAnnotation(element.textRange.narrow(1, 1), null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
-				else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
-					.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
+					charEscapeHighlighting(holder, element)
+				else invalidCharEscapeError(holder, element)
 			}
 			// '\u0022'
 			8 -> {
 				if (element.text.trimQuotePair().matches(Regex(JULIA_CHAR_SINGLE_UNICODE_U_REGEX)))
-					holder.createInfoAnnotation(element.textRange.narrow(1, 1), null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
-				else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
-					.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
+					charEscapeHighlighting(holder, element)
+				else invalidCharEscapeError(holder, element)
 			}
 			// '\xe5\x86\xb0'
 			14 -> {
 				if (element.text.trimQuotePair().matches(Regex(JULIA_CHAR_TRIPLE_UNICODE_X_REGEX)))
-					holder.createInfoAnnotation(element.textRange.narrow(1, 1), null).textAttributes = JuliaHighlighter.CHAR_ESCAPE
-				else holder.createErrorAnnotation(element.textRange.narrow(1, 1), JuliaBundle.message("julia.lint.invalid-char-escape"))
-					.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
+					charEscapeHighlighting(holder, element)
+				else invalidCharEscapeError(holder, element)
 			}
-			else -> holder.createErrorAnnotation(element.textRange.narrow(1, 1),
-				JuliaBundle.message("julia.lint.invalid-char-escape"))
-				.textAttributes = JuliaHighlighter.CHAR_ESCAPE_INVALID
+
+			else -> invalidCharEscapeError(holder, element)
 		}
 	}
 
@@ -401,16 +500,32 @@ $JULIA_DOC_SURROUNDING
 		val value = BigInteger(intText, base)
 		val type = checkIntType(value)
 		element.type = type
-		val annotation = holder.createInfoAnnotation(element,
-			JuliaBundle.message("julia.lint.int-type", type))
-		if (base != 2) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0b${value.toString(2)}",
-			JuliaBundle.message("julia.lint.int-replace-bin")))
-		if (base != 8) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0o${value.toString(8)}",
-			JuliaBundle.message("julia.lint.int-replace-oct")))
-		if (base != 10) annotation.registerFix(JuliaReplaceWithTextIntention(element, value.toString(),
-			JuliaBundle.message("julia.lint.int-replace-dec")))
-		if (base != 16) annotation.registerFix(JuliaReplaceWithTextIntention(element, "0x${value.toString(16)}",
-			JuliaBundle.message("julia.lint.int-replace-hex")))
+		annotation(holder, INFORMATION, JuliaBundle.message("julia.lint.int-type", type), element) {
+			if (base != 2) withFix(
+				JuliaReplaceWithTextIntention(
+					element, "0b${value.toString(2)}",
+					JuliaBundle.message("julia.lint.int-replace-bin")
+				)
+			)
+			if (base != 8) withFix(
+				JuliaReplaceWithTextIntention(
+					element, "0o${value.toString(8)}",
+					JuliaBundle.message("julia.lint.int-replace-oct")
+				)
+			)
+			if (base != 10) withFix(
+				JuliaReplaceWithTextIntention(
+					element, value.toString(),
+					JuliaBundle.message("julia.lint.int-replace-dec")
+				)
+			)
+			if (base != 16) withFix(
+				JuliaReplaceWithTextIntention(
+					element, "0x${value.toString(16)}",
+					JuliaBundle.message("julia.lint.int-replace-hex")
+				)
+			)
+		}
 	}
 
 	private fun float(element: JuliaFloatLit, holder: AnnotationHolder) {
@@ -419,12 +534,46 @@ $JULIA_DOC_SURROUNDING
 		if ('e' in code) state = "ef"
 		if ('f' in code) state = "fe"
 		if (state.isNotEmpty()) {
-			holder.createInfoAnnotation(element, JuliaBundle.message("julia.lint.float-literal"))
-				.registerFix(JuliaReplaceWithTextIntention(element,
-					code.replace(state[0], state[1]),
-					JuliaBundle.message("julia.lint.float-literal-replace", state[1])))
+			annotation(holder, INFORMATION, JuliaBundle.message("julia.lint.float-literal"), element)
+			{
+				withFix(
+					JuliaReplaceWithTextIntention(
+						element,
+						code.replace(state[0], state[1]),
+						JuliaBundle.message("julia.lint.float-literal-replace", state[1])
+					)
+				)
+			}
 		}
 	}
+
+	private inline fun annotation(
+		holder: AnnotationHolder,
+		severity: HighlightSeverity,
+		message: @Nls String,
+		psiElement: PsiElement?,
+		textAttributesKey: TextAttributesKey? = null,
+		highlightType: ProblemHighlightType? = null,
+		configurator: (AnnotationBuilder.() -> Unit) = { },
+	) {
+		val builder = holder.newAnnotation(severity, message)
+		psiElement?.let { builder.range(it) }
+		highlightType?.let { builder.highlightType(it) }
+		textAttributesKey?.let { builder.textAttributes(it) }
+		configurator(builder)
+		builder.create()
+	}
+
+	private fun charEscapeHighlighting(holder: AnnotationHolder, element: JuliaCharLit) =
+		annotation(holder, INFORMATION, "", null, JuliaHighlighter.CHAR_ESCAPE) {
+			range(element.textRange.narrow(1, 1))
+		}
+
+
+	private fun invalidCharEscapeError(holder: AnnotationHolder, element: JuliaCharLit) = annotation(
+		holder, ERROR, JuliaBundle.message("julia.lint.invalid-char-escape"), null,
+		JuliaHighlighter.CHAR_ESCAPE_INVALID
+	) { range(element.textRange.narrow(1, 1)) }
 }
 
 // TODO: needs stub
