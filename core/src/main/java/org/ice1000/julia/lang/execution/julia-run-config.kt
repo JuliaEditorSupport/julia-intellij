@@ -1,3 +1,21 @@
+/*
+ *     Julia language support plugin for Intellij-based IDEs.
+ *     Copyright (C) 2024 julia-intellij contributors
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 @file:Suppress("DEPRECATION")
 
 package org.ice1000.julia.lang.execution
@@ -6,7 +24,10 @@ import com.intellij.execution.ExecutionResult
 import com.intellij.execution.Executor
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.actions.RunConfigurationProducer
-import com.intellij.execution.configurations.*
+import com.intellij.execution.configurations.ConfigurationFactory
+import com.intellij.execution.configurations.ConfigurationType
+import com.intellij.execution.configurations.LocatableConfigurationBase
+import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -20,9 +41,14 @@ import com.intellij.psi.PsiElement
 import com.intellij.xdebugger.XDebugProcess
 import com.intellij.xdebugger.XDebugSession
 import icons.JuliaIcons
-import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.module.*
+import org.ice1000.julia.lang.JULIA_RUN_CONFIG_ID
+import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.JuliaFileType
+import org.ice1000.julia.lang.module.juliaGlobalSettings
+import org.ice1000.julia.lang.module.juliaSettings
+import org.ice1000.julia.lang.module.validateJuliaExe
 import org.jdom.Element
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.debugger.DebuggableRunConfiguration
 import java.net.InetSocketAddress
 
@@ -117,6 +143,7 @@ class JuliaRunConfiguration(project: Project, factory: ConfigurationFactory) :
 }
 
 class JuliaRunConfigurationFactory(type: JuliaRunConfigurationType) : ConfigurationFactory(type) {
+	override fun getId(): @NonNls String = "Julia Run Configuration"
 	override fun createTemplateConfiguration(project: Project) = JuliaRunConfiguration(project, this)
 }
 
