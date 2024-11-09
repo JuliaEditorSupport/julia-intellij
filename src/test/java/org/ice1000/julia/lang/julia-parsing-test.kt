@@ -1,3 +1,21 @@
+/*
+ *     Julia language support plugin for Intellij-based IDEs.
+ *     Copyright (C) 2024 julia-intellij contributors
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.ice1000.julia.lang
 
 import com.intellij.lang.ParserDefinition
@@ -5,23 +23,10 @@ import com.intellij.testFramework.ParsingTestCase
 import org.ice1000.julia.lang.docfmt.DocfmtParserDefinition
 import org.junit.Test
 
-//class JuliaExperimentalParsingTest : ParsingTestCase(
-//	"", JULIA_EXTENSION, JuliaParserDefinitionExperimental()) {
-//	override fun getTestDataPath() = "testData/experimental"
-//	override fun skipSpaces() = true
-//	fun testComment() {
-//		doTest(true)
-//	}
-//
-//	fun testBlockComment() {
-//		doTest(true)
-//	}
-//}
-
 class JuliaParsingTest : ParsingTestCase("", JULIA_EXTENSION,
 		// To make the IDE happy
 		JuliaParserDefinition() as ParserDefinition) {
-	override fun getTestDataPath() = "testData/parsing"
+	override fun getTestDataPath() = "src/test/resources/parsing"
 	override fun skipSpaces() = true
 	fun testParsing0() = doTest(true)
 	fun testParsing1() = doTest(true)
@@ -99,7 +104,7 @@ class JuliaLexerTest {
 
 class DocfmtParsingTest : ParsingTestCase("", DOCFMT_EXTENSION,
 		DocfmtParserDefinition() as ParserDefinition) {
-	override fun getTestDataPath() = "testData/parsing"
+	override fun getTestDataPath() = "src/test/resources/parsing"
 	override fun skipSpaces() = true
 	fun test() {
 		doTest(true)
