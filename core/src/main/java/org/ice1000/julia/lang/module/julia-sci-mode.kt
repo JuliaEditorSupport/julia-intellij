@@ -1,35 +1,70 @@
+/*
+ *     Julia language support plugin for Intellij-based IDEs.
+ *     Copyright (C) 2024 julia-intellij contributors
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 @file:Suppress("UndesirableClassUsage")
 
 package org.ice1000.julia.lang.module
 
-import com.google.gson.*
+import com.google.gson.JsonElement
+import com.google.gson.JsonParser
 import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.impl.ConsoleViewUtil
 import com.intellij.execution.ui.ObservableConsoleView
 import com.intellij.icons.AllIcons.Actions
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.colors.*
+import com.intellij.openapi.editor.colors.EditorColors
+import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.fileChooser.FileChooserFactory
 import com.intellij.openapi.fileChooser.FileSaverDescriptor
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.ex.FileEditorProviderManager
-import com.intellij.openapi.fileEditor.impl.EditorTabbedContainer.DockableEditor
-import com.intellij.openapi.project.*
+import com.intellij.openapi.fileEditor.impl.DockableEditor
+import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.wm.*
+import com.intellij.openapi.wm.ToolWindow
+import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.testFramework.BinaryLightVirtualFile
-import com.intellij.ui.*
+import com.intellij.ui.ColoredTextContainer
+import com.intellij.ui.JBColor
+import com.intellij.ui.SimpleColoredComponent
+import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.awt.RelativeRectangle
-import com.intellij.ui.content.ContentFactory.SERVICE
-import com.intellij.ui.docking.DockContainer.*
-import com.intellij.ui.docking.*
-import com.intellij.ui.tabs.*
+import com.intellij.ui.content.ContentFactory
+import com.intellij.ui.docking.DockContainer
+import com.intellij.ui.docking.DockContainer.ContentResponse
+import com.intellij.ui.docking.DockContainer.Listener
+import com.intellij.ui.docking.DockManager
+import com.intellij.ui.docking.DockableContent
+import com.intellij.ui.docking.DragSession
+import com.intellij.ui.tabs.JBTabsPosition
+import com.intellij.ui.tabs.TabInfo
 import com.intellij.ui.tabs.TabInfo.DragOutDelegate
+import com.intellij.ui.tabs.TabsListener
 import com.intellij.ui.tabs.impl.*
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
@@ -37,6 +72,7 @@ import com.intellij.xdebugger.XSourcePosition
 import com.intellij.xdebugger.frame.*
 import com.intellij.xdebugger.impl.frame.XStandaloneVariablesView
 import icons.JuliaIcons
+import kotlinx.coroutines.CoroutineScope
 import org.ice1000.julia.lang.*
 import org.ice1000.julia.lang.execution.JuliaEditorsProvider
 import org.jetbrains.debugger.SourceInfo
@@ -48,9 +84,10 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.*
 import javax.imageio.ImageIO
-import javax.swing.*
+import javax.swing.ImageIcon
+import javax.swing.JComponent
+import javax.swing.JPanel
 import kotlin.collections.Map.Entry
 
 interface Figure {
@@ -72,7 +109,8 @@ interface DockableContentFigureFactory {
 	fun createFigure(content: DockableContent<*>): Figure
 }
 
-class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()), DumbAware {
+class JuliaSciToolWindow(private val project: Project, cs: CoroutineScope) : JPanel(BorderLayout()),
+	DumbAware {
 	private val tabs: JBEditorTabs
 	private val map: MutableMap<TabInfo, Any>
 	var lastPlotIndex: Int = 0
@@ -84,8 +122,7 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		this.map = HashMap()
 		this.lastPlotIndex = 0
 		this.list = ArrayList()
-		this.tabs = JuliaSciToolWindow.MyTabs(this.project)
-		this.tabs.tabsPosition = JBTabsPosition.right
+		this.tabs = MyTabs(this.project, cs)
 		this.tabs.setPopupGroup(DefaultActionGroup(SaveAsFileAction(), CloseAllPlotsAction()), "unknown", true)
 		// this.tabs.isTabDraggingEnabled = true
 		this.tabs.addListener(object : TabsListener {
@@ -99,7 +136,7 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 	}
 
 	fun init(toolWindow: ToolWindow) {
-		val sciPanel = SERVICE.getInstance()
+		val sciPanel = ContentFactory.getInstance()
 		val plotsContent = sciPanel.createContent(this, JuliaBundle.message("julia.modules.sci-mode.plots.title"), false)
 		plotsContent.isCloseable = false
 
@@ -127,7 +164,7 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		val tabInfo = figure.getTabInfo()
 		tabInfo.setTabLabelActions(DefaultActionGroup(ClosePlotAction(tabInfo)), "unknown")
 		if (figure is WithDockableContent) {
-			tabInfo.dragOutDelegate = MyDragOutDelegate(figure as WithDockableContent)
+			tabInfo.setDragOutDelegate(MyDragOutDelegate(figure as WithDockableContent))
 		}
 
 		ApplicationManager.getApplication().invokeLater {
@@ -161,7 +198,7 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		return entry.key as TabInfo
 	}
 
-	inner class MyDockContainer constructor(private val a: ToolWindow) : DockContainer, Disposable {
+	inner class MyDockContainer(private val a: ToolWindow) : DockContainer, Disposable {
 		override fun getAcceptArea(): RelativeRectangle = RelativeRectangle(this.a.component)
 		override fun getAcceptAreaFallback(): RelativeRectangle = this.acceptArea
 		override fun getContainerComponent(): JComponent = this.a.component
@@ -169,7 +206,7 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		override fun getContentResponse(content: DockableContent<*>, point: RelativePoint): ContentResponse =
 			if (this.factory(content) != null) ContentResponse.ACCEPT_MOVE else ContentResponse.DENY
 
-		override fun add(content: DockableContent<*>, dropTarget: RelativePoint) {
+		override fun add(content: DockableContent<*>, dropTarget: RelativePoint?) {
 			val figure = this.factory(content)!!.createFigure(content)
 			this@JuliaSciToolWindow.addFigure(figure)
 		}
@@ -187,7 +224,7 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		}
 	}
 
-	inner class MyDragOutDelegate constructor(private val a: WithDockableContent) : DragOutDelegate {
+	inner class MyDragOutDelegate(private val a: WithDockableContent) : DragOutDelegate {
 		private var dragSession: DragSession? = null
 
 		override fun dragOutStarted(mouseEvent: MouseEvent, info: TabInfo) {
@@ -233,7 +270,7 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 					Files.write(Paths.get(file.path), bytes)
 				}
 			} catch (e: IOException) {
-				JuliaSciToolWindow.logger.warn("Failed to save image " + e.message)
+				logger.warn("Failed to save image " + e.message)
 			}
 		}
 	}
@@ -245,14 +282,15 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		}
 	}
 
-	private inner class ClosePlotAction constructor(private val a: TabInfo) : AnAction("Close Plot", "Close selected plot", Actions.Close) {
+	private inner class ClosePlotAction(private val a: TabInfo) :
+		AnAction("Close Plot", "Close selected plot", Actions.Close) {
 
 		override fun actionPerformed(e: AnActionEvent) {
 			this@JuliaSciToolWindow.tabs.removeTab(this.a)
 		}
 	}
 
-	private class MyTabLabel constructor(tabs: JBTabsImpl, info: TabInfo) : TabLabel(tabs, info) {
+	private class MyTabLabel(tabs: JBTabsImpl, info: TabInfo) : TabLabel(tabs, info) {
 		init {
 			val jComponent = this.labelComponent as? SimpleColoredComponent
 			jComponent?.isIconOnTheRight = true
@@ -261,14 +299,16 @@ class JuliaSciToolWindow(private val project: Project) : JPanel(BorderLayout()),
 		override fun getPreferredSize(): Dimension = Dimension(JBUI.scale(100), JBUI.scale(80))
 	}
 
-	private class MyTabs constructor(project: Project) : JBEditorTabs(project, ActionManager.getInstance(), IdeFocusManager.findInstance(), project) {
-		init {
-			this.myDefaultPainter = object : DefaultEditorTabsPainter(this) {
+	private class MyTabs(project: Project, cs: CoroutineScope) :
+		JBEditorTabs(project, project, cs, TabListOptions(tabPosition = JBTabsPosition.right)) {
+
+		override fun createTabPainterAdapter(): TabPainterAdapter {
+			return DefaultTabPainterAdapter(object : JBDefaultTabPainter() {
 				override fun getBackgroundColor(): Color = JBColor.LIGHT_GRAY
-			}
+			})
 		}
 
-		override fun createTabLabel(info: TabInfo): TabLabel = JuliaSciToolWindow.MyTabLabel(this, info)
+		override fun createTabLabel(info: TabInfo): TabLabel = MyTabLabel(this, info)
 	}
 
 	companion object {
@@ -283,13 +323,13 @@ class ImageFigure @JvmOverloads constructor(imageVirtualFile: ImageVirtualFile, 
 	private val tabInfo: TabInfo
 
 	private fun a(file: ImageVirtualFile, project: Project): TabInfo {
-		val plotPanel = ImageFigure.MyPlotPanel(file, project)
+		val plotPanel = MyPlotPanel(file, project)
 		val var3 = TabInfo(plotPanel)
-		var3.tabColor = UIUtil.getPanelBackground()
+		var3.setTabColor(UIUtil.getPanelBackground())
 		val var4 = file.image
 		val var5 = FigureUtil.fit(var4!!, 64, 48)
-		var3.icon = ImageIcon(var5)
-		var3.text = " "
+		var3.setIcon(ImageIcon(var5))
+		var3.setText(" ")
 		return var3
 	}
 
@@ -309,12 +349,12 @@ class ImageFigure @JvmOverloads constructor(imageVirtualFile: ImageVirtualFile, 
 		val image = JBTabsImpl.getComponentImage(this.tabInfo)
 		val text = Presentation(this.tabInfo.text)
 		val dimension = this.tabInfo.component.preferredSize
-		val imageVirtualFile = (this.tabInfo.component as ImageFigure.MyPlotPanel).getImageVirtualFile()
+		val imageVirtualFile = (this.tabInfo.component as MyPlotPanel).getImageVirtualFile()
 		val imageVirtualFileCopy = ImageVirtualFile.makeCopy(imageVirtualFile)
-		return DockableEditor(this.project, image, imageVirtualFileCopy, text, dimension, false)
+		return DockableEditor(image, imageVirtualFileCopy, text, dimension, false, false)
 	}
 
-	class MyPlotPanel constructor(val a: ImageVirtualFile, project: Project) : JPanel(BorderLayout()), WithBinaryContent, Disposable {
+	class MyPlotPanel(val a: ImageVirtualFile, project: Project) : JPanel(BorderLayout()), WithBinaryContent, Disposable {
 		private var fileEditor: FileEditor? = null
 
 		init {
@@ -393,7 +433,7 @@ object FigureUtil {
 	}
 
 	@JvmName("toByteArrayExt")
-	private fun RenderedImage.toByteArray() = FigureUtil.toByteArray(this)
+	private fun RenderedImage.toByteArray() = toByteArray(this)
 
 	fun toByteArray(image: RenderedImage): ByteArray {
 		val output = ByteArrayOutputStream()

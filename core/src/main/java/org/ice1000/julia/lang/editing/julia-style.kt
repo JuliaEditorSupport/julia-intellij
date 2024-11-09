@@ -1,9 +1,31 @@
+/*
+ *     Julia language support plugin for Intellij-based IDEs.
+ *     Copyright (C) 2024 julia-intellij contributors
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.ice1000.julia.lang.editing
 
-import com.intellij.application.options.*
+import com.intellij.application.options.CodeStyleAbstractConfigurable
+import com.intellij.application.options.CodeStyleAbstractPanel
+import com.intellij.application.options.SmartIndentOptionsEditor
+import com.intellij.application.options.TabbedLanguageCodeStylePanel
 import com.intellij.openapi.options.Configurable
 import com.intellij.psi.codeStyle.*
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.JuliaLanguage
 
 
 class JuliaCodeStyleSettings(settings: CodeStyleSettings)
@@ -55,13 +77,14 @@ class JuliaStyleSettingsProvider : LanguageCodeStyleSettingsProvider() {
 			}
 			SettingsType.BLANK_LINES_SETTINGS -> consumer.showStandardOptions("KEEP_BLANK_LINES_IN_CODE")
 //			SettingsType.LANGUAGE_SPECIFIC -> TODO()
+			else -> {}
 		}
 	}
 
 	override fun getIndentOptionsEditor() = SmartIndentOptionsEditor()
 
 
-	override fun getCodeSample(settingsType: LanguageCodeStyleSettingsProvider.SettingsType): String {
+	override fun getCodeSample(settingsType: SettingsType): String {
 		return CodeStyleAbstractPanel.readFromFile(this.javaClass, "preview.jl.template")
 	}
 }

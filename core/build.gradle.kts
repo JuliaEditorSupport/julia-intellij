@@ -1,10 +1,6 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.grammarkit.tasks.GenerateLexerTask
 import org.jetbrains.grammarkit.tasks.GenerateParserTask
-import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.kt3k.gradle.plugin.coveralls.CoverallsTask
 import java.nio.file.Paths
 
 fun properties(key: String) = providers.gradleProperty(key)
@@ -13,6 +9,9 @@ val genRoot = project.file("src/main/gen")
 val resourceRoot = project.file("src/main/resources")
 
 dependencies{
+	implementation(group = "org.eclipse.mylyn.github", name = "org.eclipse.egit.github.core", version = "2.1.5") {
+		exclude(module = "gson")
+	}
 	intellijPlatform{
 		val platformVersionProvider: Provider<String> by rootProject.extra
 		create("IC", platformVersionProvider.get(), useInstaller = properties("useInstaller").get().toBoolean())

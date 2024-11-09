@@ -1,3 +1,21 @@
+/*
+ *     Julia language support plugin for Intellij-based IDEs.
+ *     Copyright (C) 2024 julia-intellij contributors
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.ice1000.julia.lang.module
 
 import com.intellij.navigation.ItemPresentation
@@ -13,7 +31,9 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.xmlb.XmlSerializerUtil
 import icons.JuliaIcons
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JULIA_WEBSITE
+import org.ice1000.julia.lang.JuliaBundle
+import org.ice1000.julia.lang.printJulia
 import org.jdom.Element
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -27,12 +47,13 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	override fun getPresentableName() = JuliaBundle.message("julia.modules.sdk.name")
 	override fun getIcon() = JuliaIcons.JULIA_BIG_ICON
 	override fun getIconForAddAction() = JuliaIcons.ADD_SDK_ICON
-	override fun isValidSdkHome(sdkHome: String?) = validateJuliaSDK(sdkHome.orEmpty())
-	override fun suggestSdkName(s: String?, p1: String?) = JuliaBundle.message("julia.modules.sdk.name")
+	override fun isValidSdkHome(sdkHome: String) = validateJuliaSDK(sdkHome)
+	override fun suggestSdkName(currentSdkName: String?, sdkHome: String): String =
+		JuliaBundle.message("julia.modules.sdk.name")
 	override fun suggestHomePath() = juliaGlobalSettings.knownJuliaExes.firstOrNull()?.let { Paths.get(it) }?.parent?.parent?.toString()
 	override fun getDownloadSdkUrl() = JULIA_WEBSITE
 	override fun createAdditionalDataConfigurable(md: SdkModel, m: SdkModificator): AdditionalDataConfigurable? = null
-	override fun getVersionString(sdkHome: String?) = versionOf(sdkHome.orEmpty())
+	override fun getVersionString(sdkHome: String): String? = versionOf(sdkHome)
 	override fun saveAdditionalData(additionalData: SdkAdditionalData, element: Element) = Unit // leave blank
 	override fun setupSdkPaths(sdk: Sdk, sdkModel: SdkModel): Boolean {
 		val modificator = sdk.sdkModificator
@@ -42,7 +63,7 @@ class JuliaSdkType : SdkType(JuliaBundle.message("julia.name")) {
 	}
 
 	companion object InstanceHolder {
-		val instance get() = SdkType.findInstance(JuliaSdkType::class.java)
+		val instance get() = findInstance(JuliaSdkType::class.java)
 	}
 }
 
