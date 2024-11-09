@@ -1,11 +1,8 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.jetbrains.grammarkit.tasks.GenerateLexerTask
-import org.jetbrains.grammarkit.tasks.GenerateParserTask
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.kt3k.gradle.plugin.coveralls.CoverallsTask
-import java.nio.file.Paths
 
 fun properties(key: String) = providers.gradleProperty(key)
 fun environment(key: String) = providers.environmentVariable(key)
@@ -31,7 +28,7 @@ repositories {
 	mavenCentral()
 }
 
-val pluginProjectsNames = setOf<String>()
+val pluginProjectsNames = setOf<String>("julia-intellij")
 
 allprojects {
 	val isPlugin = project.name in pluginProjectsNames || true // this is for further usage of modularization
@@ -217,18 +214,6 @@ tasks {
 
 val coverageReportFile = project.buildDir.resolve("reports/jacoco/jacocoRootReport/jacocoRootReport.xml")
 
-sourceSets {
-	main {
-			listOf(java, kotlin).forEach { it.srcDirs("src", "gen") }
-		resources.srcDir("res")
-	}
-
-	test {
-			listOf(java, kotlin).forEach { it.srcDirs("test") }
-		resources.srcDir("testData")
-	}
-}
-
 dependencies {
 /*
 	compile(group = "org.eclipse.mylyn.github", name = "org.eclipse.egit.github.core", version = "2.1.5") {
@@ -265,69 +250,21 @@ intellijPlatform {
 		}
 	}
 	dependencies {
+		listOf(
+			":core",
+		).forEach {
+			compileOnly(project(it))
+			testCompileOnly(project(it))
+			runtimeOnly(project(it))
+			intellijPlatform {
+				pluginModule(implementation(project(it)))
+			}
+		}
+
 		intellijPlatform {
 			create(ideType, ideVersion, useInstaller = properties("useInstaller").get().toBoolean())
 			plugins(pluginList)
 			bundledPlugins(bundledPluginList)
 		}
 	}
-}
-
-// Don't specify type explicitly. Will be incorrectly recognized
-fun bnf(name: String) = Paths.get("grammar", "$name-grammar.bnf").toFile()
-fun flex(name: String) = Paths.get("grammar", "$name-lexer.flex").toFile()
-
-val genParser = tasks.register<GenerateParserTask>("genParser") {
-	group = "code generation"
-	description = "Generate the Parser and PsiElement classes"
-	sourceFile.set(bnf("julia"))
-	pathToParser.set("/org/ice1000/julia/lang/JuliaParser.java")
-	pathToPsiRoot.set("/org/ice1000/julia/lang/psi")
-	targetRootOutputDir.set(file("gen"))
-}
-
-val genLexer = tasks.register<GenerateLexerTask>("genLexer") {
-	group = "code generation"
-	description = "Generate the Lexer"
-	sourceFile.set(flex("julia"))
-	targetOutputDir.set(file("gen/org/ice1000/julia/lang"))
-
-	dependsOn(genParser)
-}
-
-val genDocfmtParser = tasks.register<GenerateParserTask>("genDocfmtParser") {
-	group = "code generation"
-	description = "Generate the Parser for DocumentFormat.jl"
-	sourceFile.set(bnf("docfmt"))
-	pathToParser.set("/org/ice1000/julia/lang/docfmt/DocfmtParser.java")
-	pathToPsiRoot.set("/org/ice1000/julia/lang/docfmt/psi")
-	targetRootOutputDir.set(file("gen"))
-}
-
-val genDocfmtLexer = tasks.register<GenerateLexerTask>("genDocfmtLexer") {
-	group = "code generation"
-	description = "Generate the Lexer for DocumentFormat.jl"
-	sourceFile.set(flex("docfmt"))
-	targetOutputDir.set(file(file("gen/org/ice1000/julia/lang/docfmt")))
-	dependsOn(genDocfmtParser)
-}
-
-val sortSpelling = tasks.register("sortSpellingFile") {
-	val fileName = "spelling.txt"
-	val isWindows = "windows" in System.getProperty("os.name").toLowerCase()
-	project.exec {
-		workingDir = file("$projectDir/res/org/ice1000/julia/lang/editing")
-		commandLine = when {
-			isWindows -> listOf("sort.exe", fileName, "/O", fileName)
-			else -> listOf("sort", fileName, "-f", "-o", fileName)
-		}
-	}
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-	dependsOn(
-		genLexer,
-		genDocfmtLexer,
-		sortSpelling
-	)
 }
