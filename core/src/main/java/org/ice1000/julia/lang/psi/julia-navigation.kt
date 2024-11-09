@@ -1,3 +1,21 @@
+/*
+ *     Julia language support plugin for Intellij-based IDEs.
+ *     Copyright (C) 2024 julia-intellij contributors
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 @file:Suppress("UNCHECKED_CAST")
 
 package org.ice1000.julia.lang.psi
@@ -10,6 +28,8 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.ElementColorProvider
+import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -17,22 +37,20 @@ import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiUtilBase
+import com.intellij.ui.ColorChooser
+import com.intellij.util.FunctionUtil
+import com.intellij.util.ui.ColorIcon
+import com.intellij.util.ui.ColorsIcon
 import org.apache.commons.lang.StringEscapeUtils
+import org.ice1000.julia.lang.module.JULIA_COLOR_CONSTANTS
 import org.ice1000.julia.lang.module.languageServer
 import org.ice1000.julia.lang.psi.impl.*
+import java.awt.Color
 import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import com.intellij.util.FunctionUtil
 import javax.swing.Icon
-import com.intellij.openapi.editor.markup.GutterIconRenderer
-import com.intellij.psi.util.PsiUtilBase
-import com.intellij.openapi.editor.ElementColorProvider
-import com.intellij.ui.ColorChooser
-import com.intellij.util.ui.ColorIcon
-import com.intellij.util.ui.ColorsIcon
-import org.ice1000.julia.lang.module.JULIA_COLOR_CONSTANTS
-import java.awt.Color
 
 
 /**
@@ -80,9 +98,9 @@ class JuliaGotoDeclarationHandler : GotoDeclarationHandler {
 					val future = executor.submit {
 						try {
 							ReadAction.compute<Unit, Throwable> {
-								project.languageServer.searchFunctionsByName(juliaSymbol.text)?.let { ret ->
-									if (ret.startsWith("__INTELLIJ__")) return@let null
-									val unescaped = StringEscapeUtils.unescapeJava(ret.trim('"'))
+								project.languageServer.searchFunctionsByName(juliaSymbol.text)?.apply {
+									if (startsWith("__INTELLIJ__")) return@apply
+									val unescaped = StringEscapeUtils.unescapeJava(trim('"'))
 									try {
 										val json = jsonParser.parse(unescaped)
 										json.asJsonArray.mapNotNull {
@@ -212,8 +230,8 @@ class JuliaLineMarkerProvider : LineMarkerProvider {
 		super.collectSlowLineMarkers(elements, result)
 	}
 
-	private class MyColorInfo internal
-	constructor(element: PsiElement, private val color: Color, colorProvider: ElementColorProvider)
+	private class MyColorInfo
+		(element: PsiElement, private val color: Color, colorProvider: ElementColorProvider)
 		: MergeableLineMarkerInfo<PsiElement>(element, element.textRange, ColorIcon(12, color), FunctionUtil.nullConstant<Any, String>(),
 		GutterIconNavigationHandler<PsiElement> { e, elt ->
 			if (!elt.isWritable) return@GutterIconNavigationHandler

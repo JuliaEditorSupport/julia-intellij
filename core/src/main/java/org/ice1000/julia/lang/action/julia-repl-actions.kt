@@ -1,13 +1,39 @@
+/*
+ *     Julia language support plugin for Intellij-based IDEs.
+ *     Copyright (C) 2024 julia-intellij contributors
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.ice1000.julia.lang.action
 
 import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.execution.configurations.GeneralCommandLine
-import com.intellij.execution.console.*
+import com.intellij.execution.console.ConsoleExecuteAction
+import com.intellij.execution.console.LanguageConsoleImpl
+import com.intellij.execution.console.LanguageConsoleView
+import com.intellij.execution.console.ProcessBackedConsoleExecuteActionHandler
 import com.intellij.execution.process.ColoredProcessHandler
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
-import com.intellij.notification.*
-import com.intellij.openapi.actionSystem.*
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
@@ -17,22 +43,25 @@ import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.keymap.KeymapUtil
-import com.intellij.openapi.project.*
+import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
-import com.intellij.util.io.createFile
-import com.intellij.util.io.exists
 import icons.JuliaIcons
 import org.ice1000.julia.lang.*
-import org.ice1000.julia.lang.execution.*
-import org.ice1000.julia.lang.module.*
+import org.ice1000.julia.lang.execution.toUnixPath
+import org.ice1000.julia.lang.module.JuliaConsoleView
+import org.ice1000.julia.lang.module.JuliaProjectComponent
+import org.ice1000.julia.lang.module.juliaSettings
 import java.awt.Font
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.createFile
+import kotlin.io.path.exists
 
 abstract class JuliaSendCodeToReplAction(
 	text: String?,
@@ -128,7 +157,7 @@ class JuliaSendSelectionToReplAction : JuliaSendCodeToReplAction(
 
 			var newOffset = end +offset - start
 
-			val nextLineEndOffset = document . getLineEndOffset(nextLineStart.line);
+			val nextLineEndOffset = document . getLineEndOffset(nextLineStart.line)
 			if (newOffset >= nextLineEndOffset) {
 				newOffset = nextLineEndOffset
 			}

@@ -1,3 +1,21 @@
+/*
+ *     Julia language support plugin for Intellij-based IDEs.
+ *     Copyright (C) 2024 julia-intellij contributors
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.ice1000.julia.lang.execution
 
 import com.google.gson.Gson
@@ -20,8 +38,6 @@ import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.terminal.TerminalExecutionConsole
-import com.intellij.util.io.createFile
-import com.intellij.util.io.exists
 import com.intellij.xdebugger.*
 import com.intellij.xdebugger.breakpoints.XLineBreakpointTypeBase
 import com.intellij.xdebugger.evaluation.EvaluationMode
@@ -43,6 +59,8 @@ import java.io.InputStreamReader
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.nio.file.Paths
+import kotlin.io.path.createFile
+import kotlin.io.path.exists
 
 /**
  * this feature is not a Joke!
@@ -238,7 +256,7 @@ class JuliaDebugExecutionStack(private val stackFrameList: List<XStackFrame>) : 
 
 	override fun getTopFrame() = topFrame
 
-	override fun computeStackFrames(i: Int, xStackFrameContainer: XExecutionStack.XStackFrameContainer) {
+	override fun computeStackFrames(i: Int, xStackFrameContainer: XStackFrameContainer) {
 		val stackFrameContainerEx = xStackFrameContainer as XStackFrameContainerEx
 		stackFrameContainerEx.addStackFrames(stackFrameList, topFrame, true)
 	}

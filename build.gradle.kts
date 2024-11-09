@@ -214,15 +214,6 @@ tasks {
 
 val coverageReportFile = project.buildDir.resolve("reports/jacoco/jacocoRootReport/jacocoRootReport.xml")
 
-dependencies {
-/*
-	compile(group = "org.eclipse.mylyn.github", name = "org.eclipse.egit.github.core", version = "2.1.5") {
-		exclude(module = "gson")
-	}
-	compile("org.jetbrains", "markdown", "0.2.0")
-*/
-}
-
 intellijPlatform {
 	val pluginList = mutableListOf<String>()
 	val bundledPluginList = mutableListOf<String>()
