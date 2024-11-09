@@ -7,3 +7,5 @@ pluginManagement {
 rootProject.name = "julia-intellij"
 include("core")
 project(":core").projectDir = file("core")
+include("java")
+project(":java").projectDir = file("java")
