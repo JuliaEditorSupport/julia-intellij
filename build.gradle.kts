@@ -243,6 +243,7 @@ intellijPlatform {
 	dependencies {
 		listOf(
 			":core",
+			":java",
 		).forEach {
 			compileOnly(project(it))
 			testCompileOnly(project(it))

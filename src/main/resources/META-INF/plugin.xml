@@ -1,5 +1,5 @@
-<idea-plugin>
-	<id>"org.ice1000.julia</id>
+<idea-plugin url="https://github.com/JuliaEditorSupport/julia-intellij/">
+	<id>org.ice1000.julia</id>
 	<name>Julia</name>
 	<vendor email="hurricup@gmail.com" url="https://github.com/hurricup">Alexandr Evstigneev</vendor>
 	<category>Custom Languages</category>
@@ -9,6 +9,10 @@
 	<depends optional="true" config-file="plugin-clion.xml">com.intellij.modules.clion</depends>
 	<depends optional="true" config-file="plugin-goland.xml">com.intellij.modules.go</depends>
 	<depends optional="true" config-file="plugin-idea.xml">com.intellij.modules.idea</depends>
+
+	<content>
+		<module name="org.ice1000.julia.java"/>
+	</content>
 
 	<extensions defaultExtensionNs="com.intellij">
 		<liveTemplateContext implementation="org.ice1000.julia.lang.editing.JuliaTemplateContextType$Base"/>
@@ -36,7 +40,6 @@
 		<xdebugger.breakpointType implementation="org.ice1000.julia.lang.execution.JuliaLineBreakpointType"/>
 		<consoleFilterProvider implementation="org.ice1000.julia.lang.execution.JuliaConsoleFilterProvider"/>
 		<console.folding implementation="org.ice1000.julia.lang.execution.JuliaConsoleFolding"/>
-		<moduleConfigurationEditorProvider implementation="org.ice1000.julia.lang.module.JuliaModuleConfigEditor"/>
 		<directoryProjectGenerator implementation="org.ice1000.julia.lang.module.JuliaProjectGenerator"/>
 		<iconProvider implementation="org.ice1000.julia.lang.editing.JuliaIconProvider"/>
 		<errorHandler implementation="org.ice1000.julia.lang.error.GitHubErrorReporter"/>

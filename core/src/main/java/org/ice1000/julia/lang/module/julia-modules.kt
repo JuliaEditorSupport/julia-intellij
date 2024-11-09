@@ -18,18 +18,24 @@
 
 package org.ice1000.julia.lang.module
 
-import com.intellij.ide.util.projectWizard.*
+import com.intellij.ide.util.projectWizard.ModuleBuilder
+import com.intellij.ide.util.projectWizard.ModuleBuilderListener
+import com.intellij.ide.util.projectWizard.ModuleWizardStep
+import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.module.*
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.ModuleType
+import com.intellij.openapi.module.ModuleTypeManager
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.project.rootManager
 import com.intellij.openapi.projectRoots.SdkTypeId
 import com.intellij.openapi.roots.ModifiableModelsProvider
 import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.roots.ui.configuration.*
 import icons.JuliaIcons
-import org.ice1000.julia.lang.*
+import org.ice1000.julia.lang.JULIA_DEFAULT_MODULE_NAME
+import org.ice1000.julia.lang.JULIA_MODULE_ID
+import org.ice1000.julia.lang.JuliaBundle
 import org.ice1000.julia.lang.action.errorNotification
 import org.ice1000.julia.lang.module.ui.JuliaSetupSdkWizardStepImpl
 
@@ -88,29 +94,5 @@ class JuliaModuleType : ModuleType<JuliaModuleBuilder>(JULIA_MODULE_ID) {
 	companion object InstanceHolder {
 		@JvmStatic val instance get() = ModuleTypeManager.getInstance().findByID(JULIA_MODULE_ID) as JuliaModuleType
 	}
-}
-
-/**
- * Module Configure
- * Inspired by Haskell plugin
- * @author: zxj5470
- * @date: 2018/1/29
- */
-class JuliaModuleConfigEditor : ModuleConfigurationEditorProvider {
-	override fun createEditors(state: ModuleConfigurationState): Array<ModuleConfigurationEditor> {
-		val module = state.rootModel?.module ?: return emptyArray()
-		return arrayOf(ContentEntriesEditor(module.name, state),
-			JuliaCompileOutputEditor(state))
-	}
-}
-
-class JuliaCompileOutputEditor(state: ModuleConfigurationState) : ModuleElementsEditor(state) {
-	var editor: BuildElementsEditor = object : BuildElementsEditor(state) {
-	}
-
-	override fun createComponentImpl() = editor.createComponentImpl()
-	override fun saveData() = editor.saveData()
-	override fun getDisplayName() = "Paths"
-	override fun getHelpTopic() = editor.helpTopic
 }
 

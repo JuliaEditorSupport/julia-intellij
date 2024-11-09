@@ -1,0 +1,9 @@
+<idea-plugin package="org.ice1000.julia.java">
+    <dependencies>
+        <plugin id="com.intellij.modules.java"/>
+    </dependencies>
+    <extensions defaultExtensionNs="com.intellij">
+        <moduleConfigurationEditorProvider
+                implementation="org.ice1000.julia.java.ui.configuration.JuliaModuleConfigEditorProvider"/>
+    </extensions>
+</idea-plugin>
