@@ -45,7 +45,7 @@ class JuliaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 	}
 
 	lateinit var settings: JuliaSettings
-	override fun isSuitableSdkType(sdkType: SdkTypeId?) = true
+	override fun isSuitableSdkType(sdkType: SdkTypeId): Boolean = true
 	override fun getWeight() = 98
 	override fun getNodeIcon() = JuliaIcons.JULIA_BIG_ICON
 	override fun getModuleType() = JuliaModuleType.instance
