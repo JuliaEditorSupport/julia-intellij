@@ -354,7 +354,6 @@ $JULIA_DOC_SURROUNDING
 			else -> {
 			}
 		}
-		val daddy = element.parent
 		when {
 			element.isConstName || element.isConstNameRef -> annotation(
 				holder, INFORMATION, "", element, JuliaHighlighter.CONST_NAME
@@ -375,7 +374,7 @@ $JULIA_DOC_SURROUNDING
 
 			element.isQuoteCall -> annotation(
 				holder, INFORMATION, "",
-				daddy.let { if (it is JuliaQuoteOp) it else it.parent },
+				element,
 				JuliaHighlighter.QUOTE_NAME
 			)
 		}
