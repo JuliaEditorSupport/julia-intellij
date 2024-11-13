@@ -168,6 +168,7 @@
 		<projectConfigurable
 			groupId="language"
 			id="Julia.Configuration"
+			displayName="Julia"
 			instance="org.ice1000.julia.lang.module.ui.JuliaProjectConfigurableImpl"/>
 		<projectConfigurable
 			parentId="Julia.Configuration"
