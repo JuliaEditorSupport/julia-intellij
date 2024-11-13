@@ -1,42 +1,57 @@
+/*
+ *     Julia language support plugin for Intellij-based IDEs.
+ *     Copyright (C) 2024 julia-intellij contributors
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.ice1000.julia.lang.editing
 
-import com.intellij.codeInsight.template.EverywhereContextType
 import com.intellij.codeInsight.template.TemplateContextType
-import com.intellij.psi.*
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.util.PsiTreeUtil
 import org.ice1000.julia.lang.JuliaFileType
 import org.ice1000.julia.lang.psi.*
 import org.ice1000.julia.lang.psi.JuliaTypes.EOL
 import org.ice1000.julia.lang.psi.JuliaTypes.LINE_COMMENT
-import kotlin.reflect.KClass
 
-abstract class JuliaTemplateContextType private constructor(
-	id: String,
-	presentableName: String,
-	baseContextType: KClass<out TemplateContextType>?
-) : TemplateContextType(id, presentableName, baseContextType?.java) {
-	class Base : JuliaTemplateContextType("JULIA", "Julia", EverywhereContextType::class) {
+abstract class JuliaTemplateContextType private constructor(presentableName: String) :
+	TemplateContextType(presentableName) {
+	class Base : JuliaTemplateContextType("Julia") {
 		override fun isInContext(element: PsiElement): Boolean = true
 		override fun isCommentInContext(): Boolean = true
 	}
 
-	class Module : JuliaTemplateContextType("JULIA_MODULE", "Module", Base::class) {
+	class Module : JuliaTemplateContextType("Module") {
 		override fun isInContext(element: PsiElement) =
 			PsiTreeUtil.getParentOfType(element, JuliaModuleDeclaration::class.java) != null
 	}
 
-	class Class : JuliaTemplateContextType("JULIA_CLASS", "Class", Base::class) {
+	class Class : JuliaTemplateContextType("Class") {
 		override fun isInContext(element: PsiElement): Boolean {
 			return PsiTreeUtil.getParentOfType(element, JuliaTypeDeclaration::class.java) != null
 		}
 	}
 
-	class Comment : JuliaTemplateContextType("JULIA_COMMENT", "Comment", Base::class) {
+	class Comment : JuliaTemplateContextType("Comment") {
 		override fun isInContext(element: PsiElement): Boolean = false
 		override fun isCommentInContext(): Boolean = true
 	}
 
-	class Function : JuliaTemplateContextType("JULIA_FUNCTION", "Function", Base::class) {
+	class Function : JuliaTemplateContextType("Function") {
 		override fun isInContext(element: PsiElement): Boolean {
 			return PsiTreeUtil.getParentOfType(element, JuliaFunction::class.java) != null
 				|| PsiTreeUtil.getParentOfType(element, JuliaCompactFunction::class.java) != null
