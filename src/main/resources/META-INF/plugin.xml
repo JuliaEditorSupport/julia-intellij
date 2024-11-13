@@ -38,7 +38,7 @@
 		<codeStyleSettingsProvider implementation="org.ice1000.julia.lang.editing.JuliaCodeStyleSettingsProvider"/>
 		<langCodeStyleSettingsProvider implementation="org.ice1000.julia.lang.editing.JuliaStyleSettingsProvider"/>
 		<defaultLiveTemplatesProvider implementation="org.ice1000.julia.lang.JuliaLiveTemplateProvider"/>
-		<liveTemplateContext implementation="org.ice1000.julia.lang.JuliaContext"/>
+		<liveTemplateContext contextId="JULIA_CONTEXT" implementation="org.ice1000.julia.lang.JuliaContext"/>
 		<configurationType implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationType"/>
 		<runConfigurationProducer implementation="org.ice1000.julia.lang.execution.JuliaRunConfigurationProducer"/>
 		<programRunner implementation="org.ice1000.julia.lang.execution.JuliaDebugRunner"/>
