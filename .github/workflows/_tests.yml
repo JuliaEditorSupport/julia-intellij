@@ -1,0 +1,66 @@
+# re-usable workflow to run integration tests
+name: Tests
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+env:
+  ORG_GRADLE_PROJECT_downloadIdeaSources: false
+  CI: GitHub
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+  COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+  YOUTRACK_TOKEN: ${{ secrets.YOUTRACK_TOKEN }}
+
+jobs:
+  light-tests:
+    name: Light
+    runs-on: ${{ inputs.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
+
+      - name: Setup Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
+          show-versioninfo: true
+
+      - name: Julia says Hello
+        run: julia -e 'println("Hello, World!")'
+
+      - name: Run tests
+        run: |
+          bash ./watcher.sh 3600 &
+          ./gradlew test --console plain "-Pyoutrack.token=${{ env.YOUTRACK_TOKEN && env.YOUTRACK_TOKEN || 'skip' }}"
+
+      - name: Upload Coverage Data
+        if: ${{ env.COVERALLS_REPO_TOKEN }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: light-tests-coverage-${{ inputs.os }}
+          path: |
+            **/jacoco/*.exec
+
+      - name: Upload Snapshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: light-snapshot-${{ inputs.os }}
+          path: |
+            ./snapshot.hprof
+            ./jinfo.txt
+            ./jstack.txt
