@@ -1,0 +1,27 @@
+# Re-usable workflow for project analysis with qodana
+name: Qodana
+
+on:
+  workflow_call:
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+      QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@v2024.2.6
+        env:
+          QODANA_LINTER: ${{ env.QODANA_TOKEN == '' && 'jetbrains/qodana-jvm-community' || 'jetbrains/qodana-jvm' }}
+        with:
+          use-caches: false
+          args: --baseline,.qodana/qodana.sarif.json,--linter,${{ env.QODANA_LINTER }}
+
+      - uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
