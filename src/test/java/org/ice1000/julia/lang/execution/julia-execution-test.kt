@@ -25,11 +25,19 @@ import org.ice1000.julia.lang.executeCommand
 import org.ice1000.julia.lang.module.juliaPath
 import org.ice1000.julia.lang.module.versionOf
 import org.ice1000.julia.lang.shouldBe
+import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
+
+
+private fun assumeMac() = assumeTrue("Mac-only test", SystemInfo.isMac)
+private fun assumeNonCI() = assumeTrue("Non CI test", System.getenv("CI").isNullOrBlank())
+private fun assumeNotWindows() = assumeFalse("Non-windows-only test", SystemInfo.isWindows)
+private fun assumeWindows() = assumeTrue("Windows-only test", SystemInfo.isWindows)
 
 private fun main(args: Array<String>) {
 	val process = Runtime.getRuntime().exec("$juliaPath -q").also {
@@ -74,8 +82,7 @@ class ExecutionTest {
 
 	@Test
 	fun testVersion() {
-		if (System.getenv("CI").isNullOrBlank())
-			println(versionOf(juliaPath))
+		println(versionOf(juliaPath))
 	}
 
 	/**
@@ -84,6 +91,7 @@ class ExecutionTest {
 	 */
 	@Test(timeout = 5000L)
 	fun testTimeout() {
+		assumeNonCI()
 		measureTimeMillis {
 			// just test if it will throw exceptions
 			executeCommand("git clone https://github.com/jetbrains/intellij-community", timeLimit = 500L)
@@ -96,9 +104,8 @@ class ExecutionTest {
 class JuliaExecutionTest {
 	@Test
 	fun testDocker() {
-		//Windows
-		if (!System.getenv("CI").isNullOrBlank()) return
-		if (!SystemInfo.isWindows) return
+		assumeNonCI()
+		assumeWindows()
 		val winCD = "%CD%"
 		val unixPWD = "\$PWD"
 		val currentDir = if (SystemInfo.isWindows) winCD else unixPWD
@@ -115,6 +122,8 @@ class JuliaExecutionTest {
 
 	@Test
 	fun testUnixDocker() {
+		assumeNonCI()
+		assumeNotWindows()
 		val pwd = File(".").absolutePath
 		val juliaFile = "ParseFunctions.jl"
 		val containerName = "julia"
@@ -153,9 +162,10 @@ class JuliaConfig {
 class JuliaConsoleTest {
 	@Test
 	fun testShouldFolding() {
-		if (!System.getenv("CI").isNullOrBlank()) return
-		if (!SystemInfo.isMac) return
+		assumeNonCI()
+		assumeMac()
 		val command = "/Applications/Julia-0.6.app/Contents/Resources/julia/bin/julia --check-bounds=no --history-file=no --inline=no --color=no --math-mode=ieee --handle-signals=no --startup-file=no --optimize=0 --compile=yes -q /Users/paul/IdeaProjects/julia-project-test2/src/Jul.jl 23 f jh"
 		JuliaConsoleFolding().shouldFoldLine(command) shouldBe true
 	}
 }
+
