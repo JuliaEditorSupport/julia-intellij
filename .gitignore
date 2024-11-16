@@ -6,7 +6,6 @@
 build/
 out/
 classes/
-gen/
 
 .idea/*.xml
 .idea/modules/
