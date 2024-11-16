@@ -31,7 +31,7 @@ repositories {
 val pluginProjectsNames = setOf<String>("julia-intellij")
 
 allprojects {
-	val isPlugin = project.name in pluginProjectsNames || true // this is for further usage of modularization
+	val isPlugin = project.name in pluginProjectsNames
 	apply(plugin = "org.jetbrains.grammarkit")
 	apply(plugin = if (isPlugin) "org.jetbrains.intellij.platform" else "org.jetbrains.intellij.platform.module")
 	apply(plugin = "com.github.kt3k.coveralls")
